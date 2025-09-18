@@ -1,4 +1,7 @@
-import { Tabs, Tab, Box, Typography, Grid, Paper, TextField, Button, Switch, FormControlLabel } from "@mui/material";
+import {
+  Tabs, Tab, Box, Typography, Grid, Paper, TextField, Button, Switch,
+  FormControlLabel, Avatar, Stack, Divider
+} from "@mui/material";
 import { useState } from "react";
 import SectionCard from "../components/SectionCard";
 
@@ -15,13 +18,27 @@ export default function Settings() {
         <Grid container spacing={2}>
           <Grid item xs={12} md={4}>
             <SectionCard title="Perfil">
-              <TextField label="Nombre" fullWidth sx={{ mb:2 }} />
-              <TextField label="Email" fullWidth />
+              <Stack spacing={2} alignItems="center">
+                <Avatar src="/avatar.png" sx={{ width: 84, height: 84 }} />
+                <TextField label="Nombre" fullWidth defaultValue="Pedro A. Rodríguez" />
+                <TextField label="Email" fullWidth defaultValue="pedro@ejemplo.com" />
+                <Button variant="contained" sx={{ bgcolor:"#E1261C" }}>Guardar</Button>
+              </Stack>
             </SectionCard>
           </Grid>
           <Grid item xs={12} md={8}>
-            <SectionCard title="Equipo / Usuarios" actions={<Button variant="contained" sx={{ bgcolor:"#E1261C" }}>Invitar miembro</Button>}>
-              <Paper variant="outlined" sx={{ p:2 }}>Lista de usuarios (placeholder)…</Paper>
+            <SectionCard title="Equipo / Usuarios" actions={<Button size="small" variant="outlined">Invitar miembro</Button>}>
+              <Paper variant="outlined" sx={{ p:2 }}>
+                <Stack divider={<Divider />} spacing={1}>
+                  {["Claudio Cantú", "Paulo Ibarra", "Diego Roca", "Francisco Pérez"].map((n,i)=>(
+                    <Box key={i} sx={{ display:"flex", alignItems:"center", gap:1 }}>
+                      <Avatar sx={{ width: 28, height: 28 }}>{n.split(" ")[0][0]}</Avatar>
+                      <Typography sx={{ color:"#111" }}>{n}</Typography>
+                      <Box sx={{ ml:"auto", color:"#6b7280", fontSize:13 }}>Dev</Box>
+                    </Box>
+                  ))}
+                </Stack>
+              </Paper>
             </SectionCard>
           </Grid>
         </Grid>
@@ -30,6 +47,7 @@ export default function Settings() {
       {tab===1 && (
         <SectionCard title="Preferencias">
           <FormControlLabel control={<Switch defaultChecked />} label="Notificaciones" />
+          <FormControlLabel control={<Switch />} label="Modo compacto" />
         </SectionCard>
       )}
     </>

@@ -1,13 +1,16 @@
-import { Grid, Typography, Paper, List, ListItem, ListItemText, Switch, FormControlLabel, RadioGroup, Radio, FormControl, FormLabel, FormGroup, Checkbox } from "@mui/material";
+import {
+  Grid, Typography, Paper, List, ListItem, ListItemText, Switch, FormControlLabel,
+  RadioGroup, Radio, FormControl, FormLabel, FormGroup, Checkbox, Chip, Stack
+} from "@mui/material";
 import SectionCard from "../components/SectionCard";
 
 export default function Notifications() {
-  const items = [
-    ["Nueva tarea asignada","Hoy 10:45 – Tareas"],
-    ["Sprint Frontend completado","Ayer 16:20 – Sprints"],
-    ["Actualización en Proyecto A","22 de abril, 10:15 – Proyectos"],
-    ["Comentario en tarea","21 de abril – Tareas"],
-    ["Nuevo miembro en equipo","20 de abril, 8:30 – Equipo"]
+  const data = [
+    { t:"Nueva tarea asignada", d:"Hoy 10:45 – Tareas", type:"Tareas" },
+    { t:"Sprint Frontend completado", d:"Ayer 16:20 – Sprints", type:"Sprints" },
+    { t:"Actualización en Proyecto A", d:"22 de abril, 10:15 – Proyectos", type:"Proyectos" },
+    { t:"Comentario en tarea", d:"21 de abril – Tareas", type:"Tareas" },
+    { t:"Nuevo miembro en equipo", d:"20 de abril, 8:30 – Equipo", type:"Equipo" }
   ];
 
   return (
@@ -21,6 +24,7 @@ export default function Notifications() {
               <FormControlLabel control={<Checkbox defaultChecked />} label="Proyectos" />
               <FormControlLabel control={<Checkbox defaultChecked />} label="Tareas" />
               <FormControlLabel control={<Checkbox defaultChecked />} label="Sprints" />
+              <FormControlLabel control={<Checkbox defaultChecked />} label="Equipo" />
             </FormGroup>
             <FormControl sx={{ mt:2 }}>
               <FormLabel>Estado</FormLabel>
@@ -29,17 +33,22 @@ export default function Notifications() {
                 <FormControlLabel value="read" control={<Radio />} label="Leídas" />
               </RadioGroup>
             </FormControl>
+            <FormControlLabel sx={{ mt:1 }} control={<Switch defaultChecked />} label="Activar notificaciones" />
           </SectionCard>
         </Grid>
+
         <Grid item xs={12} md={9}>
-          <SectionCard title="Lista" actions={<FormControlLabel control={<Switch defaultChecked />} label="On" />}>
+          <SectionCard title="Bandeja">
             <Paper variant="outlined" sx={{ p:0 }}>
               <List>
-                {items.map((x,i)=>(
+                {data.map((x,i)=>(
                   <ListItem key={i} divider
                     secondaryAction={<Typography sx={{ color:"#2563eb", cursor:"pointer" }}>Marcar como leído</Typography>}>
-                    <ListItemText primaryTypographyProps={{ sx:{ color:"#111", fontWeight:700 } }}
-                                  primary={x[0]} secondary={x[1]} />
+                    <ListItemText
+                      primaryTypographyProps={{ sx:{ color:"#111", fontWeight:700, display:"flex", alignItems:"center", gap:1 } }}
+                      primary={<><span>{x.t}</span> <Chip size="small" label={x.type} /></>}
+                      secondary={x.d}
+                    />
                   </ListItem>
                 ))}
               </List>
@@ -50,5 +59,6 @@ export default function Notifications() {
     </>
   );
 }
+
 
 
