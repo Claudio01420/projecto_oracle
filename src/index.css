@@ -31,6 +31,16 @@ body { font-size: var(--fs-base); }
   }
 }
 
+/* Paulo */
+@media (min-width: 2560px) and (max-width: 3199.98px){
+  :root{
+    --fs-base: 18px;
+    --container-max: 1680px;
+    --sidebar-w: 320px;
+    --gap: 22px;
+  }
+}
+
 /* Francisco */
 @media (min-width: 2560px), (min-aspect-ratio: 21/9){
   :root{
@@ -52,7 +62,7 @@ body { font-size: var(--fs-base); }
   }
 }
 
-/* Paulo y Roca */
+/* Roca y Adrian */
 .bp-badge{
   position: fixed;
   right: 10px;
@@ -74,9 +84,14 @@ body { font-size: var(--fs-base); }
 @media (min-width: 1920px) and (max-width: 2559.98px){
   .bp-badge::after{ content: "1080p (FHD)"; }
 }
+
+@media (min-width: 2560px) and (max-width: 3199.98px){
+  .bp-badge::after{ content: "2K (QHD)"; }
+}
 @media (min-width: 2560px), (min-aspect-ratio: 21/9){
   .bp-badge::after{ content: "UltraWide"; }
 }
 @media (min-width: 3840px){
   .bp-badge::after{ content: "4K"; }
 }
+
