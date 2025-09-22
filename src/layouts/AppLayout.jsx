@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import {
   AppBar, Toolbar, Box, Button, Container, Drawer, List, ListItemButton,
-  ListItemText, Avatar, Tooltip, Typography
+  ListItemText, Avatar, Tooltip
 } from "@mui/material";
 import DashboardRounded from "@mui/icons-material/DashboardRounded";
 import AssignmentRounded from "@mui/icons-material/AssignmentRounded";
@@ -11,9 +11,9 @@ import ChatRounded from "@mui/icons-material/ChatRounded";
 import NotificationsRounded from "@mui/icons-material/NotificationsRounded";
 import SettingsRounded from "@mui/icons-material/SettingsRounded";
 
-const drawerWidth = 260;
-const NAV_BG = "#1b1b1b";     // gris oscuro / negro suave
-const NAV_BORDER = "#2a2a2a"; // línea sutil
+const NAV_BG = "#1b1b1b";     
+const NAV_BORDER = "#2a2a2a";  
+const APPBAR_H = 64;           
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: <DashboardRounded fontSize="small" /> },
@@ -30,7 +30,7 @@ export default function AppLayout() {
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f4f6f9" }}>
-      {/* TOPBAR FIJO (fixed) en gris oscuro */}
+      {}
       <AppBar
         position="fixed"
         elevation={0}
@@ -38,16 +38,28 @@ export default function AppLayout() {
           bgcolor: NAV_BG,
           color: "#fff",
           borderBottom: `1px solid ${NAV_BORDER}`,
+          height: APPBAR_H,
+          justifyContent: "center", 
         }}
       >
-        <Toolbar sx={{ gap: 2 }}>
-          {/* Solo logo ORACLE */}
+        <Toolbar sx={{ gap: 2, minHeight: APPBAR_H }}>
+          {}
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Box component="img" src="/Oracle_logo.png" alt="Oracle" sx={{ height: 24, display: "block" }} />
+            <Box
+              component="img"
+              src="/Oracle_logo.png"
+              alt="Oracle"
+              sx={{ height: 24, display: "block" }}
+            />
           </Box>
 
           <Box sx={{ flex: 1 }} />
-          <Button component={Link} to="/" size="small" sx={{ color: "#fff", textTransform: "none", opacity: .9, "&:hover": { opacity: 1 } }}>
+          <Button
+            component={Link}
+            to="/"
+            size="small"
+            sx={{ color: "#fff", textTransform: "none", opacity: .9, "&:hover": { opacity: 1 } }}
+          >
             Home
           </Button>
           <Tooltip title="Mi perfil">
@@ -56,25 +68,24 @@ export default function AppLayout() {
         </Toolbar>
       </AppBar>
 
-      {/* SIDEBAR PERMANENTE y FIJO bajo el AppBar */}
+      {}
       <Drawer
         variant="permanent"
+        open
         sx={{
           display: { xs: "none", md: "block" },
-          width: drawerWidth,
+          width: "var(--sidebar-w)", 
           flexShrink: 0,
           "& .MuiDrawer-paper": {
-            width: drawerWidth,
+            width: "var(--sidebar-w)",
             boxSizing: "border-box",
             bgcolor: NAV_BG,
             color: "#fff",
             borderRight: `1px solid ${NAV_BORDER}`,
-            // estas 2 líneas lo fijan debajo del AppBar y evitan que “suba” al hacer scroll
-            top: 64,                      // altura del AppBar en desktop
-            height: "calc(100% - 64px)",  // ocupa el resto de la ventana
+            top: APPBAR_H,                         
+            height: `calc(100% - ${APPBAR_H}px)`,  
           },
         }}
-        open
       >
         <Box sx={{ px: 2, py: 2, fontWeight: 800, letterSpacing: .3, opacity: .9 }}>
           MENÚ
@@ -95,8 +106,13 @@ export default function AppLayout() {
                   px: 1.25,
                   color: "#fff",
                   bgcolor: selected ? "rgba(225,38,28,.22)" : "transparent",
-                  "& .MuiListItemText-primary": { fontWeight: selected ? 800 : 600, letterSpacing: .2 },
-                  "&:hover": { bgcolor: selected ? "rgba(225,38,28,.28)" : "rgba(255,255,255,.06)" },
+                  "& .MuiListItemText-primary": {
+                    fontWeight: selected ? 800 : 600,
+                    letterSpacing: .2
+                  },
+                  "&:hover": {
+                    bgcolor: selected ? "rgba(225,38,28,.28)" : "rgba(255,255,255,.06)"
+                  },
                   transition: "background-color .15s ease",
                 }}
               >
@@ -110,19 +126,23 @@ export default function AppLayout() {
         </List>
       </Drawer>
 
-      {/* CONTENIDO: separo del AppBar y del Drawer fijo */}
+      {}
       <Box
         component="main"
         sx={{
-          ml: { md: `${drawerWidth}px` },   // deja espacio para el sidebar fijo
+          ml: { md: "var(--sidebar-w)" }, 
         }}
       >
-        {/* Espaciador con la altura del AppBar para que el contenido no quede oculto */}
-        <Toolbar />
+        {}
+        <Toolbar sx={{ minHeight: APPBAR_H }} />
         <Container sx={{ py: 4 }}>
           <Outlet />
         </Container>
       </Box>
+
+      {}
+      <Box className="bp-badge" />
     </Box>
   );
 }
+
