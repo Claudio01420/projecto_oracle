@@ -31,6 +31,11 @@ public class ToDoItemService {
         return toDoItemRepository.save(toDoItem);
     }
 
+    public ToDoItem anadirprueba(){
+            ToDoItem toDoItem = new ToDoItem(01,"Descripcion de prueba",null,false);
+        return toDoItemRepository.save(toDoItem);
+    }
+
     public boolean deleteToDoItem(int id){
         try{
             toDoItemRepository.deleteById(id);

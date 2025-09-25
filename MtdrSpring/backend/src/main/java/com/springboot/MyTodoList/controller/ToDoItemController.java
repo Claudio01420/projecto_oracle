@@ -30,6 +30,12 @@ public class ToDoItemController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @GetMapping(value = "/prueba")
+        public ToDoItem prueba(){
+            return toDoItemService.anadirprueba();
+    }
+
     //@CrossOrigin
     @PostMapping(value = "/todolist")
     public ResponseEntity addToDoItem(@RequestBody ToDoItem todoItem) throws Exception{
