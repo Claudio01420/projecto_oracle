@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "1.0.0",
+  "app": {
+    "name": "TMDV",
+    "environment": "development"
+  },
+  "server": {
+    "port": 8080,
+    "baseUrl": "http://localhost:8080",
+    "corsAllowedOrigins": ["http://localhost:3000", "http://10.14.255.73:8025"]
+  },
+  "frontend": {
+    "publicUrl": "http://localhost:3000"
+  },
+  "database": {
+    "vendor": "oracle",
+    "host": "localhost",
+    "port": 1521,
+    "serviceName": "TMDV",
+    "userEnv": "amin", 
+    "passEnv": "none0001",
+    "sslMode": "disable",
+    "pool": { "min": 1, "max": 4, "idleMs": 30000 }
+  },
+  "auth": {
+    "issuer": "http://localhost:8080/auth/issuer",
+    "audience": "tmdv-local",
+    "clientIdEnv": "OIDC_CLIENT_ID",
+    "clientSecretEnv": "OIDC_CLIENT_SECRET"
+  },
+  "api": {
+    "gatewayUrl": "http://localhost:8080/api",
+    "timeoutMs": 15000,
+    "retries": 0
+  },
+  "features": {
+    "chatbot": true,
+    "dashboards": true,
+    "notifications": true,
+    "experimentalWearables": true
+  },
+  "logging": {
+    "level": "debug",
+    "json": false,
+    "trace": true
+  },
+  "telemetry": {
+    "enabled": false,
+    "otlpEndpointEnv": "OTLP_ENDPOINT"
+  },
+  "rateLimit": {
+    "enabled": false,
+    "requestsPerMin": 0
+  },
+  "cache": {
+    "enabled": false,
+    "ttlSeconds": 0
+  },
+  "thirdParty": {
+    "telegram": {
+      "botTokenEnv": "7709782232:AAHaubKqmiHvMbEqkE4TfxxhFbYfnyjhJH0",
+      "webhookUrl": "http://localhost:8080/webhook/telegram"
+    }
+  },
+  "oci": {
+    "region": "us-phoenix-1",
+    "bucketAssets": "tmdv-dev-assets",
+    "compartmentOcidEnv": "OCI_COMPARTMENT_OCID"
+  }
+}
