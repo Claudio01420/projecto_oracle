@@ -95,4 +95,3 @@ Este directorio contiene los archivos de **configuración** para la aplicación 
 export DB_USER=developer
 export DB_PASSWORD=secret
 npm run dev -- --config=config/development.json
-
