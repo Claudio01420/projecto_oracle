@@ -67,4 +67,5 @@
     "bucketAssets": "tmdv-prod-assets",
     "compartmentOcidEnv": "OCI_COMPARTMENT_OCID"
   }
-}
+}  
+
