@@ -1,0 +1,13 @@
+{
+  "DB_HOST": "prod-db.ficohsa.net",
+  "DB_PORT": 1521,
+  "DB_NAME": "reacttodosozzj_tp",
+  "DB_SCHEMA": "CLAUMATITO",
+  "API_KEY": "prod-xyz789",
+  "FEATURE_FLAGS": {
+    "fim_monitoring": true,
+    "lbtr_integration": true,
+    "telegram_bot": true,
+    "kpi_dashboard": true
+  }
+}
