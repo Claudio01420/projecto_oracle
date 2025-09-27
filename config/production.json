@@ -1,13 +1,70 @@
 {
-  "DB_HOST": "prod-db.ficohsa.net",
-  "DB_PORT": 1521,
-  "DB_NAME": "reacttodosozzj_tp",
-  "DB_SCHEMA": "CLAUMATITO",
-  "API_KEY": "prod-xyz789",
-  "FEATURE_FLAGS": {
-    "fim_monitoring": true,
-    "lbtr_integration": true,
-    "telegram_bot": true,
-    "kpi_dashboard": true
+  "schemaVersion": "1.0.0",
+  "app": {
+    "name": "TMDV",
+    "environment": "production"
+  },
+  "server": {
+    "port": 8080,
+    "baseUrl": "https://api.tmdv.example.com",
+    "corsAllowedOrigins": ["https://app.tmdv.example.com"]
+  },
+  "frontend": {
+    "publicUrl": "https://app.tmdv.example.com"
+  },
+  "database": {
+    "vendor": "oracle",
+    "host": "adb.tmdv.example.com",
+    "port": 1522,
+    "serviceName": "TMDVPROD_tp",
+    "userEnv": "DB_USER",
+    "passEnv": "DB_PASSWORD",
+    "sslMode": "require",
+    "pool": { "min": 4, "max": 16, "idleMs": 30000 }
+  },
+  "auth": {
+    "issuer": "https://auth.tmdv.example.com/issuer",
+    "audience": "tmdv-prod",
+    "clientIdEnv": "OIDC_CLIENT_ID",
+    "clientSecretEnv": "OIDC_CLIENT_SECRET"
+  },
+  "api": {
+    "gatewayUrl": "https://api.tmdv.example.com/api",
+    "timeoutMs": 25000,
+    "retries": 2
+  },
+  "features": {
+    "chatbot": true,
+    "dashboards": true,
+    "notifications": true,
+    "experimentalWearables": false
+  },
+  "logging": {
+    "level": "warn",
+    "json": true,
+    "trace": false
+  },
+  "telemetry": {
+    "enabled": true,
+    "otlpEndpointEnv": "OTLP_ENDPOINT"
+  },
+  "rateLimit": {
+    "enabled": true,
+    "requestsPerMin": 60
+  },
+  "cache": {
+    "enabled": true,
+    "ttlSeconds": 300
+  },
+  "thirdParty": {
+    "telegram": {
+      "botTokenEnv": "TELEGRAM_BOT_TOKEN",
+      "webhookUrl": "https://api.tmdv.example.com/webhook/telegram"
+    }
+  },
+  "oci": {
+    "region": "us-phoenix-1",
+    "bucketAssets": "tmdv-prod-assets",
+    "compartmentOcidEnv": "OCI_COMPARTMENT_OCID"
   }
 }
