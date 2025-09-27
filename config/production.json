@@ -6,11 +6,11 @@
   },
   "server": {
     "port": 8080,
-    "baseUrl": "https://api.tmdv.example.com",
-    "corsAllowedOrigins": ["https://app.tmdv.example.com"]
+    "baseUrl": "https://api.tmdv.example.com/",
+    "corsAllowedOrigins": ["https://app.tmdv.example.com/"]
   },
   "frontend": {
-    "publicUrl": "https://app.tmdv.example.com"
+    "publicUrl": "https://app.tmdv.example.com/"
   },
   "database": {
     "vendor": "oracle",
