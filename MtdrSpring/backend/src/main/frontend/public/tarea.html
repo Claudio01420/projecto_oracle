@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Tareas</title>
+  <link rel="stylesheet" href="Css/tarea.css"/>
+</head>
+<body>
+
+  <!-- Topbar fija -->
+  <header class="topbar">
+      <div class="brand">
+  <img src="image/Oracle_logo.png" alt="Oracle Logo" style="max-width:160px; height:auto;" />
+      </div>
+    <div class="topbar-right">
+      <!-- Botón Usuario -->
+      <div class="user-circle">U</div>
+      <!-- Botón Logout -->
+      <a href="/logout" class="logout-btn">⏻ Salir</a>
+    </div>
+  </header>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="aside">
+      <nav class="menu">
+        <a class="mi" href="/dashboard.html"><span>📊</span> Dashboard</a>
+        <a class="mi" href="/projects.html"><span>📁</span> Proyectos</a>
+        <a class="mi active" href="#"><span>✅</span> Tareas</a>
+        <a class="mi" href="/KPIs.html"><span>📈</span> KPIs</a>
+        <a class="mi" href="/chatbot.html"><span>🤖</span> Chatbot</a>
+        <a class="mi" href="/notifications.html"><span>🔔</span> Notificaciones</a>
+        <a class="mi" href="/settings.html"><span>⚙️</span> Ajustes</a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <!-- Título -->
+      <section class="card card-soft">
+        <h1 class="h4">Tareas</h1>
+        <div class="progress-row">
+          <div class="label">Avance general</div>
+          <div class="progress"><span style="width:65%"></span></div>
+          <div class="percent">65%</div>
+        </div>
+      </section>
+
+      <!-- Tablero tipo Kanban -->
+      <section class="board">
+        <article class="col">
+          <header class="col-head">Por hacer</header>
+          <div class="task">
+            <div class="task-title">Diseñar mockups</div>
+            <div class="task-meta">Alta</div>
+          </div>
+          <div class="task">
+            <div class="task-title">Presentación</div>
+            <div class="task-meta">Alta</div>
+          </div>
+        </article>
+
+        <article class="col">
+          <header class="col-head">En progreso</header>
+          <div class="task">
+            <div class="task-title">Doc técnica</div>
+            <div class="task-meta">En curso</div>
+          </div>
+          <div class="task">
+            <div class="task-title">API REST</div>
+            <div class="task-meta">Sprint 3</div>
+          </div>
+        </article>
+
+        <article class="col">
+          <header class="col-head">Hecho</header>
+          <div class="task">
+            <div class="task-title">Integraciones básicas</div>
+            <div class="task-meta">OK</div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+</body>
+</html>

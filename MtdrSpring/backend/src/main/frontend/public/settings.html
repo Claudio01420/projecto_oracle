@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Ajustes</title>
+  <link rel="stylesheet" href="Css/settings.css"/>
+</head>
+<body>
+  <!-- Topbar -->
+  <header class="topbar">
+          <div class="brand">
+        <img src="/image/Oracle_logo.png" alt="Oracle Logo"/>
+      </div>
+    <div class="topbar-right">
+      <div class="user-circle">U</div>
+      <a href="/logout" class="logout-btn">⏻ Salir</a>
+    </div>
+  </header>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="aside">
+      <nav class="menu">
+        <a class="mi" href="/dashboard.html">📊 Dashboard</a>
+        <a class="mi" href="/projects.html">📁 Proyectos</a>
+        <a class="mi" href="/tarea.html">✅ Tareas</a>
+        <a class="mi" href="/kpis.html">📈 KPIs</a>
+        <a class="mi" href="/chatbot.html">🤖 Chatbot</a>
+        <a class="mi" href="/notifications.html">🔔 Notificaciones</a>
+        <a class="mi active" href="#">⚙️ Ajustes</a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <section class="card card-soft">
+        <h1 class="h4">Ajustes</h1>
+
+        <!-- Tabs simuladas -->
+        <div class="tabs">
+          <button class="tab active">Perfil</button>
+          <button class="tab">Preferencias</button>
+        </div>
+
+        <div class="grid">
+          <!-- Perfil -->
+          <div class="col">
+            <h3 class="h6">Perfil</h3>
+            <div class="profile">
+              <img src="/avatar.png" alt="Avatar" class="avatar"/>
+              <label>Nombre
+                <input type="text" value="Pedro A. Rodríguez"/>
+              </label>
+              <label>Email
+                <input type="email" value="pedro@ejemplo.com"/>
+              </label>
+              <label>Contraseña
+                <input type="password" value="••••••••"/>
+              </label>
+              <button class="btn-primary">Guardar</button>
+            </div>
+          </div>
+
+          <!-- Equipo -->
+          <div class="col">
+            <h3 class="h6">Equipo / Usuarios</h3>
+            <button class="btn-outline">Invitar miembro</button>
+            <ul class="team">
+              <li draggable="true"><span class="circle">C</span> Claudio Cantú <span class="role">Dev</span></li>
+              <li draggable="true"><span class="circle">P</span> Paulo Ibarra <span class="role">Dev</span></li>
+              <li draggable="true"><span class="circle">D</span> Diego Roca <span class="role">Dev</span></li>
+              <li draggable="true"><span class="circle">F</span> Francisco Pérez <span class="role">Dev</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Preferencias -->
+        <div class="prefs">
+          <h3 class="h6">Preferencias</h3>
+          <label><input type="checkbox" checked/> Notificaciones</label>
+          <label><input type="checkbox"/> Modo compacto</label>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

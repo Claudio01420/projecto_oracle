@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Proyectos</title>
+  <link rel="stylesheet" href="Css/projects.css"/>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <header class="topbar">
+      <div class="brand">
+  <img src="image/Oracle_logo.png" alt="Oracle Logo" style="max-width:160px; height:auto;" />
+      </div>
+    <div class="topbar-right">
+      <!-- Botón Usuario -->
+      <div class="user-circle">U</div>
+      <!-- Botón Logout -->
+      <a href="/logout" class="logout-btn">⏻ Salir</a>
+    </div>
+  </header>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="aside">
+      <nav class="menu">
+        <a class="mi" href="/dashboard.html"><span>📊</span> Dashboard</a>
+        <a class="mi active" href="#"><span>📁</span> Proyectos</a>
+        <a class="mi" href="/tarea.html"><span>✅</span> Tareas</a>
+        <a class="mi" href="/KPIs.html"><span>📈</span> KPIs</a>
+        <a class="mi" href="/chatbot.html"><span>🤖</span> Chatbot</a>
+        <a class="mi" href="/notifications.html"><span>🔔</span> Notificaciones</a>
+        <a class="mi" href="/settings.html"><span>⚙️</span> Ajustes</a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <!-- Card: Toolbar -->
+      <section class="card card-soft">
+        <h1 class="h4">Proyectos</h1>
+        <div class="toolbar">
+          <div class="field">
+            <label for="buscar">Buscar</label>
+            <input id="buscar" type="text" placeholder="Buscar proyecto…">
+          </div>
+          <div class="field">
+            <label for="filtro">Filtrar</label>
+            <select id="filtro">
+              <option>Todos</option>
+              <option>Pendiente</option>
+              <option>En curso</option>
+              <option>Finalizado</option>
+            </select>
+          </div>
+          <a class="btn btn-primary" href="#!" title="Nuevo proyecto">+ Nuevo</a>
+        </div>
+      </section>
+
+      <div class="grid">
+        <!-- Lista -->
+        <section class="card">
+          <div class="row-sb">
+            <div class="muted small"><strong>2</strong> resultado(s) · 2 total(es)</div>
+            <div class="chips">
+              <span class="chip">Todos</span>
+              <span class="chip chip-red">Pendiente</span>
+              <span class="chip">En curso</span>
+              <span class="chip">Finalizado</span>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th style="width:80px">ID</th>
+                  <th>Nombre</th>
+                  <th style="width:130px">Estado</th>
+                  <th style="width:200px">Avance</th>
+                  <th style="width:120px">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="row-alt">
+                  <td>1</td>
+                  <td>Proyecto A</td>
+                  <td><span class="chip state-done">Finalizado</span></td>
+                  <td>
+                    <div class="progress"><span style="width:100%"></span></div>
+                    <div class="tiny muted">100%</div>
+                  </td>
+                  <td>
+                    <a class="btn btn-outline btn-xs" href="#!">Borrar</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Proyecto B</td>
+                  <td><span class="chip state-run">En curso</span></td>
+                  <td>
+                    <div class="progress"><span style="width:70%"></span></div>
+                    <div class="tiny muted">70%</div>
+                  </td>
+                  <td>
+                    <a class="btn btn-outline btn-xs" href="#!">Borrar</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pager">
+            <button class="btn btn-outline btn-xs" disabled>←</button>
+            <span class="tiny muted">Página 1 de 1</span>
+            <button class="btn btn-outline btn-xs" disabled>→</button>
+          </div>
+        </section>
+
+        <!-- Detalle -->
+        <aside class="card">
+          <h2 class="h6">Detalle del Proyecto</h2>
+          <div class="detail">
+            <div class="muted">Selecciona un proyecto para ver el detalle.</div>
+            <hr class="sep">
+            <div class="detail-item">
+              <div class="label">Nombre</div>
+              <div class="value">Proyecto B</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">Descripción</div>
+              <div class="value">Descripción del Proyecto B</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">Inicio</div>
+              <div class="value">01/02/2025</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">Fin</div>
+              <div class="value">01/08/2025</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">Estado</div>
+              <div class="value"><span class="chip state-run">En curso</span></div>
+            </div>
+            <div class="detail-item">
+              <div class="label">Avance</div>
+              <div class="value">
+                <div class="progress"><span style="width:70%"></span></div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

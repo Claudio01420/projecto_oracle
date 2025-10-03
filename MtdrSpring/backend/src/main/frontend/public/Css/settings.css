@@ -1,0 +1,57 @@
+:root {
+  --bg:#f5f6f8;
+  --ink:#111;
+  --line:#e9edf2;
+  --card:#fff;
+  --brand:#E1261C;
+  --brand-hover:#c41f15;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui;background:var(--bg);color:var(--ink)}
+
+.topbar{position:fixed;top:0;left:0;right:0;height:50px;background:#111;color:#fff;
+  display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:200}
+.home-btn{color:#fff;text-decoration:none;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.user-circle{width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:800}
+.logout-btn{background:var(--brand);color:#fff;padding:6px 12px;border-radius:6px;text-decoration:none;font-weight:700}
+.logout-btn:hover{background:var(--brand-hover)}
+
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh;padding-top:50px}
+.aside{background:#151515;color:#fff;padding:18px 14px;position:sticky;top:50px;height:calc(100vh - 50px)}
+.brand{text-align:center;margin-bottom:20px}
+.brand img{max-width:160px;height:auto}
+.menu{display:flex;flex-direction:column;gap:8px}
+.mi{padding:12px 14px;border-radius:12px;color:#e5e7eb;text-decoration:none;display:flex;gap:10px}
+.mi:hover{background:#1f1f1f}
+.mi.active{background:#3a1b1b;color:#fff}
+
+.main{padding:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.card-soft{background:linear-gradient(180deg,#fff 0%,#fafbfc 100%)}
+.h4{font-size:24px;font-weight:900;margin-bottom:16px}
+.h6{font-size:18px;font-weight:800;margin-bottom:10px}
+
+.tabs{display:flex;gap:10px;margin-bottom:16px}
+.tab{padding:8px 14px;border-radius:8px;background:#eee;border:none;font-weight:700;cursor:pointer}
+.tab.active{background:var(--brand);color:#fff}
+
+.grid{display:grid;gap:20px}
+@media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
+
+.profile{display:flex;flex-direction:column;gap:10px}
+.avatar{width:84px;height:84px;border-radius:50%;margin-bottom:8px}
+input{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px}
+.btn-primary{background:var(--brand);color:#fff;padding:8px;border:none;border-radius:8px;font-weight:700;cursor:pointer}
+.btn-primary:hover{background:var(--brand-hover)}
+.btn-outline{border:1px solid var(--line);background:#fff;padding:6px 10px;border-radius:6px;margin-bottom:10px;cursor:pointer}
+
+.team{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.team li{padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;display:flex;align-items:center;gap:8px;cursor:grab}
+.circle{width:28px;height:28px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+.role{margin-left:auto;font-size:13px;color:#555}
+
+.prefs{margin-top:20px;padding-top:10px;border-top:1px solid var(--line)}
+.prefs label{display:flex;align-items:center;gap:8px;margin-bottom:6px}

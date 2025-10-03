@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="Css/dashboard.css"/>
+</head>
+
+
+  <!-- HEADER NEGRO -->
+  <header class="topbar">
+      <div class="brand">
+  <img src="image/Oracle_logo.png" alt="Oracle Logo" style="max-width:160px; height:auto;" />
+      </div>
+    <div class="topbar-right">
+      <!-- Botón Usuario -->
+      <div class="user-circle">U</div>
+      <!-- Botón Logout -->
+      <a href="/logout" class="logout-btn">⏻ Salir</a>
+    </div>
+  </header>
+
+<body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="aside">
+          <div class="topbar-left">
+    </div>
+      <nav class="menu">
+        <a class="mi active" href="#"><span>📊</span> Dashboard</a>
+        <a class="mi" href="/projects.html"><span>📁</span> Proyectos</a>
+        <a class="mi" href="/tarea.html"><span>✅</span> Tareas</a>
+        <a class="mi" href="/KPIs.html"><span>📈</span> KPIs</a>
+        <a class="mi" href="/chatbot.html"><span>🤖</span> Chatbot</a>
+        <a class="mi" href="/notifications.html"><span>🔔</span> Notificaciones</a>
+        <a class="mi" href="/settings.html"><span>⚙️</span> Ajustes</a>
+      </nav>
+    </aside>
+
+    <!-- CONTENIDO -->
+    <main class="main">
+      <!-- Welcome / HERO del dashboard -->
+      <section class="card card-soft">
+        <h1 class="hero-title" style="margin:0">Bienvenido 👋</h1>
+        <p class="hero-desc" style="margin:.25rem 0 1rem">
+          Recorre los indicadores y atajos en orden. Te mostramos lo esencial primero.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#">+ Crear proyecto</a>
+          <a class="btn btn-outline" href="#">☑ Ver tareas</a>
+          <a class="btn btn-outline" href="#">📊 Ver KPIs</a>
+          <a class="btn btn-outline" href="#">🚀 Abrir Chatbot</a>
+        </div>
+      </section>
+
+      <!-- Banda: KPIs + Panel derecho -->
+      <section class="band band-gap">
+        <!-- KPIs -->
+        <div class="stack">
+          <article class="kpi kpi-pill">
+            <div class="kpi-ico">📶</div>
+            <div class="kpi-body">
+              <div class="kpi-value">87%</div>
+              <div class="kpi-title">Productividad</div>
+              <div class="kpi-sub">+5% esta semana</div>
+            </div>
+          </article>
+
+          <article class="kpi kpi-pill">
+            <div class="kpi-ico">🗒️</div>
+            <div class="kpi-body">
+              <div class="kpi-value">24</div>
+              <div class="kpi-title">Tareas activas</div>
+              <div class="kpi-sub">8 completadas hoy</div>
+            </div>
+          </article>
+
+          <article class="kpi kpi-pill">
+            <div class="kpi-ico">🚀</div>
+            <div class="kpi-body">
+              <div class="kpi-value">Sprint 12</div>
+              <div class="kpi-title">Sprint actual</div>
+              <div class="kpi-sub">5 días restantes</div>
+            </div>
+          </article>
+
+          <article class="kpi kpi-pill">
+            <div class="kpi-ico">❤️</div>
+            <div class="kpi-body">
+              <div class="kpi-value">Bajo</div>
+              <div class="kpi-title">Burnout Risk</div>
+              <div class="kpi-sub">Equipo saludable</div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Panel derecho -->
+        <aside class="panel card-soft">
+          <div class="panel-title"><span class="dot"></span><h3>Semana en una mirada</h3></div>
+          <div class="spark">
+            <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="fillRed" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(225,38,28,0.28)"/>
+                  <stop offset="100%" stop-color="rgba(225,38,28,0.02)"/>
+                </linearGradient>
+              </defs>
+              <path d="M0,30 C12,16 22,24 34,18 C46,13 56,20 66,14 C76,10 86,22 100,12 L100,40 L0,40 Z" fill="url(#fillRed)"/>
+              <path d="M0,30 C12,16 22,24 34,18 C46,13 56,20 66,14 C76,10 86,22 100,12" fill="none" stroke="#E1261C" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>
+            <div class="chip-row">
+              <span class="chip chip-red">+5% productividad</span>
+              <span class="chip">24 tareas</span>
+            </div>
+          </div>
+
+          <hr class="sep"/>
+          <div class="block-title"><strong>Próximos hitos</strong></div>
+          <div class="mini-card">
+            <div class="mini-left"><strong>Demo Sprint 12</strong></div>
+            <div class="mini-right"><span class="muted small">Vie 20</span></div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-left"><strong>Release 2.0</strong></div>
+            <div class="mini-right"><span class="muted small">Mar 24</span></div>
+          </div>
+
+          <hr class="sep"/>
+          <div class="block-title danger"><strong>Riesgos del sprint</strong></div>
+          <div class="row-sb small">
+            <span>2 tareas bloqueadas</span>
+            <span class="chip chip-red">Revisar hoy</span>
+          </div>
+        </aside>
+      </section>
+
+      <!-- Proyectos activos -->
+      <section class="card">
+        <div class="row-sb">
+          <h2 class="h6">Proyectos activos</h2>
+          <a class="link" href="#">Ir a proyectos ➜</a>
+        </div>
+        <div class="stack">
+          <article class="project">
+            <div class="row-sb">
+              <strong class="title">Sistema de Facturación v2.0</strong>
+              <span class="chip chip-outline-red">En Progreso</span>
+            </div>
+            <p class="muted small">Backend API y Frontend React</p>
+            <div class="progress"><span style="width:75%"></span></div>
+            <div class="muted tiny">75% completado</div>
+          </article>
+
+          <article class="project">
+            <div class="row-sb">
+              <strong class="title">Migración Base de Datos</strong>
+              <span class="chip chip-outline-red">Planificación</span>
+            </div>
+            <p class="muted small">Oracle 19c a Oracle 21c</p>
+            <div class="progress"><span style="width:25%"></span></div>
+            <div class="muted tiny">25% completado</div>
+          </article>
+        </div>
+      </section>
+
+      <!-- CTA final -->
+      <section class="card">
+        <div class="cta">
+          <div>
+            <div class="cta-title">¿Quieres insights más detallados?</div>
+            <div class="muted">Revisa los KPIs para detectar riesgos y oportunidades.</div>
+          </div>
+          <a class="btn btn-primary" href="#">Abrir KPIs</a>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

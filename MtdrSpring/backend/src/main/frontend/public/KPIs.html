@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>KPIs</title>
+  <link rel="stylesheet" href="Css/KPIs.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Barra superior -->
+  <header class="topbar">
+          <div class="brand">
+        <img src="/image/Oracle_logo.png" alt="Oracle Logo"/>
+      </div>
+    <div class="topbar-right">
+      <div class="user-circle" title="Usuario">U</div>
+      <a href="/logout" class="logout-btn">⏻ Salir</a>
+    </div>
+  </header>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="aside">
+      <nav class="menu">
+        <a class="mi" href="/dashboard.html"><span>📊</span> Dashboard</a>
+        <a class="mi" href="/projects.html"><span>📁</span> Proyectos</a>
+        <a class="mi" href="/tarea.html"><span>✅</span> Tareas</a>
+        <a class="mi active" href="#"><span>📈</span> KPIs</a>
+        <a class="mi" href="/chatbot.html"><span>🤖</span> Chatbot</a>
+        <a class="mi" href="/notifications.html"><span>🔔</span> Notificaciones</a>
+        <a class="mi" href="/settings.html"><span>⚙️</span> Ajustes</a>
+      </nav>
+    </aside>
+
+    <!-- Contenido principal -->
+    <main class="main">
+      <section class="card card-soft">
+        <h1 class="h4">KPIs de productividad y calidad</h1>
+        <div class="stats-grid">
+          <div class="stat"><div class="value">80%</div><div class="label">Task Completion</div></div>
+          <div class="stat"><div class="value">6.5h</div><div class="label">Tiempo prom. resolución</div></div>
+          <div class="stat"><div class="value">+18%</div><div class="label">Individual KPI Time</div></div>
+          <div class="stat"><div class="value">76%</div><div class="label">Uso de OCI</div></div>
+        </div>
+      </section>
+
+      <section class="charts">
+        <article class="card">
+          <h3 class="h6">% tareas completadas por sprint</h3>
+          <canvas id="barChart"></canvas>
+        </article>
+        <article class="card">
+          <h3 class="h6">Horas reales vs planificadas</h3>
+          <canvas id="lineChart"></canvas>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Datos
+    const donePct = [
+      { sprint: "S1", pct: 60 }, { sprint: "S2", pct: 65 },
+      { sprint: "S3", pct: 70 }, { sprint: "S4", pct: 75 }
+    ];
+    const hours = [
+      { s: "S1", reales: 12, plan: 10 },
+      { s: "S2", reales: 14, plan: 12 },
+      { s: "S3", reales: 13, plan: 12 },
+      { s: "S4", reales: 15, plan: 13 }
+    ];
+
+    // BarChart
+    new Chart(document.getElementById("barChart"), {
+      type: "bar",
+      data: {
+        labels: donePct.map(d => d.sprint),
+        datasets: [{
+          label: "% completadas",
+          data: donePct.map(d => d.pct),
+          backgroundColor: "#E1261C"
+        }]
+      }
+    });
+
+    // LineChart
+    new Chart(document.getElementById("lineChart"), {
+      type: "line",
+      data: {
+        labels: hours.map(d => d.s),
+        datasets: [
+          {
+            label: "Reales",
+            data: hours.map(d => d.reales),
+            borderColor: "#E1261C",
+            fill: false
+          },
+          {
+            label: "Plan",
+            data: hours.map(d => d.plan),
+            borderColor: "#374151",
+            borderDash: [5,5],
+            fill: false
+          }
+        ]
+      }
+    });
+  </script>
+
+</body>
+</html>

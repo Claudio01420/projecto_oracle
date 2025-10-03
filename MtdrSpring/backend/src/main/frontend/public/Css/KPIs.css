@@ -1,0 +1,54 @@
+:root{
+  --bg:#f5f6f8;
+  --ink:#111;
+  --muted:#6b7280;
+  --line:#e9edf2;
+  --line-2:#eef0f3;
+  --card:#fff;
+  --brand:#E1261C;
+  --brand-hover:#c41f15;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.04);
+}
+
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui;background:var(--bg);color:var(--ink)}
+
+/* Topbar */
+.topbar{position:fixed;top:0;left:0;right:0;height:50px;
+  background:#111;color:#fff;display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;z-index:200;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.home-btn{color:#fff;text-decoration:none;font-weight:700;padding:6px 12px;border-radius:6px}
+.home-btn:hover{background:rgba(255,255,255,.1)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.user-circle{width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer}
+.user-circle:hover{background:var(--brand-hover)}
+.logout-btn{background:var(--brand);color:#fff;font-weight:700;padding:6px 12px;border-radius:6px;text-decoration:none}
+.logout-btn:hover{background:var(--brand-hover)}
+
+/* Layout */
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh;padding-top:50px}
+.aside{background:#151515;color:#fff;padding:18px 14px;position:sticky;top:50px;height:calc(100vh - 50px)}
+.brand{text-align:center;margin:8px 0 20px}
+.brand img{max-width:160px;height:auto}
+.menu{display:flex;flex-direction:column;gap:8px}
+.mi{padding:12px 14px;border-radius:12px;color:#e5e7eb;text-decoration:none;display:flex;gap:10px}
+.mi:hover{background:#1f1f1f}
+.mi.active{background:#3a1b1b;color:#fff}
+
+/* Main */
+.main{padding:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow-sm);margin-bottom:16px}
+.card-soft{background:linear-gradient(180deg,#fff 0%,#fafbfc 100%);border-radius:20px}
+.h4{font-weight:900;font-size:clamp(20px,3vw,28px)}
+.h6{font-weight:900;font-size:18px;margin-bottom:12px}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-top:16px}
+.stat{text-align:center;background:#fff;border:1px solid var(--line-2);border-radius:12px;padding:16px}
+.value{font-weight:900;font-size:20px;color:var(--ink)}
+.label{color:var(--muted);font-size:14px}
+
+/* Charts */
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.charts{grid-template-columns:1fr}}
