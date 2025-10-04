@@ -1,38 +1,36 @@
 package com.springboot.MyTodoList.controller;
 
-import com.springboot.MyTodoList.model.Tarea;
-import com.springboot.MyTodoList.repository.TareaRepository;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import com.springboot.MyTodoList.dto.TaskCreateDto;
+import com.springboot.MyTodoList.model.Tarea;
+import com.springboot.MyTodoList.service.TareaService;
+
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/tareas")
+@RequestMapping("/api")
 public class TareaController {
 
-    private final TareaRepository tareaRepository;
+  private final TareaService tareaService;
 
-    // Constructor sin Lombok
-    public TareaController(TareaRepository tareaRepository) {
-        this.tareaRepository = tareaRepository;
-    }
+  public TareaController(TareaService tareaService) {
+    this.tareaService = tareaService;
+  }
 
-    // GET http://localhost:8080/tareas
-    @GetMapping
-    public List<Tarea> getAll() {
-        return tareaRepository.findAll();
+  @PostMapping(value = "/tasks", consumes = "application/json", produces = "application/json")
+  public ResponseEntity<?> createTask(@Valid @RequestBody TaskCreateDto dto) {
+    if (dto.estimatedHours != null && dto.estimatedHours > 4.0) {
+      return ResponseEntity.badRequest().body("Máximo 4 horas por tarea. Divide en subtareas.");
     }
+    Tarea created = tareaService.createFromDto(dto);
+    return new ResponseEntity<>(created, HttpStatus.CREATED);
+  }
 
-    // GET http://localhost:8080/tareas/{id}
-    @GetMapping("/{id}")
-    public Tarea getOne(@PathVariable Long id) {
-        return tareaRepository.findById(id).orElse(null);
-    }
-
-    // POST http://localhost:8080/tareas
-    @PostMapping
-    public Tarea create(@RequestBody Tarea tarea) {
-        return tareaRepository.save(tarea);
-    }
+  @GetMapping(value = "/tasks", produces = "application/json")
+  public ResponseEntity<List<Tarea>> listTasks() {
+    return ResponseEntity.ok(tareaService.findAll());
+  }
 }
-

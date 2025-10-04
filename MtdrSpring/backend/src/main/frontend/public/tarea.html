@@ -5,18 +5,31 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Tareas</title>
   <link rel="stylesheet" href="Css/tarea.css"/>
+  <style>
+    /* Garantiza que el modal arranque oculto, sin que otros estilos lo muestren */
+    .hidden { display: none !important; }
+    .modal-backdrop{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;z-index:9999}
+    .modal{background:#fff;border-radius:12px;max-width:640px;width:90%;padding:20px;box-shadow:0 10px 30px #0003}
+    .modal header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .modal form .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .modal form label{display:block;font-size:.9rem;margin-top:10px;margin-bottom:6px}
+    .modal form input,.modal form select,.modal form textarea{
+      width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:0.95rem
+    }
+    .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer}
+    .btn-primary{background:#e03131;color:#fff}
+    .btn-light{background:#eee}
+  </style>
 </head>
 <body>
 
-  <!-- Topbar fija -->
+  <!-- Topbar -->
   <header class="topbar">
-      <div class="brand">
-  <img src="image/Oracle_logo.png" alt="Oracle Logo" style="max-width:160px; height:auto;" />
-      </div>
+    <div class="brand">
+      <img src="image/Oracle_logo.png" alt="Oracle Logo" style="max-width:160px;height:auto" />
+    </div>
     <div class="topbar-right">
-      <!-- Botón Usuario -->
       <div class="user-circle">U</div>
-      <!-- Botón Logout -->
       <a href="/logout" class="logout-btn">⏻ Salir</a>
     </div>
   </header>
@@ -37,52 +50,222 @@
 
     <!-- Main -->
     <main class="main">
-      <!-- Título -->
-      <section class="card card-soft">
-        <h1 class="h4">Tareas</h1>
-        <div class="progress-row">
-          <div class="label">Avance general</div>
-          <div class="progress"><span style="width:65%"></span></div>
-          <div class="percent">65%</div>
+      <section class="card card-soft" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <h1 class="h4">Tareas</h1>
+          <div class="muted">El tablero inicia vacío. Usa “+ Nueva tarea (Dev)” para crear.</div>
         </div>
+        <button id="btn-open" class="btn btn-primary" type="button">+ Nueva tarea (Dev)</button>
       </section>
 
-      <!-- Tablero tipo Kanban -->
-      <section class="board">
-        <article class="col">
+      <!-- Tablero vacío -->
+      <section class="board" id="board">
+        <article class="col" data-col="todo">
           <header class="col-head">Por hacer</header>
-          <div class="task">
-            <div class="task-title">Diseñar mockups</div>
-            <div class="task-meta">Alta</div>
-          </div>
-          <div class="task">
-            <div class="task-title">Presentación</div>
-            <div class="task-meta">Alta</div>
-          </div>
+          <div class="tasks" id="col-todo"></div>
         </article>
 
-        <article class="col">
+        <article class="col" data-col="in_progress">
           <header class="col-head">En progreso</header>
-          <div class="task">
-            <div class="task-title">Doc técnica</div>
-            <div class="task-meta">En curso</div>
-          </div>
-          <div class="task">
-            <div class="task-title">API REST</div>
-            <div class="task-meta">Sprint 3</div>
-          </div>
+          <div class="tasks" id="col-inprogress"></div>
         </article>
 
-        <article class="col">
+        <article class="col" data-col="done">
           <header class="col-head">Hecho</header>
-          <div class="task">
-            <div class="task-title">Integraciones básicas</div>
-            <div class="task-meta">OK</div>
-          </div>
+          <div class="tasks" id="col-done"></div>
         </article>
       </section>
     </main>
   </div>
+
+  <!-- Modal Crear Tarea (arranca oculto) -->
+  <div id="modal" class="modal-backdrop hidden" style="display:none" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+    <div class="modal" id="modal-body">
+      <header>
+        <h3 id="modal-title" style="margin:0">Nueva tarea (Dev)</h3>
+        <button id="btn-close" class="btn btn-light" type="button">✖</button>
+      </header>
+
+      <form id="task-form" autocomplete="off">
+        <label>Título</label>
+        <input name="title" type="text" placeholder="Título de la tarea" required />
+
+        <label>Descripción</label>
+        <textarea name="description" rows="3" placeholder="Descripción breve (opcional)"></textarea>
+
+        <div class="row">
+          <div>
+            <label>Horas estimadas (≤ 4)</label>
+            <input name="estimatedHours" type="number" min="0.5" max="4" step="0.5" value="1.0" required />
+          </div>
+          <div>
+            <label>Prioridad</label>
+            <select name="priority" required>
+              <option value="low">Baja</option>
+              <option value="medium" selected>Media</option>
+              <option value="high">Alta</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Estado</label>
+            <select name="status" required>
+              <option value="todo" selected>Por hacer</option>
+              <option value="in_progress">En progreso</option>
+              <option value="done">Hecho</option>
+            </select>
+          </div>
+          <div>
+            <label>Sprint</label>
+            <input name="sprintId" type="text" placeholder="SPR-1" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Asignado a (Dev ID)</label>
+            <input name="assigneeId" type="text" placeholder="dev-123" required />
+          </div>
+          <div>
+            <label>Nombre del developer</label>
+            <input name="assigneeName" type="text" placeholder="Juan Pérez" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Proyecto ID</label>
+            <input name="projectId" type="number" min="1" placeholder="1 (opcional)" />
+          </div>
+          <div></div>
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+          <button type="button" id="btn-cancel" class="btn btn-light">Cancelar</button>
+          <button type="submit" id="btn-submit" class="btn btn-primary">Crear tarea</button>
+        </div>
+
+        <div class="muted" style="margin-top:8px">Máximo 4 horas por tarea. Divide en subtareas.</div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const q = (s, p=document) => p.querySelector(s);
+
+    const modal = q('#modal');
+    const modalBody = q('#modal-body');
+    const openBtn = q('#btn-open');
+    const closeBtn = q('#btn-close');
+    const cancelBtn = q('#btn-cancel');
+    const submitBtn = q('#btn-submit');
+    const form = q('#task-form');
+
+    // --- Modal show/hide (robusto) ---
+    function openModal() {
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      q('input[name="title"]').focus();
+    }
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+      form.reset();
+      q('select[name="priority"]').value = 'medium';
+      q('select[name="status"]').value = 'todo';
+      enableSubmit();
+    }
+    function enableSubmit(){ submitBtn.disabled = false; submitBtn.textContent = 'Crear tarea'; }
+    function disableSubmit(){ submitBtn.disabled = true; submitBtn.textContent = 'Creando...'; }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.style.display !== 'none') closeModal(); });
+
+    // evita submit por Enter accidental (duplica)
+    form.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') e.preventDefault();
+    });
+
+    // --- Pintar tarjeta en la columna correcta ---
+    function renderTaskCard(task) {
+      const col = task.estado === 'done' ? q('#col-done')
+                : task.estado === 'in_progress' ? q('#col-inprogress')
+                : q('#col-todo');
+      const card = document.createElement('div');
+      card.className = 'task';
+      card.innerHTML = `
+        <div class="task-title">${task.titulo || task.title}</div>
+        <div class="task-meta">
+          ${task.prioridad ? `Prioridad: ${task.prioridad}` : ''}
+          ${task.estimatedHours ? ` · ${task.estimatedHours}h` : ''}
+          ${task.assigneeName ? ` · Dev: ${task.assigneeName}` : ''}
+          ${task.sprintId ? ` · ${task.sprintId}` : ''}
+        </div>
+      `;
+      col.appendChild(card);
+    }
+
+    // --- Crear tarea (con anti-duplicados) ---
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fd = new FormData(form);
+      const payload = {
+        title: fd.get('title'),
+        description: fd.get('description'),
+        estimatedHours: Number(fd.get('estimatedHours')),
+        assigneeId: fd.get('assigneeId'),
+        assigneeName: fd.get('assigneeName'),
+        status: fd.get('status'),
+        priority: fd.get('priority'),
+        sprintId: fd.get('sprintId'),
+        projectId: fd.get('projectId') ? Number(fd.get('projectId')) : null
+      };
+
+      if (payload.estimatedHours > 4) {
+        alert('Máximo 4 horas por tarea. Divide en subtareas.');
+        return;
+      }
+
+      if (submitBtn.disabled) return; // ya hay petición en curso
+      disableSubmit();
+
+      try {
+        const res = await fetch('/api/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const text = await res.text();
+        let data; try { data = JSON.parse(text); } catch { data = text; }
+
+        if (!res.ok) {
+          alert(typeof data === 'string' ? data : JSON.stringify(data));
+          enableSubmit();
+          return;
+        }
+
+        renderTaskCard(data);
+        closeModal();
+      } catch (err) {
+        alert('Error al crear la tarea: ' + err.message);
+        enableSubmit();
+      }
+    });
+
+    // IMPORTANTE: tablero inicia vacío (no hacemos fetch inicial)
+    // Si algún día quieres precargar:
+    // fetch('/api/tasks').then(r=>r.json()).then(list => list.forEach(renderTaskCard));
+  });
+  </script>
 
 </body>
 </html>
