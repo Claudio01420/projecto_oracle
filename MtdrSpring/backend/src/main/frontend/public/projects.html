@@ -6,38 +6,24 @@
   <title>Proyectos</title>
   <link rel="stylesheet" href="Css/projects.css"/>
   <style>
-    /* Estilos del modal (igual que antes) */
+    /* Modal de creación (+ Nuevo) local a este HTML */
     .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      position: fixed; inset: 0;
       background: rgba(0, 0, 0, 0.4);
-      display: none;
-      justify-content: center;
-      align-items: center;
+      display: none; justify-content: center; align-items: center;
       z-index: 999;
     }
     .modal {
-      background: #fff;
-      border-radius: 18px;
-      padding: 20px 26px;
-      width: 480px;
-      max-width: 95%;
+      background: #fff; border-radius: 18px; padding: 20px 26px;
+      width: 480px; max-width: 95%;
       box-shadow: 0 8px 32px rgba(0,0,0,.25);
       animation: fadeIn .2s ease-in-out;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .modal-buttons { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; }
+    @keyframes fadeIn { from{opacity:0; transform: translateY(-10px);} to{opacity:1; transform: translateY(0);} }
+    .modal-buttons { display:flex; gap:10px; margin-top:14px; justify-content:flex-end }
 
-    /* Chip activo visual */
-    .chip.active {
-      background: var(--brand);
-      color: #fff;
-      font-weight: 700;
-      box-shadow: 0 2px 8px rgba(225,38,28,.25);
-    }
+    /* Chip activo de filtros */
+    .chip.active { background: var(--brand); color:#fff; font-weight:700; box-shadow: 0 2px 8px rgba(225,38,28,.25); }
   </style>
 </head>
 <body>
@@ -107,10 +93,11 @@
               <thead>
                 <tr>
                   <th style="width:80px">ID</th>
+                  <th style="width:90px">Equipo</th>
                   <th>Nombre</th>
                   <th style="width:130px">Estado</th>
                   <th style="width:200px">Avance</th>
-                  <th style="width:120px">Acciones</th>
+                  <th style="width:140px">Acciones</th>
                 </tr>
               </thead>
               <tbody id="projects-body"></tbody>
@@ -126,6 +113,7 @@
             <hr class="sep">
             <div class="detail-item"><div class="label">Nombre</div><div class="value" id="d-nombre">—</div></div>
             <div class="detail-item"><div class="label">Descripción</div><div class="value" id="d-descripcion">—</div></div>
+            <div class="detail-item"><div class="label">Equipo</div><div class="value" id="d-equipo">—</div></div>
             <div class="detail-item"><div class="label">Inicio</div><div class="value" id="d-inicio">—</div></div>
             <div class="detail-item"><div class="label">Fin</div><div class="value" id="d-fin">—</div></div>
             <div class="detail-item"><div class="label">Estado</div><div class="value" id="d-estado"><span class="chip">—</span></div></div>
@@ -136,28 +124,24 @@
     </main>
   </div>
 
-  <!-- Modal -->
+  <!-- Modal (+ Nuevo) -->
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <h2>Nuevo Proyecto</h2>
-      <div class="field"><label>Nombre</label><input id="f-nombre" type="text"></div>
-      <div class="field"><label>Estado</label>
-        <select id="f-estado">
-          <option value="Pendiente">Pendiente</option>
-          <option value="En curso">En curso</option>
-          <option value="Finalizado">Finalizado</option>
-        </select>
-      </div>
-      <div class="field"><label>Descripción</label><input id="f-desc" type="text"></div>
-      <div class="field"><label>Equipo ID</label><input id="f-equipo" type="number" min="1"></div>
-      <div class="field"><label>Inicio</label><input id="f-inicio" type="date"></div>
-      <div class="field"><label>Fin</label><input id="f-fin" type="date"></div>
+      <div class="field"><label>Nombre</label><input id="f-nombre" type="text" placeholder="Ej. Reto Oracle Cloud"></div>
+      <div class="field"><label>Descripción</label><input id="f-desc" type="text" placeholder="Breve descripción"></div>
+      <div class="field"><label>Equipo ID</label><input id="f-equipo" type="number" min="1" placeholder="Ej. 1"></div>
+      <div class="field"><label>Fecha inicio</label><input id="f-inicio" type="date"></div>
+      <div class="field"><label>Fecha fin</label><input id="f-fin" type="date"></div>
       <div class="modal-buttons">
         <button class="btn btn-outline" id="btn-cancelar">Cancelar</button>
         <button class="btn btn-primary" id="btn-guardar">Guardar</button>
       </div>
     </div>
   </div>
+
+  <!-- Contenedor dinámico para confirmación bonita -->
+  <div id="confirm-root"></div>
 
   <script>
     const API_BASE = "http://localhost:8080/proyectos";
@@ -166,21 +150,25 @@
     const $filtro = document.getElementById("filtro");
     const $resumen = document.getElementById("resumen-lista");
     const $chips = document.getElementById("chips");
+    const $confirmRoot = document.getElementById("confirm-root");
 
+    // Detalle
     const $dNombre = document.getElementById("d-nombre");
     const $dDesc = document.getElementById("d-descripcion");
+    const $dEquipo = document.getElementById("d-equipo");
     const $dIni = document.getElementById("d-inicio");
     const $dFin = document.getElementById("d-fin");
     const $dEstado = document.getElementById("d-estado");
     const $dAvance = document.getElementById("d-avance");
 
+    // Modal
     const $modalOverlay = document.getElementById("modal-overlay");
     const $btnNuevo = document.getElementById("btn-nuevo");
     const $btnGuardar = document.getElementById("btn-guardar");
     const $btnCancel = document.getElementById("btn-cancelar");
 
+    // Form
     const $fNombre = document.getElementById("f-nombre");
-    const $fEstado = document.getElementById("f-estado");
     const $fDesc = document.getElementById("f-desc");
     const $fEquipo = document.getElementById("f-equipo");
     const $fInicio = document.getElementById("f-inicio");
@@ -190,7 +178,7 @@
 
     function estadoToChipClass(estado) {
       if (!estado) return "chip";
-      switch (estado.toLowerCase()) {
+      switch ((estado || "").toLowerCase()) {
         case "pendiente": return "chip state-pend";
         case "en curso": return "chip state-run";
         case "finalizado": return "chip state-done";
@@ -198,10 +186,9 @@
       }
     }
     function estadoToAvance(estado) {
-      if (!estado) return 0;
-      switch (estado.toLowerCase()) {
-        case "pendiente": return 10;
-        case "en curso": return 70;
+      switch ((estado || "").toLowerCase()) {
+        case "pendiente": return 0;
+        case "en curso": return 50;
         case "finalizado": return 100;
         default: return 0;
       }
@@ -211,38 +198,60 @@
       const d = new Date(iso);
       return isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
     }
+
     function setDetalle(p) {
       if (!p) return;
       $dNombre.textContent = p.nombreProyecto ?? "—";
-      $dDesc.textContent = p.descripcion ?? "—";
-      $dIni.textContent = formatFecha(p.fechaInicio);
-      $dFin.textContent = formatFecha(p.fechaFin);
-      $dEstado.innerHTML = `<span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span>`;
+      $dDesc.textContent   = p.descripcion ?? "—";
+      $dEquipo.textContent = (p.equipoId ?? "—");
+      $dIni.textContent    = formatFecha(p.fechaInicio);
+      $dFin.textContent    = formatFecha(p.fechaFin);
+      $dEstado.innerHTML   = `<span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span>`;
       $dAvance.style.width = estadoToAvance(p.estado) + "%";
     }
+
     function renderTabla(items) {
       if (!items.length) {
-        $tbody.innerHTML = `<tr><td colspan="5">No hay proyectos.</td></tr>`;
+        $tbody.innerHTML = `<tr><td colspan="6">No hay proyectos.</td></tr>`;
         $resumen.innerHTML = `<strong>0</strong> resultado(s)`;
         return;
       }
       $resumen.innerHTML = `<strong>${items.length}</strong> resultado(s)`;
       $tbody.innerHTML = items.map(p => `
         <tr data-id="${p.id}">
-          <td>${p.id}</td>
-          <td>${p.nombreProyecto}</td>
-          <td><span class="${estadoToChipClass(p.estado)}">${p.estado}</span></td>
+          <td>${p.id ?? "-"}</td>
+          <td>${p.equipoId ?? "-"}</td>
+          <td>${p.nombreProyecto ?? "-"}</td>
+          <td><span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span></td>
           <td><div class="progress"><span style="width:${estadoToAvance(p.estado)}%"></span></div></td>
-          <td><button class="btn btn-outline btn-xs" onclick="borrarProyecto(${p.id})">Borrar</button></td>
+          <td>
+            <button class="btn-danger btn-xs" onclick="borrarProyecto(${p.id}, event)" title="Borrar proyecto">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M9 3h6m-9 4h12m-1 0-.8 12.4A2 2 0 0 1 14.4 21H9.6a2 2 0 0 1-1.99-1.6L6.8 7M10 10v7M14 10v7"
+                      stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="label">Borrar</span>
+            </button>
+          </td>
         </tr>
       `).join("");
+
       Array.from($tbody.querySelectorAll("tr")).forEach(tr => {
         tr.addEventListener("click", () => {
           const id = Number(tr.dataset.id);
           const p = proyectosCache.find(x => x.id === id);
           setDetalle(p);
         });
+        tr.addEventListener("dblclick", () => {
+          const id = Number(tr.dataset.id);
+          irADetalleProyecto(id); // abrir detalle
+        });
       });
+    }
+
+    function irADetalleProyecto(id){
+      if (!id) return;
+      window.location.href = `homework-proyect.html?id=${encodeURIComponent(id)}`;
     }
 
     async function cargarProyectos() {
@@ -252,15 +261,40 @@
         aplicarFiltros();
         if (proyectosCache[0]) setDetalle(proyectosCache[0]);
       } catch {
-        $tbody.innerHTML = `<tr><td colspan="5">Error al cargar proyectos</td></tr>`;
+        $tbody.innerHTML = `<tr><td colspan="6">Error al cargar proyectos</td></tr>`;
       }
     }
 
-    async function borrarProyecto(id) {
-      if (!confirm("¿Seguro que deseas borrar este proyecto?")) return;
-      await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
-      proyectosCache = proyectosCache.filter(p => p.id !== id);
-      aplicarFiltros();
+    // ===== Confirmación moderna (sin confirm() nativo)
+    function mostrarConfirmacion(mensaje, onYes) {
+      const overlay = document.createElement("div");
+      overlay.className = "confirm-overlay";
+      overlay.innerHTML = `
+        <div class="confirm-box">
+          <h3>Confirmar acción</h3>
+          <p>${mensaje}</p>
+          <div class="confirm-buttons">
+            <button class="confirm-btn confirm-cancel">Cancelar</button>
+            <button class="confirm-btn confirm-yes">Sí, borrar</button>
+          </div>
+        </div>
+      `;
+      $confirmRoot.appendChild(overlay);
+
+      const close = () => overlay.remove();
+      overlay.querySelector(".confirm-cancel").onclick = close;
+      overlay.querySelector(".confirm-yes").onclick = () => { close(); onYes(); };
+      overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+      document.addEventListener("keydown", function esc(e){ if(e.key === "Escape"){ close(); document.removeEventListener("keydown", esc); }});
+    }
+
+    async function borrarProyecto(id, evt) {
+      if (evt) evt.stopPropagation(); // evita disparar doble clic/clic de la fila
+      mostrarConfirmacion("¿Seguro que deseas borrar este proyecto?", async () => {
+        await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+        proyectosCache = proyectosCache.filter(p => p.id !== id);
+        aplicarFiltros();
+      });
     }
     window.borrarProyecto = borrarProyecto;
 
@@ -268,10 +302,10 @@
       const nuevo = {
         nombreProyecto: $fNombre.value.trim(),
         descripcion: $fDesc.value.trim(),
-        estado: $fEstado.value,
+        estado: "Pendiente", // todos inician Pendiente
         equipoId: Number($fEquipo.value),
-        fechaInicio: $fInicio.value,
-        fechaFin: $fFin.value
+        fechaInicio: $fInicio.value || null,
+        fechaFin: $fFin.value || null
       };
       const res = await fetch(API_BASE, {
         method: "POST",
@@ -287,21 +321,24 @@
     }
 
     function aplicarFiltros() {
-      const q = $buscar.value.toLowerCase();
-      const est = $filtro.value.toLowerCase();
-      const chipActivo = document.querySelector(".chip.active")?.dataset.est.toLowerCase() || "todos";
+      const q = ($buscar.value || "").toLowerCase();
+      const estSel = ($filtro.value || "Todos").toLowerCase();
+      const chipActivo = (document.querySelector(".chip.active")?.dataset.est || "Todos").toLowerCase();
 
       let items = proyectosCache.filter(p =>
-        (!q || p.nombreProyecto.toLowerCase().includes(q)) &&
-        ((est === "todos" && chipActivo === "todos") ||
-         p.estado.toLowerCase() === est.toLowerCase() ||
-         p.estado.toLowerCase() === chipActivo.toLowerCase())
+        (!q || (p.nombreProyecto || "").toLowerCase().includes(q)) &&
+        (
+          estSel === "todos" && chipActivo === "todos"
+            ? true
+            : (p.estado || "").toLowerCase() === estSel || (p.estado || "").toLowerCase() === chipActivo
+        )
       );
-      if (chipActivo !== "todos") items = items.filter(p => p.estado.toLowerCase() === chipActivo.toLowerCase());
+
+      if (chipActivo !== "todos") items = items.filter(p => (p.estado || "").toLowerCase() === chipActivo);
       renderTabla(items);
     }
 
-    // === Eventos de los chips ===
+    // Chips
     $chips.querySelectorAll(".chip").forEach(chip => {
       chip.addEventListener("click", () => {
         $chips.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
@@ -310,10 +347,12 @@
       });
     });
 
+    // Modal
     function abrirModal() { $modalOverlay.style.display = "flex"; }
     function cerrarModal() {
       $modalOverlay.style.display = "none";
-      $fNombre.value = ""; $fDesc.value = ""; $fEquipo.value = ""; $fInicio.value = ""; $fFin.value = ""; $fEstado.value = "Pendiente";
+      $fNombre.value = ""; $fDesc.value = ""; $fEquipo.value = "";
+      $fInicio.value = ""; $fFin.value = "";
     }
 
     $btnNuevo.addEventListener("click", e => { e.preventDefault(); abrirModal(); });
@@ -321,9 +360,11 @@
     $btnGuardar.addEventListener("click", e => { e.preventDefault(); crearProyecto(); });
     $modalOverlay.addEventListener("click", e => { if (e.target === $modalOverlay) cerrarModal(); });
 
+    // Búsqueda / select
     $buscar.addEventListener("input", aplicarFiltros);
     $filtro.addEventListener("change", aplicarFiltros);
 
+    // Init
     document.addEventListener("DOMContentLoaded", cargarProyectos);
   </script>
 </body>
