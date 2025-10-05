@@ -144,3 +144,122 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helve
 
 /* Row helpers */
 .row-sb{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px }
+
+/* === Botón borrar mejorado === */
+.btn-danger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid #f1c5c2;
+  background: linear-gradient(180deg, #fff5f4 0%, #ffe9e7 100%);
+  color: #b42318;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: .2px;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease;
+  box-shadow: 0 4px 10px rgba(180,35,24,.08);
+  user-select: none;
+}
+.btn-danger:hover {
+  border-color: #f4a7a2;
+  box-shadow: 0 6px 16px rgba(180,35,24,.15);
+  transform: translateY(-1px);
+}
+.btn-danger:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(180,35,24,.12);
+}
+.btn-danger .ico {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+}
+.btn-danger .label {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #ffd7d4;
+}
+.btn-danger.btn-xs {
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+}
+.btn-danger:focus {
+  outline: 3px solid rgba(225,38,28,.2);
+  outline-offset: 2px;
+}
+@media (max-width: 640px) {
+  .btn-danger .label { display: none; }
+}
+
+/* === Confirmación bonita (modal pequeño) === */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn .2s ease-in-out;
+}
+.confirm-box {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 32px rgba(0,0,0,.25);
+  width: 380px;
+  max-width: 90%;
+  padding: 22px 24px;
+  text-align: center;
+  animation: fadeInUp .25s ease;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.confirm-box h3 {
+  margin: 0 0 8px 0;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--dark);
+}
+.confirm-box p {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.confirm-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.confirm-btn {
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 13px;
+  transition: .15s;
+}
+.confirm-cancel {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: var(--muted-2);
+}
+.confirm-cancel:hover {
+  background: #f5f5f5;
+}
+.confirm-yes {
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  box-shadow: 0 3px 10px rgba(225,38,28,.2);
+}
+.confirm-yes:hover {
+  background: var(--brand-hover);
+}
