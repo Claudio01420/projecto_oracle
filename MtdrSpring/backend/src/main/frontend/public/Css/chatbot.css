@@ -7,6 +7,11 @@
   --brand:#E1261C;
   --brand-hover:#c41f15;
   --shadow-sm:0 2px 8px rgba(0,0,0,.04);
+
+  --ico-size: 18px;
+  --ico-size-sm: 14px;
+  --ico-color: #9aa3af;   /* gris suave para íconos */
+  --ico-accent: var(--brand);
 }
 
 *{box-sizing:border-box}
@@ -24,6 +29,16 @@ body{margin:0;font-family:system-ui;background:var(--bg);color:var(--ink)}
 .user-circle:hover{background:var(--brand-hover)}
 .logout-btn{background:var(--brand);color:#fff;font-weight:700;padding:6px 12px;border-radius:6px;text-decoration:none}
 .logout-btn:hover{background:var(--brand-hover)}
+
+/* === Centrado del logo en la topbar (add-only) === */
+.topbar > .brand{
+  display:flex;
+  align-items:center;       /* centra verticalmente */
+  justify-content:flex-start;
+  height:100%;              /* ocupa toda la altura de la barra */
+  margin:0;                 /* anula márgenes heredados de .brand del sidebar */
+  padding:0;
+}
 
 /* Layout */
 .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh;padding-top:50px}
@@ -55,3 +70,50 @@ body{margin:0;font-family:system-ui;background:var(--bg);color:var(--ink)}
 .chat-input input{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px}
 .chat-input button{background:var(--brand);color:#fff;font-weight:700;padding:8px 14px;border:none;border-radius:8px;cursor:pointer}
 .chat-input button:hover{background:var(--brand-hover)}
+
+
+
+/* Tamaños/colores base de íconos */
+.ico{ 
+  width: var(--ico-size); 
+  height: var(--ico-size); 
+  color: var(--ico-color); 
+  display: inline-block;
+}
+.ico-sm{ 
+  width: var(--ico-size-sm); 
+  height: var(--ico-size-sm); 
+  color: var(--ico-color); 
+  display: inline-block;
+}
+
+/* Alineación fina cuando el ícono va dentro de una línea de texto */
+.icon-inline{
+  display:inline-flex; 
+  vertical-align:-2px; 
+  margin-right:.35rem;
+}
+
+/* Helpers de color por si los necesitas */
+.ico-muted{ color:#c0c7d2; }
+.ico-accent{ color:var(--ico-accent); }
+
+/* Accesibilidad: texto solo para lectores de pantalla */
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px; 
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+/* Utilidad opcional para alinear icono + texto en botones/enlaces */
+.with-icon{
+  display:inline-flex; 
+  align-items:center; 
+  gap:.5rem;
+}
+
+/* Casos concretos con ícono dentro (solo añade estilos al hijo) */
+.logout-btn .ico,
+.logout-btn .ico-sm{ color:#fff; opacity:.9; }
+
+.chat-input button .ico,
+.chat-input button .ico-sm{ color:#fff; }
