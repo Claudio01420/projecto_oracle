@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Detalle del Proyecto</title>
+  <!-- Estilos base compartidos -->
+  <link rel="stylesheet" href="Css/projects.css"/>
+  <!-- Estilos específicos de esta página -->
+  <link rel="stylesheet" href="Css/homework-project.css"/>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="image/Oracle_logo.png" alt="Oracle Logo" style="max-width:160px;height:auto"/>
+    </div>
+    <div class="topbar-right">
+      <div class="user-circle">U</div>
+      <a href="/logout" class="logout-btn">⏻ Salir</a>
+    </div>
+  </header>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="aside">
+      <nav class="menu">
+        <a class="mi" href="/dashboard.html"><span>📊</span> Dashboard</a>
+        <a class="mi active" href="#"><span>📁</span> Proyectos</a>
+        <a class="mi" href="/tarea.html"><span>✅</span> Tareas</a>
+        <a class="mi" href="/KPIs.html"><span>📈</span> KPIs</a>
+        <a class="mi" href="/chatbot.html"><span>🤖</span> Chatbot</a>
+        <a class="mi" href="/notifications.html"><span>🔔</span> Notificaciones</a>
+        <a class="mi" href="/settings.html"><span>⚙️</span> Ajustes</a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="container container-wide">
+      <div class="page-actions">
+        <a href="projects.html" class="btn btn-outline">← Volver</a>
+        <button id="btn-editar" class="btn btn-primary">Editar</button>
+      </div>
+
+      <!-- ====== Vista (solo lectura) ====== -->
+      <section class="card card-soft hero-card">
+        <div class="hero-head">
+          <h1 class="project-title" id="vm-nombre">Nombre del proyecto</h1>
+          <div class="meta-row">
+            <span id="vm-desc" class="project-desc">Descripción del proyecto…</span>
+            <span class="team-pill">Equipo <strong id="vm-equipo">—</strong></span>
+          </div>
+        </div>
+
+        <!-- Estado + Avance -->
+        <div class="status-advance">
+          <div class="status-chip-wrap">
+            <span id="vm-estado-chip" class="chip">—</span>
+          </div>
+
+          <div class="progress-board">
+            <!-- Progreso circular grande -->
+            <div class="radial-wrap big">
+              <div id="vm-radial" class="radial-progress" style="--p:0">
+                <span id="vm-percent">0%</span>
+              </div>
+            </div>
+
+            <!-- Datos adicionales (fechas) -->
+            <div class="dates-col">
+              <div class="date-item">
+                <span class="label">Inicio</span>
+                <span id="vm-inicio" class="value">—</span>
+              </div>
+              <div class="date-item">
+                <span class="label">Fin</span>
+                <span id="vm-fin" class="value">—</span>
+              </div>
+              <!-- Barra secundaria -->
+              <div class="progress mt-10"><span id="vm-bar" style="width:0%"></span></div>
+              <div class="tiny muted">Avance según estado</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ======= TOAST CONTAINER (notificaciones bonitas) ======= -->
+  <div id="toast-stack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ===== Modal de Edición (ventana emergente) ===== -->
+  <div id="edit-modal-overlay" class="edit-modal-overlay" aria-hidden="true">
+    <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+      <div class="edit-modal-header">
+        <h2 class="h6" id="edit-modal-title">Editar proyecto <span id="p-id">—</span></h2>
+        <button id="btn-close-modal" class="icon-btn" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="edit-modal-body">
+        <div class="grid2">
+          <div class="field">
+            <label>Nombre</label>
+            <input id="p-nombre" type="text" placeholder="Nombre del proyecto">
+          </div>
+          <div class="field">
+            <label>Equipo ID</label>
+            <input id="p-equipo" type="number" min="1" placeholder="Ej. 1">
+          </div>
+          <div class="field field-full">
+            <label>Descripción</label>
+            <input id="p-desc" type="text" placeholder="Breve descripción">
+          </div>
+          <div class="field">
+            <label>Inicio</label>
+            <input id="p-inicio" type="date">
+          </div>
+          <div class="field">
+            <label>Fin</label>
+            <input id="p-fin" type="date">
+          </div>
+          <div class="field">
+            <label>Estado</label>
+            <select id="p-estado-sel">
+              <option value="Pendiente">Pendiente</option>
+              <option value="En curso">En curso</option>
+              <option value="Finalizado">Finalizado</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="edit-progress">
+          <div class="radial-wrap small">
+            <div id="p-radial" class="radial-progress" style="--p:0">
+              <span id="p-percent">0%</span>
+            </div>
+          </div>
+          <div style="flex:1">
+            <div class="progress"><span id="p-avance" style="width:0%"></span></div>
+            <div class="tiny muted" id="p-avance-text">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="edit-modal-footer">
+        <button id="btn-cancelar" class="btn btn-outline">Cancelar</button>
+        <button id="btn-guardar" class="btn btn-primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:8080/proyectos";
+
+    // Utils
+    function qs(name){ return new URL(window.location.href).searchParams.get(name); }
+    function estadoToChipClass(estado){
+      switch((estado||"").toLowerCase()){
+        case "pendiente": return "chip state-pend";
+        case "en curso": return "chip state-run";
+        case "finalizado": return "chip state-done";
+        default: return "chip";
+      }
+    }
+    function estadoToAvance(estado){
+      switch((estado||"").toLowerCase()){
+        case "pendiente": return 0;
+        case "en curso": return 70;
+        case "finalizado": return 100;
+        default: return 0;
+      }
+    }
+    function toISODateInput(iso){
+      if(!iso) return "";
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      const yy = d.getFullYear(), mm = String(d.getMonth()+1).padStart(2,"0"), dd = String(d.getDate()).padStart(2,"0");
+      return `${yy}-${mm}-${dd}`;
+    }
+    function fmtFecha(iso){
+      if(!iso) return "—";
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      return d.toLocaleDateString();
+    }
+
+    // ===== ANIMACIÓN SUAVE DEL CÍRCULO =====
+    function getRadialPercent(el){
+      const v = getComputedStyle(el).getPropertyValue('--p').trim();
+      const n = parseFloat(v || '0');
+      return isNaN(n) ? 0 : n;
+    }
+    function easeInOut(t){ return t<.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2; }
+    function setRadialAnimated(el, toPercent, labelEl, duration=600){
+      const from = getRadialPercent(el);
+      const to = Math.max(0, Math.min(100, toPercent|0));
+      if (from === to){
+        if (labelEl) labelEl.textContent = to + "%";
+        el.style.setProperty('--p', to);
+        return;
+      }
+      const start = performance.now();
+      function step(now){
+        const t = Math.min(1, (now - start) / duration);
+        const eased = easeInOut(t);
+        const val = Math.round(from + (to - from) * eased);
+        el.style.setProperty('--p', val);
+        if (labelEl) labelEl.textContent = val + "%";
+        if (t < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    // ====== TOAST: helpers ======
+    const $toastStack = document.getElementById('toast-stack');
+    function showToast({type="success", title="Listo", message="", timeout=3000}={}){
+      const item = document.createElement('div');
+      item.className = `toast ${type}`;
+      item.innerHTML = `
+        <div class="toast-icon">${type==="success"?"✅":type==="error"?"⚠️":"ℹ️"}</div>
+        <div class="toast-body">
+          <div class="toast-title">${title}</div>
+          ${message?`<div class="toast-msg">${message}</div>`:""}
+          <div class="toast-progress"></div>
+        </div>
+        <button class="toast-close" aria-label="Cerrar">✕</button>
+      `;
+      $toastStack.appendChild(item);
+
+      // cerrar manual
+      item.querySelector('.toast-close').onclick = ()=> dismiss();
+      // barra de tiempo
+      setTimeout(()=> item.classList.add('show'), 10);
+      let closed = false;
+      const dismiss = ()=>{
+        if (closed) return;
+        closed = true;
+        item.classList.remove('show');
+        setTimeout(()=> item.remove(), 200);
+      };
+      // autocierre
+      const bar = item.querySelector('.toast-progress');
+      bar.style.animationDuration = `${timeout}ms`;
+      const auto = setTimeout(dismiss, timeout);
+      // pausa al hover
+      item.addEventListener('mouseenter', ()=>{ bar.style.animationPlayState="paused"; clearTimeout(auto); });
+      item.addEventListener('mouseleave', ()=>{
+        bar.style.animationPlayState="running";
+        setTimeout(dismiss, 1200);
+      });
+    }
+
+    // ===== Vista: refs =====
+    const $vmNombre = document.getElementById("vm-nombre");
+    const $vmEquipo = document.getElementById("vm-equipo");
+    const $vmDesc   = document.getElementById("vm-desc");
+    const $vmEstadoChip = document.getElementById("vm-estado-chip");
+    const $vmRadial = document.getElementById("vm-radial");
+    const $vmPercent= document.getElementById("vm-percent");
+    const $vmBar    = document.getElementById("vm-bar");
+    const $vmIni    = document.getElementById("vm-inicio");
+    const $vmFin    = document.getElementById("vm-fin");
+
+    const $btnEditar = document.getElementById("btn-editar");
+
+    // Modal edición
+    const $overlay = document.getElementById("edit-modal-overlay");
+    const $btnClose = document.getElementById("btn-close-modal");
+    const $btnCancelar = document.getElementById("btn-cancelar");
+    const $btnGuardar = document.getElementById("btn-guardar");
+
+    const $pId = document.getElementById("p-id");
+    const $nombre = document.getElementById("p-nombre");
+    const $equipo = document.getElementById("p-equipo");
+    const $desc   = document.getElementById("p-desc");
+    const $inicio = document.getElementById("p-inicio");
+    const $fin    = document.getElementById("p-fin");
+    const $estadoSel = document.getElementById("p-estado-sel");
+
+    const $pRadial = document.getElementById("p-radial");
+    const $pPercent= document.getElementById("p-percent");
+    const $pAvance = document.getElementById("p-avance");
+    const $pAvanceText = document.getElementById("p-avance-text");
+
+    let proyectoActual = null;
+
+    function openModal(){
+      if(!proyectoActual) return;
+      const p = proyectoActual;
+      $pId.textContent = `#${p.id}`;
+      $nombre.value = p.nombreProyecto || "";
+      $equipo.value = (p.equipoId ?? "");
+      $desc.value   = p.descripcion || "";
+      $inicio.value = toISODateInput(p.fechaInicio);
+      $fin.value    = toISODateInput(p.fechaFin);
+      $estadoSel.value = p.estado || "Pendiente";
+
+      const av = estadoToAvance(p.estado);
+      setRadialAnimated($pRadial, av, $pPercent, 500);
+      $pAvance.style.width = av + "%";
+      $pAvanceText.textContent = av + "%";
+
+      $overlay.classList.add("open");
+      $overlay.setAttribute("aria-hidden","false");
+    }
+    function closeModal(){
+      $overlay.classList.remove("open");
+      $overlay.setAttribute("aria-hidden","true");
+    }
+
+    function pintarView(p){
+      $vmNombre.textContent = p.nombreProyecto || "—";
+      $vmEquipo.textContent = (p.equipoId ?? "—");
+      $vmDesc.textContent   = p.descripcion || "—";
+      $vmEstadoChip.className = estadoToChipClass(p.estado);
+      $vmEstadoChip.textContent = p.estado || "—";
+      $vmIni.textContent = fmtFecha(p.fechaInicio);
+      $vmFin.textContent = fmtFecha(p.fechaFin);
+
+      const av = estadoToAvance(p.estado);
+      setRadialAnimated($vmRadial, av, $vmPercent, 700);
+      $vmBar.style.width = av + "%";
+    }
+
+    async function cargarProyecto(){
+      const id = qs("id");
+      if(!id){
+        showToast({type:"error", title:"Falta el id", message:"No se encontró ?id en la URL"});
+        window.location.href = "projects.html";
+        return;
+      }
+      try{
+        const res = await fetch(`${API_BASE}/${id}`);
+        if(!res.ok) throw new Error("No encontrado");
+        const p = await res.json();
+        proyectoActual = p;
+        pintarView(p);
+      }catch(e){
+        showToast({type:"error", title:"No se pudo cargar", message:"Intenta de nuevo más tarde"});
+        window.location.href = "projects.html";
+      }
+    }
+
+    $estadoSel.addEventListener("change", () => {
+      const est = $estadoSel.value;
+      const av = estadoToAvance(est);
+      setRadialAnimated($pRadial, av, $pPercent, 500);
+      $pAvance.style.width = av + "%";
+      $pAvanceText.textContent = av + "%";
+    });
+
+    $btnEditar.addEventListener("click", openModal);
+    $btnClose.addEventListener("click", closeModal);
+    $overlay.addEventListener("click", (e) => { if (e.target === $overlay) closeModal(); });
+    $btnCancelar.addEventListener("click", (e) => { e.preventDefault(); closeModal(); });
+
+    $btnGuardar.addEventListener("click", async () => {
+      if (!proyectoActual) return;
+      const payload = {
+        id: proyectoActual.id,
+        nombreProyecto: $nombre.value.trim(),
+        descripcion: $desc.value.trim(),
+        estado: $estadoSel.value,
+        equipoId: Number($equipo.value||0),
+        fechaInicio: $inicio.value || null,
+        fechaFin: $fin.value || null,
+        ultimoAcceso: proyectoActual.ultimoAcceso || null
+      };
+      try{
+        const res = await fetch(`${API_BASE}/${proyectoActual.id}`, {
+          method:"PUT",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok){
+          proyectoActual = await res.json();
+          pintarView(proyectoActual);
+          closeModal();
+          showToast({type:"success", title:"Cambios guardados", message:"El proyecto se actualizó correctamente."});
+        } else {
+          showToast({type:"error", title:"Error al guardar", message:"Revisa los datos e inténtalo nuevamente."});
+        }
+      }catch(err){
+        showToast({type:"error", title:"Error de red", message:"No se pudo conectar con el servidor."});
+      }
+    });
+
+    document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closeModal(); });
+    document.addEventListener("DOMContentLoaded", cargarProyecto);
+  </script>
+</body>
+</html>
