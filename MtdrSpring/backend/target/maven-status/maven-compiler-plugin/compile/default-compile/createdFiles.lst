@@ -1,4 +1,5 @@
 com\springboot\MyTodoList\solid\dip\DipController.class
+com\springboot\MyTodoList\dto\CompleteTaskDto.class
 com\springboot\MyTodoList\util\BotMessages.class
 com\springboot\MyTodoList\service\UserService.class
 com\springboot\MyTodoList\config\CorsConfig.class
