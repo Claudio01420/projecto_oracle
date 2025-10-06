@@ -1,64 +1,87 @@
 package com.springboot.MyTodoList.model;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "TAREA", schema = "TMDV") // <-- usa tu esquema real
+@Table(name = "TAREA")
 public class Tarea {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "TAREA_ID")
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "TAREA_ID")
+    private Long id;
 
-  @Column(name = "TITULO", length = 150)
-  private String titulo;
+    @Column(name = "TITULO")
+    private String title;
 
-  @Column(name = "DESCRIPCION", length = 2000)
-  private String descripcion;
+    // usamos la columna DESCRIPCION (en mayúsculas) de tu tabla
+    @Column(name = "DESCRIPCION", length = 2000)
+    private String description;
 
-  @Column(name = "ESTADO", length = 50)
-  private String estado;
+    // valores recomendados: todo | doing | done
+    @Column(name = "ESTADO")
+    private String status;
 
-  @Column(name = "PROYECTO_ID")
-  private Long proyectoId;
+    @Column(name = "PRIORIDAD")
+    private String priority;
 
-  @Column(name = "FECHA_ASIGNACION")
-  private LocalDate fechaAsignacion;
+    @Column(name = "ESTIMATED_HOURS")
+    private Double estimatedHours;
 
-  @Column(name = "ULTIMO_ACCESO")
-  private LocalDateTime ultimoAcceso;
+    @Column(name = "REAL_HOURS")
+    private Double realHours;
 
-  @Column(name = "PRIORIDAD")
-  private String prioridad;
+    @Column(name = "ASSIGNEE_ID")
+    private String assigneeId;
 
-  @Column(name = "ESTIMATED_HOURS")
-  private Double estimatedHours;
+    @Column(name = "ASSIGNEE_NAME")
+    private String assigneeName;
 
-  @Column(name = "ASSIGNEE_ID", length = 64)
-  private String assigneeId;
+    @Column(name = "SPRINT_ID")
+    private String sprintId;
 
-  @Column(name = "ASSIGNEE_NAME", length = 150)
-  private String assigneeName;
+    @Column(name = "CREATED_AT")
+    private LocalDateTime createdAt;
 
-  @Column(name = "SPRINT_ID", length = 64)
-  private String sprintId;
+    @Column(name = "COMPLETED_AT")
+    private LocalDateTime completedAt;
 
-  public Tarea() {}
+    // getters/setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-  // getters/setters
-  public Long getId() { return id; } public void setId(Long id) { this.id = id; }
-  public String getTitulo() { return titulo; } public void setTitulo(String titulo) { this.titulo = titulo; }
-  public String getDescripcion() { return descripcion; } public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-  public String getEstado() { return estado; } public void setEstado(String estado) { this.estado = estado; }
-  public Long getProyectoId() { return proyectoId; } public void setProyectoId(Long proyectoId) { this.proyectoId = proyectoId; }
-  public LocalDate getFechaAsignacion() { return fechaAsignacion; } public void setFechaAsignacion(LocalDate fechaAsignacion) { this.fechaAsignacion = fechaAsignacion; }
-  public LocalDateTime getUltimoAcceso() { return ultimoAcceso; } public void setUltimoAcceso(LocalDateTime ultimoAcceso) { this.ultimoAcceso = ultimoAcceso; }
-  public String getPrioridad() { return prioridad; } public void setPrioridad(String prioridad) { this.prioridad = prioridad; }
-  public Double getEstimatedHours() { return estimatedHours; } public void setEstimatedHours(Double estimatedHours) { this.estimatedHours = estimatedHours; }
-  public String getAssigneeId() { return assigneeId; } public void setAssigneeId(String assigneeId) { this.assigneeId = assigneeId; }
-  public String getAssigneeName() { return assigneeName; } public void setAssigneeName(String assigneeName) { this.assigneeName = assigneeName; }
-  public String getSprintId() { return sprintId; } public void setSprintId(String sprintId) { this.sprintId = sprintId; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getPriority() { return priority; }
+    public void setPriority(String priority) { this.priority = priority; }
+
+    public Double getEstimatedHours() { return estimatedHours; }
+    public void setEstimatedHours(Double estimatedHours) { this.estimatedHours = estimatedHours; }
+
+    public Double getRealHours() { return realHours; }
+    public void setRealHours(Double realHours) { this.realHours = realHours; }
+
+    public String getAssigneeId() { return assigneeId; }
+    public void setAssigneeId(String assigneeId) { this.assigneeId = assigneeId; }
+
+    public String getAssigneeName() { return assigneeName; }
+    public void setAssigneeName(String assigneeName) { this.assigneeName = assigneeName; }
+
+    public String getSprintId() { return sprintId; }
+    public void setSprintId(String sprintId) { this.sprintId = sprintId; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getCompletedAt() { return completedAt; }
+    public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }
 }
+

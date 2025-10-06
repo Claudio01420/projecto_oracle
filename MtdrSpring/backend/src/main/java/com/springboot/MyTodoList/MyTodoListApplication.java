@@ -15,7 +15,7 @@ import com.springboot.MyTodoList.controller.ToDoItemBotController;
 import com.springboot.MyTodoList.service.ToDoItemService;
 import com.springboot.MyTodoList.util.BotMessages;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.springboot.MyTodoList")
 public class MyTodoListApplication implements CommandLineRunner {
 
 	private static final Logger logger = LoggerFactory.getLogger(MyTodoListApplication.class);
@@ -23,11 +23,12 @@ public class MyTodoListApplication implements CommandLineRunner {
 	@Autowired
 	private ToDoItemService toDoItemService;
 
-	@Value("${telegram.bot.token}")
+	@Value("${telegram.bot.token:}")
 	private String telegramBotToken;
 
-	@Value("${telegram.bot.name}")
-	private String botName;
+	// Acepta 'telegram.bot.username' y de fallback 'telegram.bot.name'
+	@Value("${telegram.bot.username:${telegram.bot.name:}}")
+	private String botUsername;
 
 	public static void main(String[] args) {
 		SpringApplication.run(MyTodoListApplication.class, args);
@@ -35,12 +36,16 @@ public class MyTodoListApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+		if (telegramBotToken == null || telegramBotToken.isBlank()) {
+			logger.warn("[Telegram] Sin token -> NO registro el bot (arranque seguro). Define TELEGRAM_BOT_TOKEN o 'telegram.bot.token'.");
+			return;
+		}
 		try {
 			TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-			telegramBotsApi.registerBot(new ToDoItemBotController(telegramBotToken, botName, toDoItemService));
+			telegramBotsApi.registerBot(new ToDoItemBotController(telegramBotToken, botUsername, toDoItemService));
 			logger.info(BotMessages.BOT_REGISTERED_STARTED.getMessage());
 		} catch (TelegramApiException e) {
-			e.printStackTrace();
+			logger.error("Error registrando el bot de Telegram", e);
 		}
 	}
 }
