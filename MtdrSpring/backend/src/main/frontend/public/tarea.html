@@ -10,6 +10,7 @@
     .btn-xs{ font-size:12px; padding:4px 8px; border:1px solid var(--line); background:#fff; border-radius:8px; cursor:pointer }
     .btn-xs.complete{ background:#e6ffed; border-color:#b7f0c0 }
     .btn-xs.delete{ background:#fff5f5; border-color:#ffd2d2 }
+    .btn-xs.edit{ background:#eef2ff; border-color:#c7d2fe }
     .btn-xs:hover{ filter:brightness(.97) }
 
     .modal{ position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:300 }
@@ -24,6 +25,9 @@
     .btn.danger:hover{ background:#dc2626 }
 
     .task.selected{ outline:2px solid var(--brand); outline-offset:2px }
+
+    .drop-target{ outline:2px dashed #cbd5e1; background:#f8fafc }
+    .col{ transition:background .15s }
 
     /* Panel de detalles */
     .details{ display:none; }
@@ -85,15 +89,15 @@
 
       <!-- Kanban -->
       <section class="board">
-        <article class="col">
+        <article class="col" id="dropTodo" data-status="todo">
           <header class="col-head">Por hacer</header>
           <div id="colTodo"></div>
         </article>
-        <article class="col">
+        <article class="col" id="dropDoing" data-status="doing">
           <header class="col-head">En progreso</header>
           <div id="colDoing"></div>
         </article>
-        <article class="col">
+        <article class="col" id="dropDone" data-status="done">
           <header class="col-head">Hecho</header>
           <div id="colDone"></div>
         </article>
@@ -111,6 +115,7 @@
             </div>
           </div>
           <div class="badges">
+            <button id="d_edit_btn" class="btn-xs edit" title="Editar tarea">Editar…</button>
             <button id="d_complete_btn" class="btn-xs complete" title="Marcar como hecha">Completar…</button>
             <button id="d_delete_btn" class="btn-xs delete" title="Eliminar tarea">Eliminar…</button>
           </div>
@@ -167,6 +172,38 @@
     </div>
   </div>
 
+  <!-- Modal editar -->
+  <div id="modalEdit" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <h3 style="margin:4px 0 12px 0">Editar tarea</h3>
+      <input type="hidden" id="e_id"/>
+      <div class="modal-row"><label>Título</label><input id="e_title" type="text" /></div>
+      <div class="modal-row"><label>Descripción</label><textarea id="e_desc" rows="3"></textarea></div>
+      <div class="modal-row"><label>Horas estimadas (≤4)</label><input id="e_hours" type="number" min="0" max="4" step="0.5" /></div>
+      <div class="modal-row"><label>Prioridad</label>
+        <select id="e_prio">
+          <option value="alta">Alta</option>
+          <option value="media">Media</option>
+          <option value="baja">Baja</option>
+        </select>
+      </div>
+      <div class="modal-row"><label>Estado</label>
+        <select id="e_status">
+          <option value="todo">Por hacer</option>
+          <option value="doing">En progreso</option>
+          <option value="done">Hecho</option>
+        </select>
+      </div>
+      <div class="modal-row"><label>Sprint</label><input id="e_sprint" type="text" /></div>
+      <div class="modal-row"><label>Asignado a (Dev)</label><input id="e_assignee" type="text" /></div>
+      <div class="modal-row"><label>Nombre Dev</label><input id="e_assignee_name" type="text" /></div>
+      <div class="modal-actions">
+        <button id="btnCancelEdit" class="btn">Cancelar</button>
+        <button id="btnDoEdit" class="btn primary">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal completar -->
   <div id="modalComplete" class="modal" aria-hidden="true">
     <div class="modal-card">
@@ -180,7 +217,7 @@
     </div>
   </div>
 
-  <!-- Modal eliminar (warning) -->
+  <!-- Modal eliminar -->
   <div id="modalDelete" class="modal" aria-hidden="true">
     <div class="modal-card">
       <h3 style="margin:4px 0 12px 0;color:#b91c1c">Eliminar tarea</h3>
@@ -202,12 +239,17 @@
 
     // ======= ELEMENTOS =======
     const modal = document.getElementById('modal');
+    const modalEdit = document.getElementById('modalEdit');
     const modalComplete = document.getElementById('modalComplete');
     const modalDelete = document.getElementById('modalDelete');
 
     const colTodo  = document.getElementById('colTodo');
     const colDoing = document.getElementById('colDoing');
     const colDone  = document.getElementById('colDone');
+
+    const dropTodo = document.getElementById('dropTodo');
+    const dropDoing = document.getElementById('dropDoing');
+    const dropDone = document.getElementById('dropDone');
 
     const btnNew = document.getElementById('btnNew');
     const btnCancel = document.getElementById('btnCancel');
@@ -224,6 +266,19 @@
     const f_sprint = document.getElementById('f_sprint');
     const f_assignee = document.getElementById('f_assignee');
     const f_assignee_name = document.getElementById('f_assignee_name');
+
+    // editar
+    const e_id = document.getElementById('e_id');
+    const e_title = document.getElementById('e_title');
+    const e_desc = document.getElementById('e_desc');
+    const e_hours = document.getElementById('e_hours');
+    const e_prio = document.getElementById('e_prio');
+    const e_status = document.getElementById('e_status');
+    const e_sprint = document.getElementById('e_sprint');
+    const e_assignee = document.getElementById('e_assignee');
+    const e_assignee_name = document.getElementById('e_assignee_name');
+    const btnCancelEdit = document.getElementById('btnCancelEdit');
+    const btnDoEdit = document.getElementById('btnDoEdit');
 
     // completar
     const c_id = document.getElementById('complete_id');
@@ -251,14 +306,29 @@
     const d_desc = document.getElementById('d_desc');
     const d_complete_btn = document.getElementById('d_complete_btn');
     const d_delete_btn = document.getElementById('d_delete_btn');
+    const d_edit_btn = document.getElementById('d_edit_btn');
 
     // estado UI
     let allTasks = [];
     let selectedId = null;
+    let draggingId = null;
 
     // ======= MODALES =======
     const openModal = () => { modal.classList.add('open'); };
     const closeModal = () => { modal.classList.remove('open'); };
+    const openEdit = (t) => {
+      e_id.value = t.id;
+      e_title.value = t.title || '';
+      e_desc.value = t.description || '';
+      e_hours.value = t.estimatedHours ?? '';
+      e_prio.value = (t.priority || 'media').toLowerCase();
+      e_status.value = (t.status || 'todo').toLowerCase();
+      e_sprint.value = t.sprintId || '';
+      e_assignee.value = t.assigneeId || '';
+      e_assignee_name.value = t.assigneeName || '';
+      modalEdit.classList.add('open');
+    };
+    const closeEdit = () => { modalEdit.classList.remove('open'); };
     const openComplete = (id) => { c_id.value = id; c_hours.value = ''; modalComplete.classList.add('open'); };
     const closeComplete = () => { modalComplete.classList.remove('open'); };
     const openDelete = (id, title) => {
@@ -268,6 +338,7 @@
     };
     const closeDelete = () => { modalDelete.classList.remove('open'); };
 
+    // Botones modales
     btnNew.onclick = () => {
       f_title.value = '';
       f_desc.value = '';
@@ -309,6 +380,37 @@
       } catch(e){ btnCreate.disabled = false; alert('Error de red'); }
     };
 
+    btnCancelEdit.onclick = closeEdit;
+    btnDoEdit.onclick = async () => {
+      const id = e_id.value;
+      const payload = {
+        title: e_title.value.trim(),
+        description: e_desc.value.trim(),
+        estimatedHours: e_hours.value === '' ? null : Number(e_hours.value),
+        priority: e_prio.value,
+        status: e_status.value,
+        sprintId: e_sprint.value.trim(),
+        assigneeId: e_assignee.value.trim(),
+        assigneeName: e_assignee_name.value.trim()
+      };
+      if (!payload.title) return alert('Título obligatorio');
+      if (payload.estimatedHours != null && payload.estimatedHours > 4) return alert('Máximo 4 horas.');
+
+      btnDoEdit.disabled = true;
+      try{
+        const res = await fetch(`${API}/tasks/${id}`, {
+          method: 'PUT',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+        if(!res.ok){ alert('No se pudo editar'); btnDoEdit.disabled=false; return; }
+        closeEdit();
+        btnDoEdit.disabled = false;
+        await loadBoard();
+        if (selectedId == id) showDetails(allTasks.find(t => t.id==id));
+      }catch(e){ btnDoEdit.disabled=false; alert('Error de red'); }
+    };
+
     btnCancelComplete.onclick = closeComplete;
     btnDoComplete.onclick = async () => {
       const id = c_id.value;
@@ -338,17 +440,54 @@
         if(!res.ok){ alert('No se pudo eliminar'); btnDoDelete.disabled=false; return; }
         closeDelete();
         btnDoDelete.disabled = false;
-        // si borraste la seleccionada, limpia panel
         if (selectedId == id) { selectedId = null; detailsCard.classList.remove('open'); }
         await loadBoard();
       }catch(e){ btnDoDelete.disabled=false; alert('Error de red'); }
     };
+
+    // ======= DRAG & DROP =======
+    function enableColumnDnD(colEl){
+      colEl.addEventListener('dragover', (ev) => {
+        ev.preventDefault();
+        colEl.classList.add('drop-target');
+      });
+      colEl.addEventListener('dragleave', () => colEl.classList.remove('drop-target'));
+      colEl.addEventListener('drop', async (ev) => {
+        ev.preventDefault();
+        colEl.classList.remove('drop-target');
+        const toStatus = colEl.dataset.status; // todo | doing | done
+        const id = draggingId;
+        draggingId = null;
+        if (!id || !toStatus) return;
+
+        try{
+          const res = await fetch(`${API}/tasks/${id}/status`, {
+            method: 'PATCH',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ status: toStatus })
+          });
+          if (!res.ok) { alert('No se pudo mover la tarea'); return; }
+          await loadBoard();
+          if (selectedId == id) showDetails(allTasks.find(t => t.id==id));
+        }catch(e){ alert('Error de red'); }
+      });
+    }
+    enableColumnDnD(dropTodo);
+    enableColumnDnD(dropDoing);
+    enableColumnDnD(dropDone);
 
     // ======= RENDER =======
     function taskCard(t){
       const div = document.createElement('div');
       div.className = 'task';
       if (t.id === selectedId) div.classList.add('selected');
+
+      // Drag
+      div.setAttribute('draggable', 'true');
+      div.addEventListener('dragstart', (ev) => {
+        draggingId = t.id;
+        ev.dataTransfer.setData('text/plain', String(t.id));
+      });
 
       div.innerHTML = `
         <div class="task-title">${escapeHtml(t.title || '')}</div>
@@ -366,6 +505,12 @@
       // acciones
       const actions = document.createElement('div');
       actions.className = 'task-actions';
+
+      const bEdit = document.createElement('button');
+      bEdit.className = 'btn-xs edit';
+      bEdit.textContent = 'Editar…';
+      bEdit.onclick = (ev) => { ev.stopPropagation(); openEdit(t); };
+      actions.appendChild(bEdit);
 
       if ((t.status||'').toLowerCase() !== 'done') {
         const bComplete = document.createElement('button');
@@ -415,6 +560,7 @@
       d_desc.textContent = t.description || '—';
 
       // acciones dentro del panel
+      d_edit_btn.onclick = () => openEdit(t);
       if (st === 'done') {
         d_complete_btn.style.display = 'none';
       } else {
@@ -443,7 +589,6 @@
       progressBar.style.width = pct + '%';
       progressPct.textContent = pct + '%';
 
-      // mantener detalles si hay selección
       if (selectedId){
         const sel = list.find(x => x.id === selectedId);
         if (sel) showDetails(sel); else { selectedId = null; detailsCard.classList.remove('open'); }
