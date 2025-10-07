@@ -2,6 +2,8 @@ package com.springboot.MyTodoList.controller;
 
 import com.springboot.MyTodoList.dto.CompleteTaskDto;
 import com.springboot.MyTodoList.dto.TaskCreateDto;
+import com.springboot.MyTodoList.dto.UpdateStatusDto;
+import com.springboot.MyTodoList.dto.UpdateTaskDto;
 import com.springboot.MyTodoList.model.Tarea;
 import com.springboot.MyTodoList.service.TareaService;
 import org.springframework.http.HttpStatus;
@@ -31,19 +33,32 @@ public class TareaController {
     }
 
     @GetMapping("/tasks")
-    public List<Tarea> listByAssignee(@RequestParam String assigneeId) {
+    public List<Tarea> list(@RequestParam String assigneeId) {
         return tareaService.listByAssignee(assigneeId);
     }
 
     @PatchMapping("/tasks/{id}/complete")
-    public Tarea complete(@PathVariable Long id, @Valid @RequestBody CompleteTaskDto dto) {
+    public Tarea complete(@PathVariable Long id, @RequestBody CompleteTaskDto dto) {
         return tareaService.completeTask(id, dto);
     }
 
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         tareaService.delete(id);
-        return ResponseEntity.noContent().build(); // 204
+        return ResponseEntity.noContent().build();
+    }
+
+    // ===== NUEVOS =====
+
+    // Editar campos de una tarea
+    @PutMapping("/tasks/{id}")
+    public Tarea update(@PathVariable Long id, @RequestBody UpdateTaskDto dto) {
+        return tareaService.updateTask(id, dto);
+    }
+
+    // Drag & Drop: actualizar solo el estado
+    @PatchMapping("/tasks/{id}/status")
+    public Tarea updateStatus(@PathVariable Long id, @RequestBody UpdateStatusDto body) {
+        return tareaService.updateStatus(id, body.status);
     }
 }
-
