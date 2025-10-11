@@ -9,53 +9,51 @@ import java.time.LocalDateTime;
 public class Tarea {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Oracle: GENERATED ALWAYS AS IDENTITY
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "TAREA_ID")
     private Long id;
 
-    // ====== Campos principales ======
-    @Column(name = "TITULO", length = 150)
-    private String titulo;
+    @Column(name = "TITULO")
+    private String title;
 
-    @Column(name = "DESCRIPCION", length = 2000)
-    private String descripcion; // la usaremos para get/setDescription()
+    @Column(name = "DESCRIPCION")
+    private String description;
 
-    @Column(name = "ESTADO", length = 50)
-    private String estado;
+    @Column(name = "ESTADO")
+    private String status;
 
-    @Column(name = "PRIORIDAD") // NVARCHAR2(200) en DB -> String aquí
-    private String prioridad;
+    @Column(name = "PROYECTO_ID")
+    private Long projectId;
 
-    @Column(name = "CREATED_AT")
-    private LocalDateTime createdAt;
-
-    // Campo DESCRIPTION (más corto). Lo mantenemos separado para no confundir con DESCRIPCION
-    @Column(name = "DESCRIPTION", length = 1000)
-    private String descriptionCorto;
-
-    // Estimaciones / horas reales
-    @Column(name = "ESTIMATED_HOURS")
-    private Double estimatedHours;
-
-    @Column(name = "REAL_HOURS")
-    private Double realHours;
-
-    // Asignación / sprint / nombre asignado
-    @Column(name = "ASSIGNEE_ID", length = 64)
-    private String assigneeId;
-
-    @Column(name = "ASSIGNEE_NAME", length = 150)
-    private String assigneeName;
-
-    @Column(name = "SPRINT_ID", length = 64)
-    private String sprintId;
-
-    // Fechas varias
     @Column(name = "FECHA_ASIGNACION")
     private LocalDate fechaAsignacion;
 
     @Column(name = "ULTIMO_ACCESO")
     private LocalDateTime ultimoAcceso;
+
+    @Column(name = "PRIORIDAD")
+    private String priority;
+
+    @Column(name = "CREATED_AT")
+    private LocalDateTime createdAt;
+
+    @Column(name = "DESCRIPTION")
+    private String longDescription;
+
+    @Column(name = "ESTIMATED_HOURS")
+    private Double estimatedHours;
+
+    @Column(name = "ASSIGNEE_ID")
+    private String assigneeId;
+
+    @Column(name = "ASSIGNEE_NAME")
+    private String assigneeName;
+
+    @Column(name = "SPRINT_ID")
+    private String sprintId;
+
+    @Column(name = "REAL_HOURS")
+    private Double realHours;
 
     @Column(name = "COMPLETED_AT")
     private LocalDateTime completedAt;
@@ -63,83 +61,152 @@ public class Tarea {
     @Column(name = "FECHA_LIMITE")
     private LocalDate fechaLimite;
 
-    // Columna “misteriosa” NEW_COLUMN_17 (TIMESTAMP) — la mapeo por si la usas
-    @Column(name = "NEW_COLUMN_17")
-    private LocalDateTime newColumn17;
-
-    // Scoping por usuario
-    @Column(name = "USER_EMAIL", length = 320)
+    @Column(name = "USER_EMAIL")
     private String userEmail;
 
-    // ====== Getters / Setters completos ======
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // ==================== GETTERS & SETTERS ====================
 
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getEstado() { return estado; }
-    public void setEstado(String estado) { this.estado = estado; }
+    public String getTitle() {
+        return title;
+    }
 
-    public String getPrioridad() { return prioridad; }
-    public void setPrioridad(String prioridad) { this.prioridad = prioridad; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public String getDescription() {
+        return description;
+    }
 
-    public String getDescriptionCorto() { return descriptionCorto; }
-    public void setDescriptionCorto(String descriptionCorto) { this.descriptionCorto = descriptionCorto; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-    public Double getEstimatedHours() { return estimatedHours; }
-    public void setEstimatedHours(Double estimatedHours) { this.estimatedHours = estimatedHours; }
+    public String getStatus() {
+        return status;
+    }
 
-    public Double getRealHours() { return realHours; }
-    public void setRealHours(Double realHours) { this.realHours = realHours; }
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-    public String getAssigneeId() { return assigneeId; }
-    public void setAssigneeId(String assigneeId) { this.assigneeId = assigneeId; }
+    public Long getProjectId() {
+        return projectId;
+    }
 
-    public String getAssigneeName() { return assigneeName; }
-    public void setAssigneeName(String assigneeName) { this.assigneeName = assigneeName; }
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+    }
 
-    public String getSprintId() { return sprintId; }
-    public void setSprintId(String sprintId) { this.sprintId = sprintId; }
+    public LocalDate getFechaAsignacion() {
+        return fechaAsignacion;
+    }
 
-    public LocalDate getFechaAsignacion() { return fechaAsignacion; }
-    public void setFechaAsignacion(LocalDate fechaAsignacion) { this.fechaAsignacion = fechaAsignacion; }
+    public void setFechaAsignacion(LocalDate fechaAsignacion) {
+        this.fechaAsignacion = fechaAsignacion;
+    }
 
-    public LocalDateTime getUltimoAcceso() { return ultimoAcceso; }
-    public void setUltimoAcceso(LocalDateTime ultimoAcceso) { this.ultimoAcceso = ultimoAcceso; }
+    public LocalDateTime getUltimoAcceso() {
+        return ultimoAcceso;
+    }
 
-    public LocalDateTime getCompletedAt() { return completedAt; }
-    public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }
+    public void setUltimoAcceso(LocalDateTime ultimoAcceso) {
+        this.ultimoAcceso = ultimoAcceso;
+    }
 
-    public LocalDate getFechaLimite() { return fechaLimite; }
-    public void setFechaLimite(LocalDate fechaLimite) { this.fechaLimite = fechaLimite; }
+    public String getPriority() {
+        return priority;
+    }
 
-    public LocalDateTime getNewColumn17() { return newColumn17; }
-    public void setNewColumn17(LocalDateTime newColumn17) { this.newColumn17 = newColumn17; }
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
 
-    public String getUserEmail() { return userEmail; }
-    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-    // ====== ALIAS (compatibilidad con Service/Bot) ======
-    // title <-> titulo
-    public String getTitle() { return getTitulo(); }
-    public void setTitle(String title) { setTitulo(title); }
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
-    // description <-> DESCRIPCION (larga)
-    public String getDescription() { return getDescripcion(); }
-    public void setDescription(String description) { setDescripcion(description); }
+    public String getLongDescription() {
+        return longDescription;
+    }
 
-    // status <-> estado
-    public String getStatus() { return getEstado(); }
-    public void setStatus(String status) { setEstado(status); }
+    public void setLongDescription(String longDescription) {
+        this.longDescription = longDescription;
+    }
 
-    // priority <-> prioridad
-    public String getPriority() { return getPrioridad(); }
-    public void setPriority(String priority) { setPrioridad(priority); }
+    public Double getEstimatedHours() {
+        return estimatedHours;
+    }
+
+    public void setEstimatedHours(Double estimatedHours) {
+        this.estimatedHours = estimatedHours;
+    }
+
+    public String getAssigneeId() {
+        return assigneeId;
+    }
+
+    public void setAssigneeId(String assigneeId) {
+        this.assigneeId = assigneeId;
+    }
+
+    public String getAssigneeName() {
+        return assigneeName;
+    }
+
+    public void setAssigneeName(String assigneeName) {
+        this.assigneeName = assigneeName;
+    }
+
+    public String getSprintId() {
+        return sprintId;
+    }
+
+    public void setSprintId(String sprintId) {
+        this.sprintId = sprintId;
+    }
+
+    public Double getRealHours() {
+        return realHours;
+    }
+
+    public void setRealHours(Double realHours) {
+        this.realHours = realHours;
+    }
+
+    public LocalDateTime getCompletedAt() {
+        return completedAt;
+    }
+
+    public void setCompletedAt(LocalDateTime completedAt) {
+        this.completedAt = completedAt;
+    }
+
+    public LocalDate getFechaLimite() {
+        return fechaLimite;
+    }
+
+    public void setFechaLimite(LocalDate fechaLimite) {
+        this.fechaLimite = fechaLimite;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
 }

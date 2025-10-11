@@ -6,24 +6,22 @@
   <title>Proyectos</title>
   <link rel="stylesheet" href="Css/projects.css"/>
   <style>
-    /* Modal de creación (+ Nuevo) local a este HTML */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0, 0, 0, 0.4);
-      display: none; justify-content: center; align-items: center;
-      z-index: 999;
-    }
-    .modal {
-      background: #fff; border-radius: 18px; padding: 20px 26px;
-      width: 480px; max-width: 95%;
-      box-shadow: 0 8px 32px rgba(0,0,0,.25);
-      animation: fadeIn .2s ease-in-out;
-    }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); display: none; justify-content: center; align-items: center; z-index: 999; }
+    .modal { background: #fff; border-radius: 18px; padding: 20px 26px; width: 480px; max-width: 95%; box-shadow: 0 8px 32px rgba(0,0,0,.25); animation: fadeIn .2s ease-in-out; }
     @keyframes fadeIn { from{opacity:0; transform: translateY(-10px);} to{opacity:1; transform: translateY(0);} }
     .modal-buttons { display:flex; gap:10px; margin-top:14px; justify-content:flex-end }
-
-    /* Chip activo de filtros */
     .chip.active { background: var(--brand); color:#fff; font-weight:700; box-shadow: 0 2px 8px rgba(225,38,28,.25); }
+
+    /* Panel de tareas del proyecto */
+    .tasks-box { margin-top:14px; border:1px solid var(--line); border-radius:12px; padding:12px; background:#fafbfc; }
+    .tasks-box h3 { margin:4px 0 10px 0; font-size:15px; }
+    .task-item { border:1px solid var(--line); background:#fff; border-radius:10px; padding:8px 10px; margin:6px 0; display:flex; justify-content:space-between; gap:10px; }
+    .task-title { font-weight:700; }
+    .task-meta { font-size:12px; color:#64748b; }
+    .badge { font-size:12px; border:1px solid var(--line); padding:2px 8px; border-radius:999px; background:#fff; }
+    .badge.status.todo{ background:#fff4f3 }
+    .badge.status.doing{ background:#fff8e6 }
+    .badge.status.done{ background:#e9fff0 }
   </style>
 </head>
 <body>
@@ -118,6 +116,13 @@
             <div class="detail-item"><div class="label">Fin</div><div class="value" id="d-fin">—</div></div>
             <div class="detail-item"><div class="label">Estado</div><div class="value" id="d-estado"><span class="chip">—</span></div></div>
             <div class="detail-item"><div class="label">Avance</div><div class="value"><div class="progress"><span id="d-avance" style="width:0%"></span></div></div></div>
+
+            <!-- Recuadro de tareas del proyecto -->
+            <div class="tasks-box" id="tasks-box" style="display:none;">
+              <h3>Tareas de este proyecto</h3>
+              <div id="tasks-list"></div>
+              <div class="muted small" id="tasks-count"></div>
+            </div>
           </div>
         </aside>
       </div>
@@ -140,23 +145,17 @@
     </div>
   </div>
 
-  <!-- Contenedor dinámico para confirmación bonita -->
   <div id="confirm-root"></div>
 
   <script>
-    /* ================== Sesión / usuario actual ================== */
-    // Tras el login, guarda algo como: localStorage.setItem("user", JSON.stringify({ id, nombre, email }))
+    // ===== Sesión
     const user = JSON.parse(localStorage.getItem("user") || "null");
     const currentUserId = user?.id || null;
-
-    // Inicial del usuario en el círculo (si existe)
+    const currentUserEmail = user?.email || "";
     const $userInitial = document.getElementById("user-initial");
-    if (user?.nombre) {
-      const ini = user.nombre.trim()[0]?.toUpperCase() || "U";
-      $userInitial.textContent = ini;
-    }
+    if (user?.nombre) $userInitial.textContent = (user.nombre.trim()[0] || "U").toUpperCase();
 
-    /* ================== DOM refs ================== */
+    // ===== DOM
     const $tbody = document.getElementById("projects-body");
     const $buscar = document.getElementById("buscar");
     const $filtro = document.getElementById("filtro");
@@ -173,6 +172,11 @@
     const $dEstado = document.getElementById("d-estado");
     const $dAvance = document.getElementById("d-avance");
 
+    // Tareas del proyecto
+    const $tasksBox = document.getElementById("tasks-box");
+    const $tasksList = document.getElementById("tasks-list");
+    const $tasksCount = document.getElementById("tasks-count");
+
     // Modal
     const $modalOverlay = document.getElementById("modal-overlay");
     const $btnNuevo = document.getElementById("btn-nuevo");
@@ -186,7 +190,7 @@
     const $fInicio = document.getElementById("f-inicio");
     const $fFin = document.getElementById("f-fin");
 
-    /* ================== API endpoints ================== */
+    // API
     const API_BASE = "http://localhost:8080/proyectos";
     const API_MY = currentUserId ? `${API_BASE}/mios/${currentUserId}` : API_BASE;
 
@@ -224,7 +228,46 @@
       $dFin.textContent    = formatFecha(p.fechaFin);
       $dEstado.innerHTML   = `<span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span>`;
       $dAvance.style.width = estadoToAvance(p.estado) + "%";
+
+      // cargar tareas del proyecto
+      loadProjectTasks(p.id);
     }
+
+    async function loadProjectTasks(projectId){
+      $tasksBox.style.display = "block";
+      $tasksList.innerHTML = `<div class="muted">Cargando tareas…</div>`;
+      $tasksCount.textContent = '';
+
+      try {
+        const res = await fetch(`/api/tasks?projectId=${encodeURIComponent(projectId)}`, {
+          headers: { 'X-User-Email': currentUserEmail }
+        });
+        if (!res.ok) {
+          $tasksList.innerHTML = `<div class="muted">No se pudieron cargar las tareas.</div>`;
+          return;
+        }
+        const tasks = await res.json();
+        if (!tasks.length) {
+          $tasksList.innerHTML = `<div class="muted">Este proyecto no tiene tareas.</div>`;
+          $tasksCount.textContent = `0 tareas`;
+          return;
+        }
+        $tasksList.innerHTML = tasks.map(t => `
+          <div class="task-item">
+            <div>
+              <div class="task-title">${escapeHtml(t.title || '')}</div>
+              <div class="task-meta">Prio: ${escapeHtml(t.priority||'')} · Est: ${t.estimatedHours??'-'}h ${t.realHours?(' · Real: '+t.realHours+'h'):''}</div>
+            </div>
+            <div><span class="badge status ${escapeHtml((t.status||'todo').toLowerCase())}">${escapeHtml((t.status||'todo'))}</span></div>
+          </div>
+        `).join('');
+        $tasksCount.textContent = `${tasks.length} tarea(s)`;
+      } catch {
+        $tasksList.innerHTML = `<div class="muted">Error de red.</div>`;
+      }
+    }
+
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
 
     function renderTabla(items) {
       if (!items.length) {
@@ -241,13 +284,7 @@
           <td><span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span></td>
           <td><div class="progress"><span style="width:${estadoToAvance(p.estado)}%"></span></div></td>
           <td>
-            <button class="btn-danger btn-xs" onclick="borrarProyecto(${p.id}, event)" title="Borrar proyecto">
-              <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M9 3h6m-9 4h12m-1 0-.8 12.4A2 2 0 0 1 14.4 21H9.6a2 2 0 0 1-1.99-1.6L6.8 7M10 10v7M14 10v7"
-                      stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span class="label">Borrar</span>
-            </button>
+            <button class="btn-danger btn-xs" onclick="borrarProyecto(${p.id}, event)" title="Borrar proyecto">Borrar</button>
           </td>
         </tr>
       `).join("");
@@ -258,17 +295,7 @@
           const p = proyectosCache.find(x => x.id === id);
           setDetalle(p);
         });
-        tr.addEventListener("dblclick", () => {
-          const id = Number(tr.dataset.id);
-          irADetalleProyecto(id); // abrir detalle
-        });
       });
-    }
-
-    function irADetalleProyecto(id){
-      if (!id) return;
-      // Mantengo el nombre que ya usas en tu proyecto:
-      window.location.href = `homework-proyect.html?id=${encodeURIComponent(id)}`;
     }
 
     async function cargarProyectos() {
@@ -286,7 +313,7 @@
       }
     }
 
-    // ===== Confirmación moderna (sin confirm() nativo)
+    // Confirmación “bonita”
     function mostrarConfirmacion(mensaje, onYes) {
       const overlay = document.createElement("div");
       overlay.className = "confirm-overlay";
@@ -301,7 +328,6 @@
         </div>
       `;
       $confirmRoot.appendChild(overlay);
-
       const close = () => overlay.remove();
       overlay.querySelector(".confirm-cancel").onclick = close;
       overlay.querySelector(".confirm-yes").onclick = () => { close(); onYes(); };
@@ -315,15 +341,13 @@
         await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
         proyectosCache = proyectosCache.filter(p => p.id !== id);
         aplicarFiltros();
+        $tasksBox.style.display = "none";
       });
     }
     window.borrarProyecto = borrarProyecto;
 
     async function crearProyecto() {
-      if (!currentUserId) {
-        alert("No hay usuario logueado. Inicia sesión primero.");
-        return;
-      }
+      if (!currentUserId) { alert("No hay usuario logueado. Inicia sesión primero."); return; }
       const nuevo = {
         nombreProyecto: $fNombre.value.trim(),
         descripcion: $fDesc.value.trim(),
@@ -362,7 +386,6 @@
             : (p.estado || "").toLowerCase() === estSel || (p.estado || "").toLowerCase() === chipActivo
         )
       );
-
       if (chipActivo !== "todos") items = items.filter(p => (p.estado || "").toLowerCase() === chipActivo);
       renderTabla(items);
     }
@@ -383,7 +406,6 @@
       $fNombre.value = ""; $fDesc.value = ""; $fEquipo.value = "";
       $fInicio.value = ""; $fFin.value = "";
     }
-
     $btnNuevo.addEventListener("click", e => { e.preventDefault(); abrirModal(); });
     $btnCancel.addEventListener("click", e => { e.preventDefault(); cerrarModal(); });
     $btnGuardar.addEventListener("click", e => { e.preventDefault(); crearProyecto(); });
