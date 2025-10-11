@@ -58,11 +58,27 @@
           });
 
           if (res.ok) {
-            // 🔐 Guardar la sesión del usuario (email) para usarlo en /tarea.html
+            // ⬇️ NUEVO: leemos el usuario devuelto por el backend y guardamos también 'user' con id
+            const u = await res.json();
+            const id = u.id ?? u.usuarioId ?? u.USUARIO_ID;
+
+            if (!id) {
+              showError('Error: el backend no devolvió id del usuario.');
+              console.error('Respuesta login sin id:', u);
+              return;
+            }
+
+            // Guardados compatibles
+            localStorage.setItem('user', JSON.stringify({
+              id: Number(id),
+              nombre: u.nombre ?? 'Usuario',
+              email: u.email ?? email
+            }));
+            // Mantén también lo que ya usabas
             localStorage.setItem('userEmail', email);
             document.cookie = 'userEmail=' + encodeURIComponent(email) + '; path=/; SameSite=Lax';
 
-            // Redirigir al dashboard o directamente a tareas
+            // Redirigir al dashboard (tal como lo tenías)
             window.location.href = '/dashboard.html';
           } else if (res.status === 401) {
             showError('Usuario o contraseña incorrectos');

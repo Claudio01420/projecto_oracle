@@ -17,9 +17,16 @@ public class ProyectoController {
         this.repo = repo;
     }
 
+    // === TODOS (si aún lo quieres conservar para admin/debug) ===
     @GetMapping
     public List<Proyecto> all() {
         return repo.findAll();
+    }
+
+    // === SOLO MÍOS ===
+    @GetMapping("/mios/{usuarioId}")
+    public List<Proyecto> myProjects(@PathVariable Long usuarioId) {
+        return repo.findByCreadorId(usuarioId);
     }
 
     @GetMapping("/{id}")
@@ -28,10 +35,16 @@ public class ProyectoController {
     }
 
     @PostMapping
-    public Proyecto create(@RequestBody Proyecto p) {
-        // Fuerza estado "Pendiente" si viene vacío
+    public Proyecto create(@RequestBody Proyecto p, @RequestHeader(value="X-User-Id", required=false) Long userIdHeader) {
+        // Estado default
         if (p.getEstado() == null || p.getEstado().trim().isEmpty()) {
             p.setEstado("Pendiente");
+        }
+        // === Setear creador ===
+        // 1) Si te mandan el creadorId en el body, se respeta; si no, intenta por header X-User-Id;
+        // 2) Si no hay ninguno, lo dejamos nulo (pero idealmente SIEMPRE mándalo).
+        if (p.getCreadorId() == null && userIdHeader != null) {
+            p.setCreadorId(userIdHeader);
         }
         return repo.save(p);
     }
@@ -46,8 +59,10 @@ public class ProyectoController {
             actual.setFechaInicio(p.getFechaInicio());
             actual.setFechaFin(p.getFechaFin());
             actual.setUltimoAcceso(p.getUltimoAcceso());
+            // No cambiamos creadorId en update para mantener autoría
             return repo.save(actual);
         }).orElseGet(() -> {
+            // Si no existe, lo creamos con el id provisto (no usual, pero mantiene tu patrón actual)
             p.setId(id);
             return repo.save(p);
         });
