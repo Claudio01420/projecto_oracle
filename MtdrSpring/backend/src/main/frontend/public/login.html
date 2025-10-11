@@ -4,35 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
-  <link rel="stylesheet" href="Css/login.css"> <!-- Aquí enlazamos el CSS externo -->
+  <link rel="stylesheet" href="Css/login.css">
 </head>
 <body>
   <div class="login-card">
     <div class="login-logo">MiApp</div>
     <h2>Iniciar Sesión</h2>
-    <!-- agregamos id para capturar submit desde JS -->
+
     <form id="loginForm">
       <div class="form-group">
         <label for="usuario">Usuario (email)</label>
-        <!-- name debe coincidir con la propiedad 'email' del backend -->
         <input type="text" id="usuario" name="email" placeholder="Tu usuario" required>
       </div>
       <div class="form-group">
         <label for="password">Contraseña</label>
-        <!-- name debe coincidir con la propiedad 'contrasenia' del backend -->
         <input type="password" id="password" name="contrasenia" placeholder="Tu contraseña" required>
       </div>
       <button type="submit" class="btn">Entrar</button>
     </form>
+
     <div class="extra-links">
       <a href="/recuperarContraseña.html">¿Olvidaste tu contraseña?</a>
     </div>
   </div>
 
-  <!-- script manejador de login -->
   <script>
     (function() {
       const form = document.getElementById('loginForm');
+
       function showError(msg) {
         let el = document.getElementById('loginError');
         if (!el) {
@@ -59,7 +58,11 @@
           });
 
           if (res.ok) {
-            // login exitoso -> redirigir al dashboard
+            // 🔐 Guardar la sesión del usuario (email) para usarlo en /tarea.html
+            localStorage.setItem('userEmail', email);
+            document.cookie = 'userEmail=' + encodeURIComponent(email) + '; path=/; SameSite=Lax';
+
+            // Redirigir al dashboard o directamente a tareas
             window.location.href = '/dashboard.html';
           } else if (res.status === 401) {
             showError('Usuario o contraseña incorrectos');
