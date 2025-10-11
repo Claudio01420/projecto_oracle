@@ -10,12 +10,15 @@ public interface TareaRepository extends JpaRepository<Tarea, Long> {
 
     List<Tarea> findByAssigneeId(String assigneeId);
     List<Tarea> findByAssigneeIdOrderByCreatedAtDesc(String assigneeId);
+
     Optional<Tarea> findByIdAndAssigneeId(Long id, String assigneeId);
 
-    // Para la vista de proyectos: tareas de un dueño por proyecto
+    // Filtros
     List<Tarea> findByAssigneeIdAndProjectIdOrderByCreatedAtDesc(String assigneeId, Long projectId);
+    List<Tarea> findByAssigneeIdAndSprintIdOrderByCreatedAtDesc(String assigneeId, String sprintId);
+    List<Tarea> findByAssigneeIdAndProjectIdAndSprintIdOrderByCreatedAtDesc(String assigneeId, Long projectId, String sprintId);
 
-    // Alternativas por USER_EMAIL si alguna vez cambias a esa columna
+    // Si alguna vez usas USER_EMAIL:
     List<Tarea> findTop200ByUserEmailOrderByCreatedAtDesc(String userEmail);
     Optional<Tarea> findByIdAndUserEmail(Long id, String userEmail);
 }
