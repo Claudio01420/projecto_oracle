@@ -34,7 +34,7 @@
       <img src="image/Oracle_logo.png" alt="Oracle Logo" style="max-width:160px; height:auto;" />
     </div>
     <div class="topbar-right">
-      <div class="user-circle">U</div>
+      <div class="user-circle" id="user-initial">U</div>
       <a href="/logout" class="logout-btn">⏻ Salir</a>
     </div>
   </header>
@@ -144,7 +144,19 @@
   <div id="confirm-root"></div>
 
   <script>
-    const API_BASE = "http://localhost:8080/proyectos";
+    /* ================== Sesión / usuario actual ================== */
+    // Tras el login, guarda algo como: localStorage.setItem("user", JSON.stringify({ id, nombre, email }))
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const currentUserId = user?.id || null;
+
+    // Inicial del usuario en el círculo (si existe)
+    const $userInitial = document.getElementById("user-initial");
+    if (user?.nombre) {
+      const ini = user.nombre.trim()[0]?.toUpperCase() || "U";
+      $userInitial.textContent = ini;
+    }
+
+    /* ================== DOM refs ================== */
     const $tbody = document.getElementById("projects-body");
     const $buscar = document.getElementById("buscar");
     const $filtro = document.getElementById("filtro");
@@ -173,6 +185,10 @@
     const $fEquipo = document.getElementById("f-equipo");
     const $fInicio = document.getElementById("f-inicio");
     const $fFin = document.getElementById("f-fin");
+
+    /* ================== API endpoints ================== */
+    const API_BASE = "http://localhost:8080/proyectos";
+    const API_MY = currentUserId ? `${API_BASE}/mios/${currentUserId}` : API_BASE;
 
     let proyectosCache = [];
 
@@ -251,12 +267,17 @@
 
     function irADetalleProyecto(id){
       if (!id) return;
+      // Mantengo el nombre que ya usas en tu proyecto:
       window.location.href = `homework-proyect.html?id=${encodeURIComponent(id)}`;
     }
 
     async function cargarProyectos() {
       try {
-        const res = await fetch(API_BASE);
+        if (!currentUserId) {
+          $tbody.innerHTML = `<tr><td colspan="6">Inicia sesión para ver tus proyectos.</td></tr>`;
+          return;
+        }
+        const res = await fetch(API_MY);
         proyectosCache = await res.json();
         aplicarFiltros();
         if (proyectosCache[0]) setDetalle(proyectosCache[0]);
@@ -289,7 +310,7 @@
     }
 
     async function borrarProyecto(id, evt) {
-      if (evt) evt.stopPropagation(); // evita disparar doble clic/clic de la fila
+      if (evt) evt.stopPropagation();
       mostrarConfirmacion("¿Seguro que deseas borrar este proyecto?", async () => {
         await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
         proyectosCache = proyectosCache.filter(p => p.id !== id);
@@ -299,17 +320,25 @@
     window.borrarProyecto = borrarProyecto;
 
     async function crearProyecto() {
+      if (!currentUserId) {
+        alert("No hay usuario logueado. Inicia sesión primero.");
+        return;
+      }
       const nuevo = {
         nombreProyecto: $fNombre.value.trim(),
         descripcion: $fDesc.value.trim(),
-        estado: "Pendiente", // todos inician Pendiente
+        estado: "Pendiente",
         equipoId: Number($fEquipo.value),
         fechaInicio: $fInicio.value || null,
-        fechaFin: $fFin.value || null
+        fechaFin: $fFin.value || null,
+        creadorId: currentUserId
       };
       const res = await fetch(API_BASE, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-User-Id": String(currentUserId)
+        },
         body: JSON.stringify(nuevo)
       });
       if (res.ok) {
