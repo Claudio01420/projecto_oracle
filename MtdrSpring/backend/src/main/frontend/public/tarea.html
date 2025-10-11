@@ -25,11 +25,9 @@
     .btn.danger:hover{ background:#dc2626 }
 
     .task.selected{ outline:2px solid var(--brand); outline-offset:2px }
-
     .drop-target{ outline:2px dashed #cbd5e1; background:#f8fafc }
     .col{ transition:background .15s }
 
-    /* Panel de detalles */
     .details{ display:none; }
     .details.open{ display:block; }
     .details-head{ display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:10px }
@@ -44,9 +42,8 @@
     .details-grid{ display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:12px }
     .details-item{ background:#fafbfc; border:1px solid var(--line-2); border-radius:12px; padding:12px }
     .details-label{ font-size:12px; color:var(--muted); margin-bottom:6px }
-    .details-value{ font-weight:700; color:#374151 }
+    .details-value{ font-weight:700; color:var(--muted-2) }
     .desc-box{ margin-top:10px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px }
-    .logout-btn{ border:1px solid var(--line); border-radius:10px; padding:6px 10px; background:#fff; cursor:pointer }
   </style>
 </head>
 <body>
@@ -55,8 +52,8 @@
   <header class="topbar">
     <div class="brand"><img src="image/Oracle_logo.png" style="max-width:160px;height:auto"></div>
     <div class="topbar-right">
-      <div class="user-circle" id="userInitial">U</div>
-      <button id="logoutBtn" class="logout-btn">⏻ Salir</button>
+      <div class="user-circle" id="user-initial">U</div>
+      <a class="logout-btn" href="/logout">⏻ Salir</a>
     </div>
   </header>
 
@@ -79,7 +76,7 @@
       <section class="card card-soft">
         <div style="display:flex; align-items:center; justify-content:space-between">
           <h1 class="h4" style="margin:0">Tareas</h1>
-          <button id="btnNew" class="btn primary">+ Nueva tarea (Dev)</button>
+          <button id="btnNew" class="btn primary">+ Nueva tarea</button>
         </div>
         <div class="progress-row" style="margin-top:10px">
           <div class="label">Avance general</div>
@@ -152,9 +149,9 @@
   <!-- Modal crear -->
   <div id="modal" class="modal" aria-hidden="true">
     <div class="modal-card">
-      <h3 style="margin:4px 0 12px 0">Nueva tarea (Dev)</h3>
-      <div class="modal-row"><label>Título</label><input id="f_title" type="text" /></div>
-      <div class="modal-row"><label>Descripción</label><textarea id="f_desc" rows="3"></textarea></div>
+      <h3 style="margin:4px 0 12px 0">Nueva tarea</h3>
+      <div class="modal-row"><label>Título</label><input id="f_title" type="text" required /></div>
+      <div class="modal-row"><label>Descripción</label><textarea id="f_desc" rows="3" required></textarea></div>
       <div class="modal-row"><label>Horas estimadas (≤4)</label><input id="f_hours" type="number" min="0" max="4" step="0.5" /></div>
       <div class="modal-row"><label>Prioridad</label>
         <select id="f_prio">
@@ -164,7 +161,8 @@
         </select>
       </div>
       <div class="modal-row"><label>Sprint</label><input id="f_sprint" type="text" placeholder="SPR-1" /></div>
-      <div class="modal-row"><label>Asignado a (Dev)</label><input id="f_assignee" type="text" placeholder="se rellenará con tu email" /></div>
+      <div class="modal-row"><label>ID Proyecto</label><input id="f_project" type="number" min="1" step="1" placeholder="Ej. 10" required /></div>
+      <div class="modal-row"><label>Asignado a (Dev)</label><input id="f_assignee" type="text" placeholder="(se forzará tu email)" disabled /></div>
       <div class="modal-row"><label>Nombre Dev</label><input id="f_assignee_name" type="text" placeholder="Juan Pérez" /></div>
       <div class="modal-actions">
         <button id="btnCancel" class="btn">Cancelar</button>
@@ -178,8 +176,8 @@
     <div class="modal-card">
       <h3 style="margin:4px 0 12px 0">Editar tarea</h3>
       <input type="hidden" id="e_id"/>
-      <div class="modal-row"><label>Título</label><input id="e_title" type="text" /></div>
-      <div class="modal-row"><label>Descripción</label><textarea id="e_desc" rows="3"></textarea></div>
+      <div class="modal-row"><label>Título</label><input id="e_title" type="text" required /></div>
+      <div class="modal-row"><label>Descripción</label><textarea id="e_desc" rows="3" required></textarea></div>
       <div class="modal-row"><label>Horas estimadas (≤4)</label><input id="e_hours" type="number" min="0" max="4" step="0.5" /></div>
       <div class="modal-row"><label>Prioridad</label>
         <select id="e_prio">
@@ -196,7 +194,8 @@
         </select>
       </div>
       <div class="modal-row"><label>Sprint</label><input id="e_sprint" type="text" /></div>
-      <div class="modal-row"><label>Asignado a (Dev)</label><input id="e_assignee" type="text" /></div>
+      <div class="modal-row"><label>ID Proyecto</label><input id="e_project" type="number" min="1" step="1" required /></div>
+      <div class="modal-row"><label>Asignado a (Dev)</label><input id="e_assignee" type="text" disabled /></div>
       <div class="modal-row"><label>Nombre Dev</label><input id="e_assignee_name" type="text" /></div>
       <div class="modal-actions">
         <button id="btnCancelEdit" class="btn">Cancelar</button>
@@ -233,17 +232,20 @@
     </div>
   </div>
 
-  <!-- Helper de sesión -->
-  <script src="/Js/session.js"></script>
-
   <script>
+    // ======= SESIÓN =======
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const currentUserEmail = user?.email || "";
+    const $userInitial = document.getElementById("user-initial");
+    if (user?.nombre) $userInitial.textContent = (user.nombre.trim()[0] || "U").toUpperCase();
+
+    if (!currentUserEmail) {
+      alert("No hay usuario logueado. Inicia sesión.");
+      // opcional: location.href = "/login.html";
+    }
+
     // ======= CONFIG =======
     const API = '/api';
-    const USER_EMAIL = Session.ensureEmailOrRedirect();
-
-    // Pintar inicial y logout
-    document.getElementById('userInitial').textContent = USER_EMAIL.charAt(0).toUpperCase();
-    document.getElementById('logoutBtn').onclick = (e) => { e.preventDefault(); Session.logout(); };
 
     // ======= ELEMENTOS =======
     const modal = document.getElementById('modal');
@@ -272,6 +274,7 @@
     const f_hours = document.getElementById('f_hours');
     const f_prio = document.getElementById('f_prio');
     const f_sprint = document.getElementById('f_sprint');
+    const f_project = document.getElementById('f_project');
     const f_assignee = document.getElementById('f_assignee');
     const f_assignee_name = document.getElementById('f_assignee_name');
 
@@ -283,6 +286,7 @@
     const e_prio = document.getElementById('e_prio');
     const e_status = document.getElementById('e_status');
     const e_sprint = document.getElementById('e_sprint');
+    const e_project = document.getElementById('e_project');
     const e_assignee = document.getElementById('e_assignee');
     const e_assignee_name = document.getElementById('e_assignee_name');
     const btnCancelEdit = document.getElementById('btnCancelEdit');
@@ -322,8 +326,19 @@
     let draggingId = null;
 
     // ======= MODALES =======
-    const openModal = () => { modal.classList.add('open'); };
+    const openModal = () => { 
+      f_title.value = '';
+      f_desc.value = '';
+      f_hours.value = '';
+      f_prio.value = 'media';
+      f_sprint.value = 'SPR-1';
+      f_project.value = '';
+      f_assignee.value = currentUserEmail;
+      f_assignee_name.value = '';
+      modal.classList.add('open'); 
+    };
     const closeModal = () => { modal.classList.remove('open'); };
+
     const openEdit = (t) => {
       e_id.value = t.id;
       e_title.value = t.title || '';
@@ -332,6 +347,7 @@
       e_prio.value = (t.priority || 'media').toLowerCase();
       e_status.value = (t.status || 'todo').toLowerCase();
       e_sprint.value = t.sprintId || '';
+      e_project.value = t.projectId || '';
       e_assignee.value = t.assigneeId || '';
       e_assignee_name.value = t.assigneeName || '';
       modalEdit.classList.add('open');
@@ -347,19 +363,12 @@
     const closeDelete = () => { modalDelete.classList.remove('open'); };
 
     // Botones modales
-    btnNew.onclick = () => {
-      f_title.value = '';
-      f_desc.value = '';
-      f_hours.value = '';
-      f_prio.value = 'media';
-      f_sprint.value = 'SPR-1';
-      f_assignee.value = USER_EMAIL; // ✅ email actual
-      f_assignee_name.value = '';
-      openModal();
-    };
+    btnNew.onclick = openModal;
     btnCancel.onclick = closeModal;
 
     btnCreate.onclick = async () => {
+      const projectId = Number(f_project.value);
+      if (!projectId || projectId < 1) return alert('ID Proyecto es obligatorio y debe ser mayor a 0.');
       const payload = {
         title: f_title.value.trim(),
         description: f_desc.value.trim(),
@@ -367,17 +376,22 @@
         priority: f_prio.value,
         status: 'todo',
         sprintId: f_sprint.value.trim(),
-        assigneeId: USER_EMAIL,
-        assigneeName: f_assignee_name.value.trim()
+        assigneeId: currentUserEmail, // el backend igual lo fuerza
+        assigneeName: f_assignee_name.value.trim(),
+        projectId
       };
-      if (!payload.title) { return alert('Título es obligatorio'); }
-      if (payload.estimatedHours > 4) { return alert('Máximo 4 horas.'); }
+      if (!payload.title) return alert('Título es obligatorio');
+      if (!payload.description) return alert('Descripción obligatoria');
+      if (payload.estimatedHours > 4) return alert('Máximo 4 horas.');
 
       btnCreate.disabled = true;
       try{
         const res = await fetch(`${API}/tasks`, {
           method: 'POST',
-          headers: Session.commonHeaders(),
+          headers:{
+            'Content-Type':'application/json',
+            'X-User-Email': currentUserEmail
+          },
           body: JSON.stringify(payload)
         });
         if(!res.ok){ alert(await res.text() || 'Error creando tarea'); btnCreate.disabled=false; return; }
@@ -391,6 +405,9 @@
     btnCancelEdit.onclick = closeEdit;
     btnDoEdit.onclick = async () => {
       const id = e_id.value;
+      const projectId = Number(e_project.value);
+      if (!projectId || projectId < 1) return alert('ID Proyecto es obligatorio y debe ser mayor a 0.');
+
       const payload = {
         title: e_title.value.trim(),
         description: e_desc.value.trim(),
@@ -398,20 +415,25 @@
         priority: e_prio.value,
         status: e_status.value,
         sprintId: e_sprint.value.trim(),
-        assigneeId: USER_EMAIL,  // ✅ aseguramos propiedad
-        assigneeName: e_assignee_name.value.trim()
+        assigneeId: currentUserEmail, // se corrige si alguien intenta cambiarlo
+        assigneeName: e_assignee_name.value.trim(),
+        projectId
       };
       if (!payload.title) return alert('Título obligatorio');
+      if (!payload.description) return alert('Descripción obligatoria');
       if (payload.estimatedHours != null && payload.estimatedHours > 4) return alert('Máximo 4 horas.');
 
       btnDoEdit.disabled = true;
       try{
         const res = await fetch(`${API}/tasks/${id}`, {
           method: 'PUT',
-          headers: Session.commonHeaders(),
+          headers:{
+            'Content-Type':'application/json',
+            'X-User-Email': currentUserEmail
+          },
           body: JSON.stringify(payload)
         });
-        if(!res.ok){ alert('No se pudo editar'); btnDoEdit.disabled=false; return; }
+        if(!res.ok){ alert(await res.text() || 'No se pudo editar'); btnDoEdit.disabled=false; return; }
         closeEdit();
         btnDoEdit.disabled = false;
         await loadBoard();
@@ -428,10 +450,13 @@
       try{
         const res = await fetch(`${API}/tasks/${id}/complete`, {
           method: 'PATCH',
-          headers: Session.commonHeaders(),
+          headers:{
+            'Content-Type':'application/json',
+            'X-User-Email': currentUserEmail
+          },
           body: JSON.stringify({ realHours: hours, status: 'done' })
         });
-        if(!res.ok){ alert('No se pudo completar la tarea'); btnDoComplete.disabled=false; return; }
+        if(!res.ok){ alert(await res.text() || 'No se pudo completar la tarea'); btnDoComplete.disabled=false; return; }
         closeComplete();
         btnDoComplete.disabled = false;
         await loadBoard();
@@ -444,8 +469,11 @@
       const id = del_id.value;
       btnDoDelete.disabled = true;
       try{
-        const res = await fetch(`${API}/tasks/${id}`, { method:'DELETE', headers: Session.commonHeaders() });
-        if(!res.ok){ alert('No se pudo eliminar'); btnDoDelete.disabled=false; return; }
+        const res = await fetch(`${API}/tasks/${id}`, { 
+          method:'DELETE',
+          headers:{ 'X-User-Email': currentUserEmail }
+        });
+        if(!res.ok){ alert(await res.text() || 'No se pudo eliminar'); btnDoDelete.disabled=false; return; }
         closeDelete();
         btnDoDelete.disabled = false;
         if (selectedId == id) { selectedId = null; detailsCard.classList.remove('open'); }
@@ -471,10 +499,13 @@
         try{
           const res = await fetch(`${API}/tasks/${id}/status`, {
             method: 'PATCH',
-            headers: Session.commonHeaders(),
+            headers:{
+              'Content-Type':'application/json',
+              'X-User-Email': currentUserEmail
+            },
             body: JSON.stringify({ status: toStatus })
           });
-          if (!res.ok) { alert('No se pudo mover la tarea'); return; }
+          if (!res.ok) { alert(await res.text() || 'No se pudo mover la tarea'); return; }
           await loadBoard();
           if (selectedId == id) showDetails(allTasks.find(t => t.id==id));
         }catch(e){ alert('Error de red'); }
@@ -499,18 +530,16 @@
 
       div.innerHTML = `
         <div class="task-title">${escapeHtml(t.title || '')}</div>
-        <div class="task-meta">Prio: ${escapeHtml(t.priority||'')} · Est: ${t.estimatedHours??'-'}h ${t.realHours?(' · Real: '+t.realHours+'h'):''}</div>
+        <div class="task-meta">Proyecto: ${t.projectId ?? '-'} · Prio: ${escapeHtml(t.priority||'')} · Est: ${t.estimatedHours??'-'}h ${t.realHours?(' · Real: '+t.realHours+'h'):''}</div>
         <div class="task-meta">${escapeHtml(t.assigneeName||'')} (${escapeHtml(t.assigneeId||'')})</div>
       `;
 
-      // click ⇒ abrir detalles
       div.onclick = () => {
         selectedId = t.id;
         renderBoard(allTasks);
         showDetails(t);
       };
 
-      // acciones
       const actions = document.createElement('div');
       actions.className = 'task-actions';
 
@@ -603,7 +632,10 @@
     }
 
     async function loadBoard(){
-      const res = await fetch(`${API}/tasks`, { headers: Session.commonHeaders() });
+      const res = await fetch(`${API}/tasks`, {
+        headers: { 'X-User-Email': currentUserEmail }
+      });
+      if (!res.ok) { alert('No se pudieron cargar las tareas'); return; }
       allTasks = await res.json();
       renderBoard(allTasks);
     }
