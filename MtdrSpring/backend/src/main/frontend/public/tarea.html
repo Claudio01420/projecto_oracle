@@ -6,13 +6,13 @@
   <title>Tareas</title>
   <link rel="stylesheet" href="Css/tarea.css"/>
   <style>
-    .toolbar{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:8px 0 16px}
-    .field{display:flex;flex-direction:column;gap:6px}
-    .field label{font-size:12px;color:var(--muted)}
-    .select-pill{appearance:none;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;min-width:180px}
-    .select-pill:focus{outline:none;box-shadow:0 0 0 3px rgba(225,38,28,.2)}
-    .chip-clear{border:1px dashed var(--line);background:#fafafa;border-radius:999px;padding:6px 10px;cursor:pointer}
-    .chip-clear:hover{background:#f2f2f2}
+    /* estilos mínimos para filtros */
+    .filters { display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap; margin-top:10px }
+    .field { display:flex; flex-direction:column; gap:6px; }
+    .field label { font-size:12px; color:#6b7280; }
+    .select { padding:10px 12px; border:1px solid #e5e7eb; border-radius:12px; min-width:220px; background:#fff }
+    .link-reset { padding:10px 14px; border:1px solid #e5e7eb; border-radius:12px; background:#fff; cursor:pointer }
+    .link-reset:hover { filter:brightness(.97) }
 
     .task-actions{ display:flex; gap:6px; margin-top:8px; flex-wrap:wrap }
     .btn-xs{ font-size:12px; padding:4px 8px; border:1px solid var(--line); background:#fff; border-radius:8px; cursor:pointer }
@@ -24,7 +24,7 @@
     .modal{ position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:300 }
     .modal.open{ display:flex }
     .modal-card{ width:520px; max-width:92vw; background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow-md); padding:16px }
-    .modal-row{ display:grid; grid-template-columns: 160px 1fr; gap:10px; margin:8px 0 }
+    .modal-row{ display:grid; grid-template-columns: 140px 1fr; gap:10px; margin:8px 0 }
     .modal-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px }
     .btn{ padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:#fff; cursor:pointer }
     .btn.primary{ background:var(--brand); color:#fff; border:none }
@@ -36,8 +36,7 @@
     .drop-target{ outline:2px dashed #cbd5e1; background:#f8fafc }
     .col{ transition:background .15s }
 
-    .details{ display:none; }
-    .details.open{ display:block; }
+    .details{ display:none; } .details.open{ display:block; }
     .details-head{ display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:10px }
     .badges{ display:flex; gap:8px; flex-wrap:wrap }
     .badge{ font-size:12px; padding:3px 8px; border-radius:999px; border:1px solid var(--line) }
@@ -53,6 +52,7 @@
     .details-value{ font-weight:700; color:var(--muted-2) }
     .desc-box{ margin-top:10px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px }
   </style>
+  <script src="/session.js"></script>
 </head>
 <body>
 
@@ -84,27 +84,24 @@
       <section class="card card-soft">
         <div style="display:flex; align-items:center; justify-content:space-between">
           <h1 class="h4" style="margin:0">Tareas</h1>
-          <button id="btnNew" class="btn primary">+ Nueva tarea</button>
+          <button id="btnNew" class="btn primary">+ Nueva tarea (Dev)</button>
         </div>
 
-        <!-- FILTROS -->
-        <div class="toolbar">
+        <!-- Filtros -->
+        <div class="filters">
           <div class="field">
             <label for="filterProject">Proyecto</label>
-            <select id="filterProject" class="select-pill">
-              <option value="">Todos los proyectos</option>
+            <select id="filterProject" class="select">
+              <option value="">Todas las tareas</option>
             </select>
           </div>
           <div class="field">
             <label for="filterSprint">Sprint</label>
-            <select id="filterSprint" class="select-pill">
+            <select id="filterSprint" class="select">
               <option value="">Todos los sprints</option>
             </select>
           </div>
-          <div class="field">
-            <label>&nbsp;</label>
-            <button id="btnClear" class="chip-clear">Limpiar filtros</button>
-          </div>
+          <button id="btnClearFilters" class="link-reset">Limpiar filtros</button>
         </div>
 
         <div class="progress-row" style="margin-top:10px">
@@ -139,7 +136,6 @@
               <span id="d_status" class="badge status">status</span>
               <span id="d_priority" class="badge prio">prioridad</span>
               <span id="d_sprint" class="badge">Sprint</span>
-              <span id="d_project" class="badge">Proyecto</span>
             </div>
           </div>
           <div class="badges">
@@ -179,7 +175,7 @@
   <!-- Modal crear -->
   <div id="modal" class="modal" aria-hidden="true">
     <div class="modal-card">
-      <h3 style="margin:4px 0 12px 0">Nueva tarea</h3>
+      <h3 style="margin:4px 0 12px 0">Nueva tarea (Dev)</h3>
       <div class="modal-row"><label>Título</label><input id="f_title" type="text" /></div>
       <div class="modal-row"><label>Descripción</label><textarea id="f_desc" rows="3"></textarea></div>
       <div class="modal-row"><label>Horas estimadas (≤4)</label><input id="f_hours" type="number" min="0" max="4" step="0.5" /></div>
@@ -191,8 +187,8 @@
         </select>
       </div>
       <div class="modal-row"><label>Sprint</label><input id="f_sprint" type="text" placeholder="SPR-1" /></div>
-      <div class="modal-row"><label>Project ID *</label><input id="f_project" type="number" min="1" placeholder="Ej. 12" /></div>
-      <div class="modal-row"><label>Asignado a (Dev)</label><input id="f_assignee" type="text" placeholder="se completa con tu email" disabled /></div>
+      <div class="modal-row"><label>Proyecto ID</label><input id="f_project" type="number" min="1" placeholder="Ej. 42" /></div>
+      <div class="modal-row"><label>Asignado a (Dev)</label><input id="f_assignee" type="text" placeholder="dev-123" /></div>
       <div class="modal-row"><label>Nombre Dev</label><input id="f_assignee_name" type="text" placeholder="Juan Pérez" /></div>
       <div class="modal-actions">
         <button id="btnCancel" class="btn">Cancelar</button>
@@ -224,7 +220,8 @@
         </select>
       </div>
       <div class="modal-row"><label>Sprint</label><input id="e_sprint" type="text" /></div>
-      <div class="modal-row"><label>Project ID *</label><input id="e_project" type="number" min="1" /></div>
+      <div class="modal-row"><label>Proyecto ID</label><input id="e_project" type="number" min="1" /></div>
+      <div class="modal-row"><label>Asignado a (Dev)</label><input id="e_assignee" type="text" /></div>
       <div class="modal-row"><label>Nombre Dev</label><input id="e_assignee_name" type="text" /></div>
       <div class="modal-actions">
         <button id="btnCancelEdit" class="btn">Cancelar</button>
@@ -237,7 +234,7 @@
   <div id="modalComplete" class="modal" aria-hidden="true">
     <div class="modal-card">
       <h3 style="margin:4px 0 12px 0">Completar tarea</h3>
-      <input type="hidden" id="complete_id"/>
+    <input type="hidden" id="complete_id"/>
       <div class="modal-row"><label>Horas reales</label><input id="complete_hours" type="number" min="0" max="24" step="0.25"/></div>
       <div class="modal-actions">
         <button id="btnCancelComplete" class="btn">Cancelar</button>
@@ -264,7 +261,6 @@
   <script>
     // ======= CONFIG =======
     const API = '/api';
-    // Tomar email guardado por login (session.js) para X-User-Email
     const user = JSON.parse(localStorage.getItem('user') || 'null');
     const USER_EMAIL = user?.email || '';
 
@@ -289,9 +285,10 @@
     const progressBar = document.getElementById('progressBar');
     const progressPct = document.getElementById('progressPct');
 
+    // filtros
     const filterProject = document.getElementById('filterProject');
     const filterSprint = document.getElementById('filterSprint');
-    const btnClear = document.getElementById('btnClear');
+    const btnClearFilters = document.getElementById('btnClearFilters');
 
     // crear
     const f_title = document.getElementById('f_title');
@@ -312,6 +309,7 @@
     const e_status = document.getElementById('e_status');
     const e_sprint = document.getElementById('e_sprint');
     const e_project = document.getElementById('e_project');
+    const e_assignee = document.getElementById('e_assignee');
     const e_assignee_name = document.getElementById('e_assignee_name');
     const btnCancelEdit = document.getElementById('btnCancelEdit');
     const btnDoEdit = document.getElementById('btnDoEdit');
@@ -334,7 +332,6 @@
     const d_status = document.getElementById('d_status');
     const d_priority = document.getElementById('d_priority');
     const d_sprint = document.getElementById('d_sprint');
-    const d_project = document.getElementById('d_project');
     const d_assignee = document.getElementById('d_assignee');
     const d_est = document.getElementById('d_est');
     const d_real = document.getElementById('d_real');
@@ -345,14 +342,81 @@
     const d_delete_btn = document.getElementById('d_delete_btn');
     const d_edit_btn = document.getElementById('d_edit_btn');
 
-    // estado UI
-    let allTasks = [];
+    // ======= ESTADO =======
+    let masterTasks = [];  // TODAS las tareas del usuario
+    let allTasks = [];     // tareas visibles (filtradas)
     let selectedId = null;
     let draggingId = null;
 
+    // ======= HELPERS =======
+    const authHeaders = () => USER_EMAIL ? { 'X-User-Email': USER_EMAIL } : {};
+
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
+    const fmt = (iso) => {
+      if (!iso) return '—';
+      try { const d = new Date(iso); return d.toLocaleString(); } catch { return '—'; }
+    };
+
+    // ======= FILTROS =======
+    function buildFilterOptionsFromMaster() {
+      // Guardar selección actual
+      const selProject = filterProject.value;
+      const selSprint = filterSprint.value;
+
+      // Limpiar
+      filterProject.innerHTML = `<option value="">Todas las tareas</option>`;
+      filterSprint.innerHTML = `<option value="">Todos los sprints</option>`;
+
+      // Tomar SIEMPRE masterTasks (no la lista filtrada)
+      const projectIds = [...new Set(masterTasks.map(t => t.projectId).filter(v => v != null))].sort((a,b)=>a-b);
+      projectIds.forEach(id => {
+        const opt = document.createElement('option');
+        opt.value = String(id);
+        opt.textContent = String(id);
+        filterProject.appendChild(opt);
+      });
+
+      const sprints = [...new Set(masterTasks.map(t => (t.sprintId||'').trim()).filter(Boolean))].sort();
+      sprints.forEach(sp => {
+        const opt = document.createElement('option');
+        opt.value = sp; opt.textContent = sp;
+        filterSprint.appendChild(opt);
+      });
+
+      // Restaurar selección si aún existe
+      if ([...filterProject.options].some(o => o.value === selProject)) filterProject.value = selProject;
+      if ([...filterSprint.options].some(o => o.value === selSprint)) filterSprint.value = selSprint;
+    }
+
+    function applyFilters() {
+      const pid = filterProject.value;
+      const sp = filterSprint.value.trim();
+      allTasks = masterTasks.filter(t => {
+        const okProject = pid ? String(t.projectId) === pid : true;
+        const okSprint = sp ? String(t.sprintId||'') === sp : true;
+        return okProject && okSprint;
+      });
+      renderBoard(allTasks);
+    }
+
+    btnClearFilters.onclick = () => {
+      filterProject.value = '';
+      filterSprint.value = '';
+      applyFilters();
+    };
+    filterProject.onchange = applyFilters;
+    filterSprint.onchange = applyFilters;
+
     // ======= MODALES =======
     const openModal = () => { 
-      if (USER_EMAIL) f_assignee.value = USER_EMAIL;
+      f_title.value = '';
+      f_desc.value = '';
+      f_hours.value = '';
+      f_prio.value = 'media';
+      f_sprint.value = 'SPR-1';
+      f_project.value = '';
+      f_assignee.value = user?.email || '';
+      f_assignee_name.value = '';
       modal.classList.add('open'); 
     };
     const closeModal = () => { modal.classList.remove('open'); };
@@ -365,6 +429,7 @@
       e_status.value = (t.status || 'todo').toLowerCase();
       e_sprint.value = t.sprintId || '';
       e_project.value = t.projectId || '';
+      e_assignee.value = t.assigneeId || '';
       e_assignee_name.value = t.assigneeName || '';
       modalEdit.classList.add('open');
     };
@@ -378,22 +443,10 @@
     };
     const closeDelete = () => { modalDelete.classList.remove('open'); };
 
-    // Botones modales
-    btnNew.onclick = () => {
-      f_title.value = '';
-      f_desc.value = '';
-      f_hours.value = '';
-      f_prio.value = 'media';
-      f_sprint.value = 'SPR-1';
-      f_project.value = '';
-      f_assignee.value = USER_EMAIL || '';
-      f_assignee_name.value = '';
-      openModal();
-    };
+    btnNew.onclick = openModal;
     btnCancel.onclick = closeModal;
 
     btnCreate.onclick = async () => {
-      const pid = Number(f_project.value || 0);
       const payload = {
         title: f_title.value.trim(),
         description: f_desc.value.trim(),
@@ -401,33 +454,32 @@
         priority: f_prio.value,
         status: 'todo',
         sprintId: f_sprint.value.trim(),
-        projectId: pid,
-        assigneeId: USER_EMAIL,     // el backend lo forzará también
+        projectId: f_project.value ? Number(f_project.value) : null,
+        assigneeId: user?.email || '',
         assigneeName: f_assignee_name.value.trim()
       };
-      if (!payload.title) { return alert('Título es obligatorio'); }
-      if (!pid || pid < 1) { return alert('Project ID es obligatorio'); }
-      if (payload.estimatedHours > 4) { return alert('Máximo 4 horas.'); }
+      if (!payload.title) return alert('Título es obligatorio');
+      if (!payload.projectId || payload.projectId < 1) return alert('Proyecto ID es obligatorio (>0)');
+      if (payload.estimatedHours > 4) return alert('Máximo 4 horas.');
 
       btnCreate.disabled = true;
       try{
         const res = await fetch(`${API}/tasks`, {
           method: 'POST',
-          headers:{'Content-Type':'application/json','X-User-Email': USER_EMAIL},
+          headers:{ 'Content-Type':'application/json', ...authHeaders() },
           body: JSON.stringify(payload)
         });
         if(!res.ok){ alert(await res.text() || 'Error creando tarea'); btnCreate.disabled=false; return; }
         await res.json();
         closeModal();
         btnCreate.disabled = false;
-        await loadBoard();
+        await loadBoard(); // recarga master + filtros
       } catch(e){ btnCreate.disabled = false; alert('Error de red'); }
     };
 
     btnCancelEdit.onclick = closeEdit;
     btnDoEdit.onclick = async () => {
       const id = e_id.value;
-      const pid = e_project.value === '' ? null : Number(e_project.value);
       const payload = {
         title: e_title.value.trim(),
         description: e_desc.value.trim(),
@@ -435,21 +487,21 @@
         priority: e_prio.value,
         status: e_status.value,
         sprintId: e_sprint.value.trim(),
-        projectId: pid,
+        projectId: e_project.value ? Number(e_project.value) : null,
+        assigneeId: e_assignee.value.trim(),
         assigneeName: e_assignee_name.value.trim()
       };
       if (!payload.title) return alert('Título obligatorio');
-      if (payload.estimatedHours != null && payload.estimatedHours > 4) return alert('Máximo 4 horas.');
-      if (pid != null && pid < 1) return alert('Project ID debe ser >= 1');
+      if (payload.projectId != null && payload.projectId < 1) return alert('projectId debe ser > 0');
 
       btnDoEdit.disabled = true;
       try{
         const res = await fetch(`${API}/tasks/${id}`, {
           method: 'PUT',
-          headers:{'Content-Type':'application/json','X-User-Email': USER_EMAIL},
+          headers:{ 'Content-Type':'application/json', ...authHeaders() },
           body: JSON.stringify(payload)
         });
-        if(!res.ok){ alert(await res.text() || 'No se pudo editar'); btnDoEdit.disabled=false; return; }
+        if(!res.ok){ alert('No se pudo editar'); btnDoEdit.disabled=false; return; }
         closeEdit();
         btnDoEdit.disabled = false;
         await loadBoard();
@@ -466,7 +518,7 @@
       try{
         const res = await fetch(`${API}/tasks/${id}/complete`, {
           method: 'PATCH',
-          headers:{'Content-Type':'application/json','X-User-Email': USER_EMAIL},
+          headers:{ 'Content-Type':'application/json', ...authHeaders() },
           body: JSON.stringify({ realHours: hours, status: 'done' })
         });
         if(!res.ok){ alert('No se pudo completar la tarea'); btnDoComplete.disabled=false; return; }
@@ -482,7 +534,7 @@
       const id = del_id.value;
       btnDoDelete.disabled = true;
       try{
-        const res = await fetch(`${API}/tasks/${id}`, { method:'DELETE', headers: {'X-User-Email': USER_EMAIL} });
+        const res = await fetch(`${API}/tasks/${id}`, { method:'DELETE', headers: authHeaders() });
         if(!res.ok){ alert('No se pudo eliminar'); btnDoDelete.disabled=false; return; }
         closeDelete();
         btnDoDelete.disabled = false;
@@ -501,7 +553,7 @@
       colEl.addEventListener('drop', async (ev) => {
         ev.preventDefault();
         colEl.classList.remove('drop-target');
-        const toStatus = colEl.dataset.status;
+        const toStatus = colEl.dataset.status; // todo | doing | done
         const id = draggingId;
         draggingId = null;
         if (!id || !toStatus) return;
@@ -509,7 +561,7 @@
         try{
           const res = await fetch(`${API}/tasks/${id}/status`, {
             method: 'PATCH',
-            headers:{'Content-Type':'application/json','X-User-Email': USER_EMAIL},
+            headers:{ 'Content-Type':'application/json', ...authHeaders() },
             body: JSON.stringify({ status: toStatus })
           });
           if (!res.ok) { alert('No se pudo mover la tarea'); return; }
@@ -528,6 +580,7 @@
       div.className = 'task';
       if (t.id === selectedId) div.classList.add('selected');
 
+      // Drag
       div.setAttribute('draggable', 'true');
       div.addEventListener('dragstart', (ev) => {
         draggingId = t.id;
@@ -537,16 +590,18 @@
       div.innerHTML = `
         <div class="task-title">${escapeHtml(t.title || '')}</div>
         <div class="task-meta">Prio: ${escapeHtml(t.priority||'')} · Est: ${t.estimatedHours??'-'}h ${t.realHours?(' · Real: '+t.realHours+'h'):''}</div>
-        <div class="task-meta">Sprint: ${escapeHtml(t.sprintId||'—')} · Proy: ${t.projectId ?? '—'}</div>
+        <div class="task-meta">Sprint: ${escapeHtml(t.sprintId||'—')} · Proy: ${escapeHtml(t.projectId ?? '—')}</div>
         <div class="task-meta">${escapeHtml(t.assigneeName||'')} (${escapeHtml(t.assigneeId||'')})</div>
       `;
 
+      // click ⇒ abrir detalles
       div.onclick = () => {
         selectedId = t.id;
-        renderBoard(allTasks);
+        renderBoard(allTasks); // re-render para marcar selección
         showDetails(t);
       };
 
+      // acciones
       const actions = document.createElement('div');
       actions.className = 'task-actions';
 
@@ -574,12 +629,6 @@
       return div;
     }
 
-    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
-    const fmt = (iso) => {
-      if (!iso) return '—';
-      try { const d = new Date(iso); return d.toLocaleString(); } catch { return '—'; }
-    };
-
     function showDetails(t){
       if (!t) { detailsCard.classList.remove('open'); return; }
       detailsCard.classList.add('open');
@@ -595,7 +644,6 @@
       d_priority.className = `badge prio ${pr || ''}`;
 
       d_sprint.textContent = t.sprintId ? `Sprint: ${t.sprintId}` : 'Sprint: —';
-      d_project.textContent = t.projectId ? `Proyecto: ${t.projectId}` : 'Proyecto: —';
 
       d_assignee.textContent = `${t.assigneeName||'—'} ${t.assigneeId?('('+t.assigneeId+')'):''}`;
       d_est.textContent = t.estimatedHours ?? 0;
@@ -639,55 +687,12 @@
       }
     }
 
-    function fillFiltersFromData(tasks){
-      // Rellenar combos con valores únicos:
-      const projects = Array.from(new Set(tasks.map(t => t.projectId).filter(Boolean))).sort((a,b)=>a-b);
-      const sprints = Array.from(new Set(tasks.map(t => (t.sprintId||'').trim()).filter(Boolean))).sort();
-
-      const currentProj = filterProject.value;
-      filterProject.innerHTML = `<option value="">Todos los proyectos</option>` + projects.map(p => `<option value="${p}">${p}</option>`).join('');
-      if (currentProj) filterProject.value = currentProj;
-
-      const currentSprint = filterSprint.value;
-      filterSprint.innerHTML = `<option value="">Todos los sprints</option>` + sprints.map(s => `<option value="${s}">${s}</option>`).join('');
-      if (currentSprint) filterSprint.value = currentSprint;
-    }
-
-    function applyClientFilter(){
-      const pid = filterProject.value ? Number(filterProject.value) : null;
-      const sp = filterSprint.value || '';
-
-      let list = [...allTasks];
-      if (pid) list = list.filter(t => Number(t.projectId) === pid);
-      if (sp) list = list.filter(t => (t.sprintId||'') === sp);
-
-      renderBoard(list);
-    }
-
     async function loadBoard(){
-      // Para eficiencia, si hay projectId seleccionado, lo pasamos al backend;
-      // también sprintId si lo hay (el backend ya lo soporta en esta entrega).
-      const params = new URLSearchParams();
-      if (filterProject.value) params.set('projectId', filterProject.value);
-      if (filterSprint.value)  params.set('sprintId', filterSprint.value);
-
-      const url = `${API}/tasks` + (params.toString() ? `?${params.toString()}` : '');
-      const res = await fetch(url, { headers: {'X-User-Email': USER_EMAIL} });
-      allTasks = await res.json();
-
-      // (Re)llenar selects con lo disponible (si se filtró por backend igual mantiene opciones)
-      fillFiltersFromData(allTasks);
-      // No volver a filtrar por cliente si ya lo hiciste en backend; aquí simplemente render:
-      renderBoard(allTasks);
+      const res = await fetch(`${API}/tasks`, { headers: authHeaders() });
+      masterTasks = await res.json();
+      buildFilterOptionsFromMaster(); // <- opciones SIEMPRE desde master
+      applyFilters();                  // <- aplica los filtros vigentes
     }
-
-    filterProject.addEventListener('change', loadBoard);
-    filterSprint.addEventListener('change', loadBoard);
-    btnClear.addEventListener('click', () => {
-      filterProject.value = '';
-      filterSprint.value = '';
-      loadBoard();
-    });
 
     document.addEventListener('DOMContentLoaded', loadBoard);
   </script>
