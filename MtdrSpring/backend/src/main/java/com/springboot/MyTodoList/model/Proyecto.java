@@ -34,11 +34,15 @@ public class Proyecto {
     @Column(name = "ULTIMO_ACCESO")
     private OffsetDateTime ultimoAcceso;
 
+    // === NUEVO: id del usuario creador ===
+    @Column(name = "CREADOR_ID")
+    private Long creadorId;
+
     public Proyecto() {}
 
     public Proyecto(Long id, String nombreProyecto, String descripcion, String estado,
                     Long equipoId, LocalDate fechaInicio, LocalDate fechaFin,
-                    OffsetDateTime ultimoAcceso) {
+                    OffsetDateTime ultimoAcceso, Long creadorId) {
         this.id = id;
         this.nombreProyecto = nombreProyecto;
         this.descripcion = descripcion;
@@ -47,6 +51,7 @@ public class Proyecto {
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.ultimoAcceso = ultimoAcceso;
+        this.creadorId = creadorId;
     }
 
     public Long getId() { return id; }
@@ -65,4 +70,6 @@ public class Proyecto {
     public void setFechaFin(LocalDate fechaFin) { this.fechaFin = fechaFin; }
     public OffsetDateTime getUltimoAcceso() { return ultimoAcceso; }
     public void setUltimoAcceso(OffsetDateTime ultimoAcceso) { this.ultimoAcceso = ultimoAcceso; }
+    public Long getCreadorId() { return creadorId; }
+    public void setCreadorId(Long creadorId) { this.creadorId = creadorId; }
 }
