@@ -44,8 +44,9 @@
     .details-grid{ display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:12px }
     .details-item{ background:#fafbfc; border:1px solid var(--line-2); border-radius:12px; padding:12px }
     .details-label{ font-size:12px; color:var(--muted); margin-bottom:6px }
-    .details-value{ font-weight:700; color:var(--muted-2) }
+    .details-value{ font-weight:700; color:#374151 }
     .desc-box{ margin-top:10px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px }
+    .logout-btn{ border:1px solid var(--line); border-radius:10px; padding:6px 10px; background:#fff; cursor:pointer }
   </style>
 </head>
 <body>
@@ -54,8 +55,8 @@
   <header class="topbar">
     <div class="brand"><img src="image/Oracle_logo.png" style="max-width:160px;height:auto"></div>
     <div class="topbar-right">
-      <div class="user-circle">U</div>
-      <a class="logout-btn" href="/logout">⏻ Salir</a>
+      <div class="user-circle" id="userInitial">U</div>
+      <button id="logoutBtn" class="logout-btn">⏻ Salir</button>
     </div>
   </header>
 
@@ -163,7 +164,7 @@
         </select>
       </div>
       <div class="modal-row"><label>Sprint</label><input id="f_sprint" type="text" placeholder="SPR-1" /></div>
-      <div class="modal-row"><label>Asignado a (Dev)</label><input id="f_assignee" type="text" placeholder="dev-123" /></div>
+      <div class="modal-row"><label>Asignado a (Dev)</label><input id="f_assignee" type="text" placeholder="se rellenará con tu email" /></div>
       <div class="modal-row"><label>Nombre Dev</label><input id="f_assignee_name" type="text" placeholder="Juan Pérez" /></div>
       <div class="modal-actions">
         <button id="btnCancel" class="btn">Cancelar</button>
@@ -232,10 +233,17 @@
     </div>
   </div>
 
+  <!-- Helper de sesión -->
+  <script src="/Js/session.js"></script>
+
   <script>
     // ======= CONFIG =======
-    const CURRENT_USER_ID = 'dev-123';
     const API = '/api';
+    const USER_EMAIL = Session.ensureEmailOrRedirect();
+
+    // Pintar inicial y logout
+    document.getElementById('userInitial').textContent = USER_EMAIL.charAt(0).toUpperCase();
+    document.getElementById('logoutBtn').onclick = (e) => { e.preventDefault(); Session.logout(); };
 
     // ======= ELEMENTOS =======
     const modal = document.getElementById('modal');
@@ -345,7 +353,7 @@
       f_hours.value = '';
       f_prio.value = 'media';
       f_sprint.value = 'SPR-1';
-      f_assignee.value = CURRENT_USER_ID;
+      f_assignee.value = USER_EMAIL; // ✅ email actual
       f_assignee_name.value = '';
       openModal();
     };
@@ -359,7 +367,7 @@
         priority: f_prio.value,
         status: 'todo',
         sprintId: f_sprint.value.trim(),
-        assigneeId: f_assignee.value.trim(),
+        assigneeId: USER_EMAIL,
         assigneeName: f_assignee_name.value.trim()
       };
       if (!payload.title) { return alert('Título es obligatorio'); }
@@ -369,10 +377,10 @@
       try{
         const res = await fetch(`${API}/tasks`, {
           method: 'POST',
-          headers:{'Content-Type':'application/json'},
+          headers: Session.commonHeaders(),
           body: JSON.stringify(payload)
         });
-        if(!res.ok){ alert(await res.text() || 'Error creando tarea'); return; }
+        if(!res.ok){ alert(await res.text() || 'Error creando tarea'); btnCreate.disabled=false; return; }
         await res.json();
         closeModal();
         btnCreate.disabled = false;
@@ -390,7 +398,7 @@
         priority: e_prio.value,
         status: e_status.value,
         sprintId: e_sprint.value.trim(),
-        assigneeId: e_assignee.value.trim(),
+        assigneeId: USER_EMAIL,  // ✅ aseguramos propiedad
         assigneeName: e_assignee_name.value.trim()
       };
       if (!payload.title) return alert('Título obligatorio');
@@ -400,7 +408,7 @@
       try{
         const res = await fetch(`${API}/tasks/${id}`, {
           method: 'PUT',
-          headers:{'Content-Type':'application/json'},
+          headers: Session.commonHeaders(),
           body: JSON.stringify(payload)
         });
         if(!res.ok){ alert('No se pudo editar'); btnDoEdit.disabled=false; return; }
@@ -420,7 +428,7 @@
       try{
         const res = await fetch(`${API}/tasks/${id}/complete`, {
           method: 'PATCH',
-          headers:{'Content-Type':'application/json'},
+          headers: Session.commonHeaders(),
           body: JSON.stringify({ realHours: hours, status: 'done' })
         });
         if(!res.ok){ alert('No se pudo completar la tarea'); btnDoComplete.disabled=false; return; }
@@ -436,7 +444,7 @@
       const id = del_id.value;
       btnDoDelete.disabled = true;
       try{
-        const res = await fetch(`${API}/tasks/${id}`, { method:'DELETE' });
+        const res = await fetch(`${API}/tasks/${id}`, { method:'DELETE', headers: Session.commonHeaders() });
         if(!res.ok){ alert('No se pudo eliminar'); btnDoDelete.disabled=false; return; }
         closeDelete();
         btnDoDelete.disabled = false;
@@ -463,7 +471,7 @@
         try{
           const res = await fetch(`${API}/tasks/${id}/status`, {
             method: 'PATCH',
-            headers:{'Content-Type':'application/json'},
+            headers: Session.commonHeaders(),
             body: JSON.stringify({ status: toStatus })
           });
           if (!res.ok) { alert('No se pudo mover la tarea'); return; }
@@ -498,7 +506,7 @@
       // click ⇒ abrir detalles
       div.onclick = () => {
         selectedId = t.id;
-        renderBoard(allTasks); // re-render para marcar selección
+        renderBoard(allTasks);
         showDetails(t);
       };
 
@@ -559,7 +567,6 @@
       d_completed.textContent = fmt(t.completedAt);
       d_desc.textContent = t.description || '—';
 
-      // acciones dentro del panel
       d_edit_btn.onclick = () => openEdit(t);
       if (st === 'done') {
         d_complete_btn.style.display = 'none';
@@ -596,7 +603,7 @@
     }
 
     async function loadBoard(){
-      const res = await fetch(`${API}/tasks?assigneeId=${encodeURIComponent(CURRENT_USER_ID)}`);
+      const res = await fetch(`${API}/tasks`, { headers: Session.commonHeaders() });
       allTasks = await res.json();
       renderBoard(allTasks);
     }
