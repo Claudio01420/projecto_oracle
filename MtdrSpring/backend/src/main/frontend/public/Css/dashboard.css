@@ -15,84 +15,101 @@
   --shadow-lg:0 12px 32px rgba(0,0,0,.18);
   --radius:14px;
   --container:1040px;
+
+  --ico-size: 18px;
+  --ico-size-sm: 14px;
+  --ico-color: #9aa3af;
+  --ico-accent: var(--brand);
 }
 
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  background: var(--bg);
-  color: var(--ink);
+body{margin:0;font-family:system-ui;background:var(--bg);color:var(--ink)}
+
+/* Topbar */
+.topbar{position:fixed;top:0;left:0;right:0;height:50px;background:#111;
+  color:#fff;display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;z-index:200;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.home-btn{color:#fff;text-decoration:none;font-weight:700;padding:6px 12px;border-radius:6px}
+.home-btn:hover{background:rgba(255,255,255,.1)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.user-circle{width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer}
+.user-circle:hover{background:var(--brand-hover)}
+.logout-btn{background:var(--brand);color:#fff;font-weight:700;padding:6px 12px;border-radius:6px;text-decoration:none}
+.logout-btn:hover{background:var(--brand-hover)}
+
+/* Iconos */
+.logo-text{
+  font-family: "Panchang", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 600;
+  font-size: 48px;/* Tamaño del logo */
+  letter-spacing: 0.10em;/* Separacion entre letras */
+  color:var(--brand);
+  text-transform: uppercase;
+  line-height: 1;
+  display: inline-block;
+  transform: scaleX(1.25);/* Estirar letras */
+  transform-origin: center;
+  user-select: none;
+  margin: 0;
 }
 
-/* ====== BARRA SUPERIOR ====== */
-.topbar {
-  background: #111;
-  color: #fff;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  position: fixed;      /* fija arriba */
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 200;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+.aside .brand{
+  font-size: inherit;
+  letter-spacing: normal;
+  margin:8px 0 14px !important;
 }
 
-/* Botón Home */
-.home-btn {
-  color: #fff;
-  font-weight: 700;
-  text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  transition: background 0.2s;
-}
-.home-btn:hover {
-  background: rgba(255,255,255,0.1);
+.aside .menu{
+  margin-top:0 !important;
 }
 
-/* Área derecha */
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* --- Topbar Estilos --- */
+.topbar > .brand{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  height:100%;
+  margin:0 !important;
+  padding:0px 0 0 40px;
 }
 
-/* Círculo usuario */
-.user-circle {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #e1261c; /* rojo Oracle */
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.user-circle:hover {
-  background: #c21f17;
+/* --- Sidebar Estilos --- */
+.aside .brand{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:56px;
+  margin:8px 0 14px !important;
+  line-height:0;
+  font-size:inherit;
+  letter-spacing:normal;
 }
 
-/* Botón Logout */
-.logout-btn {
-  background: #e1261c;
-  color: #fff;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: background 0.2s;
+.aside .topbar-left{ display:none; height:0; margin:0; padding:0; }
+
+.aside .menu{ padding:0; margin-top:0 !important; }
+
+/* --- Items del sidebar --- */
+.aside .menu .mi{
+  display:flex; align-items:center; gap:10px;
+  min-height:44px;
+  padding:12px 14px;
+  line-height:1.2;
 }
-.logout-btn:hover {
-  background: #c21f17;
+
+/* --- Iconos del sidebar --- */
+.aside .menu .mi .ico{
+  width:18px; height:18px;
+  flex:0 0 18px;
+  display:block;
+  color:#9aa3af;
+}
+
+/* --- Textos del sidebar --- */
+.aside .menu .mi span{
+  display:inline-block;
+  line-height:1.2;
 }
 
 /* ====== LAYOUT PRINCIPAL (con sidebar) ====== */
@@ -105,7 +122,7 @@ body{
 }
 .aside{
   background:#151515; color:#fff;
-  padding:18px 14px;
+  padding:28px 14px;
   position: sticky;
   top:50px; /* debajo de la topbar */
   height: calc(100vh - 50px);
@@ -113,13 +130,22 @@ body{
 .brand{
   font-weight:900; letter-spacing:.18rem;
   color:var(--brand); font-size:28px;
-  margin:8px 8px 20px;
+  margin:8px 8px 26px;
 }
-.menu{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+.menu{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  margin-top:12px;
+}
 .mi{
-  display:flex; align-items:center; gap:10px;
-  padding:12px 14px; border-radius:12px;
-  color:#e5e7eb; text-decoration:none;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 14px;
+  border-radius:12px;
+  color:#e5e7eb;
+  text-decoration:none;
   transition:.15s ease-in-out;
 }
 .mi:hover{ background:#1f1f1f; }
@@ -282,3 +308,86 @@ body{
 .reveal.delay-3{ animation-delay:.2s }
 .reveal.delay-4{ animation-delay:.26s }
 @keyframes up{ to{ opacity:1; transform: translateY(0) } }
+
+/* Tamaños/colores base de iconos */
+.ico{ 
+  width: var(--ico-size); 
+  height: var(--ico-size); 
+  color: var(--ico-color); 
+  display: inline-block;
+}
+.ico-sm{ 
+  width: var(--ico-size-sm); 
+  height: var(--ico-size-sm); 
+  color: var(--ico-color); 
+  display: inline-block;
+}
+
+/* Alineación de iconos */
+.icon-inline{
+  display:inline-flex; 
+  vertical-align:-2px; 
+  margin-right:.35rem;
+}
+
+/* Helpers de color */
+.ico-muted{ color:#c0c7d2; }
+.ico-accent{ color:var(--ico-accent); }
+
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px; 
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+.with-icon{
+  display:inline-flex; 
+  align-items:center; 
+  gap:.5rem;
+}
+
+.logout-btn .ico,
+.logout-btn .ico-sm{ color:#fff; opacity:.9; }
+
+.chat-input button .ico,
+.chat-input button .ico-sm{ color:#fff; }
+
+#svg-sprite{ position:absolute; width:0; height:0; overflow:hidden; }
+
+.aside .menu .mi .ico{
+  width:18px; height:18px; display:block; flex:0 0 18px;
+}
+
+/* Icono smile */
+.hero-title .ico-smile {
+  color: #111;
+  width: 26px;
+  height: 26px;
+}
+
+/* Icono board_clock */
+.kpi-ico .ico-board_clock {
+  color: #111;
+  width: 26px;
+  height: 26px;
+}
+
+/* Icono product */
+.kpi-ico .ico-100_power {
+  color: #111;
+  width: 26px;
+  height: 26px;
+}
+
+/* Icono heart */
+.kpi-ico .ico-heart { 
+  color: #111;
+  width: 26px;
+  height: 26px;
+}
+
+/* Icono sprint */
+.kpi-ico .ico-foot { 
+  color: #111;
+  width: 26px;
+  height: 26px;
+}
