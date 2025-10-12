@@ -4,10 +4,71 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Detalle del Proyecto</title>
-  <!-- Estilos base compartidos -->
   <link rel="stylesheet" href="Css/projects.css"/>
-  <!-- Estilos específicos de esta página -->
   <link rel="stylesheet" href="Css/homework-project.css"/>
+  <style>
+    body{ background:
+      radial-gradient(1200px 600px at -10% -20%, rgba(225,38,28,.06), transparent 60%),
+      radial-gradient(1200px 600px at 110% -10%, rgba(16,24,40,.06), transparent 55%),
+      var(--bg);
+    }
+    .container-wide{ padding:26px }
+    .page-actions{ display:flex; gap:10px; align-items:center; margin-bottom:14px }
+    .hero-card{
+      padding:20px; border-radius:24px;
+      background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%),
+                 radial-gradient(600px 180px at 20% -40%, rgba(225,38,28,.08), transparent 60%);
+      border:1px solid var(--line); box-shadow:0 16px 40px rgba(17,24,39,.06);
+    }
+    .hero-head{ display:flex; flex-direction:column; gap:6px }
+    .project-title{ margin:0; font-weight:900; letter-spacing:.2px; font-size: clamp(22px, 3.2vw, 28px) }
+    .meta-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap }
+    .project-desc{ color:var(--muted-2); background:#fff; border:1px solid var(--line); padding:6px 10px; border-radius:12px }
+    .team-pill{ background:#fff; border:1px solid var(--line); padding:6px 10px; border-radius:999px; font-size:12px }
+    .status-advance{ margin-top:12px }
+    .status-chip-wrap{ display:flex; gap:8px }
+    .progress-layout{ display:grid; gap:16px; grid-template-columns: 210px 1fr; align-items:center; margin-top:8px; }
+    @media (max-width: 980px){ .progress-layout{ grid-template-columns: 1fr } }
+    .board{ display:grid; gap:12px; grid-template-columns: repeat(2, minmax(0,1fr)); }
+    @media (max-width: 720px){ .board{ grid-template-columns: 1fr } }
+    .stat-card{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:12px 14px; display:flex; flex-direction:column; gap:8px; }
+    .stat-card .label{ font-size:12px; color:var(--muted-2); font-weight:700 }
+    .stat-card .value{ font-weight:900 }
+    .radial-wrap{ display:flex; align-items:center; justify-content:center; background:#fff; border:1px solid var(--line); border-radius:18px; padding:16px; }
+    .radial-progress{ --p:0; width:150px; height:150px; border-radius:50%;
+      background: conic-gradient(var(--brand) calc(var(--p)*1%), #eef1f6 0);
+      display:grid; place-items:center; color:#111; position:relative; box-shadow: inset 0 0 0 1px #f3f4f6;
+    }
+    .radial-progress::after{ content:""; position:absolute; inset:12px; background:#fff; border-radius:50%; box-shadow: inset 0 0 0 1px var(--line); }
+    .radial-progress > span{ position:relative; font-weight:900; font-size:22px }
+    .tasks-card{ border-radius:24px; border:1px solid var(--line); background:linear-gradient(180deg,#fff 0%, #fbfcff 100%); box-shadow: var(--shadow-md); }
+    .tasks-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--line); }
+    .tasks-head h2{ margin:0; font-size:18px; font-weight:900 }
+    .task-form{ padding:14px 16px; display:grid; gap:10px; grid-template-columns: 1.2fr .8fr .7fr auto; align-items:start }
+    .task-form textarea{ min-height:38px; height:38px; resize:vertical; max-height:140px }
+    @media (max-width: 980px){ .task-form{ grid-template-columns: 1fr 1fr } .task-form .span-2{ grid-column: 1 / -1 } }
+    .field{ display:flex; flex-direction:column; gap:6px }
+    .field label{ font-size:12px; color:var(--muted) }
+    .field input, .field select, .field textarea{ border:1px solid var(--line-2); border-radius:12px; padding:9px 12px; background:#fff; color:#111; outline:none; transition:border-color .12s ease, box-shadow .12s ease; }
+    .field input:focus, .field select:focus, .field textarea:focus{ border-color:#d4dae1; box-shadow:0 0 0 4px rgba(225,38,28,.08) }
+    .hint{ font-size:11px; color:#6b7280 }
+    .hint .ok{ color:#0a7a2e; font-weight:700 }
+    .hint .bad{ color:#b42318; font-weight:700 }
+    .tasks-list{ padding:6px 16px 16px 16px }
+    .task-item{ border:1px solid var(--line); border-radius:14px; background:#fff; padding:10px 12px; margin:10px 0; display:grid; grid-template-columns: auto 1fr auto; gap:10px; align-items:center; box-shadow: var(--shadow-sm); }
+    .task-title{ font-weight:900 }
+    .task-meta{ font-size:12px; color:#64748b }
+    .task-actions{ display:flex; gap:6px; align-items:center }
+    .badge{ font-size:12px; border:1px solid var(--line); padding:2px 8px; border-radius:999px; background:#fff }
+    .badge.status.todo{ background:#fff4f3 }
+    .badge.status.done{ background:#e9fff0 }
+    .desc-toggle{ cursor:pointer; font-size:12px; color:#1a56db; text-decoration:underline; background:none; border:none; padding:0 }
+    .task-desc{ grid-column: 2 / -1; margin-top:-4px; margin-bottom:2px; padding:10px; border-radius:10px; background:#f8fafc; color:#334155; border:1px dashed #e6e9ef; display:none; }
+    .task-desc.show{ display:block }
+    .btn-danger.btn-xs{ padding:6px 10px; border-radius:10px; font-size:11px }
+    .btn-ghost{ display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border-radius:12px; background:#fff; color:var(--dark); border:1px solid var(--line-2); font-weight:800; font-size:13px; text-decoration:none; cursor:pointer; box-shadow: var(--shadow-sm); }
+    .btn-ghost:hover{ transform: translateY(-1px); box-shadow: var(--shadow-md); border-color:#d9dde3; }
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -21,7 +82,6 @@
   </header>
 
   <div class="app">
-    <!-- Sidebar -->
     <aside class="aside">
       <nav class="menu">
         <a class="mi" href="/dashboard.html"><span>📊</span> Dashboard</a>
@@ -34,15 +94,13 @@
       </nav>
     </aside>
 
-    <!-- Main -->
     <main class="container container-wide">
       <div class="page-actions">
         <a href="projects.html" class="btn btn-outline">← Volver</a>
-        <button id="btn-editar" class="btn btn-primary">Editar</button>
+        <button id="btn-editar" class="btn btn-primary">Editar proyecto</button>
       </div>
 
-      <!-- ====== Vista (solo lectura) ====== -->
-      <section class="card card-soft hero-card">
+      <section class="card hero-card">
         <div class="hero-head">
           <h1 class="project-title" id="vm-nombre">Nombre del proyecto</h1>
           <div class="meta-row">
@@ -51,44 +109,88 @@
           </div>
         </div>
 
-        <!-- Estado + Avance -->
         <div class="status-advance">
           <div class="status-chip-wrap">
             <span id="vm-estado-chip" class="chip">—</span>
           </div>
 
-          <div class="progress-board">
-            <!-- Progreso circular grande -->
-            <div class="radial-wrap big">
+          <div class="progress-layout">
+            <div class="radial-wrap">
               <div id="vm-radial" class="radial-progress" style="--p:0">
                 <span id="vm-percent">0%</span>
               </div>
             </div>
 
-            <!-- Datos adicionales (fechas) -->
-            <div class="dates-col">
-              <div class="date-item">
-                <span class="label">Inicio</span>
-                <span id="vm-inicio" class="value">—</span>
+            <div class="board">
+              <div class="stat-card">
+                <div class="label">Inicio</div>
+                <div class="value" id="vm-inicio">—</div>
               </div>
-              <div class="date-item">
-                <span class="label">Fin</span>
-                <span id="vm-fin" class="value">—</span>
+              <div class="stat-card">
+                <div class="label">Fin</div>
+                <div class="value" id="vm-fin">—</div>
               </div>
-              <!-- Barra secundaria -->
-              <div class="progress mt-10"><span id="vm-bar" style="width:0%"></span></div>
-              <div class="tiny muted">Avance según estado</div>
+              <div class="stat-card" style="grid-column: 1 / -1">
+                <div class="label">Avance por tareas</div>
+                <div class="progress" style="margin-top:8px"><span id="vm-bar" style="width:0%"></span></div>
+                <div class="tiny muted" id="tasks-summary" style="margin-top:6px">0/0 completadas</div>
+              </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section class="tasks-card">
+        <div class="tasks-head">
+          <h2 class="h6">Tareas del proyecto</h2>
+          <button id="btn-refrescar" class="btn-ghost">↻ Refrescar</button>
+        </div>
+
+        <div class="task-form">
+          <div class="field">
+            <label for="t-title">Título</label>
+            <input id="t-title" placeholder="Ej. Diseñar mockups de login">
+            <div class="hint" id="hint-title">Obligatorio</div>
+          </div>
+
+          <div class="field">
+            <label for="t-estimated">Horas estimadas (≤ 4)</label>
+            <input id="t-estimated" type="number" step="0.5" min="0" max="4" placeholder="Ej. 2">
+            <div class="hint" id="hint-est">Recomendado: ≤ 4h</div>
+          </div>
+
+          <div class="field">
+            <label for="t-priority">Prioridad</label>
+            <select id="t-priority">
+              <option value="">Seleccionar</option>
+              <option>Alta</option>
+              <option>Media</option>
+              <option>Baja</option>
+            </select>
+          </div>
+
+          <div class="field span-2">
+            <label for="t-desc">Descripción</label>
+            <textarea id="t-desc" placeholder="Breve detalle de la tarea…"></textarea>
+            <div class="hint" id="hint-desc"><span id="desc-count">0</span>/300</div>
+          </div>
+
+          <div class="field">
+            <label>&nbsp;</label>
+            <button id="btn-add-task" class="btn btn-primary">+ Agregar</button>
+          </div>
+        </div>
+
+        <div id="tasks-list" class="tasks-list">
+          <div class="muted" style="padding:6px 0 12px">Cargando tareas…</div>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- ======= TOAST CONTAINER (notificaciones bonitas) ======= -->
   <div id="toast-stack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- ===== Modal de Edición (ventana emergente) ===== -->
+  <!-- Modal Edición Proyecto -->
   <div id="edit-modal-overlay" class="edit-modal-overlay" aria-hidden="true">
     <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
       <div class="edit-modal-header">
@@ -128,10 +230,10 @@
           </div>
         </div>
 
-        <div class="edit-progress">
-          <div class="radial-wrap small">
-            <div id="p-radial" class="radial-progress" style="--p:0">
-              <span id="p-percent">0%</span>
+        <div class="edit-progress" style="display:flex; align-items:center; gap:12px; margin-top:10px;">
+          <div class="radial-wrap" style="padding:10px">
+            <div id="p-radial" class="radial-progress" style="--p:0; width:80px;height:80px">
+              <span id="p-percent" style="font-size:14px">0%</span>
             </div>
           </div>
           <div style="flex:1">
@@ -141,7 +243,7 @@
         </div>
       </div>
 
-      <div class="edit-modal-footer">
+      <div class="edit-modal-footer" style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
         <button id="btn-cancelar" class="btn btn-outline">Cancelar</button>
         <button id="btn-guardar" class="btn btn-primary">Guardar</button>
       </div>
@@ -149,25 +251,25 @@
   </div>
 
   <script>
-    const API_BASE = "http://localhost:8080/proyectos";
+    /* ================== CONFIG ================== */
+    const API_BASE  = "http://localhost:8080/proyectos";
+    const TASKS_API = "/api/tasks";
 
-    // Utils
+    /* ========= UTILIDADES ========= */
     function qs(name){ return new URL(window.location.href).searchParams.get(name); }
     function estadoToChipClass(estado){
       switch((estado||"").toLowerCase()){
         case "pendiente": return "chip state-pend";
-        case "en curso": return "chip state-run";
-        case "finalizado": return "chip state-done";
+        case "en curso":  return "chip state-run";
+        case "finalizado":return "chip state-done";
         default: return "chip";
       }
     }
-    function estadoToAvance(estado){
-      switch((estado||"").toLowerCase()){
-        case "pendiente": return 0;
-        case "en curso": return 70;
-        case "finalizado": return 100;
-        default: return 0;
-      }
+    function fmtFecha(iso){
+      if(!iso) return "—";
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      return d.toLocaleDateString();
     }
     function toISODateInput(iso){
       if(!iso) return "";
@@ -176,14 +278,6 @@
       const yy = d.getFullYear(), mm = String(d.getMonth()+1).padStart(2,"0"), dd = String(d.getDate()).padStart(2,"0");
       return `${yy}-${mm}-${dd}`;
     }
-    function fmtFecha(iso){
-      if(!iso) return "—";
-      const d = new Date(iso);
-      if (isNaN(d.getTime())) return iso;
-      return d.toLocaleDateString();
-    }
-
-    // ===== ANIMACIÓN SUAVE DEL CÍRCULO =====
     function getRadialPercent(el){
       const v = getComputedStyle(el).getPropertyValue('--p').trim();
       const n = parseFloat(v || '0');
@@ -209,8 +303,9 @@
       }
       requestAnimationFrame(step);
     }
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
 
-    // ====== TOAST: helpers ======
+    // Toasts
     const $toastStack = document.getElementById('toast-stack');
     function showToast({type="success", title="Listo", message="", timeout=3000}={}){
       const item = document.createElement('div');
@@ -225,31 +320,27 @@
         <button class="toast-close" aria-label="Cerrar">✕</button>
       `;
       $toastStack.appendChild(item);
-
-      // cerrar manual
-      item.querySelector('.toast-close').onclick = ()=> dismiss();
-      // barra de tiempo
+      const dismiss = ()=>{ item.classList.remove('show'); setTimeout(()=> item.remove(), 180); };
+      item.querySelector('.toast-close').onclick = dismiss;
       setTimeout(()=> item.classList.add('show'), 10);
-      let closed = false;
-      const dismiss = ()=>{
-        if (closed) return;
-        closed = true;
-        item.classList.remove('show');
-        setTimeout(()=> item.remove(), 200);
-      };
-      // autocierre
       const bar = item.querySelector('.toast-progress');
       bar.style.animationDuration = `${timeout}ms`;
       const auto = setTimeout(dismiss, timeout);
-      // pausa al hover
       item.addEventListener('mouseenter', ()=>{ bar.style.animationPlayState="paused"; clearTimeout(auto); });
-      item.addEventListener('mouseleave', ()=>{
-        bar.style.animationPlayState="running";
-        setTimeout(dismiss, 1200);
-      });
+      item.addEventListener('mouseleave', ()=>{ bar.style.animationPlayState="running"; setTimeout(dismiss, 1200); });
     }
 
-    // ===== Vista: refs =====
+    /* ========= SESIÓN ========= */
+    const sessionUser  = JSON.parse(localStorage.getItem("user") || "null");
+    const sessionEmail = sessionUser?.email || "";
+    function mustHaveEmail(){
+      if(!sessionEmail){
+        showToast({type:"error", title:"Sesión requerida", message:"Inicia sesión para gestionar tareas."});
+        throw new Error("No session email");
+      }
+    }
+
+    /* ========= REFS VISTA ========= */
     const $vmNombre = document.getElementById("vm-nombre");
     const $vmEquipo = document.getElementById("vm-equipo");
     const $vmDesc   = document.getElementById("vm-desc");
@@ -259,53 +350,47 @@
     const $vmBar    = document.getElementById("vm-bar");
     const $vmIni    = document.getElementById("vm-inicio");
     const $vmFin    = document.getElementById("vm-fin");
+    const $tasksSummary = document.getElementById("tasks-summary");
 
     const $btnEditar = document.getElementById("btn-editar");
+    const $btnRefrescar = document.getElementById("btn-refrescar");
 
     // Modal edición
     const $overlay = document.getElementById("edit-modal-overlay");
     const $btnClose = document.getElementById("btn-close-modal");
     const $btnCancelar = document.getElementById("btn-cancelar");
     const $btnGuardar = document.getElementById("btn-guardar");
-
     const $pId = document.getElementById("p-id");
     const $nombre = document.getElementById("p-nombre");
     const $equipo = document.getElementById("p-equipo");
-    const $desc   = document.getElementById("p-desc");
+    const $descP  = document.getElementById("p-desc");
     const $inicio = document.getElementById("p-inicio");
     const $fin    = document.getElementById("p-fin");
     const $estadoSel = document.getElementById("p-estado-sel");
-
     const $pRadial = document.getElementById("p-radial");
     const $pPercent= document.getElementById("p-percent");
     const $pAvance = document.getElementById("p-avance");
     const $pAvanceText = document.getElementById("p-avance-text");
 
+    // Tareas
+    const $tasksListEl  = document.getElementById("tasks-list");
+    const $btnAddTask   = document.getElementById("btn-add-task");
+    const $tTitle       = document.getElementById("t-title");
+    const $tEstimated   = document.getElementById("t-estimated");
+    const $tPriority    = document.getElementById("t-priority");
+    const $tDesc        = document.getElementById("t-desc");
+    const $descCount    = document.getElementById("desc-count");
+
+    /* ========= ESTADO ========= */
     let proyectoActual = null;
+    let tareasCache = [];
 
-    function openModal(){
-      if(!proyectoActual) return;
-      const p = proyectoActual;
-      $pId.textContent = `#${p.id}`;
-      $nombre.value = p.nombreProyecto || "";
-      $equipo.value = (p.equipoId ?? "");
-      $desc.value   = p.descripcion || "";
-      $inicio.value = toISODateInput(p.fechaInicio);
-      $fin.value    = toISODateInput(p.fechaFin);
-      $estadoSel.value = p.estado || "Pendiente";
-
-      const av = estadoToAvance(p.estado);
-      setRadialAnimated($pRadial, av, $pPercent, 500);
-      $pAvance.style.width = av + "%";
-      $pAvanceText.textContent = av + "%";
-
-      $overlay.classList.add("open");
-      $overlay.setAttribute("aria-hidden","false");
-    }
-    function closeModal(){
-      $overlay.classList.remove("open");
-      $overlay.setAttribute("aria-hidden","true");
-    }
+    /* ========= HELPERS UI ========= */
+    $tDesc.addEventListener("input", ()=>{
+      const len = ($tDesc.value || "").length;
+      $descCount.textContent = len;
+      if (len > 300) $tDesc.value = $tDesc.value.slice(0, 300);
+    });
 
     function pintarView(p){
       $vmNombre.textContent = p.nombreProyecto || "—";
@@ -316,9 +401,9 @@
       $vmIni.textContent = fmtFecha(p.fechaInicio);
       $vmFin.textContent = fmtFecha(p.fechaFin);
 
-      const av = estadoToAvance(p.estado);
-      setRadialAnimated($vmRadial, av, $vmPercent, 700);
-      $vmBar.style.width = av + "%";
+      const initialPct = (p.estado==="Finalizado") ? 100 : (p.estado==="En curso" ? 50 : 0);
+      setRadialAnimated($vmRadial, initialPct, $vmPercent, 600);
+      $vmBar.style.width = initialPct + "%";
     }
 
     async function cargarProyecto(){
@@ -334,31 +419,54 @@
         const p = await res.json();
         proyectoActual = p;
         pintarView(p);
+        await loadTasks(p.id);
       }catch(e){
         showToast({type:"error", title:"No se pudo cargar", message:"Intenta de nuevo más tarde"});
         window.location.href = "projects.html";
       }
     }
 
+    /* ========= MODAL EDICIÓN ========= */
+    function openModal(){
+      if(!proyectoActual) return;
+      const p = proyectoActual;
+      $pId.textContent = `#${p.id}`;
+      $nombre.value = p.nombreProyecto || "";
+      $equipo.value = (p.equipoId ?? "");
+      $descP.value  = p.descripcion || "";
+      $inicio.value = toISODateInput(p.fechaInicio);
+      $fin.value    = toISODateInput(p.fechaFin);
+      $estadoSel.value = p.estado || "Pendiente";
+
+      const av = (p.estado==="Finalizado") ? 100 : (p.estado==="En curso" ? 50 : 0);
+      setRadialAnimated($pRadial, av, $pPercent, 500);
+      $pAvance.style.width = av + "%";
+      $pAvanceText.textContent = av + "%";
+
+      $overlay.classList.add("open");
+      $overlay.setAttribute("aria-hidden","false");
+    }
+    function closeModal(){
+      $overlay.classList.remove("open");
+      $overlay.setAttribute("aria-hidden","true");
+    }
     $estadoSel.addEventListener("change", () => {
       const est = $estadoSel.value;
-      const av = estadoToAvance(est);
+      const av = (est==="Finalizado") ? 100 : (est==="En curso" ? 50 : 0);
       setRadialAnimated($pRadial, av, $pPercent, 500);
       $pAvance.style.width = av + "%";
       $pAvanceText.textContent = av + "%";
     });
-
     $btnEditar.addEventListener("click", openModal);
     $btnClose.addEventListener("click", closeModal);
     $overlay.addEventListener("click", (e) => { if (e.target === $overlay) closeModal(); });
     $btnCancelar.addEventListener("click", (e) => { e.preventDefault(); closeModal(); });
-
     $btnGuardar.addEventListener("click", async () => {
       if (!proyectoActual) return;
       const payload = {
         id: proyectoActual.id,
         nombreProyecto: $nombre.value.trim(),
-        descripcion: $desc.value.trim(),
+        descripcion: $descP.value.trim(),
         estado: $estadoSel.value,
         equipoId: Number($equipo.value||0),
         fechaInicio: $inicio.value || null,
@@ -376,6 +484,7 @@
           pintarView(proyectoActual);
           closeModal();
           showToast({type:"success", title:"Cambios guardados", message:"El proyecto se actualizó correctamente."});
+          updateProgressFromTasks(); // re-sincroniza visual con tareas
         } else {
           showToast({type:"error", title:"Error al guardar", message:"Revisa los datos e inténtalo nuevamente."});
         }
@@ -383,8 +492,224 @@
         showToast({type:"error", title:"Error de red", message:"No se pudo conectar con el servidor."});
       }
     });
-
     document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closeModal(); });
+
+    /* ========= PERSISTIR ESTADO DESDE % ========= */
+    async function persistProjectEstadoFromPct(pct){
+      if (!proyectoActual?.id) return;
+      const nuevo = (pct===0) ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
+      if (proyectoActual.estado === nuevo) return;
+      const payload = {
+        id: proyectoActual.id,
+        nombreProyecto: proyectoActual.nombreProyecto,
+        descripcion: proyectoActual.descripcion,
+        estado: nuevo,
+        equipoId: proyectoActual.equipoId,
+        fechaInicio: proyectoActual.fechaInicio || null,
+        fechaFin: proyectoActual.fechaFin || null,
+        ultimoAcceso: proyectoActual.ultimoAcceso || null
+      };
+      try{
+        const res = await fetch(`${API_BASE}/${proyectoActual.id}`, {
+          method:"PUT",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok){
+          const updated = await res.json();
+          proyectoActual.estado = updated.estado;
+          // Refrescar chip
+          $vmEstadoChip.className = estadoToChipClass(updated.estado);
+          $vmEstadoChip.textContent = updated.estado;
+        }
+      }catch(e){ /* silencioso */ }
+    }
+
+    /* ========= TAREAS ========= */
+    function tareaRow(t){
+      const isDone = (t.status||"").toLowerCase()==="done" || (t.completedAt != null);
+      const descHtml = escapeHtml(t.description || t.longDescription || "");
+      return `
+        <div class="task-item" data-id="${t.id}">
+          <input type="checkbox" class="t-check" ${isDone ? "checked" : ""} title="Completar / Reabrir">
+          <div>
+            <div class="task-title">${escapeHtml(t.title || '')}</div>
+            <div class="task-meta">
+              Prio: ${escapeHtml(t.priority||'-')}
+              · Est: ${t.estimatedHours ?? '-'}h
+              ${t.realHours ? (' · Real: '+t.realHours+'h') : ''}
+            </div>
+          </div>
+          <div class="task-actions">
+            <span class="badge status ${isDone?'done':'todo'}">${isDone?'done':'todo'}</span>
+            ${descHtml ? `<button class="desc-toggle" type="button">ver descripción</button>` : ""}
+            <button class="btn-danger btn-xs t-del" title="Borrar">Borrar</button>
+          </div>
+          ${descHtml ? `<div class="task-desc">${descHtml}</div>` : ""}
+        </div>
+      `;
+    }
+
+    function updateProgressFromTasks(){
+      const total = tareasCache.length;
+      const done  = tareasCache.filter(t => (t.status||"").toLowerCase()==="done" || t.completedAt != null).length;
+      $tasksSummary.textContent = `${done}/${total} completadas`;
+      const pct = total === 0 ? 0 : Math.round((done/total)*100);
+
+      setRadialAnimated($vmRadial, pct, $vmPercent, 500);
+      $vmBar.style.width = pct + "%";
+
+      // Persistir estado en BD según %
+      persistProjectEstadoFromPct(pct);
+    }
+
+    function renderTareas(arr){
+      if(!arr.length){
+        $tasksListEl.innerHTML = `<div class="muted" style="padding:6px 0 12px">No hay tareas aún. ¡Crea la primera! 🚀</div>`;
+      } else {
+        $tasksListEl.innerHTML = arr.map(tareaRow).join("");
+      }
+
+      $tasksListEl.querySelectorAll(".t-check").forEach(chk => {
+        chk.addEventListener("change", async (e)=>{
+          const id = Number(e.target.closest(".task-item").dataset.id);
+          await toggleTaskStatus(id, e.target.checked);
+        });
+      });
+      $tasksListEl.querySelectorAll(".t-del").forEach(btn => {
+        btn.addEventListener("click", async (e)=>{
+          const id = Number(e.target.closest(".task-item").dataset.id);
+          await deleteTask(id);
+        });
+      });
+      $tasksListEl.querySelectorAll(".desc-toggle").forEach(btn => {
+        btn.addEventListener("click", (e)=>{
+          const row = e.target.closest(".task-item");
+          const desc = row.querySelector(".task-desc");
+          if (!desc) return;
+          desc.classList.toggle("show");
+          e.target.textContent = desc.classList.contains("show") ? "ocultar descripción" : "ver descripción";
+        });
+      });
+
+      updateProgressFromTasks();
+    }
+
+    async function loadTasks(projectId){
+      mustHaveEmail();
+      try{
+        const res = await fetch(`${TASKS_API}?projectId=${encodeURIComponent(projectId)}`, {
+          headers: { "X-User-Email": sessionEmail }
+        });
+        if(!res.ok) throw new Error("Error listando tareas");
+        tareasCache = await res.json();
+        renderTareas(tareasCache);
+      }catch(err){
+        $tasksListEl.innerHTML = `<div class="muted" style="padding:6px 0 12px">No se pudieron cargar las tareas.</div>`;
+      }
+    }
+
+    async function createTask(projectId){
+      mustHaveEmail();
+      const title = ($tTitle.value||"").trim();
+      const description = ($tDesc.value||"").trim();
+      const estimatedHours = $tEstimated.value ? Number($tEstimated.value) : null;
+      const priority = ($tPriority.value||"").trim() || null;
+
+      if (!title){
+        showToast({type:"error", title:"Falta título", message:"Escribe el título de la tarea."});
+        return;
+      }
+      if ((description||"").length > 300){
+        showToast({type:"error", title:"Descripción muy larga", message:"Máximo 300 caracteres."});
+        return;
+      }
+      if (estimatedHours != null && estimatedHours > 4){
+        showToast({type:"error", title:"Máximo 4 horas", message:"Divide en subtareas si supera 4h."});
+        return;
+      }
+
+      const payload = { title, description, projectId: Number(projectId), estimatedHours, priority };
+
+      try{
+        const res = await fetch(TASKS_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-User-Email": sessionEmail },
+          body: JSON.stringify(payload)
+        });
+        if (res.status === 201){
+          const created = await res.json();
+          tareasCache.unshift(created);
+          renderTareas(tareasCache);
+          $tTitle.value = ""; $tEstimated.value = ""; $tPriority.value = ""; $tDesc.value = ""; $descCount.textContent = "0";
+          showToast({type:"success", title:"Tarea creada"});
+        } else {
+          const text = await res.text();
+          showToast({type:"error", title:"No se creó", message:text || "Valida los datos."});
+        }
+      }catch(err){
+        showToast({type:"error", title:"Error de red", message:"No se pudo crear la tarea."});
+      }
+    }
+
+    async function deleteTask(id){
+      mustHaveEmail();
+      try{
+        const res = await fetch(`${TASKS_API}/${id}`, {
+          method: "DELETE",
+          headers: { "X-User-Email": sessionEmail }
+        });
+        if (res.status === 204){
+          tareasCache = tareasCache.filter(t => t.id !== id);
+          renderTareas(tareasCache);
+          showToast({type:"success", title:"Tarea eliminada"});
+        } else {
+          showToast({type:"error", title:"No se pudo borrar"});
+        }
+      }catch(err){
+        showToast({type:"error", title:"Error de red"});
+      }
+    }
+
+    async function toggleTaskStatus(id, checked){
+      mustHaveEmail();
+      const newStatus = checked ? "done" : "todo";
+      try{
+        const res = await fetch(`${TASKS_API}/${id}/status`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", "X-User-Email": sessionEmail },
+          body: JSON.stringify({ status: newStatus })
+        });
+        if (res.ok){
+          const updated = await res.json();
+          const idx = tareasCache.findIndex(t => t.id === id);
+          if (idx >= 0) tareasCache[idx] = updated;
+          renderTareas(tareasCache);
+        } else {
+          showToast({type:"error", title:"No se pudo actualizar estado"});
+          const chk = $tasksListEl.querySelector(`.task-item[data-id="${id}"] .t-check`);
+          if (chk) chk.checked = !checked;
+        }
+      }catch(err){
+        showToast({type:"error", title:"Error de red"});
+        const chk = $tasksListEl.querySelector(`.task-item[data-id="${id}"] .t-check`);
+        if (chk) chk.checked = !checked;
+      }
+    }
+
+    if ($btnAddTask){
+      $btnAddTask.addEventListener("click", ()=>{
+        if (!proyectoActual?.id) return;
+        createTask(proyectoActual.id);
+      });
+    }
+    if ($btnRefrescar){
+      $btnRefrescar.addEventListener("click", ()=>{
+        if (!proyectoActual?.id) return;
+        loadTasks(proyectoActual.id);
+      });
+    }
+
     document.addEventListener("DOMContentLoaded", cargarProyecto);
   </script>
 </body>
