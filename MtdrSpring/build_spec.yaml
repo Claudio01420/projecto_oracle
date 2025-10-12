@@ -5,30 +5,12 @@ timeoutInSeconds: 3600
 
 env:
   variables:
-    APP_DIR: "MtdrSpring/backend"   # carpeta donde está tu pom.xml
-  exportedVariables:
-    - JAR_PATH
+    APP_DIR: "MtdrSpring/backend"
 
 steps:
   - type: Command
-    name: Mostrar info del commit
-    command: |
-      echo "Commit: $OCI_BUILD_COMMIT"
-      echo "Branch: $OCI_BUILD_BRANCH"
-
-  - type: Command
-    name: Compilar con Maven Wrapper
+    name: Build backend
     command: |
       cd "$APP_DIR"
-      chmod +x ./mvnw
+      chmod +x ./mvnw || true
       ./mvnw -ntp -DskipTests=true clean package
-      JAR_PATH=$(ls target/*.jar | head -n1)
-      echo "JAR_PATH=$JAR_PATH" >> $OCI_WORKSPACE/exports
-      echo "Generado: $JAR_PATH"
-
-artifacts:
-  - name: app-jar
-    type: BINARY
-    location: $APP_DIR/target
-    include:
-      - "*.jar"
