@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mytodolist-deployment
+  labels:
+    app: mytodolist
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mytodolist
+  template:
+    metadata:
+      labels:
+        app: mytodolist
+    spec:
+      containers:
+        - name: mytodolist
+          image: iad.ocir.io/axyqsveqbf4z/reacttodo/mytodolist:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mytodolist-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: mytodolist
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
