@@ -1,4 +1,4 @@
-:root {
+:root{
   --bg:#f5f6f8;
   --ink:#111;
   --muted:#6b7280;
@@ -14,177 +14,73 @@
   --shadow-md:0 8px 24px rgba(0,0,0,.06);
   --shadow-lg:0 12px 32px rgba(0,0,0,.18);
   --radius:14px;
-
-  --ico-size: 18px;
-  --ico-size-sm: 14px;
-  --ico-color: #9aa3af;
-  --ico-accent: var(--brand);
 }
 
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
-body{
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
-  background:var(--bg);
-  color:var(--ink);
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans",sans-serif;background:var(--bg);color:var(--ink)}
+
+/* Topbar fija */
+.topbar{
+  position:fixed; top:0; left:0; right:0; height:50px;
+  background:#111; color:#fff; display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px; z-index:200; box-shadow:0 2px 6px rgba(0,0,0,.2);
 }
-
-/* Topbar */
-.topbar{position:fixed;top:0;left:0;right:0;height:50px;background:#111;
-  color:#fff;display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px;z-index:200;box-shadow:0 2px 6px rgba(0,0,0,.2)}
-.home-btn{color:#fff;text-decoration:none;font-weight:700;padding:6px 12px;border-radius:6px}
-.home-btn:hover{background:rgba(255,255,255,.1)}
-.topbar-right{display:flex;align-items:center;gap:12px}
-.user-circle{width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;
-  display:flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer}
-.user-circle:hover{background:var(--brand-hover)}
-.logout-btn{background:var(--brand);color:#fff;font-weight:700;padding:6px 12px;border-radius:6px;text-decoration:none}
-.logout-btn:hover{background:var(--brand-hover)}
-
-/* Iconos */
-.logo-text{
-  font-family: "Panchang", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  font-weight: 600;
-  font-size: 48px;/* Tamaño del logo */
-  letter-spacing: 0.10em;/* Separacion entre letras */
-  color:var(--brand);
-  text-transform: uppercase;
-  line-height: 1;
-  display: inline-block;
-  transform: scaleX(1.25);/* Estirar letras */
-  transform-origin: center;
-  user-select: none;
-  margin: 0;
+.home-btn{ color:#fff; font-weight:700; text-decoration:none; padding:6px 12px; border-radius:6px }
+.home-btn:hover{ background:rgba(255,255,255,.1) }
+.topbar-right{ display:flex; align-items:center; gap:12px }
+.user-circle{
+  width:34px; height:34px; border-radius:50%; background:var(--brand); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; cursor:pointer;
 }
-
-.aside .brand{
-  font-size: inherit;
-  letter-spacing: normal;
-  margin:8px 0 14px !important;
+.user-circle:hover{ background:var(--brand-hover) }
+.logout-btn{
+  background:var(--brand); color:#fff; font-weight:700; padding:6px 12px; border-radius:6px; text-decoration:none;
 }
+.logout-btn:hover{ background:var(--brand-hover) }
 
-.aside .menu{
-  margin-top:0 !important;
-}
-
-/* --- Topbar Estilos --- */
-.topbar > .brand{
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  height:100%;
-  margin:0 !important;
-  padding:0px 0 0 40px;
-}
-
-/* --- Sidebar Estilos --- */
-.aside .brand{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  height:56px;
-  margin:8px 0 14px !important;
-  line-height:0;
-  font-size:inherit;
-  letter-spacing:normal;
-}
-
-.aside .topbar-left{ display:none; height:0; margin:0; padding:0; }
-
-.aside .menu{ padding:0; margin-top:0 !important; }
-
-/* --- Items del sidebar --- */
-.aside .menu .mi{
-  display:flex; align-items:center; gap:10px;
-  min-height:44px;
-  padding:12px 14px;
-  line-height:1.2;
-}
-
-/* --- Iconos del sidebar --- */
-.aside .menu .mi .ico{
-  width:18px; height:18px;
-  flex:0 0 18px;
-  display:block;
-  color:#9aa3af;
-}
-
-/* --- Textos del sidebar --- */
-.aside .menu .mi span{
-  display:inline-block;
-  line-height:1.2;
-}
-
-/* ====== LAYOUT PRINCIPAL (con sidebar) ====== */
+/* Layout (sidebar + main) */
 .app{
-  display:grid;
-  grid-template-columns: 260px minmax(0,1fr);
-  min-height:100dvh;
-  background:var(--bg);
-  padding-top: 50px; /* espacio para barra superior fija */
+  display:grid; grid-template-columns:260px minmax(0,1fr);
+  min-height:100vh; padding-top:50px; /* espacio para topbar */
 }
+
+/* Sidebar */
 .aside{
-  background:#151515; color:#fff;
-  padding:28px 14px;
-  position: sticky;
-  top:50px; /* debajo de la topbar */
-  height: calc(100vh - 50px);
+  background:#151515; color:#fff; padding:18px 14px;
+  position:sticky; top:50px; height:calc(100vh - 50px);
 }
-.brand{
-  font-weight:900; letter-spacing:.18rem;
-  color:var(--brand); font-size:28px;
-  margin:8px 8px 26px;
-}
-.menu{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-  margin-top:12px;
-}
+.brand{ text-align:center; margin:8px 0 20px }
+.brand img{ max-width:160px; height:auto; display:inline-block }
+.menu{ display:flex; flex-direction:column; gap:8px }
 .mi{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:14px 14px;
-  border-radius:12px;
-  color:#e5e7eb;
-  text-decoration:none;
-  transition:.15s ease-in-out;
+  display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:12px;
+  color:#e5e7eb; text-decoration:none; transition:.15s ease-in-out;
 }
-.mi:hover{ background:#1f1f1f; }
-.mi.active{
-  background:#3a1b1b; color:#fff;
-  box-shadow: inset 0 0 0 1px rgba(225,38,28,.25);
-}
-.main{ padding:24px; }
+.mi:hover{ background:#1f1f1f }
+.mi.active{ background:#3a1b1b; color:#fff; box-shadow:inset 0 0 0 1px rgba(225,38,28,.25) }
+
+/* Main */
+.main{ padding:24px }
 
 /* Cards */
 .card{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:18px;
-  padding:18px;
-  box-shadow:var(--shadow-sm);
+  background:var(--card); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:var(--shadow-sm);
   margin-bottom:16px;
 }
 .card-soft{
-  background:linear-gradient(180deg,#fff 0%,#fafbfc 100%);
-  border:1px solid var(--line);
-  border-radius:22px;
-  box-shadow:0 10px 30px rgba(0,0,0,.06)
+  background:linear-gradient(180deg,#fff 0%,#fafbfc 100%); border:1px solid var(--line); border-radius:22px; box-shadow:0 10px 30px rgba(0,0,0,.06)
 }
 
-/* Typography */
-.h4{ font-weight:900; font-size:clamp(20px,3vw,28px); margin:0 0 6px }
-.h6{ font-weight:900; font-size:clamp(16px,2.4vw,20px); margin:0 0 8px }
+/* Typo utilities */
+.h4{ font-weight:900; font-size: clamp(20px,3vw,28px); margin:0 0 6px 0 }
+.h6{ font-weight:900; font-size: clamp(16px,2.4vw,20px); margin:0 0 8px 0 }
 .muted{ color:var(--muted) }
 .small{ font-size:13px }
 .tiny{ font-size:12px }
 
 /* Buttons */
-.btn{ display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px;
-  font-weight:700; text-decoration:none; border:1px solid transparent }
+.btn{ display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px; font-weight:700; text-decoration:none; border:1px solid transparent }
 .btn-primary{ background:var(--brand); color:#fff; box-shadow:0 4px 14px rgba(225,38,28,.2) }
 .btn-primary:hover{ background:var(--brand-hover) }
 .btn-outline{ background:#fff; color:var(--ink); border-color:#d6d9de }
@@ -201,7 +97,7 @@ body{
   height:38px; border:1px solid var(--line-2); border-radius:10px; padding:0 10px; background:#fff; color:var(--ink)
 }
 
-/* Grid */
+/* Grid: lista + detalle */
 .grid{
   display:grid; grid-template-columns: 1fr 360px; gap:16px;
 }
@@ -212,8 +108,7 @@ body{
 /* Chips */
 .chips{ display:flex; gap:8px; flex-wrap:wrap }
 .chip{
-  display:inline-flex; align-items:center; padding:6px 10px; border-radius:999px;
-  background:var(--chip); color:var(--ink); font-size:12px
+  display:inline-flex; align-items:center; padding:6px 10px; border-radius:999px; background:var(--chip); color:var(--ink); font-size:12px
 }
 .chip-red{ background:#fff1f0; color:var(--brand) }
 .state-done{ background:#eaf7ee; color:#0a7a2e }
@@ -224,8 +119,7 @@ body{
 .table-wrap{ border:1px solid var(--line); border-radius:14px; overflow:hidden }
 .table{ width:100%; border-collapse:separate; border-spacing:0 }
 .table thead th{
-  position:sticky; top:0; z-index:1; background:#111; color:#fff;
-  text-align:left; font-weight:800; padding:10px 12px; border-bottom:1px solid var(--line)
+  position:sticky; top:0; z-index:1; background:#111; color:#fff; text-align:left; font-weight:800; padding:10px 12px; border-bottom:1px solid var(--line)
 }
 .table tbody td{ padding:10px 12px; border-bottom:1px solid var(--line) }
 .table tbody tr:hover{ background:#f9fafb }
@@ -235,7 +129,9 @@ body{
 .progress{
   width:100%; height:10px; background:#eceff3; border-radius:99px; overflow:hidden
 }
-.progress > span{ display:block; height:100%; background:var(--brand) }
+.progress > span{
+  display:block; height:100%; background:var(--brand)
+}
 
 /* Pager */
 .pager{ display:flex; align-items:center; gap:10px; justify-content:flex-end; margin-top:10px }
@@ -249,7 +145,7 @@ body{
 /* Row helpers */
 .row-sb{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px }
 
-/* Botón borrar sólido */
+/* === Botón borrar sólido (sin chip blanca) === */
 .btn-danger {
   position: relative;
   display: inline-flex;
@@ -278,8 +174,32 @@ body{
   transform: translateY(0);
   box-shadow: 0 3px 8px rgba(180,35,24,.2);
 }
+.btn-danger .ico {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+}
+.btn-danger .label {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  color: inherit;
+}
+.btn-danger.btn-xs {
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+}
+.btn-danger:focus {
+  outline: 3px solid rgba(225,38,28,.25);
+  outline-offset: 2px;
+}
+@media (max-width: 640px) {
+  .btn-danger .label { display: none; }
+}
 
-/* Confirmación modal */
+/* === Confirmación bonita (modal pequeño) === */
 .confirm-overlay {
   position: fixed;
   inset: 0;
@@ -344,52 +264,4 @@ body{
 }
 .confirm-yes:hover {
   background: var(--brand-hover);
-}
-
-/* Tamaños/colores base de iconos */
-.ico{ 
-  width: var(--ico-size); 
-  height: var(--ico-size); 
-  color: var(--ico-color); 
-  display: inline-block;
-}
-.ico-sm{ 
-  width: var(--ico-size-sm); 
-  height: var(--ico-size-sm); 
-  color: var(--ico-color); 
-  display: inline-block;
-}
-
-/* Alineación de iconos */
-.icon-inline{
-  display:inline-flex; 
-  vertical-align:-2px; 
-  margin-right:.35rem;
-}
-
-/* Helpers de color */
-.ico-muted{ color:#c0c7d2; }
-.ico-accent{ color:var(--ico-accent); }
-
-.sr-only{
-  position:absolute; width:1px; height:1px; padding:0; margin:-1px; 
-  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
-}
-
-.with-icon{
-  display:inline-flex; 
-  align-items:center; 
-  gap:.5rem;
-}
-
-.logout-btn .ico,
-.logout-btn .ico-sm{ color:#fff; opacity:.9; }
-
-.chat-input button .ico,
-.chat-input button .ico-sm{ color:#fff; }
-
-#svg-sprite{ position:absolute; width:0; height:0; overflow:hidden; }
-
-.aside .menu .mi .ico{
-  width:18px; height:18px; display:block; flex:0 0 18px;
 }
