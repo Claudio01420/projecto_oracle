@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: mytodolist
-          image: iad.ocir.io/axyqsveqbf4z/reacttodo/mytodolist:1.0.0
+          image: mx-queretaro-1.ocir.io/axyqsveqbf4z/reacttodo/t9ldr/todolistapp-springboot:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
