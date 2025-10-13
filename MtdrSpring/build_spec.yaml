@@ -1,89 +1,16 @@
-# build_spec.yaml  — OCI DevOps Managed Build
 version: 0.1
 component: build
-timeoutInSeconds: 36000
 shell: bash
+timeoutInSeconds: 3600
 
 env:
   variables:
-    JAVA_VERSION: "17"                 # Cambia a 11 si tu app usa Java 11
-    MAVEN_CMD: "./mvnw"                # Usará wrapper si existe; si no, se cambia a 'mvn' en runtime
-    APP_DIR: "${OCI_PRIMARY_SOURCE_DIR}"
-    ARTIFACTS_DIR: "${OCI_PRIMARY_SOURCE_DIR}/artifacts"
-  exportedVariables:
-    - APP_VERSION
-    - JAR_PATH
-
-  # Acelera compilaciones cacheando el repo local de Maven
-  cache:
-    paths:
-      - /root/.m2/repository
+    APP_DIR: "MtdrSpring/backend"
 
 steps:
   - type: Command
-    name: "Preparar entorno"
+    name: Build backend
     command: |
-      set -e
       cd "$APP_DIR"
-      # Usa mvnw si existe; si no, usa mvn del contenedor base
-      if [ -x "./mvnw" ]; then
-        export MAVEN_CMD="./mvnw"
-      else
-        export MAVEN_CMD="mvn"
-      fi
-      echo "Usando Maven: $MAVEN_CMD"
-
-      # Crear carpeta de artefactos
-      mkdir -p "$ARTIFACTS_DIR"
-
-  - type: Command
-    name: "Compilar y testear"
-    command: |
-      set -e
-      cd "$APP_DIR"
-      $MAVEN_CMD -B -DskipTests=false clean test
-
-  - type: Command
-    name: "Empaquetar .jar"
-    command: |
-      set -e
-      cd "$APP_DIR"
-      $MAVEN_CMD -B -DskipTests package
-
-      # Detectar jar final (excluye sources/original)
-      JAR_PATH=$(find target -maxdepth 1 -type f -name "*.jar" ! -name "*sources*" ! -name "*original*" | head -n1)
-      if [ -z "$JAR_PATH" ]; then
-        echo "No se encontró el .jar en target/"
-        exit 1
-      fi
-      echo "Jar generado: $JAR_PATH"
-
-      # Extraer versión desde el pom.xml
-      APP_VERSION=$($MAVEN_CMD -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:3.1.0:exec)
-      echo "APP_VERSION=$APP_VERSION" | tee -a $OCI_WORKSPACE/exports
-
-      # Exportar variables para pasos/artifacts
-      echo "JAR_PATH=$JAR_PATH" | tee -a $OCI_WORKSPACE/exports
-
-      # Copiar a carpeta de artefactos visibles al pipeline
-      cp "$JAR_PATH" "$ARTIFACTS_DIR/"
-
-  - type: Command
-    name: "Publicar reportes de tests (opcional)"
-    command: |
-      set -e
-      cd "$APP_DIR"
-      # Copia los reportes de Surefire a artifacts para fácil consulta/descarga
-      if [ -d "target/surefire-reports" ]; then
-        mkdir -p "$ARTIFACTS_DIR/test-reports"
-        cp -r target/surefire-reports "$ARTIFACTS_DIR/test-reports/"
-      fi
-
-outputArtifacts:
-  - name: app-jar
-    type: BINARY
-    location: artifacts/*.jar
-
-  - name: test-reports
-    type: GENERIC
-    location: artifacts/test-reports/**/*
+      chmod +x ./mvnw || true
+      ./mvnw -ntp -DskipTests=true clean package
