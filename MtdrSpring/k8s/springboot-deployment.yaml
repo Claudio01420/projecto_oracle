@@ -19,7 +19,7 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            # MUY IMPORTANTE: que Spring use el wallet y el alias correcto
+            
             - name: TNS_ADMIN
               value: /opt/adb/wallet
             - name: SPRING_DATASOURCE_URL
@@ -36,9 +36,7 @@ spec:
                 secretKeyRef:
                   name: db-credentials
                   key: DB_PASSWORD
-            # Opcional, si usas Hibernate y quieres crear/actualizar tablas automáticamente:
-            # - name: SPRING_JPA_HIBERNATE_DDL_AUTO
-            #   value: update
+            
           volumeMounts:
             - name: adb-wallet
               mountPath: /opt/adb/wallet
