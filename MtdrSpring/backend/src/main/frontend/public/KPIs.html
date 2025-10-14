@@ -39,9 +39,18 @@
       <section class="card card-soft">
         <h1 class="h4">KPIs de productividad y calidad</h1>
         <div class="stats-grid">
-          <div class="stat"><div class="value">80%</div><div class="label">Task Completion</div></div>
-          <div class="stat"><div class="value">6.5h</div><div class="label">Tiempo prom. resolución</div></div>
-          <div class="stat"><div class="value">+18%</div><div class="label">Individual KPI Time</div></div>
+          <div class="stat">
+            <div id="taskCompletionValue" class="value">--%</div>
+            <div class="label">Task Completion</div>
+          </div>
+          <div class="stat">
+            <div id="avgResolutionValue" class="value">--h</div>
+            <div class="label">Tiempo prom. resolución tareas</div>
+          </div>
+          <div class="stat">
+            <div id="individualKpiValue" class="value">--h</div>
+            <div class="label">Individual KPI Time</div>
+          </div>
           <div class="stat"><div class="value">76%</div><div class="label">Uso de OCI</div></div>
         </div>
       </section>
@@ -60,7 +69,7 @@
   </div>
 
   <script>
-    // Datos
+    // Datos iniciales para los gráficos (se actualizan opcionalmente después)
     const donePct = [
       { sprint: "S1", pct: 60 }, { sprint: "S2", pct: 65 },
       { sprint: "S3", pct: 70 }, { sprint: "S4", pct: 75 }
@@ -72,8 +81,8 @@
       { s: "S4", reales: 15, plan: 13 }
     ];
 
-    // BarChart
-    new Chart(document.getElementById("barChart"), {
+    // Crear charts y exponer instancias para poder actualizarlos después
+    window.barChartInstance = new Chart(document.getElementById("barChart"), {
       type: "bar",
       data: {
         labels: donePct.map(d => d.sprint),
@@ -85,8 +94,7 @@
       }
     });
 
-    // LineChart
-    new Chart(document.getElementById("lineChart"), {
+    window.lineChartInstance = new Chart(document.getElementById("lineChart"), {
       type: "line",
       data: {
         labels: hours.map(d => d.s),
@@ -107,7 +115,100 @@
         ]
       }
     });
-  </script>
 
+    // Cálculo dinámico del % de tareas completadas desde /api/tasks
+    async function loadTaskCompletion() {
+      try {
+        const userEmail = localStorage.getItem('userEmail');
+        const headers = {};
+        let url = '/api/tasks';
+        let currentUser = null;
+        if (userEmail) {
+          headers['X-User-Email'] = userEmail;
+          currentUser = userEmail;
+        } else {
+          const qEmail = new URLSearchParams(location.search).get('email');
+          if (qEmail) {
+            url += '?email=' + encodeURIComponent(qEmail);
+            currentUser = qEmail;
+          }
+        }
+
+        const res = await fetch(url, { headers });
+        if (!res.ok) throw new Error('Error fetching tasks: ' + res.status);
+        const tasks = await res.json();
+
+        const total = Array.isArray(tasks) ? tasks.length : 0;
+        const completedStatuses = ['done','completed','finalizado','completado','terminado','closed','hecho'];
+        const completedTasks = (tasks || []).filter(t => {
+          const s = (t.status || '').toString().toLowerCase();
+          return completedStatuses.some(cs => s.includes(cs));
+        });
+
+        // Task Completion %
+        const completed = completedTasks.length;
+        const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
+        const pctEl = document.getElementById('taskCompletionValue');
+        if (pctEl) pctEl.textContent = pct + '%';
+
+        // Tiempo promedio de resolución (sobre tareas finalizadas retornadas)
+        const sumRealHours = completedTasks.reduce((acc, t) => {
+          const v = parseFloat(t.realHours);
+          return acc + (Number.isFinite(v) ? v : 0);
+        }, 0);
+        const avg = completed === 0 ? 0 : (sumRealHours / completed);
+        function formatHours(h) {
+          if (!Number.isFinite(h)) return 'N/A';
+          return (Math.round(h * 10) / 10) + 'h';
+        }
+        const avgEl = document.getElementById('avgResolutionValue');
+        if (avgEl) avgEl.textContent = completed === 0 ? '0h' : formatHours(avg);
+
+        // Individual KPI Time:
+        // Determinar usuario para el KPI (preferir currentUser, si no intentar inferir)
+        let userKey = null;
+        if (currentUser) {
+          userKey = currentUser.toString().toLowerCase();
+        } else if (Array.isArray(tasks) && tasks.length === 1) {
+          userKey = (tasks[0].assigneeId || tasks[0].userEmail || '').toString().toLowerCase();
+        }
+        // Filtrar tareas finalizadas asignadas al usuario
+        const completedForUser = userKey
+          ? completedTasks.filter(t => {
+              const a = (t.assigneeId || t.userEmail || '').toString().toLowerCase();
+              return a === userKey;
+            })
+          : []; // si no hay userKey, no podemos calcular individual
+        const userCount = completedForUser.length;
+        const userSum = completedForUser.reduce((acc, t) => {
+          const v = parseFloat(t.realHours);
+          return acc + (Number.isFinite(v) ? v : 0);
+        }, 0);
+        const userAvg = userCount === 0 ? 0 : (userSum / userCount);
+        const individualEl = document.getElementById('individualKpiValue');
+        if (individualEl) {
+          individualEl.textContent = userCount === 0 ? '0h' : formatHours(userAvg);
+        }
+
+        // Actualizar último dato del bar chart con el porcentaje actual (si procede)
+        if (window.barChartInstance) {
+          const ds = window.barChartInstance.data.datasets[0];
+          ds.data[ds.data.length - 1] = pct;
+          window.barChartInstance.update();
+        }
+      } catch (err) {
+        console.error(err);
+        const pctEl = document.getElementById('taskCompletionValue');
+        if (pctEl) pctEl.textContent = 'N/A';
+        const avgEl = document.getElementById('avgResolutionValue');
+        if (avgEl) avgEl.textContent = 'N/A';
+        const individualEl = document.getElementById('individualKpiValue');
+        if (individualEl) individualEl.textContent = 'N/A';
+      }
+    }
+
+    // Ejecutar al cargar la página
+    loadTaskCompletion();
+  </script>
 </body>
 </html>
