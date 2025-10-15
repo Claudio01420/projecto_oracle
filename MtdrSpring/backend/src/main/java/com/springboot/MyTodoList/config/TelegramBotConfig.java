@@ -1,17 +1,21 @@
 package com.springboot.MyTodoList.config;
 
-
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
-
-import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import com.springboot.MyTodoList.controller.ToDoItemBotController;
 
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+
 @Configuration
 public class TelegramBotConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(TelegramBotConfig.class);
 
     private final ToDoItemBotController bot;
 
@@ -20,8 +24,13 @@ public class TelegramBotConfig {
     }
 
     @PostConstruct
-    public void init() throws Exception {
-        TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-        botsApi.registerBot(bot);
+    public void init() {
+        try {
+            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+            botsApi.registerBot(bot);
+            log.info("Bot de Telegram registrado correctamente.");
+        } catch (TelegramApiException ex) {
+            log.warn("No se pudo registrar el bot en Telegram: {}", ex.getMessage(), ex);
+        }
     }
 }
