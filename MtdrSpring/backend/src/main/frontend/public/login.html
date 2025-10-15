@@ -52,6 +52,9 @@
       </div>
     </div>
 
+    <!-- demo: enlaces según rol -->
+    <div id="roleLinks" style="margin-top:12px; text-align:left;"></div>
+
   </div>
 
   <script>
@@ -92,13 +95,20 @@
               console.error('Respuesta login sin id:', u);
               return;
             }
+            // guardar rol devuelto (si existe) y fallback
+            const role = (u.rol && u.rol !== '') ? u.rol : 'Desarrollador';
             localStorage.setItem('user', JSON.stringify({
               id: Number(id),
               nombre: u.nombre ?? 'Usuario',
-              email: u.email ?? email
+              email: u.email ?? email,
+              role: role
             }));
             localStorage.setItem('userEmail', email);
+            localStorage.setItem('userRole', role);
+            // cookies para facilitar pruebas desde servidor
             document.cookie = 'userEmail=' + encodeURIComponent(email) + '; path=/; SameSite=Lax';
+            document.cookie = 'userRole=' + encodeURIComponent(role) + '; path=/; SameSite=Lax';
+            // redirigir
             window.location.href = '/dashboard.html';
           } else if (res.status === 401) {
             showError('Usuario o contraseña incorrectos');
@@ -196,7 +206,28 @@
         }
       });
 
+      // --- role-based links demo ---
+      function renderRoleLinks() {
+        const container = document.getElementById('roleLinks');
+        const raw = localStorage.getItem('user');
+        let role = localStorage.getItem('userRole') || null;
+        if (!role && raw) {
+          try { role = JSON.parse(raw).role; } catch(e){}
+        }
+        container.innerHTML = '';
+        if (!role) {
+          container.innerHTML = '<small>Sin sesión</small>';
+          return;
+        }
+        // Mostrar solo el nombre del rol
+        container.innerHTML = '<div><strong>Rol:</strong> ' + role + '</div>';
+      }
+
+      // render inicial (si el usuario ya está almacenado)
+      renderRoleLinks();
+
     })();
   </script>
 </body>
 </html>
+

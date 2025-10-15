@@ -6,6 +6,11 @@ import javax.persistence.*;
 @Table(schema = "TMDV", name = "USUARIOS")
 public class Usuario {
 
+    // Constantes de roles
+    public static final String ROLE_SCRUM_MASTER = "Scrum Master";
+    public static final String ROLE_DEVELOPER = "Desarrollador";
+    public static final String ROLE_SUPER_ADMIN = "Super Admin";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USUARIO_ID")
@@ -62,3 +67,4 @@ public class Usuario {
     public Long getTelefono() { return telefono; }
     public void setTelefono(Long telefono) { this.telefono = telefono; }
 }
+

@@ -29,17 +29,64 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public List<Usuario> all() {
-        return repo.findAll();
+    public ResponseEntity<List<Usuario>> all(@RequestHeader(value = "X-User-Role", required = false) String callerRole) {
+        if (!hasAnyRole(callerRole, Usuario.ROLE_SUPER_ADMIN, Usuario.ROLE_SCRUM_MASTER)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        List<Usuario> list = repo.findAll();
+        list.forEach(u -> u.setContrasenia(null));
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/{id}")
-    public Usuario one(@PathVariable Long id) {
-        return repo.findById(id).orElse(null);
+    public ResponseEntity<Usuario> one(@PathVariable Long id,
+                                      @RequestHeader(value = "X-User-Role", required = false) String callerRole,
+                                      @RequestHeader(value = "X-User-Id", required = false) String callerIdHeader) {
+
+        // Super Admin / Scrum Master -> pueden ver cualquiera
+        if (hasAnyRole(callerRole, Usuario.ROLE_SUPER_ADMIN, Usuario.ROLE_SCRUM_MASTER)) {
+            Optional<Usuario> u = repo.findById(id);
+            if (u.isPresent()) {
+                Usuario user = u.get();
+                user.setContrasenia(null);
+                return ResponseEntity.ok(user);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        }
+
+        // Desarrollador -> solo su propio id
+        if (hasAnyRole(callerRole, Usuario.ROLE_DEVELOPER)) {
+            try {
+                Long callerId = callerIdHeader != null ? Long.parseLong(callerIdHeader) : null;
+                if (callerId != null && callerId.equals(id)) {
+                    Optional<Usuario> u = repo.findById(id);
+                    if (u.isPresent()) {
+                        Usuario user = u.get();
+                        user.setContrasenia(null);
+                        return ResponseEntity.ok(user);
+                    } else {
+                        return ResponseEntity.notFound().build();
+                    }
+                } else {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+                }
+            } catch (NumberFormatException ex) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @PostMapping
-    public ResponseEntity<Usuario> create(@RequestBody Usuario u) {
+    public ResponseEntity<Usuario> create(@RequestBody Usuario u,
+                                          @RequestHeader(value = "X-User-Role", required = false) String callerRole) {
+        // autorización
+        if (!hasAnyRole(callerRole, Usuario.ROLE_SUPER_ADMIN)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         if (u == null ||
             u.getEmail() == null || u.getEmail().trim().isEmpty() ||
             u.getContrasenia() == null || u.getContrasenia().isEmpty() ||
@@ -53,12 +100,11 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
-        // asignar rol por defecto si no viene
+        // asignar rol por defecto si no viene: Desarrollador
         if (u.getRol() == null || u.getRol().trim().isEmpty()) {
-            u.setRol("USER");
+            u.setRol(Usuario.ROLE_DEVELOPER);
         }
 
-        // convertir telefono si viene vacío (opcional): mantener como está
         Usuario saved = repo.save(u);
         // no devolver la contraseña
         saved.setContrasenia(null);
@@ -89,6 +135,15 @@ public class UsuarioController {
             return ResponseEntity.ok(user);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    // Helper para comprobar roles (null seguro)
+    private boolean hasAnyRole(String callerRole, String... allowedRoles) {
+        if (callerRole == null) return false;
+        for (String ar : allowedRoles) {
+            if (callerRole.equalsIgnoreCase(ar)) return true;
+        }
+        return false;
     }
 
     // Mapa en memoria para tokens temporales (token -> TokenInfo)
@@ -170,3 +225,4 @@ public class UsuarioController {
         return ResponseEntity.ok(Map.of("message","contraseña actualizada"));
     }
 }
+
