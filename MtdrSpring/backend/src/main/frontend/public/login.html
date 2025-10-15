@@ -24,12 +24,42 @@
     </form>
 
     <div class="extra-links">
-      <a href="/recuperarContraseña.html">¿Olvidaste tu contraseña?</a>
+      <!-- ahora utiliza toggle para mostrar el panel de recuperación dentro de esta página -->
+      <a href="#" id="forgotLink">¿Olvidaste tu contraseña?</a>
     </div>
+
+    <!-- contenedor oculto para recuperación -->
+    <div id="recoverPanel" style="display:none; margin-top:16px; text-align:left;">
+      <hr/>
+      <h3>Recuperar contraseña</h3>
+
+      <!-- Paso 1: solicitar token -->
+      <div id="step1">
+        <label for="recEmail">Correo</label>
+        <input id="recEmail" type="email" placeholder="tu@correo.com" style="width:100%; padding:8px; margin-top:6px; border-radius:8px; border:1px solid #ddd"/>
+        <button id="requestTokenBtn" class="btn" style="margin-top:8px; width:100%;">Solicitar token</button>
+        <div id="requestMsg" style="margin-top:8px; color:#666;"></div>
+      </div>
+
+      <!-- Paso 2: confirmar token + nueva contraseña -->
+      <div id="step2" style="display:none; margin-top:12px">
+        <label for="recToken">Token</label>
+        <input id="recToken" type="text" placeholder="token" style="width:100%; padding:8px; margin-top:6px; border-radius:8px; border:1px solid #ddd"/>
+        <label for="recNewPass" style="margin-top:8px; display:block">Nueva contraseña</label>
+        <input id="recNewPass" type="password" placeholder="Nueva contraseña" style="width:100%; padding:8px; margin-top:6px; border-radius:8px; border:1px solid #ddd"/>
+        <button id="confirmTokenBtn" class="btn" style="margin-top:8px; width:100%;">Confirmar y cambiar contraseña</button>
+        <div id="confirmMsg" style="margin-top:8px; color:#666;"></div>
+      </div>
+    </div>
+
+    <!-- demo: enlaces según rol -->
+    <div id="roleLinks" style="margin-top:12px; text-align:left;"></div>
+
   </div>
 
   <script>
     (function() {
+      // --- login existente ---
       const form = document.getElementById('loginForm');
 
       function showError(msg) {
@@ -58,27 +88,27 @@
           });
 
           if (res.ok) {
-            // ⬇️ NUEVO: leemos el usuario devuelto por el backend y guardamos también 'user' con id
             const u = await res.json();
             const id = u.id ?? u.usuarioId ?? u.USUARIO_ID;
-
             if (!id) {
               showError('Error: el backend no devolvió id del usuario.');
               console.error('Respuesta login sin id:', u);
               return;
             }
-
-            // Guardados compatibles
+            // guardar rol devuelto (si existe) y fallback
+            const role = (u.rol && u.rol !== '') ? u.rol : 'Desarrollador';
             localStorage.setItem('user', JSON.stringify({
               id: Number(id),
               nombre: u.nombre ?? 'Usuario',
-              email: u.email ?? email
+              email: u.email ?? email,
+              role: role
             }));
-            // Mantén también lo que ya usabas
             localStorage.setItem('userEmail', email);
+            localStorage.setItem('userRole', role);
+            // cookies para facilitar pruebas desde servidor
             document.cookie = 'userEmail=' + encodeURIComponent(email) + '; path=/; SameSite=Lax';
-
-            // Redirigir al dashboard (tal como lo tenías)
+            document.cookie = 'userRole=' + encodeURIComponent(role) + '; path=/; SameSite=Lax';
+            // redirigir
             window.location.href = '/dashboard.html';
           } else if (res.status === 401) {
             showError('Usuario o contraseña incorrectos');
@@ -89,7 +119,115 @@
           showError('No se pudo conectar al servidor.');
         }
       });
+
+      // --- recuperación de contraseña ---
+      const forgotLink = document.getElementById('forgotLink');
+      const recoverPanel = document.getElementById('recoverPanel');
+      const requestTokenBtn = document.getElementById('requestTokenBtn');
+      const requestMsg = document.getElementById('requestMsg');
+      const recEmail = document.getElementById('recEmail');
+      const step2 = document.getElementById('step2');
+      const recToken = document.getElementById('recToken');
+      const recNewPass = document.getElementById('recNewPass');
+      const confirmTokenBtn = document.getElementById('confirmTokenBtn');
+      const confirmMsg = document.getElementById('confirmMsg');
+
+      forgotLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        recoverPanel.style.display = recoverPanel.style.display === 'none' ? 'block' : 'none';
+      });
+
+      requestTokenBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        requestMsg.textContent = '';
+        const email = recEmail.value.trim();
+        if (!email) { requestMsg.style.color='red'; requestMsg.textContent = 'Ingresa tu correo'; return; }
+        requestTokenBtn.disabled = true;
+        try {
+          const res = await fetch('/usuarios/reset-request', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ email })
+          });
+          const data = await res.json();
+          // En dev el backend devuelve el token; en prod esto no ocurrirá
+          if (res.ok) {
+            requestMsg.style.color = 'green';
+            requestMsg.textContent = data.message ? data.message : 'Revisa tu correo';
+            if (data.token) {
+              // mostrar token y habilitar paso 2
+              requestMsg.textContent += ' — token (dev): ' + data.token;
+              recToken.value = data.token;
+              step2.style.display = 'block';
+            } else {
+              step2.style.display = 'block'; // permitir ingresar token manual si se recibió por email
+            }
+          } else {
+            requestMsg.style.color = 'red';
+            requestMsg.textContent = data.message || 'Error al solicitar token';
+          }
+        } catch (err) {
+          requestMsg.style.color = 'red';
+          requestMsg.textContent = 'No se pudo conectar al servidor';
+        } finally {
+          requestTokenBtn.disabled = false;
+        }
+      });
+
+      confirmTokenBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        confirmMsg.textContent = '';
+        const email = recEmail.value.trim();
+        const token = recToken.value.trim();
+        const newPassword = recNewPass.value;
+        if (!email || !token || !newPassword) { confirmMsg.style.color='red'; confirmMsg.textContent='Todos los campos son requeridos'; return; }
+        confirmTokenBtn.disabled = true;
+        try {
+          const res = await fetch('/usuarios/reset-confirm', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ email, token, newPassword })
+          });
+          const data = await res.json().catch(()=>({}));
+          if (res.ok) {
+            confirmMsg.style.color = 'green';
+            confirmMsg.textContent = data.message || 'Contraseña actualizada. Puedes iniciar sesión.';
+            // opcional: auto-redirect to login after a delay
+            setTimeout(()=> { recoverPanel.style.display='none'; step2.style.display='none'; recNewPass.value=''; recToken.value=''; }, 1500);
+          } else {
+            confirmMsg.style.color = 'red';
+            confirmMsg.textContent = data.message || 'Error al cambiar contraseña';
+          }
+        } catch (err) {
+          confirmMsg.style.color = 'red';
+          confirmMsg.textContent = 'No se pudo conectar al servidor';
+        } finally {
+          confirmTokenBtn.disabled = false;
+        }
+      });
+
+      // --- role-based links demo ---
+      function renderRoleLinks() {
+        const container = document.getElementById('roleLinks');
+        const raw = localStorage.getItem('user');
+        let role = localStorage.getItem('userRole') || null;
+        if (!role && raw) {
+          try { role = JSON.parse(raw).role; } catch(e){}
+        }
+        container.innerHTML = '';
+        if (!role) {
+          container.innerHTML = '<small>Sin sesión</small>';
+          return;
+        }
+        // Mostrar solo el nombre del rol
+        container.innerHTML = '<div><strong>Rol:</strong> ' + role + '</div>';
+      }
+
+      // render inicial (si el usuario ya está almacenado)
+      renderRoleLinks();
+
     })();
   </script>
 </body>
 </html>
+

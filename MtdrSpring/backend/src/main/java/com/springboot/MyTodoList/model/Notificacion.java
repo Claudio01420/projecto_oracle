@@ -19,13 +19,20 @@ public class Notificacion {
     private String mensaje;
 
     @Column(name = "TIPO", length = 50)
-    private String tipo;
+    private String tipo; // "Proyectos" | "Tareas" | "Sprints" | "Equipo"
 
     @Column(name = "FECHA_ENVIO")
     private OffsetDateTime fechaEnvio;
 
     @Column(name = "PRIORIDAD", length = 400)
     private String prioridad;
+
+    // NUEVO
+    @Column(name = "LEIDA", length = 1)
+    private String leida; // 'N' (default) | 'Y'
+
+    @Column(name = "FECHA_LEIDO")
+    private OffsetDateTime fechaLeido;
 
     public Notificacion() {}
 
@@ -37,18 +44,31 @@ public class Notificacion {
         this.tipo = tipo;
         this.fechaEnvio = fechaEnvio;
         this.prioridad = prioridad;
+        this.leida = "N";
     }
 
+    // Getters / Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
     public Long getUsuarioId() { return usuarioId; }
     public void setUsuarioId(Long usuarioId) { this.usuarioId = usuarioId; }
+
     public String getMensaje() { return mensaje; }
     public void setMensaje(String mensaje) { this.mensaje = mensaje; }
+
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
+
     public OffsetDateTime getFechaEnvio() { return fechaEnvio; }
     public void setFechaEnvio(OffsetDateTime fechaEnvio) { this.fechaEnvio = fechaEnvio; }
+
     public String getPrioridad() { return prioridad; }
     public void setPrioridad(String prioridad) { this.prioridad = prioridad; }
+
+    public String getLeida() { return leida; }
+    public void setLeida(String leida) { this.leida = leida; }
+
+    public OffsetDateTime getFechaLeido() { return fechaLeido; }
+    public void setFechaLeido(OffsetDateTime fechaLeido) { this.fechaLeido = fechaLeido; }
 }

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mytodolist-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mytodolist
+  template:
+    metadata:
+      labels:
+        app: mytodolist
+    spec:
+      containers:
+        - name: mytodolist
+          image: mx-queretaro-1.ocir.io/axyqsveqbf4z/reacttodo/t9ldr/todolistapp-springboot:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            
+            - name: TNS_ADMIN
+              value: /opt/adb/wallet
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:oracle:thin:@reacttodosozzj_tp?TNS_ADMIN=/opt/adb/wallet
+            - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+              value: oracle.jdbc.OracleDriver
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_PASSWORD
+            
+          volumeMounts:
+            - name: adb-wallet
+              mountPath: /opt/adb/wallet
+              readOnly: true
+      volumes:
+        - name: adb-wallet
+          secret:
+            secretName: adb-wallet
+
