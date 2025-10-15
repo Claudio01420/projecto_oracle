@@ -50,10 +50,11 @@
     <circle cx="12" cy="12" r="3" />
     <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
   </symbol>
-  <!-- Power -->
-  <symbol id="i-power" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-    <path stroke-width="1.8" d="M12 2v8"/>
-    <path stroke-width="1.6" d="M5.5 7a8 8 0 1 0 13 0"/>
+  <!-- Exit -->
+  <symbol id="i-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m16 17 5-5-5-5"/>
+    <path d="M21 12H9"/>
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
   </symbol>
   <!-- Enviar -->
   <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -64,6 +65,8 @@
 
 
 </head>
+
+
 <body>
 
     <!-- Topbar -->
@@ -73,8 +76,8 @@
     </div>
     <div class="topbar-right">
       <div class="user-circle" title="Usuario">U</div>
-      <a href="/logout" class="logout-btn">
-        <svg class="ico-sm" aria-hidden="true"><use href="#i-power"/></svg>
+      <a href="/index.html" class="logout-btn">
+        <svg class="ico-sm" aria-hidden="true"><use href="#i-exit"/></svg>
         <span>Salir</span>
       </a>
     </div>
