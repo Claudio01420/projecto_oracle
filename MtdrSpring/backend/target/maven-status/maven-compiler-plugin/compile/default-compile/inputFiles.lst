@@ -35,7 +35,9 @@ C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\j
 C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\UsuarioController.java
 C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\config\TelegramBotConfig.java
 C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\config\BotProps.java
+C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\EquipoMembersController.java
 C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\NotificacionController.java
+C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\RolEquipo.java
 C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\config\CorsConfig.java
 C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\EquipoRepository.java
 C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Dashbord.java
@@ -43,6 +45,7 @@ C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\j
 C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Kpi.java
 C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\ProductividadRepository.java
 C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\security\WebSecurityConfiguration.java
+C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\service\EquipoService.java
 C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\AjustesRepository.java
 C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\dto\CompleteTaskDto.java
 C:\Users\Franc\OneDrive\Escritorio\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Notificacion.java

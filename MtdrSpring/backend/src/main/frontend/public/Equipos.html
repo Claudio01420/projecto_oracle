@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Equipos</title>
+  <link rel="stylesheet" href="Css/Equipos.css"/>
+  <link href="https://api.fontshare.com/v2/css?f[]=panchang@500,600,700,800,900&display=swap" rel="stylesheet">
+
+  <!-- Sprite de iconos -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <!-- Dashboard -->
+    <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-width="1.6" d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/>
+    </symbol>
+    <!-- Equipos -->
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M7 21v-2a4 4 0 0 1 3-3.87"/>
+      <circle cx="12" cy="7" r="4"/>
+      <path d="M5.5 8a3.5 3.5 0 1 0 0 7"/>
+      <path d="M18.5 8a3.5 3.5 0 1 1 0 7"/>
+    </symbol>
+    <!-- Proyectos -->
+    <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-width="1.6" d="M3 7h6l2 2h10v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/>
+    </symbol>
+    <!-- Tareas -->
+    <symbol id="i-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+      <path d="M12 11h4"/><path d="M12 16h4"/>
+      <path d="M8 11h.01"/><path d="M8 16h.01"/>
+    </symbol>
+    <!-- KPIs -->
+    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 16v5"/>
+      <path d="M16 14v7"/>
+      <path d="M20 10v11"/>
+      <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/>
+      <path d="M4 18v3"/>
+      <path d="M8 14v7"/>
+    </symbol>
+    <!-- Chatbot -->
+    <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="4" y="8" width="16" height="10" rx="4" stroke-width="1.6"/>
+      <circle cx="9" cy="13" r="1" stroke-width="1.6"/>
+      <circle cx="15" cy="13" r="1" stroke-width="1.6"/>
+      <path stroke-width="1.6" d="M12 4v2m-7 6H4m16 0h1"/>
+    </symbol>
+    <!-- Notificaciones -->
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-width="1.6" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
+      <path stroke-width="1.6" d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </symbol>
+    <!-- Ajustes -->
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <circle cx="12" cy="12" r="3"/>
+      <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+    </symbol>
+    <!-- Power -->
+    <symbol id="i-power" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-width="1.8" d="M12 2v8"/>
+      <path stroke-width="1.6" d="M5.5 7a8 8 0 1 0 13 0"/>
+    </symbol>
+  </svg>
+</head>
+
+<body>
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="brand">
+      <h1 class="logo-text">TMDV</h1>
+    </div>
+    <div class="topbar-right">
+      <div class="user-circle" id="userCircle" title="Usuario">U</div>
+      <a href="/logout" class="logout-btn">
+        <svg class="ico-sm" aria-hidden="true"><use href="#i-power"/></svg>
+        <span>Salir</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="aside">
+      <nav class="menu">
+        <a class="mi" href="/dashboard.html">
+          <svg class="ico"><use href="#i-dashboard"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a class="mi active" href="/Equipos.html">
+          <svg class="ico"><use href="#i-users"/></svg>
+          <span>Equipos</span>
+        </a>
+        <a class="mi" href="/projects.html">
+          <svg class="ico"><use href="#i-folder"/></svg>
+          <span>Proyectos</span>
+        </a>
+        <a class="mi" href="/tarea.html">
+          <svg class="ico"><use href="#i-board"/></svg>
+          <span>Tareas</span>
+        </a>
+        <a class="mi" href="/KPIs.html">
+          <svg class="ico"><use href="#i-chart"/></svg>
+          <span>KPIs</span>
+        </a>
+        <a class="mi" href="/chatbot.html">
+          <svg class="ico"><use href="#i-bot"/></svg>
+          <span>Chatbot</span>
+        </a>
+        <a class="mi" href="/notifications.html">
+          <svg class="ico"><use href="#i-bell"/></svg>
+          <span>Notificaciones</span>
+        </a>
+        <a class="mi" href="/settings.html">
+          <svg class="ico"><use href="#i-gear"/></svg>
+          <span>Ajustes</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <section class="card card-soft">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div>
+            <h1 class="h4">Equipos</h1>
+            <p class="muted">Crea equipos, invita miembros y gestiona roles.</p>
+          </div>
+          <button id="btnOpenCreate" class="btn-red with-icon">
+            <svg class="ico-sm" aria-hidden="true"><use href="#i-users"/></svg>
+            <span>Crear equipo</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="h4">Mis equipos</h2>
+        <div id="teamsList"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal: Crear equipo -->
+  <div id="createModal" class="modal-backdrop" style="display:none;">
+    <div class="card modal-card">
+      <h3 class="h4">Crear equipo</h3>
+      <form id="formCreateTeam" class="form-grid">
+        <div>
+          <label>Nombre</label>
+          <input type="text" id="teamName" placeholder="Nombre del equipo" required />
+        </div>
+        <div class="full">
+          <label>Descripción</label>
+          <textarea id="teamDesc" rows="3" placeholder="Descripción (opcional)"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="btnCancelCreate" class="btn-ghost">Cancelar</button>
+          <button type="submit" class="btn-red">Crear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Invitar -->
+  <div id="inviteModal" class="modal-backdrop" style="display:none;">
+    <div class="card modal-card">
+      <h3 class="h4">Invitar a equipo</h3>
+      <p class="muted" id="inviteTeamName">&nbsp;</p>
+      <form id="formInvite" class="form-grid">
+        <div class="full">
+          <label>Correo</label>
+          <input type="email" id="inviteEmail" placeholder="correo@ejemplo.com" required />
+        </div>
+        <div>
+          <label>Rol</label>
+          <select id="inviteRole">
+            <option value="USUARIO">Usuario</option>
+            <option value="USUARIO_SUPERIOR">Usuario Superior</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="btnCloseInvite" class="btn-ghost">Cerrar</button>
+          <button type="submit" class="btn-red">Enviar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast / Alert personalizado -->
+  <div id="toast" class="toast" style="display:none;">
+    <div id="toastMsg"></div>
+  </div>
+
+<script>
+/* ==================== CONFIG ==================== */
+const API = {
+  equipos: 'http://localhost:8080/equipos',
+  equiposCrearConAdmin: 'http://localhost:8080/equipos/crear-con-admin',
+  usuarios: 'http://localhost:8080/usuarios'
+};
+
+const sessionUser = JSON.parse(localStorage.getItem('user') || '{"id":1,"nombre":"Usuario Demo","email":"demo@demo.com"}');
+localStorage.setItem('user', JSON.stringify(sessionUser));
+
+const userCircle = document.getElementById('userCircle');
+if (userCircle) userCircle.textContent = (sessionUser.nombre||'U').charAt(0).toUpperCase();
+
+/* ==================== UI helpers ==================== */
+function showToast(msg, type='error') {
+  const toast = document.getElementById('toast');
+  const msgEl = document.getElementById('toastMsg');
+  msgEl.textContent = msg;
+  toast.className = 'toast ' + (type === 'success' ? 'toast-ok' : 'toast-error');
+  toast.style.display = 'block';
+  setTimeout(() => toast.style.display = 'none', 2500);
+}
+function openModal(el){ el.style.display = 'flex'; }
+function closeModal(el){ el.style.display = 'none'; }
+
+function btnRed(text, attrs = '') {
+  return `<button class="btn-red" ${attrs}>${text}</button>`;
+}
+
+/* Caché de usuarios para evitar llamadas repetidas */
+const userCache = new Map();
+async function getUserById(id){
+  if (userCache.has(id)) return userCache.get(id);
+  const resp = await fetch(`${API.usuarios}/${id}`);
+  if (!resp.ok) throw new Error('No se pudo obtener usuario');
+  const u = await resp.json();
+  userCache.set(id, u);
+  return u;
+}
+
+/* ==================== Modales ==================== */
+const createModal = document.getElementById('createModal');
+const btnOpenCreate = document.getElementById('btnOpenCreate');
+const btnCancelCreate = document.getElementById('btnCancelCreate');
+btnOpenCreate.addEventListener('click', () => openModal(createModal));
+btnCancelCreate.addEventListener('click', () => closeModal(createModal));
+
+const inviteModal = document.getElementById('inviteModal');
+const inviteTeamName = document.getElementById('inviteTeamName');
+const btnCloseInvite = document.getElementById('btnCloseInvite');
+btnCloseInvite.addEventListener('click', () => closeModal(inviteModal));
+
+let currentInviteEquipoId = null;
+
+/* ==================== Crear equipo (con validación) ==================== */
+const formCreateTeam = document.getElementById('formCreateTeam');
+formCreateTeam.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const nombre = document.getElementById('teamName').value.trim();
+  const descripcion = document.getElementById('teamDesc').value.trim();
+
+  if (!nombre || nombre.length < 3) {
+    showToast('El nombre debe tener al menos 3 caracteres.');
+    return;
+  }
+  if (descripcion.length > 2000) {
+    showToast('La descripción es demasiado larga (máx. 2000).');
+    return;
+  }
+
+  try {
+    const resp = await fetch(`${API.equiposCrearConAdmin}?creadorId=${encodeURIComponent(sessionUser.id)}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ nombreEquipo: nombre, descripcion })
+    });
+    if (!resp.ok) throw new Error('Error al crear equipo');
+    await resp.json();
+    formCreateTeam.reset();
+    closeModal(createModal);
+    showToast('Equipo creado', 'success');
+    await loadMyTeams();
+  } catch (err) { console.error(err); showToast('No se pudo crear el equipo'); }
+});
+
+/* ==================== Listar equipos (cards expandibles) ==================== */
+async function loadMyTeams() {
+  const list = document.getElementById('teamsList');
+  list.innerHTML = '<p class="muted">Cargando...</p>';
+  try {
+    const resp = await fetch(API.equipos);
+    const equipos = await resp.json();
+
+    const cards = [];
+    for (const eq of equipos) {
+      // Miembros del equipo
+      const r = await fetch(`${API.equipos}/${eq.id}/miembros`);
+      const miembros = await r.json();
+
+      // Ver si soy miembro
+      const me = miembros.find(m => m.id && m.id.usuarioId === sessionUser.id);
+      if (!me) continue;
+      const miRol = me.rol || 'USUARIO';
+
+      // Obtener ADMIN (para mostrar su nombre)
+      const admin = miembros.find(m => m.rol === 'ADMIN');
+      let adminName = 'Admin';
+      if (admin) {
+        try {
+          const adminUser = await getUserById(admin.id.usuarioId);
+          adminName = adminUser.nombre || adminUser.email || ('#' + admin.id.usuarioId);
+        } catch(_) {}
+      }
+
+      // Cabecera: título + ID, admin, descripción; acciones sólo para ADMIN
+      const actions = (miRol === 'ADMIN')
+        ? `<button class="btn-red" data-open-invite data-eid="${eq.id}" data-name="${(eq.nombreEquipo||'')}">Invitar</button>
+           <button class="btn-ghost danger" data-action="delete-team" data-eid="${eq.id}">Eliminar</button>`
+        : '';
+
+      cards.push(`
+        <article class="card team-card" data-eid="${eq.id}">
+          <header class="team-header" data-toggle>
+            <div class="team-header-left">
+              <h3 class="team-title">
+                ${eq.nombreEquipo || '—'}
+                <span class="team-id">#${eq.id}</span>
+              </h3>
+              <p class="team-sub muted">Admin: <strong>${adminName}</strong></p>
+              <p class="muted">${eq.descripcion || ''}</p>
+            </div>
+            <div class="team-header-right">
+              ${actions}
+              <button class="btn-ghost" data-toggle>
+                <span class="chev">▼</span>
+              </button>
+            </div>
+          </header>
+          <div class="team-body" style="display:none;">
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr><th>Usuario</th><th>Correo</th><th>Rol</th><th class="ta-right">Acciones</th></tr>
+                </thead>
+                <tbody data-members>
+                  ${await renderMembersRows(eq.id, miembros, miRol)}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+      `);
+    }
+
+    list.innerHTML = cards.length ? cards.join('') : '<p class="muted">No perteneces a ningún equipo todavía.</p>';
+  } catch (err) {
+    console.error(err);
+    list.innerHTML = '<p class="muted">Error cargando equipos.</p>';
+  }
+}
+
+async function renderMembersRows(equipoId, miembros, miRol) {
+  const rows = [];
+  for (const m of miembros) {
+    let nombre='—', correo='—';
+    try {
+      const u = await getUserById(m.id.usuarioId);
+      nombre = u.nombre || ('#' + u.id);
+      correo = u.email || '—';
+    } catch(_) {}
+
+    const isAdminRow = m.rol === 'ADMIN';
+    const canManage = miRol === 'ADMIN' && !isAdminRow;
+
+    const actions = canManage
+      ? `
+        ${btnRed('Usuario', `data-action="make-user" data-uid="${m.id.usuarioId}" data-eid="${equipoId}"`)}
+        ${btnRed('Superior', `data-action="make-super" data-uid="${m.id.usuarioId}" data-eid="${equipoId}"`)}
+        <button class="btn-ghost" data-action="remove" data-uid="${m.id.usuarioId}" data-eid="${equipoId}">Quitar</button>
+      `
+      : '';
+
+    rows.push(`
+      <tr>
+        <td>${nombre}</td>
+        <td>${correo}</td>
+        <td><span class="tag">${m.rol}</span></td>
+        <td class="ta-right">${actions}</td>
+      </tr>
+    `);
+  }
+  return rows.join('');
+}
+
+/* ==================== Invitaciones / Acciones ==================== */
+document.addEventListener('click', async (e) => {
+  const t = e.target;
+
+  // Abrir/Cerrar invitación
+  if (t.matches('[data-open-invite]')) {
+    currentInviteEquipoId = Number(t.getAttribute('data-eid'));
+    const name = (t.getAttribute('data-name')||'');
+    inviteTeamName.textContent = `Equipo: ${name} (#${currentInviteEquipoId})`;
+    openModal(inviteModal);
+  }
+  if (t === btnCloseInvite) {
+    closeModal(inviteModal);
+  }
+
+  // Expandir/colapsar tarjeta
+  if (t.closest('[data-toggle]')) {
+    const card = t.closest('.team-card');
+    const body = card.querySelector('.team-body');
+    const chev = card.querySelector('.chev');
+    const isOpen = body.style.display === 'block';
+    body.style.display = isOpen ? 'none' : 'block';
+    if (chev) chev.textContent = isOpen ? '▼' : '▲';
+  }
+
+  // Acciones
+  if (t.dataset && t.dataset.action) {
+    const equipoId = Number(t.dataset.eid);
+
+    if (t.dataset.action === 'delete-team') {
+      if (!confirm('¿Eliminar el equipo? Esta acción no se puede deshacer.')) return;
+      const resp = await fetch(`${API.equipos}/${equipoId}`, { method: 'DELETE' });
+      if (!resp.ok && resp.status !== 204) {
+        showToast('No se pudo eliminar el equipo');
+        return;
+      }
+      showToast('Equipo eliminado', 'success');
+      await loadMyTeams();
+      return;
+    }
+
+    const usuarioId = Number(t.dataset.uid);
+    if (t.dataset.action === 'remove') {
+      if (!confirm('¿Quitar del equipo?')) return;
+      await fetch(`${API.equipos}/${equipoId}/miembros/${usuarioId}`, { method: 'DELETE' });
+      await loadMyTeams();
+    }
+    if (t.dataset.action === 'make-user') {
+      await fetch(`${API.equipos}/${equipoId}/miembros/${usuarioId}/rol?rol=USUARIO`, { method: 'PUT' });
+      await loadMyTeams();
+    }
+    if (t.dataset.action === 'make-super') {
+      await fetch(`${API.equipos}/${equipoId}/miembros/${usuarioId}/rol?rol=USUARIO_SUPERIOR`, { method: 'PUT' });
+      await loadMyTeams();
+    }
+  }
+});
+
+/* Enviar invitación */
+const formInvite = document.getElementById('formInvite');
+formInvite.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('inviteEmail').value.trim();
+  const rol = document.getElementById('inviteRole').value;
+  if (!currentInviteEquipoId) return showToast('Equipo no válido');
+
+  if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+    showToast('Correo inválido');
+    return;
+  }
+  try {
+    const resp = await fetch(`${API.equipos}/${currentInviteEquipoId}/invitar?email=${encodeURIComponent(email)}&rol=${encodeURIComponent(rol)}`, { method: 'POST' });
+    if (!resp.ok) throw new Error('No se pudo invitar');
+    closeModal(inviteModal);
+    formInvite.reset();
+    showToast('Invitación enviada', 'success');
+    await loadMyTeams();
+  } catch (err) { console.error(err); showToast('No se pudo invitar'); }
+});
+
+/* ==================== Init ==================== */
+loadMyTeams();
+</script>
+</body>
+</html>

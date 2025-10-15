@@ -1,0 +1,325 @@
+:root{
+  --bg:#f5f6f8;
+  --ink:#111;
+  --muted:#6b7280;
+  --line:#e9edf2;
+  --card:#fff;
+  --brand:#E1261C;
+  --brand-hover:#c41f15;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.04);
+
+  --ico-size: 18px;
+  --ico-size-sm: 14px;
+  --ico-color: #9aa3af;
+  --ico-accent: var(--brand);
+}
+
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui;background:var(--bg);color:var(--ink)}
+
+/* Topbar */
+.topbar{position:fixed;top:0;left:0;right:0;height:50px;background:#111;
+  color:#fff;display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;z-index:200;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.home-btn{color:#fff;text-decoration:none;font-weight:700;padding:6px 12px;border-radius:6px}
+.home-btn:hover{background:rgba(255,255,255,.1)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.user-circle{width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer}
+.user-circle:hover{background:var(--brand-hover)}
+.logout-btn{background:var(--brand);color:#fff;font-weight:700;padding:6px 12px;border-radius:6px;text-decoration:none}
+.logout-btn:hover{background:var(--brand-hover)}
+
+/* Iconos */
+.logo-text{
+  font-family: "Panchang", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 600;
+  font-size: 48px;/* Tamaño del logo */
+  letter-spacing: 0.10em;/* Separacion entre letras */
+  color:var(--brand);
+  text-transform: uppercase;
+  line-height: 1;
+  display: inline-block;
+  transform: scaleX(1.25);/* Estirar letras */
+  transform-origin: center;
+  user-select: none;
+  margin: 0;
+}
+
+.aside .brand{
+  font-size: inherit;
+  letter-spacing: normal;
+  margin:8px 0 14px !important;
+}
+
+.aside .menu{
+  margin-top:0 !important;
+}
+
+/* --- Topbar Estilos --- */
+.topbar > .brand{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  height:100%;
+  margin:0 !important;
+  padding:0px 0 0 40px;
+}
+
+/* --- Sidebar Estilos --- */
+.aside .brand{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:56px;
+  margin:8px 0 14px !important;
+  line-height:0;
+  font-size:inherit;
+  letter-spacing:normal;
+}
+
+.aside .topbar-left{ display:none; height:0; margin:0; padding:0; }
+
+.aside .menu{ padding:0; margin-top:0 !important; }
+
+/* --- Items del sidebar --- */
+.aside .menu .mi{
+  display:flex; align-items:center; gap:10px;
+  min-height:44px;
+  padding:12px 14px;
+  line-height:1.2;
+}
+
+/* --- Iconos del sidebar --- */
+.aside .menu .mi .ico{
+  width:18px; height:18px;
+  flex:0 0 18px;
+  display:block;
+  color:#9aa3af;
+}
+
+/* --- Textos del sidebar --- */
+.aside .menu .mi span{
+  display:inline-block;
+  line-height:1.2;
+}
+
+/* Layout */
+.app{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  min-height:100vh;
+  padding-top:50px
+}
+.aside{
+  background:#151515;
+  color:#fff;
+  padding:28px 14px;
+  position:sticky;
+  top:50px;
+  height:calc(100vh - 50px)
+}
+.brand{
+  text-align:center;
+  margin:8px 0 26px
+}
+.brand img{
+  max-width:160px;
+  height:auto
+}
+.menu{
+  display:flex;
+  flex-direction:column;
+  gap:14px
+}
+.mi{
+  padding:14px 14px;
+  border-radius:12px;
+  color:#e5e7eb;
+  text-decoration:none;
+  display:flex;
+  gap:10px
+}
+.mi:hover{background:#1f1f1f}
+.mi.active{background:#3a1b1b;color:#fff}
+
+/* Main */
+.main{padding:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow-sm);margin-bottom:16px}
+.card-soft{background:linear-gradient(180deg,#fff 0%,#fafbfc 100%)}
+.h4{font-weight:900;font-size:clamp(20px,3vw,28px);margin:0 0 6px 0}
+.muted{color:var(--muted);margin-bottom:12px}
+
+/* Chatbox */
+.chatbox{display:flex;flex-direction:column;height:400px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.chat-history{flex:1;padding:16px;overflow-y:auto;background:#fafbfc}
+.bubble{max-width:70%;padding:10px 14px;border-radius:12px;margin:6px 0;font-size:14px;line-height:1.4;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.bubble.me{align-self:flex-end;background:var(--brand);color:#fff;border-bottom-right-radius:4px}
+.bubble.bot{align-self:flex-start;background:#fff;border:1px solid var(--line);color:#111;border-bottom-left-radius:4px}
+.bubble .tag{font-size:11px;opacity:.6;margin-top:4px}
+
+/* Input */
+.chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line);background:#fff}
+.chat-input input{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px}
+.chat-input button{background:var(--brand);color:#fff;font-weight:700;padding:8px 14px;border:none;border-radius:8px;cursor:pointer}
+.chat-input button:hover{background:var(--brand-hover)}
+
+/* Tamaños/colores base de iconos */
+.ico{ 
+  width: var(--ico-size); 
+  height: var(--ico-size); 
+  color: var(--ico-color); 
+  display: inline-block;
+}
+.ico-sm{ 
+  width: var(--ico-size-sm); 
+  height: var(--ico-size-sm); 
+  color: var(--ico-color); 
+  display: inline-block;
+}
+
+/* Alineación de iconos */
+.icon-inline{
+  display:inline-flex; 
+  vertical-align:-2px; 
+  margin-right:.35rem;
+}
+
+/* Helpers de color */
+.ico-muted{ color:#c0c7d2; }
+.ico-accent{ color:var(--ico-accent); }
+
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px; 
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+.with-icon{
+  display:inline-flex; 
+  align-items:center; 
+  gap:.5rem;
+}
+
+.logout-btn .ico,
+.logout-btn .ico-sm{ color:#fff; opacity:.9; }
+
+.chat-input button .ico,
+.chat-input button .ico-sm{ color:#fff; }
+
+#svg-sprite{ position:absolute; width:0; height:0; overflow:hidden; }
+
+.aside .menu .mi .ico{
+  width:18px; height:18px; display:block; flex:0 0 18px;
+}
+
+.btn-red{
+  background: var(--brand);
+  color:#fff;
+  font-weight:700;
+  padding:8px 12px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+.btn-red:disabled{ opacity:.5; cursor:not-allowed; }
+.btn-red:hover{ background: var(--brand-hover); }
+
+.btn-ghost{
+  background:#eee;
+  color:#111;
+  font-weight:600;
+  padding:8px 12px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+.btn-ghost:hover{ filter: brightness(.95); }
+
+/* ===== Botones ===== */
+.btn-red{
+  background: var(--brand);
+  color:#fff;
+  font-weight:700;
+  padding:8px 12px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  box-shadow: var(--shadow-sm);
+}
+.btn-red:hover{ background: var(--brand-hover); }
+.btn-red:disabled{ opacity:.5; cursor:not-allowed; }
+
+.btn-ghost{
+  background:#f1f5f9;
+  color:#111;
+  font-weight:700;
+  padding:8px 12px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+.btn-ghost:hover{ filter:brightness(.97); }
+.btn-ghost.danger{ background:#ffe8e6; color:#b42318; }
+
+/* ===== Modal ===== */
+.modal-backdrop{
+  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  background:rgba(15,15,15,.35); z-index:3000; padding:20px;
+}
+.modal-card{ width:min(620px, 96vw); }
+.form-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px;
+}
+.form-grid .full{ grid-column:1/-1; }
+.form-grid input, .form-grid textarea, .form-grid select{
+  width:100%; padding:10px; border:1px solid var(--line); border-radius:10px; font-size:14px;
+  background:#fff;
+}
+.modal-actions{ grid-column:1/-1; display:flex; justify-content:flex-end; gap:8px; }
+
+/* ===== Toast ===== */
+.toast{
+  position:fixed; left:50%; top:70px; transform:translateX(-50%);
+  padding:12px 16px; border-radius:10px; color:#fff; font-weight:700; z-index:4000;
+  box-shadow:0 6px 20px rgba(0,0,0,.15);
+}
+.toast-error{ background:#b42318; }
+.toast-ok{ background:#16a34a; }
+
+/* ===== Team cards ===== */
+.team-card{ padding:0; overflow:hidden; }
+.team-header{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:16px;
+  cursor:pointer;
+}
+.team-header-left .team-title{ margin:0; font-size:18px; font-weight:900; }
+.team-header-right{ display:flex; gap:8px; align-items:center; }
+.team-header [data-toggle]{ cursor:pointer; }
+.team-body{ padding:0 16px 16px; }
+
+/* ===== Tabla miembros ===== */
+.table-wrap{ overflow:auto; border:1px solid var(--line); border-radius:12px; background:#fff; }
+.table{ width:100%; border-collapse:separate; border-spacing:0; }
+.table thead th{
+  text-align:left; font-size:12px; color:var(--muted); font-weight:800; padding:10px 12px; background:#fafbfc;
+  border-bottom:1px solid var(--line);
+}
+.table tbody td{ padding:10px 12px; border-bottom:1px solid var(--line); font-size:14px; }
+.table tbody tr:last-child td{ border-bottom:none; }
+.ta-right{ text-align:right; }
+
+/* ===== Detalles menores ===== */
+.chev{ font-weight:900; opacity:.7; }
+
+    .team-id{
+      margin-left:8px;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      color:var(--brand);
+      background:#ffe8e6;
+      border:1px solid #f3c5c1;
+      vertical-align:middle;
+    }
+ 
