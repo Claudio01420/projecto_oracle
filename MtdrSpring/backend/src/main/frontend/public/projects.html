@@ -6,41 +6,48 @@
   <title>Proyectos</title>
   <link rel="stylesheet" href="Css/projects.css"/>
   <style>
-    /* Modal de creación (+ Nuevo) local a este HTML */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0, 0, 0, 0.4);
-      display: none; justify-content: center; align-items: center;
-      z-index: 999;
-    }
-    .modal {
-      background: #fff; border-radius: 18px; padding: 20px 26px;
-      width: 480px; max-width: 95%;
-      box-shadow: 0 8px 32px rgba(0,0,0,.25);
-      animation: fadeIn .2s ease-in-out;
-    }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); display: none; justify-content: center; align-items: center; z-index: 999; }
+    .modal { background: #fff; border-radius: 18px; padding: 20px 26px; width: 480px; max-width: 95%; box-shadow: 0 8px 32px rgba(0,0,0,.25); animation: fadeIn .2s ease-in-out; }
     @keyframes fadeIn { from{opacity:0; transform: translateY(-10px);} to{opacity:1; transform: translateY(0);} }
     .modal-buttons { display:flex; gap:10px; margin-top:14px; justify-content:flex-end }
-
-    /* Chip activo de filtros */
     .chip.active { background: var(--brand); color:#fff; font-weight:700; box-shadow: 0 2px 8px rgba(225,38,28,.25); }
+
+    .tasks-box { margin-top:14px; border:1px solid var(--line); border-radius:12px; padding:12px; background:#fafbfc; }
+    .tasks-box h3 { margin:4px 0 10px 0; font-size:15px; }
+    .task-item { border:1px solid var(--line); background:#fff; border-radius:10px; padding:8px 10px; margin:6px 0; display:flex; justify-content:space-between; gap:10px; }
+    .task-title { font-weight:700; }
+    .task-meta { font-size:12px; color:#64748b; }
+    .badge { font-size:12px; border:1px solid var(--line); padding:2px 8px; border-radius:999px; background:#fff; }
+    .badge.status.todo{ background:#fff4f3 }
+    .badge.status.doing{ background:#fff8e6 }
+    .badge.status.done{ background:#e9fff0 }
+
+    .detail-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border-radius:12px; background: linear-gradient(180deg,#ffffff 0%,#fafbfc 100%); border:1px solid var(--line); margin-bottom:10px; }
+    .detail-head .title { font-weight:900; font-size:16px; }
+    .detail-actions { display:flex; gap:8px; align-items:center }
+
+    .btn-ghost { display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border-radius:12px; background:#fff; color:var(--dark); border:1px solid var(--line-2); font-weight:800; font-size:13px; text-decoration:none; cursor:pointer; box-shadow: var(--shadow-sm); transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease, background .15s ease; }
+    .btn-ghost:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); border-color:#d9dde3; }
+    .btn-ghost:active { transform: translateY(0); box-shadow: var(--shadow-sm); }
+    .btn-ghost[disabled] { opacity:.5; pointer-events:none }
+    .btn-ghost .ico { width:16px; height:16px; display:inline-block; }
+
+    .table tbody tr { cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <!-- Topbar -->
   <header class="topbar">
     <div class="brand">
       <img src="image/Oracle_logo.png" alt="Oracle Logo" style="max-width:160px; height:auto;" />
     </div>
     <div class="topbar-right">
-      <div class="user-circle">U</div>
+      <div class="user-circle" id="user-initial">U</div>
       <a href="/logout" class="logout-btn">⏻ Salir</a>
     </div>
   </header>
 
   <div class="app">
-    <!-- Sidebar -->
     <aside class="aside">
       <nav class="menu">
         <a class="mi" href="/dashboard.html"><span>📊</span> Dashboard</a>
@@ -53,7 +60,6 @@
       </nav>
     </aside>
 
-    <!-- Main -->
     <main class="main">
       <section class="card card-soft">
         <h1 class="h4">Proyectos</h1>
@@ -76,7 +82,6 @@
       </section>
 
       <div class="grid">
-        <!-- Lista -->
         <section class="card">
           <div class="row-sb">
             <div class="muted small" id="resumen-lista"><strong>0</strong> resultado(s)</div>
@@ -105,9 +110,19 @@
           </div>
         </section>
 
-        <!-- Detalle -->
         <aside class="card">
-          <h2 class="h6">Detalle del Proyecto</h2>
+          <div class="detail-head">
+            <div class="title">Detalle del Proyecto</div>
+            <div class="detail-actions">
+              <button id="btn-ir-homework" class="btn-ghost" disabled>
+                <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Ir a tareas (homework)
+              </button>
+            </div>
+          </div>
+
           <div class="detail" id="detalle-proyecto">
             <div class="muted">Selecciona un proyecto para ver el detalle.</div>
             <hr class="sep">
@@ -118,13 +133,18 @@
             <div class="detail-item"><div class="label">Fin</div><div class="value" id="d-fin">—</div></div>
             <div class="detail-item"><div class="label">Estado</div><div class="value" id="d-estado"><span class="chip">—</span></div></div>
             <div class="detail-item"><div class="label">Avance</div><div class="value"><div class="progress"><span id="d-avance" style="width:0%"></span></div></div></div>
+
+            <div class="tasks-box" id="tasks-box" style="display:none;">
+              <h3>Tareas de este proyecto</h3>
+              <div id="tasks-list"></div>
+              <div class="muted small" id="tasks-count"></div>
+            </div>
           </div>
         </aside>
       </div>
     </main>
   </div>
 
-  <!-- Modal (+ Nuevo) -->
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <h2>Nuevo Proyecto</h2>
@@ -140,11 +160,17 @@
     </div>
   </div>
 
-  <!-- Contenedor dinámico para confirmación bonita -->
   <div id="confirm-root"></div>
 
   <script>
-    const API_BASE = "http://localhost:8080/proyectos";
+    // ===== Sesión
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const currentUserId = user?.id || null;
+    const currentUserEmail = user?.email || "";
+    const $userInitial = document.getElementById("user-initial");
+    if (user?.nombre) $userInitial.textContent = (user.nombre.trim()[0] || "U").toUpperCase();
+
+    // ===== DOM
     const $tbody = document.getElementById("projects-body");
     const $buscar = document.getElementById("buscar");
     const $filtro = document.getElementById("filtro");
@@ -154,43 +180,62 @@
 
     // Detalle
     const $dNombre = document.getElementById("d-nombre");
-    const $dDesc = document.getElementById("d-descripcion");
+    const $dDesc   = document.getElementById("d-descripcion");
     const $dEquipo = document.getElementById("d-equipo");
-    const $dIni = document.getElementById("d-inicio");
-    const $dFin = document.getElementById("d-fin");
+    const $dIni    = document.getElementById("d-inicio");
+    const $dFin    = document.getElementById("d-fin");
     const $dEstado = document.getElementById("d-estado");
     const $dAvance = document.getElementById("d-avance");
+    const $btnIrHomework = document.getElementById("btn-ir-homework");
+
+    // Tareas del proyecto (panel detalle)
+    const $tasksBox   = document.getElementById("tasks-box");
+    const $tasksList  = document.getElementById("tasks-list");
+    const $tasksCount = document.getElementById("tasks-count");
 
     // Modal
     const $modalOverlay = document.getElementById("modal-overlay");
-    const $btnNuevo = document.getElementById("btn-nuevo");
-    const $btnGuardar = document.getElementById("btn-guardar");
+    const $btnNuevo  = document.getElementById("btn-nuevo");
+    const $btnGuardar= document.getElementById("btn-guardar");
     const $btnCancel = document.getElementById("btn-cancelar");
 
     // Form
     const $fNombre = document.getElementById("f-nombre");
-    const $fDesc = document.getElementById("f-desc");
+    const $fDesc   = document.getElementById("f-desc");
     const $fEquipo = document.getElementById("f-equipo");
     const $fInicio = document.getElementById("f-inicio");
-    const $fFin = document.getElementById("f-fin");
+    const $fFin    = document.getElementById("f-fin");
+
+    // API
+    const API_BASE = "http://localhost:8080/proyectos";
+    const API_MY   = currentUserId ? `${API_BASE}/mios/${currentUserId}` : API_BASE;
+    const TASKS_API = "/api/tasks";
 
     let proyectosCache = [];
+    let selectedProjectId = null;
+
+    /* 🔁 Navegar a /homework-proyect.html */
+    function goToHomework(id){
+      if (!id) return;
+      const url = `${window.location.origin}/homework-proyect.html?id=${encodeURIComponent(id)}`;
+      window.location.href = url;
+    }
 
     function estadoToChipClass(estado) {
       if (!estado) return "chip";
       switch ((estado || "").toLowerCase()) {
-        case "pendiente": return "chip state-pend";
-        case "en curso": return "chip state-run";
+        case "pendiente":  return "chip state-pend";
+        case "en curso":   return "chip state-run";
         case "finalizado": return "chip state-done";
-        default: return "chip";
+        default:           return "chip";
       }
     }
     function estadoToAvance(estado) {
       switch ((estado || "").toLowerCase()) {
-        case "pendiente": return 0;
-        case "en curso": return 50;
+        case "pendiente":  return 0;
+        case "en curso":   return 50;
         case "finalizado": return 100;
-        default: return 0;
+        default:           return 0;
       }
     }
     function formatFecha(iso) {
@@ -199,16 +244,149 @@
       return isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
     }
 
+    /* ========= PROGRESO REAL POR TAREAS ========= */
+    async function fetchTasksForProject(projectId){
+      try{
+        const res = await fetch(`${TASKS_API}?projectId=${encodeURIComponent(projectId)}`, {
+          headers: { "X-User-Email": currentUserEmail }
+        });
+        if (!res.ok) return [];
+        return await res.json();
+      }catch{ return []; }
+    }
+    function calcProgressFromTasks(tasks){
+      const total = tasks.length;
+      const done = tasks.filter(t => (t.status||"").toLowerCase()==="done" || t.completedAt != null).length;
+      const pct = total === 0 ? 0 : Math.round((done/total)*100);
+      return { total, done, pct };
+    }
+
+    // === NUEVO: persistir estado del proyecto según % ===
+    async function persistProjectEstadoFromPct(p, pct){
+      if (!p || !p.id) return;
+      const nuevo = (pct===0) ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
+      if (p.estado === nuevo) return; // nada que guardar
+
+      const payload = {
+        id: p.id,
+        nombreProyecto: p.nombreProyecto,
+        descripcion: p.descripcion,
+        estado: nuevo,
+        equipoId: p.equipoId,
+        fechaInicio: p.fechaInicio || null,
+        fechaFin: p.fechaFin || null,
+        ultimoAcceso: p.ultimoAcceso || null
+      };
+      try{
+        const res = await fetch(`${API_BASE}/${p.id}`, {
+          method:"PUT",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok){
+          const updated = await res.json();
+          p.estado = updated.estado;
+        }
+      }catch(e){
+        // Silencioso: si falla, solo no se actualizará el filtro hasta el próximo intento
+      }
+    }
+
+    // Actualiza la barra de la tabla para un proyecto (vista)
+    function updateRowProgress(projectId, pct){
+      const row = $tbody.querySelector(`tr[data-id="${projectId}"]`);
+      if (!row) return;
+      const bar = row.querySelector(".progress > span");
+      if (bar) bar.style.width = `${pct}%`;
+      const estCell = row.querySelector("td:nth-child(4) .chip");
+      if (estCell){
+        let nuevo = pct===0 ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
+        estCell.textContent = nuevo;
+        estCell.className = estadoToChipClass(nuevo);
+      }
+    }
+
+    // Recalcula progreso para TODOS y actualiza tabla + PERSISTE estado
+    async function refreshProgressForAllProjects(){
+      const promises = proyectosCache.map(async (p) => {
+        const tasks = await fetchTasksForProject(p.id);
+        const { pct } = calcProgressFromTasks(tasks);
+        p._progress = pct; // cache local
+        updateRowProgress(p.id, pct);
+        await persistProjectEstadoFromPct(p, pct); // << guarda en BD si cambió
+      });
+      await Promise.all(promises);
+      // Reaplicar filtros por si algún estado cambió
+      aplicarFiltros();
+    }
+
     function setDetalle(p) {
       if (!p) return;
+      selectedProjectId = p.id || null;
+      if ($btnIrHomework) $btnIrHomework.disabled = !selectedProjectId;
+
       $dNombre.textContent = p.nombreProyecto ?? "—";
       $dDesc.textContent   = p.descripcion ?? "—";
       $dEquipo.textContent = (p.equipoId ?? "—");
       $dIni.textContent    = formatFecha(p.fechaInicio);
       $dFin.textContent    = formatFecha(p.fechaFin);
+
       $dEstado.innerHTML   = `<span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span>`;
-      $dAvance.style.width = estadoToAvance(p.estado) + "%";
+      $dAvance.style.width = (typeof p._progress === "number" ? p._progress : estadoToAvance(p.estado)) + "%";
+
+      // Cargar tareas y actualizar progreso/estado real (con persistencia)
+      loadProjectTasksAndProgress(p.id);
     }
+
+    if ($btnIrHomework) {
+      $btnIrHomework.addEventListener("click", () => {
+        if (!selectedProjectId) return;
+        goToHomework(selectedProjectId);
+      });
+    }
+
+    // Carga tareas del panel detalle + progreso real + PERSISTE estado
+    async function loadProjectTasksAndProgress(projectId){
+      $tasksBox.style.display = "block";
+      $tasksList.innerHTML = `<div class="muted">Cargando tareas…</div>`;
+      $tasksCount.textContent = '';
+
+      const tasks = await fetchTasksForProject(projectId);
+
+      if (!tasks.length) {
+        $tasksList.innerHTML = `<div class="muted">Este proyecto no tiene tareas.</div>`;
+        $tasksCount.textContent = `0 tareas`;
+      } else {
+        $tasksList.innerHTML = tasks.map(t => `
+          <div class="task-item">
+            <div>
+              <div class="task-title">${escapeHtml(t.title || '')}</div>
+              <div class="task-meta">Prio: ${escapeHtml(t.priority||'')} · Est: ${t.estimatedHours??'-'}h ${t.realHours?(' · Real: '+t.realHours+'h'):''}</div>
+            </div>
+            <div><span class="badge status ${escapeHtml((t.status||'todo').toLowerCase())}">${escapeHtml((t.status||'todo'))}</span></div>
+          </div>
+        `).join('');
+        $tasksCount.textContent = `${tasks.length} tarea(s)`;
+      }
+
+      const { pct } = calcProgressFromTasks(tasks);
+      $dAvance.style.width = `${pct}%`;
+      const nuevoEstado = pct===0 ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
+      $dEstado.innerHTML = `<span class="${estadoToChipClass(nuevoEstado)}">${nuevoEstado}</span>`;
+
+      updateRowProgress(projectId, pct);
+
+      const idx = proyectosCache.findIndex(x => x.id === projectId);
+      if (idx >= 0) proyectosCache[idx]._progress = pct;
+
+      // Persistir en BD para que el filtro funcione
+      if (idx >= 0) {
+        await persistProjectEstadoFromPct(proyectosCache[idx], pct);
+        aplicarFiltros();
+      }
+    }
+
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
 
     function renderTabla(items) {
       if (!items.length) {
@@ -223,49 +401,52 @@
           <td>${p.equipoId ?? "-"}</td>
           <td>${p.nombreProyecto ?? "-"}</td>
           <td><span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span></td>
-          <td><div class="progress"><span style="width:${estadoToAvance(p.estado)}%"></span></div></td>
+          <td><div class="progress"><span style="width:${typeof p._progress==='number' ? p._progress : estadoToAvance(p.estado)}%"></span></div></td>
           <td>
-            <button class="btn-danger btn-xs" onclick="borrarProyecto(${p.id}, event)" title="Borrar proyecto">
-              <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M9 3h6m-9 4h12m-1 0-.8 12.4A2 2 0 0 1 14.4 21H9.6a2 2 0 0 1-1.99-1.6L6.8 7M10 10v7M14 10v7"
-                      stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span class="label">Borrar</span>
-            </button>
+            <button class="btn-danger btn-xs" onclick="borrarProyecto(${p.id}, event)" title="Borrar proyecto" onkeydown="event.stopPropagation()">Borrar</button>
           </td>
         </tr>
       `).join("");
 
       Array.from($tbody.querySelectorAll("tr")).forEach(tr => {
-        tr.addEventListener("click", () => {
+        tr.addEventListener("click", (e) => {
+          if (e.target.closest('button')) return;
           const id = Number(tr.dataset.id);
           const p = proyectosCache.find(x => x.id === id);
           setDetalle(p);
         });
-        tr.addEventListener("dblclick", () => {
+
+        tr.addEventListener("dblclick", (e) => {
+          if (e.target.closest('button')) return;
           const id = Number(tr.dataset.id);
-          irADetalleProyecto(id); // abrir detalle
+          if (id) goToHomework(id);
         });
       });
     }
 
-    function irADetalleProyecto(id){
-      if (!id) return;
-      window.location.href = `homework-proyect.html?id=${encodeURIComponent(id)}`;
-    }
-
     async function cargarProyectos() {
       try {
-        const res = await fetch(API_BASE);
+        if (!currentUserId) {
+          $tbody.innerHTML = `<tr><td colspan="6">Inicia sesión para ver tus proyectos.</td></tr>`;
+          return;
+        }
+        const res = await fetch(API_MY);
         proyectosCache = await res.json();
+
+        // Render inicial (usa estado para ancho mientras calculamos progreso real)
         aplicarFiltros();
+
+        // Carga progreso real por tareas para todos y actualiza tabla + BD
+        await refreshProgressForAllProjects();
+
+        // Selecciona primero si existe y pinta detalle (ya con progreso cacheado)
         if (proyectosCache[0]) setDetalle(proyectosCache[0]);
+
       } catch {
         $tbody.innerHTML = `<tr><td colspan="6">Error al cargar proyectos</td></tr>`;
       }
     }
 
-    // ===== Confirmación moderna (sin confirm() nativo)
     function mostrarConfirmacion(mensaje, onYes) {
       const overlay = document.createElement("div");
       overlay.className = "confirm-overlay";
@@ -280,7 +461,6 @@
         </div>
       `;
       $confirmRoot.appendChild(overlay);
-
       const close = () => overlay.remove();
       overlay.querySelector(".confirm-cancel").onclick = close;
       overlay.querySelector(".confirm-yes").onclick = () => { close(); onYes(); };
@@ -289,27 +469,35 @@
     }
 
     async function borrarProyecto(id, evt) {
-      if (evt) evt.stopPropagation(); // evita disparar doble clic/clic de la fila
+      if (evt) evt.stopPropagation();
       mostrarConfirmacion("¿Seguro que deseas borrar este proyecto?", async () => {
         await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
         proyectosCache = proyectosCache.filter(p => p.id !== id);
         aplicarFiltros();
+        $tasksBox.style.display = "none";
+        selectedProjectId = null;
+        if ($btnIrHomework) $btnIrHomework.disabled = true;
       });
     }
     window.borrarProyecto = borrarProyecto;
 
     async function crearProyecto() {
+      if (!currentUserId) { alert("No hay usuario logueado. Inicia sesión primero."); return; }
       const nuevo = {
         nombreProyecto: $fNombre.value.trim(),
         descripcion: $fDesc.value.trim(),
-        estado: "Pendiente", // todos inician Pendiente
+        estado: "Pendiente",
         equipoId: Number($fEquipo.value),
         fechaInicio: $fInicio.value || null,
-        fechaFin: $fFin.value || null
+        fechaFin: $fFin.value || null,
+        creadorId: currentUserId
       };
       const res = await fetch(API_BASE, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-User-Id": String(currentUserId)
+        },
         body: JSON.stringify(nuevo)
       });
       if (res.ok) {
@@ -317,6 +505,7 @@
         proyectosCache.push(creado);
         cerrarModal();
         aplicarFiltros();
+        updateRowProgress(creado.id, 0);
       } else alert("Error al crear el proyecto.");
     }
 
@@ -333,7 +522,6 @@
             : (p.estado || "").toLowerCase() === estSel || (p.estado || "").toLowerCase() === chipActivo
         )
       );
-
       if (chipActivo !== "todos") items = items.filter(p => (p.estado || "").toLowerCase() === chipActivo);
       renderTabla(items);
     }
@@ -354,17 +542,14 @@
       $fNombre.value = ""; $fDesc.value = ""; $fEquipo.value = "";
       $fInicio.value = ""; $fFin.value = "";
     }
-
     $btnNuevo.addEventListener("click", e => { e.preventDefault(); abrirModal(); });
     $btnCancel.addEventListener("click", e => { e.preventDefault(); cerrarModal(); });
     $btnGuardar.addEventListener("click", e => { e.preventDefault(); crearProyecto(); });
     $modalOverlay.addEventListener("click", e => { if (e.target === $modalOverlay) cerrarModal(); });
 
-    // Búsqueda / select
     $buscar.addEventListener("input", aplicarFiltros);
     $filtro.addEventListener("change", aplicarFiltros);
 
-    // Init
     document.addEventListener("DOMContentLoaded", cargarProyectos);
   </script>
 </body>

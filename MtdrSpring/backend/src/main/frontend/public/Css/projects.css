@@ -145,7 +145,7 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helve
 /* Row helpers */
 .row-sb{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px }
 
-/* === Botón borrar mejorado === */
+/* === Botón borrar sólido (sin chip blanca) === */
 .btn-danger {
   position: relative;
   display: inline-flex;
@@ -153,25 +153,26 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helve
   gap: 8px;
   padding: 8px 12px;
   border-radius: 12px;
-  border: 1px solid #f1c5c2;
-  background: linear-gradient(180deg, #fff5f4 0%, #ffe9e7 100%);
-  color: #b42318;
+  border: 1px solid #b42318;
+  background: var(--brand);
+  color: #fff;
   font-weight: 800;
   font-size: 12px;
   letter-spacing: .2px;
   cursor: pointer;
-  transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease;
-  box-shadow: 0 4px 10px rgba(180,35,24,.08);
+  transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease, background .15s ease;
+  box-shadow: 0 4px 10px rgba(180,35,24,.18);
   user-select: none;
 }
 .btn-danger:hover {
-  border-color: #f4a7a2;
-  box-shadow: 0 6px 16px rgba(180,35,24,.15);
+  border-color: #a21e16;
+  background: var(--brand-hover);
+  box-shadow: 0 6px 16px rgba(180,35,24,.25);
   transform: translateY(-1px);
 }
 .btn-danger:active {
   transform: translateY(0);
-  box-shadow: 0 3px 8px rgba(180,35,24,.12);
+  box-shadow: 0 3px 8px rgba(180,35,24,.2);
 }
 .btn-danger .ico {
   width: 14px;
@@ -179,10 +180,11 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helve
   display: inline-block;
 }
 .btn-danger .label {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: #fff;
-  border: 1px solid #ffd7d4;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  color: inherit;
 }
 .btn-danger.btn-xs {
   padding: 6px 10px;
@@ -190,7 +192,7 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helve
   font-size: 11px;
 }
 .btn-danger:focus {
-  outline: 3px solid rgba(225,38,28,.2);
+  outline: 3px solid rgba(225,38,28,.25);
   outline-offset: 2px;
 }
 @media (max-width: 640px) {
