@@ -20,18 +20,33 @@
 html,body{margin:0;padding:0}
 body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans",sans-serif;background:var(--bg);color:var(--ink)}
 
-/* Topbar fija */
-.topbar{
-  position:fixed; top:0; left:0; right:0; height:50px;
-  background:#111; color:#fff; display:flex; align-items:center; justify-content:space-between;
-  padding:0 20px; z-index:200; box-shadow:0 2px 6px rgba(0,0,0,.2);
-}
-.home-btn{ color:#fff; font-weight:700; text-decoration:none; padding:6px 12px; border-radius:6px }
-.home-btn:hover{ background:rgba(255,255,255,.1) }
-.topbar-right{ display:flex; align-items:center; gap:12px }
-.user-circle{
-  width:34px; height:34px; border-radius:50%; background:var(--brand); color:#fff;
-  display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; cursor:pointer;
+/* Topbar */
+.topbar{position:fixed;top:0;left:0;right:0;height:50px;background:#111;
+  color:#fff;display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;z-index:200;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.home-btn{color:#fff;text-decoration:none;font-weight:700;padding:6px 12px;border-radius:6px}
+.home-btn:hover{background:rgba(255,255,255,.1)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.user-circle{width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer}
+.user-circle:hover{background:var(--brand-hover)}
+.logout-btn{background:var(--brand);color:#fff;font-weight:700;padding:6px 12px;border-radius:6px;text-decoration:none}
+.logout-btn:hover{background:var(--brand-hover)}
+
+/* Iconos */
+.logo-text{
+  font-family: "Panchang", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 600;
+  font-size: 48px;/* Tamaño del logo */
+  letter-spacing: 0.10em;/* Separacion entre letras */
+  color:var(--brand);
+  text-transform: uppercase;
+  line-height: 1;
+  display: inline-block;
+  transform: scaleX(1.25);/* Estirar letras */
+  transform-origin: center;
+  user-select: none;
+  margin: 0;
 }
 .user-circle:hover{ background:var(--brand-hover) }
 .logout-btn{

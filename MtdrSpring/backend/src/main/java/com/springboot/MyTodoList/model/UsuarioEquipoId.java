@@ -14,6 +14,7 @@ public class UsuarioEquipoId implements Serializable {
     private Long equipoId;
 
     public UsuarioEquipoId() {}
+
     public UsuarioEquipoId(Long usuarioId, Long equipoId) {
         this.usuarioId = usuarioId;
         this.equipoId = equipoId;
