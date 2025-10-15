@@ -1,5 +1,6 @@
 package com.springboot.MyTodoList.config;
 
+
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -21,8 +22,9 @@ public class TelegramBotConfig {
 
     public TelegramBotConfig(ToDoItemBotController bot) {
         this.bot = bot;
-    }
 
+    }
+//hooked method 
     @PostConstruct
     public void init() {
         try {
@@ -34,3 +36,4 @@ public class TelegramBotConfig {
         }
     }
 }
+// --- IGNORE ---
