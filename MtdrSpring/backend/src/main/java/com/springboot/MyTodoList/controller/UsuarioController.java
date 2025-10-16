@@ -137,6 +137,21 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
+    /**
+     * Buscar usuario por email (case-insensitive). Devuelve 404 si no existe.
+     */
+    @GetMapping("/by-email")
+    public ResponseEntity<Usuario> findByEmail(@RequestParam("email") String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        return repo.findByEmailIgnoreCase(email.trim())
+                .map(u -> {
+                    u.setContrasenia(null);
+                    return ResponseEntity.ok(u);
+                }).orElse(ResponseEntity.notFound().build());
+    }
+
     // Helper para comprobar roles (null seguro)
     private boolean hasAnyRole(String callerRole, String... allowedRoles) {
         if (callerRole == null) return false;
