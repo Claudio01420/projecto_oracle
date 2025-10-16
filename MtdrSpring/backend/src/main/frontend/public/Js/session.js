@@ -27,11 +27,30 @@
     };
   }
 
+  // Helper para llamadas al API que añade el header X-User-Email automáticamente.
+  // Si se envía FormData, no establece Content-Type para que el navegador lo gestione.
+  async function apiFetch(url, init) {
+    init = init || {};
+    const initCopy = Object.assign({}, init);
+    // merge headers (init.headers may exist)
+    const baseHeaders = commonHeaders();
+    const headers = Object.assign({}, initCopy.headers || {}, baseHeaders);
+
+    // Si body es FormData, quitar Content-Type para que fetch lo gestione
+    const body = initCopy.body;
+    if (body instanceof FormData) {
+      delete headers['Content-Type'];
+    }
+
+    initCopy.headers = headers;
+    return fetch(url, initCopy);
+  }
+
   function logout() {
     localStorage.removeItem('userEmail');
     document.cookie = 'userEmail=; Max-Age=0; path=/';
     window.location.href = '/login.html';
   }
 
-  window.Session = { getUserEmail, ensureEmailOrRedirect, commonHeaders, logout };
+  window.Session = { getUserEmail, ensureEmailOrRedirect, commonHeaders, logout, apiFetch };
 })();
