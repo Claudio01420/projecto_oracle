@@ -5,11 +5,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # <-- HAZ DISPONIBLES ESTAS VARS PARA TODOS LOS PASOS
     env:
       OCI_CLI_USER:        ${{ secrets.OCI_CLI_USER }}
       OCI_CLI_TENANCY:     ${{ secrets.OCI_CLI_TENANCY }}
       OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
-      OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}  # llave PRIVADA (PEM)
+      OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}  # debe ser la LLAVE PRIVADA
       OCI_CLI_REGION:      ${{ secrets.OCI_CLI_REGION }}       # p.ej. mx-queretaro-1
 
     steps:
@@ -26,8 +27,8 @@ jobs:
         id: get-ocir
         uses: oracle-actions/get-ocir-repository@v1.3.0
         with:
-          name: ${{ secrets.OCI_DOCKER_REPO }}            # debe existir como secret
-          compartment: ${{ secrets.OCI_COMPARTMENT_OCID }} # debe existir como secret
+          name: ${{ secrets.OCI_DOCKER_REPO }}             # p.ej. reacttodo/t9ldr/todolistapp-springboot
+          compartment: ${{ secrets.OCI_COMPARTMENT_OCID }} # OCID del compartment
 
       - name: Log into OCIR
         id: login-ocir
@@ -49,7 +50,7 @@ jobs:
           tar -xzvf deployment_config.tgz
           source env.sh
 
-      - name: Build backend (ya hay sesión en OCIR, el push no será anónimo)
+      - name: Build backend (ya hay sesión en OCIR; el push no será anónimo)
         run: |
           cd MtdrSpring
           source env.sh
