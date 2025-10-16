@@ -1,56 +1,63 @@
 name: GraalVM build
 on: [push, pull_request]
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    # <-- HAZ DISPONIBLES ESTAS VARS PARA TODOS LOS PASOS
+    env:
+      OCI_CLI_USER:        ${{ secrets.OCI_CLI_USER }}
+      OCI_CLI_TENANCY:     ${{ secrets.OCI_CLI_TENANCY }}
+      OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
+      OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}  # debe ser la LLAVE PRIVADA
+      OCI_CLI_REGION:      ${{ secrets.OCI_CLI_REGION }}       # p.ej. mx-queretaro-1
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: graalvm/setup-graalvm@v1
         with:
           java-version: '22'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Java version
         run: |
           echo "GRAALVM_HOME: $GRAALVM_HOME"
           echo "JAVA_HOME: $JAVA_HOME"
           java --version
-          native-image --version
+          native-image --version || true
+
       - name: Extract configuration files
         run: |
-          cd MtdrSpring;
+          cd MtdrSpring
           wget https://objectstorage.mx-queretaro-1.oraclecloud.com/p/9d4QQeajBM0KpBMHJZXxz9dDo4Pj50TlCykE2_1HMkUwjVJAljLkJVcSnpFGm71i/n/axyqsveqbf4z/b/reacttodo-t9ldr/o/deployment_config.tgz
-          tar -xzvf deployment_config.tgz;
-          source env.sh;
-          cat at.cfg | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin mx-queretaro-1.ocir.io
-      - name: "Build"
-        run: |
-          cd MtdrSpring;
-          source env.sh;
-          (cd backend;source build.sh)
-          
-        env:
-          OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
-          OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
-          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
-          OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}
-          OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
+          tar -xzvf deployment_config.tgz
+          source env.sh
 
-      - name: Get access to OCIR
+      - name: Build backend
+        run: |
+          cd MtdrSpring
+          source env.sh
+          (cd backend; source build.sh)
+
+      - name: Get or create OCIR repo
         id: get-ocir
-        uses: oracle-actions/get-ocir-repository@v1.0
+        uses: oracle-actions/get-ocir-repository@v1.3.0
         with:
-          name: ${{ secrets.OCI_DOCKER_REPO }}
-          compartment: ${{ secrets.OCI_COMPARTMENT_OCID }}
+          name: ${{ secrets.OCI_DOCKER_REPO }}          # asegúrate de CREAR este secret
+          compartment: ${{ secrets.OCI_COMPARTMENT_OCID }} # y este también
+        # aquí ya ve OCI_CLI_REGION por el env del job
 
       - name: Log into OCIR
-        uses: oracle-actions/login-ocir@v1.0
         id: login-ocir
+        uses: oracle-actions/login-ocir@v1.3.0
         with:
           auth_token: ${{ secrets.OCI_AUTH_TOKEN }}
 
-      - name: Configue Kubetcl
-        uses: oracle-actions/configure-kubectl-oke@v1.0
+      - name: Configure kubectl for OKE
         id: kubectl-oke-action
-        with: 
+        uses: oracle-actions/configure-kubectl-oke@v1.5.0
+        with:
           cluster: ${{ secrets.OKE_CLUSTER_OCID }}
