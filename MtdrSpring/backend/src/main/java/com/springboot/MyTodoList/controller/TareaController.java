@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -113,5 +115,84 @@ public class TareaController {
         tareaRepository.findByIdAndAssigneeId(id, owner)
                 .orElseThrow(() -> new NoSuchElementException("Task not found or not owned by user"));
         return tareaService.updateStatus(id, body.status);
+    }
+
+    // Nuevo endpoint: productividad del usuario
+    @GetMapping("/tasks/productivity")
+    public ResponseEntity<Map<String, Object>> productivity(HttpServletRequest req) {
+        String owner = requireUserEmail(req);
+        List<Tarea> tasks = tareaRepository.findByAssigneeId(owner);
+
+        long totalAssigned = tasks.size();
+
+        // Conservamos totalCompleted para compatibilidad, pero la métrica principal será avgProgress
+        long totalCompleted = tasks.stream()
+                .filter(t -> {
+                    if (t.getStatus() != null && t.getStatus().equalsIgnoreCase("Hecho")) return true;
+                    return t.getCompletedAt() != null;
+                }).count();
+
+        double plannedHours = tasks.stream()
+                .mapToDouble(t -> t.getEstimatedHours() != null ? t.getEstimatedHours() : 0.0)
+                .sum();
+        double realHours = tasks.stream()
+                .mapToDouble(t -> t.getRealHours() != null ? t.getRealHours() : 0.0)
+                .sum();
+
+        // Nuevo: calcular avance real por tarea y luego el promedio (avgProgress)
+        double totalProgressSum = tasks.stream().mapToDouble(t -> {
+            boolean done = (t.getStatus() != null && t.getStatus().equalsIgnoreCase("Hecho")) || t.getCompletedAt() != null;
+            if (done) {
+                return 1.0;
+            }
+            Double est = t.getEstimatedHours();
+            Double real = t.getRealHours();
+            if (est != null && est > 0.0) {
+                if (real != null && real > 0.0) {
+                    return Math.min(real / est, 1.0);
+                } else {
+                    return 0.0;
+                }
+            } else {
+                // Heurística: si no hay estimado pero hay horas reales, consideramos progreso parcial (50%)
+                if (real != null && real > 0.0) {
+                    return 0.5;
+                } else {
+                    return 0.0;
+                }
+            }
+        }).sum();
+
+        double avgProgress = totalAssigned == 0 ? 0.0 : (totalProgressSum / totalAssigned); // 0..1
+
+        // Mantener la componente de horas como antes
+        double hoursRatio;
+        if (plannedHours == 0 && realHours == 0) {
+            hoursRatio = 1.0;
+        } else if (plannedHours == 0) {
+            hoursRatio = 0.0;
+        } else if (realHours == 0) {
+            hoursRatio = 1.0;
+        } else {
+            hoursRatio = plannedHours / realHours;
+        }
+
+        // Ahora la productividad usa avgProgress (avance real del usuario) en lugar de completed/assigned
+        double productivity = avgProgress * hoursRatio * 100.0;
+        if (productivity < 0) productivity = 0;
+        if (productivity > 100.0) productivity = 100.0;
+
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("assignee", owner);
+        resp.put("totalAssigned", totalAssigned);
+        resp.put("totalCompleted", totalCompleted);
+        resp.put("plannedHours", plannedHours);
+        resp.put("realHours", realHours);
+        resp.put("avgProgress", avgProgress);           // nuevo: promedio de avance por tarea (0..1)
+        resp.put("tasksRatio", avgProgress);           // compatibilidad: tasksRatio refleja ahora avgProgress
+        resp.put("hoursRatio", hoursRatio);
+        resp.put("productivityPercent", productivity);
+
+        return ResponseEntity.ok(resp);
     }
 }
