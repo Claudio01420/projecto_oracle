@@ -50,7 +50,7 @@ jobs:
           auth_token: ${{ secrets.OCI_AUTH_TOKEN }}
 
       - name: Configue Kubetcl
-        uses: oracle-actions/configure-kubetcl-oke@v1.0
+        uses: oracle-actions/configure-kubectl-oke@v1.0
         id: kubectl-oke-action
         with: 
           cluster: ${{ secrets.OKE_CLUSTER_OCID }}
