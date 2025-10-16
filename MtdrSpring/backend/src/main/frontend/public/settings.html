@@ -140,17 +140,23 @@
           <div class="col">
             <h3 class="h6">Perfil</h3>
             <div class="profile">
-              <img src="/avatar.png" alt="Avatar" class="avatar"/>
+              <!-- Avatar: preview + upload -->
+              <img id="avatarImg" src="/avatar.png" alt="Avatar" class="avatar"/>
+              <div class="avatar-controls">
+                <input id="avatarFile" type="file" accept="image/*"/>
+                <button id="avatarUploadBtn" class="btn-outline" type="button">Subir avatar</button>
+              </div>
+
               <label>Nombre
-                <input type="text" value="Pedro A. Rodríguez"/>
+                <input id="nameInput" type="text" value="Pedro A. Rodríguez"/>
               </label>
               <label>Email
-                <input type="email" value="pedro@ejemplo.com"/>
+                <input id="emailInput" type="email" value="pedro@ejemplo.com"/>
               </label>
               <label>Contraseña
-                <input type="password" value="••••••••"/>
+                <input id="passwordInput" type="password" value="••••••••"/>
               </label>
-              <button class="btn-primary">Guardar</button>
+              <button id="saveProfileBtn" class="btn-primary">Guardar</button>
             </div>
           </div>
 
@@ -163,18 +169,131 @@
               <li draggable="true"><span class="circle">P</span> Paulo Ibarra <span class="role">Dev</span></li>
               <li draggable="true"><span class="circle">D</span> Diego Roca <span class="role">Dev</span></li>
               <li draggable="true"><span class="circle">F</span> Francisco Pérez <span class="role">Dev</span></li>
+              <li draggable="true"><span class="circle">A</span> Adrian Gomez <span class="role">Dev</span></li>
             </ul>
           </div>
         </div>
 
-        <!-- Preferencias -->
-        <div class="prefs">
-          <h3 class="h6">Preferencias</h3>
-          <label><input type="checkbox" checked/> Notificaciones</label>
-          <label><input type="checkbox"/> Modo compacto</label>
-        </div>
+        <!-- Se eliminó la sección de Preferencias según solicitud -->
       </section>
     </main>
   </div>
+
+  <!-- incluir helper de sesión + script de la página -->
+  <script src="/Js/session.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async function () {
+      // Asegura sesión y obtiene email
+      const email = Session.ensureEmailOrRedirect();
+
+      const nameEl = document.getElementById('nameInput');
+      const emailEl = document.getElementById('emailInput');
+      const passEl = document.getElementById('passwordInput');
+      const avatarImg = document.getElementById('avatarImg');
+      const avatarFileEl = document.getElementById('avatarFile');
+      const avatarUploadBtn = document.getElementById('avatarUploadBtn');
+      const saveBtn = document.getElementById('saveProfileBtn');
+      const topbarCircle = document.querySelector('.user-circle');
+
+      // Helper: derivar nombre a partir del email si no hay nombre
+      function deriveNameFromEmail(em) {
+        if (!em) return '';
+        const local = em.split('@')[0] || em;
+        // reemplaza . _ - por espacios y capitaliza cada palabra
+        return local.replace(/[._-]+/g, ' ')
+                    .split(' ')
+                    .map(s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '')
+                    .join(' ');
+      }
+
+      // Cargar datos del usuario desde el backend
+      try {
+        const resp = await Session.apiFetch('/api/usuarios?email=' + encodeURIComponent(email));
+        if (resp.ok) {
+          const user = await resp.json();
+          // Preferir user.nombre; si no existe, intentar otras propiedades o derivar del email
+          const resolvedName = user.nombre || user.username || user.name || deriveNameFromEmail(email);
+          nameEl.value = resolvedName || '';
+          emailEl.value = user.email || email;
+          // No mostrar contraseña real; si existe, mostrar marcador
+          passEl.value = user.contrasenia ? '••••••••' : '';
+          // Intentamos mostrar avatar servido por backend
+          avatarImg.src = '/api/usuarios/avatar?email=' + encodeURIComponent(email) + '&_=' + Date.now();
+
+          // Actualizar inicial en la topbar si existe
+          if (topbarCircle) topbarCircle.textContent = (resolvedName && resolvedName.charAt(0).toUpperCase()) || email.charAt(0).toUpperCase();
+        } else {
+          // Si no hay usuario, al menos mostramos el email de la sesión y derivamos nombre
+          emailEl.value = email;
+          nameEl.value = deriveNameFromEmail(email);
+          if (topbarCircle) topbarCircle.textContent = email.charAt(0).toUpperCase();
+        }
+      } catch (err) {
+        console.error(err);
+        emailEl.value = email;
+        nameEl.value = deriveNameFromEmail(email);
+        if (topbarCircle) topbarCircle.textContent = email.charAt(0).toUpperCase();
+      }
+
+      // Guardar perfil (actualiza nombre/email/contraseña)
+      saveBtn.addEventListener('click', async function () {
+        const payload = {
+          nombre: nameEl.value,
+          email: emailEl.value
+        };
+        // Si el usuario no cambió la contraseña (marcador), no la enviamos para no sobrescribir
+        if (passEl.value && passEl.value !== '••••••••') {
+          payload.contrasenia = passEl.value;
+        }
+        try {
+          const r = await Session.apiFetch('/api/usuarios', {
+            method: 'PUT',
+            body: JSON.stringify(payload)
+          });
+          if (r.ok) {
+            alert('Perfil guardado correctamente.');
+            // actualizar inicial en topbar tras guardar
+            if (topbarCircle) topbarCircle.textContent = (payload.nombre && payload.nombre.charAt(0).toUpperCase()) || payload.email.charAt(0).toUpperCase();
+          } else {
+            const txt = await r.text().catch(()=>null);
+            alert('Error guardando perfil: ' + (txt || r.status));
+          }
+        } catch (e) {
+          alert('Error al guardar perfil: ' + e.message);
+        }
+      });
+
+      // Vista previa de avatar seleccionado
+      avatarFileEl.addEventListener('change', function () {
+        const f = avatarFileEl.files[0];
+        if (f) avatarImg.src = URL.createObjectURL(f);
+      });
+
+      // Subir avatar al backend
+      avatarUploadBtn.addEventListener('click', async function () {
+        const file = avatarFileEl.files[0];
+        if (!file) { alert('Selecciona un archivo de imagen.'); return; }
+        const fd = new FormData();
+        fd.append('avatar', file);
+        fd.append('email', email); // por si el backend lo necesita
+        try {
+          const r = await Session.apiFetch('/api/usuarios/avatar', {
+            method: 'POST',
+            body: fd
+          });
+          if (r.ok) {
+            alert('Avatar subido correctamente.');
+            // Forzar refresco de la imagen
+            avatarImg.src = '/api/usuarios/avatar?email=' + encodeURIComponent(email) + '&_=' + Date.now();
+          } else {
+            const txt = await r.text().catch(()=>null);
+            alert('Error subiendo avatar: ' + (txt || r.status));
+          }
+        } catch (e) {
+          alert('Error al subir avatar: ' + e.message);
+        }
+      });
+    });
+  </script>
 </body>
 </html>
