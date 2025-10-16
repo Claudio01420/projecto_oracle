@@ -7,8 +7,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '22'      # See 'Options' for more details
-          distribution: 'graalvm' # See 'Supported distributions' for available options
+          java-version: '22'
+          distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Java version
         run: |
@@ -19,12 +19,38 @@ jobs:
       - name: Extract configuration files
         run: |
           cd MtdrSpring;
-              wget https://objectstorage.mx-queretaro-1.oraclecloud.com/p/9d4QQeajBM0KpBMHJZXxz9dDo4Pj50TlCykE2_1HMkUwjVJAljLkJVcSnpFGm71i/n/axyqsveqbf4z/b/reacttodo-t9ldr/o/deployment_config.tgz
-              tar -xzvf deployment_config.tgz;
-              source env.sh;
-              cat at.cfg | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin mx-queretaro-1.ocir.io
+          wget https://objectstorage.mx-queretaro-1.oraclecloud.com/p/9d4QQeajBM0KpBMHJZXxz9dDo4Pj50TlCykE2_1HMkUwjVJAljLkJVcSnpFGm71i/n/axyqsveqbf4z/b/reacttodo-t9ldr/o/deployment_config.tgz
+          tar -xzvf deployment_config.tgz;
+          source env.sh;
+          cat at.cfg | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin mx-queretaro-1.ocir.io
       - name: "Build"
         run: |
-         cd MtdrSpring;
-              source env.sh;
-              (cd backend;source build.sh)
+          cd MtdrSpring;
+          source env.sh;
+          (cd backend;source build.sh)
+          
+        env:
+          OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
+          OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
+          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
+          OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}
+          OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
+
+      - name: Get access to OCIR
+        id: get-ocir
+        uses: oracle-actions/get-ocir-repository@v1.0
+        with:
+          name: ${{ secrets.OCI_DOCKER_REPO }}
+          compartment: ${{ secrets.OCI_COMPARTMENT_OCID }
+
+      - name: Log into OCIR
+        uses: oracle-actions/login-ocir@v1.0
+        id: login-ocir
+        with:
+          auth_token: ${{ secrets.OCI_AUTH_TOKEN }}
+
+      - name: Configue Kubetcl
+        uses: oracle-actions/configure-kubetcl-oke@v1.0
+        id: kubectl-oke-action
+        with: 
+          cluster: ${{ secrets.OKE_CLUSTER_OCID }}
