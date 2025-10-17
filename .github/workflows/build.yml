@@ -28,12 +28,13 @@ jobs:
           java --version
           native-image --version || true
       
-      # *** PASO CRÍTICO: CREAR EL ARCHIVO DE CLAVE DESDE EL SECRETO ***
-      # Este paso se queda, ya que Get or Create OCIR Repo lo necesita.
+      # *** PASO CRÍTICO: CREAR EL ARCHIVO DE CLAVE DESDE EL SECRETO (DECODIFICANDO BASE64) ***
+      # Ahora el secreto es la clave privada codificada en Base64 (una cadena segura sin caracteres invisibles).
       - name: Create OCI API Key File
         run: |
-          # Reemplaza los caracteres \n por saltos de línea reales y guarda la clave en un archivo
-          echo -e "${{ secrets.OCI_CLI_KEY_CONTENT }}" > oci_api_key.pem
+          # Decodifica la clave Base64 del secreto y la guarda en el archivo .pem
+          echo "${{ secrets.OCI_CLI_KEY_CONTENT }}" | base64 --decode > oci_api_key.pem
+          chmod 600 oci_api_key.pem # Permisos necesarios para el archivo de clave
 
       - name: Extract configuration files
         run: |
@@ -52,13 +53,14 @@ jobs:
           # Usamos la clave que acabamos de crear:
           key_file: oci_api_key.pem
 
+      # --- RESTAURAMOS key_file en LOGIN-OCIR ---
       - name: Log into OCIR
         id: login-ocir
         uses: oracle-actions/login-ocir@v1.3.0
         with:
-          # El login a OCIR solo necesita el auth_token (token de autenticación)
           auth_token: ${{ secrets.OCI_AUTH_TOKEN }}
-          # QUITAMOS key_file de aquí para evitar el error de buffer bounds en esta acción
+          # Usamos la clave API (key_file) para asegurar que la autenticación de OCI se configure correctamente
+          key_file: oci_api_key.pem
           
       # --------------------------------------------------------
 
