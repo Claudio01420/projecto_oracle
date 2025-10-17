@@ -6,10 +6,10 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      # QUITAMOS OCI_CLI_KEY_CONTENT DE AQUÍ.
       OCI_CLI_USER:        ${{ secrets.OCI_CLI_USER }}
       OCI_CLI_TENANCY:     ${{ secrets.OCI_CLI_TENANCY }}
       OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
-      OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}
       OCI_CLI_REGION:      ${{ secrets.OCI_CLI_REGION }}
 
     steps:
@@ -27,6 +27,12 @@ jobs:
           echo "JAVA_HOME: $JAVA_HOME"
           java --version
           native-image --version || true
+      
+      # *** PASO CRÍTICO: CREAR EL ARCHIVO DE CLAVE DESDE EL SECRETO ***
+      - name: Create OCI API Key File
+        run: |
+          # Reemplaza los caracteres \n por saltos de línea reales y guarda la clave en un archivo
+          echo -e "${{ secrets.OCI_CLI_KEY_CONTENT }}" > oci_api_key.pem
 
       - name: Extract configuration files
         run: |
@@ -35,27 +41,29 @@ jobs:
           tar -xzvf deployment_config.tgz
           source env.sh
 
-      # --- NUEVA UBICACIÓN: EL LOGIN DEBE SER ANTES DEL BUILD ---
-      
+      # --- CAMBIO IMPORTANTE EN GET-OCIR: USAR 'key_file' ---
       - name: Get or create OCIR repo
         id: get-ocir
         uses: oracle-actions/get-ocir-repository@v1.3.0
         with:
           name: ${{ secrets.OCI_DOCKER_REPO }}
           compartment: ${{ secrets.OCI_COMPARTMENT_OCID }}
+          # Usamos la clave que acabamos de crear:
+          key_file: oci_api_key.pem
 
       - name: Log into OCIR
         id: login-ocir
         uses: oracle-actions/login-ocir@v1.3.0
         with:
           auth_token: ${{ secrets.OCI_AUTH_TOKEN }}
+          # Usamos la clave que acabamos de crear para el login:
+          key_file: oci_api_key.pem
           
       # --------------------------------------------------------
 
       - name: Build backend
         run: |
           cd MtdrSpring
-          # ¡Ahora docker push se ejecutará con la sesión abierta!
           source env.sh
           (cd backend; source build.sh)
 
