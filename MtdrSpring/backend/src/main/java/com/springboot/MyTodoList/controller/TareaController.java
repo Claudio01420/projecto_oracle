@@ -195,4 +195,22 @@ public class TareaController {
 
         return ResponseEntity.ok(resp);
     }
+
+    // Nuevo endpoint: promedio global de horas reales para tareas completadas
+    @GetMapping("/tasks/avg-resolution/all")
+    public Map<String, Object> avgResolutionAll() {
+        Double avg = tareaRepository.avgRealHoursOfCompletedTasks();
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("avgResolutionHours", avg == null ? 0.0 : avg);
+        return resp;
+    }
+
+    // Nuevo endpoint: promedio global (todas las tareas con realHours)
+    @GetMapping("/tasks/avg-resolution/all-tasks")
+    public Map<String, Object> avgResolutionAllTasks() {
+        Double avg = tareaRepository.avgRealHoursAllTasks();
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("avgResolutionHoursAllTasks", avg == null ? 0.0 : avg);
+        return resp;
+    }
 }

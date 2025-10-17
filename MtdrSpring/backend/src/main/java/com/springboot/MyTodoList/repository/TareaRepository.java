@@ -42,4 +42,12 @@ public interface TareaRepository extends JpaRepository<Tarea, Long> {
     long countByProjectIdInAndCompletedAtIsNull(List<Long> projectIds);
 
     long countByProjectIdInAndStatusIgnoreCase(List<Long> projectIds, String status);
+
+    // Nuevo: promedio de horas reales para tareas completadas (status='Hecho' OR completedAt IS NOT NULL)
+    @Query("SELECT COALESCE(AVG(t.realHours),0) FROM Tarea t WHERE LOWER(t.status) = 'hecho' OR t.completedAt IS NOT NULL")
+    Double avgRealHoursOfCompletedTasks();
+
+    // Nuevo: promedio de horas reales para todas las tareas (ignora realHours null)
+    @Query("SELECT COALESCE(AVG(t.realHours),0) FROM Tarea t WHERE t.realHours IS NOT NULL")
+    Double avgRealHoursAllTasks();
 }

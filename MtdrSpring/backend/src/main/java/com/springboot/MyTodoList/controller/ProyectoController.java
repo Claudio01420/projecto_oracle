@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Collections; // <-- nuevo
 
 @RestController
 @RequestMapping("/proyectos")
@@ -124,6 +125,22 @@ public class ProyectoController {
             m.put("totalTasks", total);
             m.put("completedTasks", completed);
             m.put("progressPercent", progressRounded);
+            return m;
+        }).collect(Collectors.toList());
+    }
+
+    // Nuevo endpoint: horas agregadas por proyecto (estimated vs real)
+    @GetMapping("/horas")
+    public List<Map<String, Object>> horasPorProyecto() {
+        List<Proyecto> proyectos = repo.findAll();
+        return proyectos.stream().map(p -> {
+            Map<String,Object> m = new HashMap<>();
+            m.put("projectId", p.getId());
+            m.put("projectName", p.getNombreProyecto());
+            Double est = tareaRepo.sumEstimatedHoursByProjectIdIn(Collections.singletonList(p.getId()));
+            Double real = tareaRepo.sumRealHoursByProjectIdIn(Collections.singletonList(p.getId()));
+            m.put("estimatedHours", est == null ? 0.0 : est);
+            m.put("realHours", real == null ? 0.0 : real);
             return m;
         }).collect(Collectors.toList());
     }

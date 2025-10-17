@@ -160,49 +160,73 @@
 
   <script>
     // Datos iniciales para los gráficos (se actualizan opcionalmente después)
-    const donePct = [
-      { sprint: "S1", pct: 60 }, { sprint: "S2", pct: 65 },
-      { sprint: "S3", pct: 70 }, { sprint: "S4", pct: 75 }
-    ];
-    const hours = [
-      { s: "S1", reales: 12, plan: 10 },
-      { s: "S2", reales: 14, plan: 12 },
-      { s: "S3", reales: 13, plan: 12 },
-      { s: "S4", reales: 15, plan: 13 }
-    ];
+    // bar chart: inicialmente 3 categorías (To Do, In Progress, Done)
+    const statusLabels = ["To Do","In Progress","Done"];
+    const statusInitial = [0,0,0];
+
+    // hours per project will be loaded from backend
 
     // Crear charts y exponer instancias para poder actualizarlos después
     window.barChartInstance = new Chart(document.getElementById("barChart"), {
       type: "bar",
       data: {
-        labels: donePct.map(d => d.sprint),
+        labels: statusLabels,
         datasets: [{
-          label: "% completadas",
-          data: donePct.map(d => d.pct),
-          backgroundColor: "#E1261C"
+          label: "Cantidad de tareas",
+          data: statusInitial,
+          backgroundColor: ["#F59E0B","#3B82F6","#10B981"]
         }]
+      },
+      options: {
+        scales: {
+          y: { 
+            beginAtZero: true,
+            min: 0,
+            max: 20,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
       }
     });
 
+    // lineChart inicial vacío; se rellenará con proyectos en loadProjectHours()
     window.lineChartInstance = new Chart(document.getElementById("lineChart"), {
       type: "line",
       data: {
-        labels: hours.map(d => d.s),
+        labels: [],
         datasets: [
           {
             label: "Reales",
-            data: hours.map(d => d.reales),
+            data: [],
             borderColor: "#E1261C",
-            fill: false
+            backgroundColor: "#E1261C",
+            fill: false,
+            tension: 0.2
           },
           {
-            label: "Plan",
-            data: hours.map(d => d.plan),
+            label: "Planificadas",
+            data: [],
             borderColor: "#374151",
+            backgroundColor: "#374151",
             borderDash: [5,5],
-            fill: false
+            fill: false,
+            tension: 0.2
           }
         ]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            min: 0,
+            max: 20,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
       }
     });
 
@@ -280,10 +304,48 @@
           individualEl.textContent = userCount === 0 ? '0h' : formatHours(userAvg);
         }
 
-        // Actualizar último dato del bar chart con el porcentaje actual (si procede)
-        if (window.barChartInstance) {
-          const ds = window.barChartInstance.data.datasets[0];
-          ds.data[ds.data.length - 1] = pct;
+        // Mostrar tiempo promedio global de todas las tareas (todos los proyectos, todas las tareas con realHours)
+        try {
+          const resGlobal = await fetch('/api/tasks/avg-resolution/all-tasks');
+          if (resGlobal.ok) {
+            const g = await resGlobal.json();
+            const globalAvg = parseFloat(g.avgResolutionHoursAllTasks);
+            const avgEl = document.getElementById('avgResolutionValue');
+            if (avgEl) {
+              function formatHours(h) {
+                if (!Number.isFinite(h)) return 'N/A';
+                return (Math.round(h * 10) / 10) + 'h';
+              }
+              avgEl.textContent = Number.isFinite(globalAvg) ? formatHours(globalAvg) : 'N/A';
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to load global avg resolution (all tasks):', e);
+        }
+
+        // Calcular conteos por estado y actualizar barChart (To Do / In Progress / Done)
+        if (window.barChartInstance && Array.isArray(tasks)) {
+          const doneStatuses = ['done','completed','finalizado','completado','terminado','closed','hecho'];
+          const inProgressStatuses = ['in progress','doing','en proceso','progreso','doing','inprogress'];
+          // contar
+          let todoCount = 0, inProgressCount = 0, doneCount = 0;
+          tasks.forEach(t => {
+            const s = (t.status || '').toString().toLowerCase();
+            const isDone = doneStatuses.some(ds => s.includes(ds)) || (t.completedAt != null);
+            if (isDone) {
+              doneCount++;
+            } else if (inProgressStatuses.some(ip => s.includes(ip))) {
+              inProgressCount++;
+            } else {
+              todoCount++;
+            }
+          });
+          window.barChartInstance.data.labels = ["To Do","In Progress","Done"];
+          window.barChartInstance.data.datasets = [{
+            label: "Cantidad de tareas",
+            data: [todoCount, inProgressCount, doneCount],
+            backgroundColor: ["#F59E0B","#3B82F6","#10B981"]
+          }];
           window.barChartInstance.update();
         }
       } catch (err) {
@@ -297,8 +359,28 @@
       }
     }
 
-    // Ejecutar al cargar la página
+    // Cargar horas por proyecto y actualizar lineChart (eje X = proyectos, eje Y = horas)
+    async function loadProjectHours() {
+      try {
+        const res = await fetch('/proyectos/horas');
+        if (!res.ok) throw new Error('Error fetching project hours: ' + res.status);
+        const data = await res.json(); // [{projectId, projectName, estimatedHours, realHours}, ...]
+        const labels = data.map(d => d.projectName || ('P' + d.projectId));
+        const estimated = data.map(d => Number.isFinite(d.estimatedHours) ? d.estimatedHours : 0);
+        const real = data.map(d => Number.isFinite(d.realHours) ? d.realHours : 0);
+
+        window.lineChartInstance.data.labels = labels;
+        window.lineChartInstance.data.datasets[0].data = real;
+        window.lineChartInstance.data.datasets[1].data = estimated;
+        window.lineChartInstance.update();
+      } catch (err) {
+        console.error('Failed to load project hours', err);
+      }
+    }
+
+    // Ejecutar al cargar la página: métricas de tareas y horas por proyecto
     loadTaskCompletion();
+    loadProjectHours();
   </script>
 </body>
 </html>
