@@ -11,6 +11,9 @@ jobs:
       OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
       OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}
       OCI_CLI_REGION:      ${{ secrets.OCI_CLI_REGION }}
+      OCI_DOCKER_REPO:     ${{ secrets.OCI_DOCKER_REPO }}
+      OCI_AUTH_TOKEN:      ${{ secrets.OCI_AUTH_TOKEN }}
+      OCI_COMPARTMENT_OCID: ${{ secrets.OCI_COMPARTMENT_OCID }}
 
     steps:
       - uses: actions/checkout@v4
