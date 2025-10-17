@@ -29,6 +29,7 @@ jobs:
           native-image --version || true
       
       # *** PASO CRÍTICO: CREAR EL ARCHIVO DE CLAVE DESDE EL SECRETO ***
+      # Este paso se queda, ya que Get or Create OCIR Repo lo necesita.
       - name: Create OCI API Key File
         run: |
           # Reemplaza los caracteres \n por saltos de línea reales y guarda la clave en un archivo
@@ -55,9 +56,9 @@ jobs:
         id: login-ocir
         uses: oracle-actions/login-ocir@v1.3.0
         with:
+          # El login a OCIR solo necesita el auth_token (token de autenticación)
           auth_token: ${{ secrets.OCI_AUTH_TOKEN }}
-          # Usamos la clave que acabamos de crear para el login:
-          key_file: oci_api_key.pem
+          # QUITAMOS key_file de aquí para evitar el error de buffer bounds en esta acción
           
       # --------------------------------------------------------
 
