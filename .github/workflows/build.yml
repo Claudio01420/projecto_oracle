@@ -14,6 +14,7 @@ jobs:
       OCI_DOCKER_REPO:         ${{ secrets.OCI_DOCKER_REPO }}
       OCI_AUTH_TOKEN:          ${{ secrets.OCI_AUTH_TOKEN }}
       OCI_COMPARTMENT_OCID:    ${{ secrets.OCI_COMPARTMENT_OCID }}
+      OCI_CLUSTER_OCID:        ${{ secrets.OCI_CLUSTER_OCID }}
 
     steps:
       - uses: actions/checkout@v4
