@@ -114,4 +114,4 @@ steps:
 outputArtifacts:
   - name: backend-jar
     type: BINARY
-    location: MtdrSpring/backend/target
+    location: MtdrSpring/backend/target/MyTodoList-0.0.1-SNAPSHOT.jar
