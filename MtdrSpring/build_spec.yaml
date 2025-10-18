@@ -11,6 +11,20 @@ env:
     - BuildServiceDemoVersion
 
 steps:
+  # ⭐ NUEVO: habilitar repos y deps nativas requeridas por native-image
+  - type: Command
+    name: "Enable CRB repo and install native-image deps"
+    command: |
+      set -e
+      # dnf-plugins-core para usar config-manager (yum en OL8 es alias de dnf)
+      yum -y install dnf-plugins-core || true
+      # habilita CodeReady Builder (donde viven las *-static)
+      yum config-manager --set-enabled ol8_codeready_builder
+      # a veces se requiere addons; no falla si no existe
+      yum config-manager --set-enabled ol8_addons || true
+      # toolchain + libs estáticas necesarias para native-image
+      yum -y install gcc gcc-c++ glibc-devel zlib-devel glibc-static libstdc++-static zlib-static
+
   - type: Command
     name: "Install GraalVM Enterprise 22.x Native Image for Java17"
     command: yum -y install graalvm22-ee-17-native-image
@@ -32,6 +46,3 @@ steps:
     command:  cd MtdrSpring;
               source env.sh;
               (cd backend;source build.sh)
-
-
-
