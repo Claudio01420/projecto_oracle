@@ -11,10 +11,9 @@ jobs:
       OCI_CLI_FINGERPRINT:     ${{ secrets.OCI_CLI_FINGERPRINT }}
       OCI_CLI_KEY_CONTENT:     ${{ secrets.OCI_CLI_KEY_CONTENT }}
       OCI_CLI_REGION:          ${{ secrets.OCI_CLI_REGION }}
-      OCI_DOCKER_REPO:         ${{ secrets.OCI_DOCKER_REPO }}   # opcional si lo usas en build.sh
+      OCI_DOCKER_REPO:         ${{ secrets.OCI_DOCKER_REPO }}
       OCI_AUTH_TOKEN:          ${{ secrets.OCI_AUTH_TOKEN }}
       OCI_COMPARTMENT_OCID:    ${{ secrets.OCI_COMPARTMENT_OCID }}
-      OCI_CLUSTER_OCID:        ${{ secrets.OCI_CLUSTER_OCID }}
 
     steps:
       - uses: actions/checkout@v4
@@ -38,47 +37,23 @@ jobs:
           wget https://objectstorage.mx-queretaro-1.oraclecloud.com/p/9d4QQeajBM0KpBMHJZXxz9dDo4Pj50TlCykE2_1HMkUwjVJAljLkJVcSnpFGm71i/n/axyqsveqbf4z/b/reacttodo-t9ldr/o/deployment_config.tgz
           tar -xzvf deployment_config.tgz
           source env.sh
+          cat at.cfg | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin mx-queretaro-1.ocir.io
 
-      # --- Login manual a OCIR (manteniendo el 'cat') ---
-      - name: Log into OCIR (manual with cat)
-        run: |
-          cd MtdrSpring
-          # Si el archivo con el token no existe, lo creamos desde el secreto (fallback seguro)
-          if [ ! -f at.cfg ]; then
-            printf '%s' "${{ secrets.OCI_AUTH_TOKEN }}" > at.cfg
-          fi
-          # Login Docker a la región de Querétaro (endpoint corto)
-          cat at.cfg | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin qro.ocir.io
-
-      # Asegura que el repo exista en el compartimento correcto (usa SOLO el nombre del repo aquí)
       - name: Get or create OCIR repo
         id: get-ocir
         uses: oracle-actions/get-ocir-repository@v1.3.0
         with:
-          name: reacttodo/t9ldr
+          name: ${{ secrets.OCI_DOCKER_REPO }}
           compartment: ${{ secrets.OCI_COMPARTMENT_OCID }}
 
       - name: Build backend
         run: |
           cd MtdrSpring
           source env.sh
-          # Si tu build.sh hace docker tag/push, puedes usar el repo_path devuelto:
-          #   ${{ steps.get-ocir.outputs.repo_path }}
-          # Ejemplo dentro de build.sh:
-          #   docker tag imagen:tag "${{ steps.get-ocir.outputs.repo_path }}:tag"
-          #   docker push "${{ steps.get-ocir.outputs.repo_path }}:tag"
           (cd backend; source build.sh)
 
-      # Evita fallar tarde si no está el OCID del clúster
-      - name: Verify OKE_CLUSTER_OCID is set
-        run: |
-          if [ -z "${{ secrets.OKE_CLUSTER_OCID }}" ]; then
-            echo "❌ OKE_CLUSTER_OCID secret is missing or empty."
-            exit 1
-          fi
-          echo "✅ OKE_CLUSTER_OCID looks set."
-
       - name: Configure kubectl for OKE
+        id: kubectl-oke-action
         uses: oracle-actions/configure-kubectl-oke@v1.5.0
         with:
           cluster: ${{ secrets.OKE_CLUSTER_OCID }}
