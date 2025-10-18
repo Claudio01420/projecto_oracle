@@ -1,6 +1,6 @@
 version: 0.1 
 component: build
-timeoutInSeconds: 600
+timeoutInSeconds: 1800
 shell: bash
 
 env:
@@ -11,38 +11,71 @@ env:
     - BuildServiceDemoVersion
 
 steps:
-  # ⭐ NUEVO: habilitar repos y deps nativas requeridas por native-image
+  # Repos + deps nativas para GraalVM native-image
   - type: Command
     name: "Enable CRB repo and install native-image deps"
+    timeoutInSeconds: 900
     command: |
-      set -e
-      # dnf-plugins-core para usar config-manager (yum en OL8 es alias de dnf)
+      set -euo pipefail
       yum -y install dnf-plugins-core || true
-      # habilita CodeReady Builder (donde viven las *-static)
       yum config-manager --set-enabled ol8_codeready_builder
-      # a veces se requiere addons; no falla si no existe
       yum config-manager --set-enabled ol8_addons || true
-      # toolchain + libs estáticas necesarias para native-image
       yum -y install gcc gcc-c++ glibc-devel zlib-devel glibc-static libstdc++-static zlib-static
+      yum info graalvm22-ee-17-native-image || true
 
   - type: Command
     name: "Install GraalVM Enterprise 22.x Native Image for Java17"
-    command: yum -y install graalvm22-ee-17-native-image
+    timeoutInSeconds: 900
+    command: |
+      set -euo pipefail
+      yum -y install graalvm22-ee-17-native-image
 
   - type: Command
     name: "Set PATH Variable"
-    command: export PATH=$JAVA_HOME/bin:$PATH
+    command: |
+      set -e
+      export PATH=$JAVA_HOME/bin:$PATH
+      echo "PATH=$PATH"
 
   - type: Command
     name: "Docker Login"
-    command:  cd MtdrSpring;
-              oci os object get --bucket-name reacttodo-rolax --name deployment_config.tgz --file deployment_config.tgz;
-              tar -xzvf deployment_config.tgz;
-              source env.sh;
-              cat at.cfg | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin mx-queretaro-1.ocir.io
+    timeoutInSeconds: 600
+    command: |
+      set -euo pipefail
+      cd MtdrSpring
+
+      # Descarga del tgz de configuración desde Object Storage
+      if ! oci os object get --bucket-name reacttodo-t9ldr --name deployment_config.tgz --file deployment_config.tgz; then
+        echo "⚠️ No se encontró en 'reacttodo-t9ldr', probando 'reacttodo-rolax'..."
+        oci os object get --bucket-name reacttodo-rolax --name deployment_config.tgz --file deployment_config.tgz
+      fi
+
+      # Verificación del archivo antes de extraer
+      if [ ! -s deployment_config.tgz ]; then
+        echo "❌ No se pudo obtener 'deployment_config.tgz'. Revisa bucket/nombre/compartimento."
+        exit 1
+      fi
+
+      tar -xzvf deployment_config.tgz
+      source env.sh
+
+      # Verifica que exista at.cfg (token para docker login)
+      if [ ! -f at.cfg ]; then
+        echo "❌ Falta 'at.cfg' dentro del tgz. No puedo autenticar en OCIR."
+        # Fallback opcional si tienes el token en variable/secret:
+        # printf '%s' "${OCI_AUTH_TOKEN:-}" > at.cfg
+        # [ -s at.cfg ] || { echo "❌ at.cfg sigue vacío."; exit 1; }
+        exit 1
+      fi
+
+      # Login a OCIR (endpoint corto de Querétaro)
+      cat at.cfg | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin qro.ocir.io
 
   - type: Command
     name: "Build"
-    command:  cd MtdrSpring;
-              source env.sh;
-              (cd backend;source build.sh)
+    timeoutInSeconds: 1200
+    command: |
+      set -euo pipefail
+      cd MtdrSpring
+      source env.sh
+      (cd backend; source build.sh)
