@@ -78,7 +78,7 @@ steps:
       source build.sh
       echo "✅ Backend build completed successfully."
 
-artifacts:
-  - name: "backend-jar"
+outputArtifacts:
+  - name: backend-jar
     type: BINARY
-    location: "MtdrSpring/backend/target"
+    location: MtdrSpring/backend/target
