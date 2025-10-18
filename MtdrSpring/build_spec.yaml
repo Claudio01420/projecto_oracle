@@ -6,8 +6,11 @@ shell: bash
 env:
   variables:
     JAVA_HOME: /usr/lib64/graalvm/graalvm22-ee-java17
-    # 👇 OCID del secreto en OCI Vault (no es el secreto en sí, solo su identificador)
     OCIR_TOKEN_SECRET_OCID: "ocid1.vaultsecret.oc1.mx-queretaro-1.amaaaaaak5eqggiayqtzx3wfxcyac3wept5weqq2mgut7jwtrd4qodqzlqaa"
+
+    # 👇 Variables requeridas por build.sh
+    DOCKER_REGISTRY: qro.ocir.io/axyqsveqbf4z/reacttodo/t9ldr
+    IMAGE_VERSION: "0.1"
 
   exportedVariables:
     - BuildServiceDemoVersion
@@ -51,7 +54,7 @@ steps:
       echo "PATH set to: $PATH"
 
   # -------------------------------
-  # 🔐 Docker Login leyendo el secreto del Vault en tiempo de build
+  # 🔐 Docker Login leyendo el secreto del Vault
   # -------------------------------
   - type: Command
     name: "Docker Login (read Vault secret at build time)"
@@ -60,11 +63,11 @@ steps:
       set -euo pipefail
 
       if [ -z "${OCIR_TOKEN_SECRET_OCID:-}" ]; then
-        echo "❌ OCIR_TOKEN_SECRET_OCID no está definido en env.variables del build_spec."
+        echo "❌ OCIR_TOKEN_SECRET_OCID no está definido."
         exit 1
       fi
 
-      echo "🔎 Fetching OCIR auth token from OCI Vault (secret-bundle)..."
+      echo "🔎 Fetching OCIR auth token from OCI Vault..."
       TOKEN_B64=$(oci secrets secret-bundle get \
         --secret-id "${OCIR_TOKEN_SECRET_OCID}" \
         --stage CURRENT \
@@ -76,7 +79,6 @@ steps:
         exit 1
       fi
 
-      # El contenido viene base64 – decodificarlo:
       TOKEN=$(printf '%s' "${TOKEN_B64}" | base64 -d || true)
       if [ -z "${TOKEN:-}" ]; then
         echo "❌ No se pudo decodificar el contenido del secreto."
@@ -88,18 +90,18 @@ steps:
       echo "✅ Docker login successful."
 
   # -------------------------------
-  # 🏗️ Build del backend
+  # 🏗️ Build del backend (usa tus variables)
   # -------------------------------
   - type: Command
     name: "Build Spring Boot backend"
     timeoutInSeconds: 1200
     command: |
       set -euo pipefail
-      cd MtdrSpring
+      cd MtdrSpring/backend
       echo "🚀 Starting build process..."
-      cd backend
+      export DOCKER_REGISTRY IMAGE_VERSION
       chmod +x build.sh || true
-      source build.sh
+      ./build.sh
       echo "✅ Backend build completed successfully."
 
 # -------------------------------
