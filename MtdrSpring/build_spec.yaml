@@ -7,7 +7,7 @@ env:
   variables:
     JAVA_HOME: /usr/lib64/graalvm/graalvm22-ee-java17
     # 👇 OCID del secreto en OCI Vault (no es el secreto en sí, solo su identificador)
-    OCIR_TOKEN_SECRET_OCID: "ocid1.vaultsecret.oc1.mx-queretaro-1.xxxxxxx"
+    OCIR_TOKEN_SECRET_OCID: "ocid1.vaultsecret.oc1.mx-queretaro-1.amaaaaaak5eqggiayqtzx3wfxcyac3wept5weqq2mgut7jwtrd4qodqzlqaa"
 
   exportedVariables:
     - BuildServiceDemoVersion
