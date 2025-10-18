@@ -5,15 +5,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # <-- HAZ DISPONIBLES ESTAS VARS PARA TODOS LOS PASOS
     env:
       OCI_CLI_USER:        ${{ secrets.OCI_CLI_USER }}
       OCI_CLI_TENANCY:     ${{ secrets.OCI_CLI_TENANCY }}
       OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
-      OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}
+      OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}  # debe ser la LLAVE PRIVADA
       OCI_CLI_REGION:      ${{ secrets.OCI_CLI_REGION }}
-      OCI_DOCKER_REPO:     ${{ secrets.OCI_DOCKER_REPO }}
-      OCI_AUTH_TOKEN:      ${{ secrets.OCI_AUTH_TOKEN }}
+      OCI_DOCKER_REPO:     ${{ secrets.OCI_DOCKER_REPO }} # p.ej. mx-queretaro-1
       OCI_COMPARTMENT_OCID: ${{ secrets.OCI_COMPARTMENT_OCID }}
+      OCI_AUTH_TOKEN:      $${{ secrets.OCI_AUTH_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
@@ -38,29 +39,25 @@ jobs:
           tar -xzvf deployment_config.tgz
           source env.sh
 
-      # --- NUEVA UBICACIÓN: EL LOGIN DEBE SER ANTES DEL BUILD ---
-      
+      - name: Build backend
+        run: |
+          cd MtdrSpring
+          source env.sh
+          (cd backend; source build.sh)
+
       - name: Get or create OCIR repo
         id: get-ocir
         uses: oracle-actions/get-ocir-repository@v1.3.0
         with:
-          name: ${{ secrets.OCI_DOCKER_REPO }}
-          compartment: ${{ secrets.OCI_COMPARTMENT_OCID }}
+          name: ${{ secrets.OCI_DOCKER_REPO }}          # asegúrate de CREAR este secret
+          compartment: ${{ secrets.OCI_COMPARTMENT_OCID }} # y este también
+        # aquí ya ve OCI_CLI_REGION por el env del job
 
       - name: Log into OCIR
         id: login-ocir
         uses: oracle-actions/login-ocir@v1.3.0
         with:
           auth_token: ${{ secrets.OCI_AUTH_TOKEN }}
-          
-      # --------------------------------------------------------
-
-      - name: Build backend
-        run: |
-          cd MtdrSpring
-          # ¡Ahora docker push se ejecutará con la sesión abierta!
-          source env.sh
-          (cd backend; source build.sh)
 
       - name: Configure kubectl for OKE
         id: kubectl-oke-action
