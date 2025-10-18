@@ -1,4 +1,4 @@
-version: 0.1 
+version: 0.1
 component: build
 timeoutInSeconds: 1800
 shell: bash
@@ -99,7 +99,11 @@ steps:
       set -euo pipefail
       cd MtdrSpring/backend
       echo "🚀 Starting build process..."
-      export DOCKER_REGISTRY IMAGE_VERSION
+
+      # 🔧 Blindaje: asegurar que DOCKER_REGISTRY esté definido
+      export DOCKER_REGISTRY="${DOCKER_REGISTRY:-qro.ocir.io/axyqsveqbf4z/reacttodo/t9ldr}"
+      export IMAGE_VERSION="${IMAGE_VERSION:-0.1}"
+
       chmod +x build.sh || true
       ./build.sh
       echo "✅ Backend build completed successfully."
