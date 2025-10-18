@@ -11,8 +11,10 @@ import com.springboot.MyTodoList.controller.ToDoItemBotController;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @Configuration
+@ConditionalOnProperty(name = "DISABLE_TELEGRAM_BOT", havingValue = "false", matchIfMissing = true)
 public class TelegramBotConfig {
 
     private static final Logger log = LoggerFactory.getLogger(TelegramBotConfig.class);
