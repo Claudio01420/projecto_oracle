@@ -6,76 +6,76 @@ shell: bash
 env:
   variables:
     JAVA_HOME: /usr/lib64/graalvm/graalvm22-ee-java17
-
   exportedVariables:
     - BuildServiceDemoVersion
 
 steps:
-  # Repos + deps nativas para GraalVM native-image
+  # -------------------------------
+  # 🧩 Instalar dependencias del sistema
+  # -------------------------------
   - type: Command
     name: "Enable CRB repo and install native-image deps"
     timeoutInSeconds: 900
     command: |
       set -euo pipefail
+      echo "🔧 Enabling required repos and installing system deps..."
       yum -y install dnf-plugins-core || true
       yum config-manager --set-enabled ol8_codeready_builder
       yum config-manager --set-enabled ol8_addons || true
       yum -y install gcc gcc-c++ glibc-devel zlib-devel glibc-static libstdc++-static zlib-static
-      yum info graalvm22-ee-17-native-image || true
+      echo "✅ Dependencies installed."
 
+  # -------------------------------
+  # ☕ Instalar GraalVM Enterprise
+  # -------------------------------
   - type: Command
     name: "Install GraalVM Enterprise 22.x Native Image for Java17"
     timeoutInSeconds: 900
     command: |
       set -euo pipefail
+      echo "📦 Installing GraalVM Enterprise 22 for Java 17..."
       yum -y install graalvm22-ee-17-native-image
+      echo "✅ GraalVM installation complete."
 
+  # -------------------------------
+  # ⚙️ Configurar PATH de Java
+  # -------------------------------
   - type: Command
     name: "Set PATH Variable"
     command: |
       set -e
       export PATH=$JAVA_HOME/bin:$PATH
-      echo "PATH=$PATH"
+      echo "PATH set to: $PATH"
 
+  # -------------------------------
+  # 🔐 Login a OCIR usando Secret del Vault
+  # -------------------------------
   - type: Command
-    name: "Docker Login"
+    name: "Docker Login (Vault Secret)"
     timeoutInSeconds: 600
     command: |
       set -euo pipefail
-      cd MtdrSpring
+      echo "🔐 Logging in to OCIR with Vault secret..."
+      # OCIR_AUTH_TOKEN viene del Vault (configurado en Environment Variables del stage)
+      echo "${OCIR_AUTH_TOKEN}" | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin qro.ocir.io
+      echo "✅ Docker login successful."
 
-      # Descarga del tgz de configuración desde Object Storage
-      if ! oci os object get --bucket-name reacttodo-t9ldr --name deployment_config.tgz --file deployment_config.tgz; then
-        echo "⚠️ No se encontró en 'reacttodo-t9ldr', probando 'reacttodo-rolax'..."
-        oci os object get --bucket-name reacttodo-rolax --name deployment_config.tgz --file deployment_config.tgz
-      fi
-
-      # Verificación del archivo antes de extraer
-      if [ ! -s deployment_config.tgz ]; then
-        echo "❌ No se pudo obtener 'deployment_config.tgz'. Revisa bucket/nombre/compartimento."
-        exit 1
-      fi
-
-      tar -xzvf deployment_config.tgz
-      source env.sh
-
-      # Verifica que exista at.cfg (token para docker login)
-      if [ ! -f at.cfg ]; then
-        echo "❌ Falta 'at.cfg' dentro del tgz. No puedo autenticar en OCIR."
-        # Fallback opcional si tienes el token en variable/secret:
-        # printf '%s' "${OCI_AUTH_TOKEN:-}" > at.cfg
-        # [ -s at.cfg ] || { echo "❌ at.cfg sigue vacío."; exit 1; }
-        exit 1
-      fi
-
-      # Login a OCIR (endpoint corto de Querétaro)
-      cat at.cfg | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin qro.ocir.io
-
+  # -------------------------------
+  # 🏗️ Build del backend
+  # -------------------------------
   - type: Command
-    name: "Build"
+    name: "Build Spring Boot backend"
     timeoutInSeconds: 1200
     command: |
       set -euo pipefail
       cd MtdrSpring
-      source env.sh
-      (cd backend; source build.sh)
+      echo "🚀 Starting build process..."
+      cd backend
+      chmod +x build.sh || true
+      source build.sh
+      echo "✅ Backend build completed successfully."
+
+artifacts:
+  - name: "backend-jar"
+    type: BINARY
+    location: "MtdrSpring/backend/target"
