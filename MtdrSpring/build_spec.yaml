@@ -55,9 +55,12 @@ steps:
     timeoutInSeconds: 600
     command: |
       set -euo pipefail
+      if [ -z "${OCIR_AUTH_TOKEN:-}" ]; then
+        echo "❌ OCIR_AUTH_TOKEN no está disponible (revisa Environment Variables del stage y/o policies del Vault)."
+        exit 1
+      fi
       echo "🔐 Logging in to OCIR with Vault secret..."
-      # OCIR_AUTH_TOKEN viene del Vault (configurado en Environment Variables del stage)
-      echo "${OCIR_AUTH_TOKEN}" | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin qro.ocir.io
+      printf '%s' "${OCIR_AUTH_TOKEN}" | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin qro.ocir.io
       echo "✅ Docker login successful."
 
   # -------------------------------
