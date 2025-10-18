@@ -100,7 +100,7 @@ steps:
       cd MtdrSpring/backend
       echo "🚀 Starting build process..."
 
-      # 🔧 Blindaje: asegurar que DOCKER_REGISTRY esté definido
+      # 🔧 Blindaje: asegurar que DOCKER_REGISTRY/IMAGE_VERSION estén definidos
       export DOCKER_REGISTRY="${DOCKER_REGISTRY:-qro.ocir.io/axyqsveqbf4z/reacttodo/t9ldr}"
       export IMAGE_VERSION="${IMAGE_VERSION:-0.1}"
 
@@ -108,10 +108,27 @@ steps:
       ./build.sh
       echo "✅ Backend build completed successfully."
 
+  # -------------------------------
+  # 🔖 Normalizar nombre del artefacto a app.jar
+  # -------------------------------
+  - type: Command
+    name: "Normalize artifact name"
+    command: |
+      set -euo pipefail
+      cd MtdrSpring/backend/target
+      ls -al
+      JAR=$(ls -1t *.jar | head -n1)
+      if [ -z "${JAR:-}" ]; then
+        echo "❌ No se encontró ningún JAR en target/"
+        exit 1
+      fi
+      echo "📦 Usando JAR: $JAR"
+      cp -f "$JAR" app.jar
+
 # -------------------------------
 # 📦 Output Artifacts
 # -------------------------------
 outputArtifacts:
   - name: backend-jar
     type: BINARY
-    location: MtdrSpring/backend/target/MyTodoList-0.0.1-SNAPSHOT.jar
+    location: MtdrSpring/backend/target/app.jar
