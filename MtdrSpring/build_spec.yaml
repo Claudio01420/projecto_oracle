@@ -6,6 +6,9 @@ shell: bash
 env:
   variables:
     JAVA_HOME: /usr/lib64/graalvm/graalvm22-ee-java17
+    # 👇 OCID del secreto en OCI Vault (no es el secreto en sí, solo su identificador)
+    OCIR_TOKEN_SECRET_OCID: "ocid1.vaultsecret.oc1.mx-queretaro-1.xxxxxxx"
+
   exportedVariables:
     - BuildServiceDemoVersion
 
@@ -48,19 +51,40 @@ steps:
       echo "PATH set to: $PATH"
 
   # -------------------------------
-  # 🔐 Login a OCIR usando Secret del Vault
+  # 🔐 Docker Login leyendo el secreto del Vault en tiempo de build
   # -------------------------------
   - type: Command
-    name: "Docker Login (Vault Secret)"
+    name: "Docker Login (read Vault secret at build time)"
     timeoutInSeconds: 600
     command: |
       set -euo pipefail
-      if [ -z "${OCIR_AUTH_TOKEN:-}" ]; then
-        echo "❌ OCIR_AUTH_TOKEN no está disponible (revisa Environment Variables del stage y/o policies del Vault)."
+
+      if [ -z "${OCIR_TOKEN_SECRET_OCID:-}" ]; then
+        echo "❌ OCIR_TOKEN_SECRET_OCID no está definido en env.variables del build_spec."
         exit 1
       fi
-      echo "🔐 Logging in to OCIR with Vault secret..."
-      printf '%s' "${OCIR_AUTH_TOKEN}" | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin qro.ocir.io
+
+      echo "🔎 Fetching OCIR auth token from OCI Vault (secret-bundle)..."
+      TOKEN_B64=$(oci secrets secret-bundle get \
+        --secret-id "${OCIR_TOKEN_SECRET_OCID}" \
+        --stage CURRENT \
+        --query 'data."secret-bundle-content".content' \
+        --raw-output)
+
+      if [ -z "${TOKEN_B64:-}" ]; then
+        echo "❌ No se obtuvo contenido del secreto (revisa policies/Vault/OCID)."
+        exit 1
+      fi
+
+      # El contenido viene base64 – decodificarlo:
+      TOKEN=$(printf '%s' "${TOKEN_B64}" | base64 -d || true)
+      if [ -z "${TOKEN:-}" ]; then
+        echo "❌ No se pudo decodificar el contenido del secreto."
+        exit 1
+      fi
+
+      echo "🔐 Logging in to OCIR..."
+      printf '%s' "${TOKEN}" | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin qro.ocir.io
       echo "✅ Docker login successful."
 
   # -------------------------------
@@ -78,6 +102,9 @@ steps:
       source build.sh
       echo "✅ Backend build completed successfully."
 
+# -------------------------------
+# 📦 Output Artifacts
+# -------------------------------
 outputArtifacts:
   - name: backend-jar
     type: BINARY
