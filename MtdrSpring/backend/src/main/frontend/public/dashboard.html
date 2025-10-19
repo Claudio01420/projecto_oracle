@@ -285,39 +285,90 @@
     </main>
   </div>
 
-  <!-- Script para obtener último proyecto y actualizar contadores -->
+  <!-- Script para obtener último proyecto del usuario y actualizar contadores -->
 <script>
 (async function(){
-  try {
-    const res = await fetch('/proyectos/ultimo');
-    if (!res.ok) {
-      console.error('Error al cargar último proyecto:', await res.text());
-      return;
-    }
-    const data = await res.json();
-    // Actualizar proyecto
+  // Obtener email (usar localStorage si existe, sino pedir)
+  let email = localStorage.getItem('userEmail') || prompt('Introduce tu email para obtener tu último proyecto:');
+  if (!email) {
     const pname = document.getElementById('project-name');
     const pdays = document.getElementById('project-days');
-    if (pname) pname.textContent = data.projectName ?? '-';
-    if (pdays) {
-      if (data.daysRemaining == null) {
-        pdays.textContent = 'N/A';
-      } else if (data.daysRemaining <= 0) {
-        pdays.textContent = '0';
+    if (pname) pname.textContent = '-';
+    if (pdays) pdays.textContent = '-';
+    return;
+  }
+  localStorage.setItem('userEmail', email);
+
+  try {
+    // 1) Obtener usuario por email
+    const resUser = await fetch('/usuarios/by-email?email=' + encodeURIComponent(email));
+    if (!resUser.ok) {
+      console.error('Usuario no encontrado:', await resUser.text());
+      const pname = document.getElementById('project-name');
+      const pdays = document.getElementById('project-days');
+      if (pname) pname.textContent = '-';
+      if (pdays) pdays.textContent = '-';
+      return;
+    }
+    const user = await resUser.json();
+    const userId = user.id || user.usuarioId || user.usuarioId;
+    if (!userId) {
+      console.error('Usuario sin id válido');
+      const pname = document.getElementById('project-name');
+      const pdays = document.getElementById('project-days');
+      if (pname) pname.textContent = '-';
+      if (pdays) pdays.textContent = '-';
+      return;
+    }
+
+    // 2) Obtener proyectos del usuario con stats
+    const res = await fetch('/proyectos/mios/' + encodeURIComponent(userId) + '/stats');
+    if (!res.ok) {
+      console.error('Error al cargar proyectos del usuario:', await res.text());
+      const pname = document.getElementById('project-name');
+      const pdays = document.getElementById('project-days');
+      if (pname) pname.textContent = '-';
+      if (pdays) pdays.textContent = '-';
+      return;
+    }
+    const projects = await res.json();
+    if (!Array.isArray(projects) || projects.length === 0) {
+      const pname = document.getElementById('project-name');
+      const pdays = document.getElementById('project-days');
+      if (pname) pname.textContent = '-';
+      if (pdays) pdays.textContent = '-';
+      return;
+    }
+
+    // 3) Elegir "último" proyecto del usuario (fallback: mayor id)
+    const latest = projects.reduce((a, b) => ((a && a.id ? a.id : 0) > (b && b.id ? b.id : 0) ? a : b), projects[0]);
+
+    // Actualizar UI
+    const pnameEl = document.getElementById('project-name');
+    const pdaysEl = document.getElementById('project-days');
+    if (pnameEl) pnameEl.textContent = latest.projectName ?? latest.nombreProyecto ?? latest.name ?? '-';
+
+    // Calcular días restantes si hay fecha de fin
+    function parseDateSafe(s) {
+      if (!s) return null;
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    const endDate = parseDateSafe(latest.fechaFin || latest.fecha_fin || latest.endDate);
+    if (pdaysEl) {
+      if (!endDate) {
+        pdaysEl.textContent = '-';
       } else {
-        pdays.textContent = String(data.daysRemaining);
+        const now = new Date();
+        const diffDays = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+        pdaysEl.textContent = diffDays <= 0 ? '0' : String(diffDays);
       }
     }
-    // Actualizar contadores de tareas del proyecto
-    const elTotal = document.getElementById('total-tasks');
-    const elCompleted = document.getElementById('completed-tasks');
-    if (elTotal) elTotal.textContent = (data.totalTasks ?? 0);
-    if (elCompleted) elCompleted.textContent = (data.completedTasks ?? 0);
 
-    // Nuevo: si el objeto contiene equipoId, solicitar ICL del equipo y actualizar Burnout Risk
-    if (data.equipoId) {
+    // Si el proyecto incluye equipoId, actualizar Burnout Risk (misma lógica previa)
+    if (latest.equipoId) {
       try {
-        const res2 = await fetch('/equipos/' + encodeURIComponent(data.equipoId) + '/icl');
+        const res2 = await fetch('/equipos/' + encodeURIComponent(latest.equipoId) + '/icl');
         if (res2.ok) {
           const iclData = await res2.json();
           const levelEl = document.getElementById('burnout-risk-level');
@@ -342,7 +393,7 @@
     }
 
   } catch (err) {
-    console.error('Excepción al recuperar datos del último proyecto:', err);
+    console.error('Excepción al recuperar último proyecto del usuario:', err);
   }
 })();
 </script>
@@ -482,5 +533,56 @@
   }
 })();
 </script>
+
+<!-- NUEVO: Script que calcula y actualiza total-tasks y completed-tasks para el usuario logueado -->
+<script>
+(async function(){
+  const totalEl = document.getElementById('total-tasks');
+  const completedEl = document.getElementById('completed-tasks');
+  if (!totalEl && !completedEl) return;
+
+  const email = localStorage.getItem('userEmail');
+  if (!email) {
+    // si no hay email, mostrar 0
+    if (totalEl) totalEl.textContent = '0';
+    if (completedEl) completedEl.textContent = '0';
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/tasks?email=' + encodeURIComponent(email));
+    if (!res.ok) {
+      console.error('Error al cargar tareas del usuario:', await res.text());
+      if (totalEl) totalEl.textContent = '0';
+      if (completedEl) completedEl.textContent = '0';
+      return;
+    }
+    const tasks = await res.json();
+    if (!Array.isArray(tasks) || tasks.length === 0) {
+      if (totalEl) totalEl.textContent = '0';
+      if (completedEl) completedEl.textContent = '0';
+      return;
+    }
+
+    const totalActive = tasks.length;
+    const completedCount = tasks.filter(t => {
+      try {
+        return (t.status && String(t.status).toLowerCase() === 'hecho') || (t.completedAt != null);
+      } catch (e) {
+        return false;
+      }
+    }).length;
+
+    if (totalEl) totalEl.textContent = String(totalActive);
+    if (completedEl) completedEl.textContent = String(completedCount);
+
+  } catch (err) {
+    console.error('Excepción al obtener tareas del usuario:', err);
+    if (totalEl) totalEl.textContent = '0';
+    if (completedEl) completedEl.textContent = '0';
+  }
+})();
+</script>
+
 </body>
 </html>
