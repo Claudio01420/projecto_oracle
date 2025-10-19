@@ -9,11 +9,9 @@
 
   <!-- Sprite de íconos -->
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-    <!-- Dashboard -->
     <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.6" d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/>
     </symbol>
-    <!-- Equipos -->
     <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
       <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
       <path d="M7 21v-2a4 4 0 0 1 3-3.87"/>
@@ -21,18 +19,15 @@
       <path d="M5.5 8a3.5 3.5 0 1 0 0 7"/>
       <path d="M18.5 8a3.5 3.5 0 1 1 0 7"/>
     </symbol>
-    <!-- Proyectos -->
     <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.6" d="M3 7h6l2 2h10v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/>
     </symbol>
-    <!-- Tareas -->
     <symbol id="i-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
       <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
       <path d="M12 11h4"/><path d="M12 16h4"/>
       <path d="M8 11h.01"/><path d="M8 16h.01"/>
     </symbol>
-    <!-- KPIs -->
     <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 16v5"/>
       <path d="M16 14v7"/>
@@ -41,24 +36,20 @@
       <path d="M4 18v3"/>
       <path d="M8 14v7"/>
     </symbol>
-    <!-- Chatbot -->
     <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <rect x="4" y="8" width="16" height="10" rx="4" stroke-width="1.6"/>
       <circle cx="9" cy="13" r="1" stroke-width="1.6"/>
       <circle cx="15" cy="13" r="1" stroke-width="1.6"/>
       <path stroke-width="1.6" d="M12 4v2m-7 6H4m16 0h1"/>
     </symbol>
-    <!-- Notificaciones -->
     <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.6" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
       <path stroke-width="1.6" d="M13.73 21a2 2 0 0 1-3.46 0"/>
     </symbol>
-    <!-- Ajustes -->
     <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <circle cx="12" cy="12" r="3" />
-      <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0  0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+      <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0  0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
     </symbol>
-    <!-- Exit -->
     <symbol id="i-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="m16 17 5-5-5-5"/>
       <path d="M21 12H9"/>
@@ -94,6 +85,11 @@
     .btn-ghost .ico { width:16px; height:16px; display:inline-block; }
 
     .table tbody tr { cursor: pointer; }
+
+    /* === Estilos de validación del formulario === */
+    .field.invalid input, .field.invalid select { border-color:#E1261C; background:#fff6f5; }
+    .field .msg { display:none; font-size:12px; color:#E1261C; margin-top:6px; }
+    .field.invalid .msg { display:block; }
   </style>
 </head>
 
@@ -187,7 +183,7 @@
               <thead>
                 <tr>
                   <th style="width:80px">ID</th>
-                  <th style="width:90px">Equipo</th>
+                  <th style="width:180px">Equipo</th>
                   <th>Nombre</th>
                   <th style="width:130px">Estado</th>
                   <th style="width:200px">Avance</th>
@@ -237,11 +233,41 @@
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <h2>Nuevo Proyecto</h2>
-      <div class="field"><label>Nombre</label><input id="f-nombre" type="text" placeholder="Ej. Reto Oracle Cloud"></div>
-      <div class="field"><label>Descripción</label><input id="f-desc" type="text" placeholder="Breve descripción"></div>
-      <div class="field"><label>Equipo ID</label><input id="f-equipo" type="number" min="1" placeholder="Ej. 1"></div>
-      <div class="field"><label>Fecha inicio</label><input id="f-inicio" type="date"></div>
-      <div class="field"><label>Fecha fin</label><input id="f-fin" type="date"></div>
+
+      <div class="field" id="f-nombre-field">
+        <label>Nombre</label>
+        <input id="f-nombre" type="text" placeholder="Ej. Reto Oracle Cloud">
+        <div class="msg" id="msg-nombre">El nombre es obligatorio (mín. 3 caracteres).</div>
+      </div>
+
+      <div class="field" id="f-desc-field">
+        <label>Descripción</label>
+        <input id="f-desc" type="text" placeholder="Breve descripción">
+        <div class="msg" id="msg-desc">La descripción es obligatoria (mín. 5 caracteres).</div>
+      </div>
+
+      <!-- SELECT de equipos donde eres ADMIN -->
+      <div class="field" id="f-equipo-field">
+        <label for="f-equipo">Equipo</label>
+        <select id="f-equipo">
+          <option value="">Cargando equipos…</option>
+        </select>
+        <small id="equipos-help" class="muted">Solo verás equipos donde eres ADMIN.</small>
+        <div class="msg" id="msg-equipo">Selecciona un equipo.</div>
+      </div>
+
+      <div class="field" id="f-inicio-field">
+        <label>Fecha inicio</label>
+        <input id="f-inicio" type="date">
+        <div class="msg" id="msg-inicio">Indica una fecha de inicio válida.</div>
+      </div>
+
+      <div class="field" id="f-fin-field">
+        <label>Fecha fin</label>
+        <input id="f-fin" type="date">
+        <div class="msg" id="msg-fin">Indica una fecha de fin válida (≥ inicio).</div>
+      </div>
+
       <div class="modal-buttons">
         <button class="btn btn-outline" id="btn-cancelar">Cancelar</button>
         <button class="btn btn-primary" id="btn-guardar">Guardar</button>
@@ -250,388 +276,572 @@
   </div>
 
   <div id="confirm-root"></div>
+  
+<script>
+  // ===== Sesión
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const $userInitial = document.querySelector(".user-circle");
+  if ($userInitial && (user?.nombre || user?.email)) {
+    const ch = (user?.nombre?.trim()?.[0] ?? user?.email?.trim()?.[0] ?? "U").toUpperCase();
+    $userInitial.textContent = ch;
+  }
 
-  <script>
-    // ===== Sesión
-    const user = JSON.parse(localStorage.getItem("user") || "null");
-    // Evita romper si no existe el nodo o si no hay user
-    const $userInitial = document.querySelector(".user-circle");
-    if ($userInitial && (user?.nombre || user?.email)) {
-      const ch = (user?.nombre?.trim()?.[0] ?? user?.email?.trim()?.[0] ?? "U").toUpperCase();
-      $userInitial.textContent = ch;
+  // ===== DOM
+  const $tbody = document.getElementById("projects-body");
+  const $buscar = document.getElementById("buscar");
+  const $filtro = document.getElementById("filtro");
+  const $resumen = document.getElementById("resumen-lista");
+  const $chips = document.getElementById("chips");
+  const $confirmRoot = document.getElementById("confirm-root");
+
+  // Detalle
+  const $dNombre = document.getElementById("d-nombre");
+  const $dDesc   = document.getElementById("d-descripcion");
+  const $dEquipo = document.getElementById("d-equipo");
+  const $dIni    = document.getElementById("d-inicio");
+  const $dFin    = document.getElementById("d-fin");
+  const $dEstado = document.getElementById("d-estado");
+  const $dAvance = document.getElementById("d-avance");
+  const $btnIrHomework = document.getElementById("btn-ir-homework");
+
+  // Panel de tareas
+  const $tasksBox   = document.getElementById("tasks-box");
+  const $tasksList  = document.getElementById("tasks-list");
+  const $tasksCount = document.getElementById("tasks-count");
+
+  // Modal
+  const $modalOverlay = document.getElementById("modal-overlay");
+  const $btnNuevo  = document.getElementById("btn-nuevo");
+  const $btnGuardar= document.getElementById("btn-guardar");
+  const $btnCancel = document.getElementById("btn-cancelar");
+
+  // Form inputs
+  const $fNombre = document.getElementById("f-nombre");
+  const $fDesc   = document.getElementById("f-desc");
+  const $fEquipo = document.getElementById("f-equipo");
+  const $fInicio = document.getElementById("f-inicio");
+  const $fFin    = document.getElementById("f-fin");
+
+  // Form fields
+  const $fNombreField = document.getElementById("f-nombre-field");
+  const $fDescField   = document.getElementById("f-desc-field");
+  const $fEquipoField = document.getElementById("f-equipo-field");
+  const $fInicioField = document.getElementById("f-inicio-field");
+  const $fFinField    = document.getElementById("f-fin-field");
+
+  // API
+  const currentUserId = user?.id || null;
+  const currentUserEmail = user?.email || "";
+  const API_BASE    = "http://localhost:8080/proyectos";
+  const TASKS_API   = "http://localhost:8080/api/tasks";   // <-- importante
+  const EQUIPOS_API = "http://localhost:8080/equipos";
+  const UE_API      = "http://localhost:8080/usuarios-equipos";
+  const ROL_ADMIN   = "ADMIN";
+
+  let proyectosCache = [];
+  let selectedProjectId = null;
+
+  /* === Caché de nombres de equipo === */
+  const equipoNombreCache = new Map();
+  async function fetchEquipoNombre(id){
+    if (!id) return "-";
+    if (equipoNombreCache.has(id)) return equipoNombreCache.get(id);
+    try{
+      const r = await fetch(`${EQUIPOS_API}/${encodeURIComponent(id)}`);
+      if (!r.ok) throw 0;
+      const data = await r.json();
+      const name = data?.nombreEquipo || (`Equipo #${id}`);
+      equipoNombreCache.set(id, name);
+      return name;
+    }catch{
+      const fallback = `Equipo #${id}`;
+      equipoNombreCache.set(id, fallback);
+      return fallback;
     }
+  }
 
-    // ===== DOM
-    const $tbody = document.getElementById("projects-body");
-    const $buscar = document.getElementById("buscar");
-    const $filtro = document.getElementById("filtro");
-    const $resumen = document.getElementById("resumen-lista");
-    const $chips = document.getElementById("chips");
-    const $confirmRoot = document.getElementById("confirm-root");
+  /* 🔁 Navegar a /homework-proyect.html */
+  function goToHomework(id){
+    if (!id) return;
+    const url = `${window.location.origin}/homework-proyect.html?id=${encodeURIComponent(id)}`;
+    window.location.href = url;
+  }
 
-    // Detalle
-    const $dNombre = document.getElementById("d-nombre");
-    const $dDesc   = document.getElementById("d-descripcion");
-    const $dEquipo = document.getElementById("d-equipo");
-    const $dIni    = document.getElementById("d-inicio");
-    const $dFin    = document.getElementById("d-fin");
-    const $dEstado = document.getElementById("d-estado");
-    const $dAvance = document.getElementById("d-avance");
-    const $btnIrHomework = document.getElementById("btn-ir-homework");
-
-    // Tareas del proyecto (panel detalle)
-    const $tasksBox   = document.getElementById("tasks-box");
-    const $tasksList  = document.getElementById("tasks-list");
-    const $tasksCount = document.getElementById("tasks-count");
-
-    // Modal
-    const $modalOverlay = document.getElementById("modal-overlay");
-    const $btnNuevo  = document.getElementById("btn-nuevo");
-    const $btnGuardar= document.getElementById("btn-guardar");
-    const $btnCancel = document.getElementById("btn-cancelar");
-
-    // Form
-    const $fNombre = document.getElementById("f-nombre");
-    const $fDesc   = document.getElementById("f-desc");
-    const $fEquipo = document.getElementById("f-equipo");
-    const $fInicio = document.getElementById("f-inicio");
-    const $fFin    = document.getElementById("f-fin");
-
-    // API
-    const currentUserId = user?.id || null;
-    const currentUserEmail = user?.email || "";
-    const API_BASE = "http://localhost:8080/proyectos";
-    const API_MY   = currentUserId ? `${API_BASE}/mios/${currentUserId}` : API_BASE;
-    const TASKS_API = "/api/tasks";
-
-    let proyectosCache = [];
-    let selectedProjectId = null;
-
-    /* 🔁 Navegar a /homework-proyect.html */
-    function goToHomework(id){
-      if (!id) return;
-      const url = `${window.location.origin}/homework-proyect.html?id=${encodeURIComponent(id)}`;
-      window.location.href = url;
+  function estadoToChipClass(estado) {
+    if (!estado) return "chip";
+    switch ((estado || "").toLowerCase()) {
+      case "pendiente":  return "chip state-pend";
+      case "en curso":   return "chip state-run";
+      case "finalizado": return "chip state-done";
+      default:           return "chip";
     }
+  }
+  function estadoToAvance(estado) {
+    switch ((estado || "").toLowerCase()) {
+      case "pendiente":  return 0;
+      case "en curso":   return 50;
+      case "finalizado": return 100;
+      default:           return 0;
+    }
+  }
+  function formatFecha(iso) {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
+  }
 
-    function estadoToChipClass(estado) {
-      if (!estado) return "chip";
-      switch ((estado || "").toLowerCase()) {
-        case "pendiente":  return "chip state-pend";
-        case "en curso":   return "chip state-run";
-        case "finalizado": return "chip state-done";
-        default:           return "chip";
-      }
-    }
-    function estadoToAvance(estado) {
-      switch ((estado || "").toLowerCase()) {
-        case "pendiente":  return 0;
-        case "en curso":   return 50;
-        case "finalizado": return 100;
-        default:           return 0;
-      }
-    }
-    function formatFecha(iso) {
-      if (!iso) return "—";
-      const d = new Date(iso);
-      return isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
-    }
-
-    /* ========= PROGRESO REAL POR TAREAS ========= */
-    async function fetchTasksForProject(projectId){
-      try{
-        const res = await fetch(`${TASKS_API}?projectId=${encodeURIComponent(projectId)}`, {
-          headers: { "X-User-Email": currentUserEmail }
-        });
-        if (!res.ok) return [];
-        return await res.json();
-      }catch{ return []; }
-    }
-    function calcProgressFromTasks(tasks){
-      const total = tasks.length;
-      const done = tasks.filter(t => (t.status||"").toLowerCase()==="done" || t.completedAt != null).length;
-      const pct = total === 0 ? 0 : Math.round((done/total)*100);
-      return { total, done, pct };
-    }
-
-    // === PERSISTE estado según % ===
-    async function persistProjectEstadoFromPct(p, pct){
-      if (!p || !p.id) return;
-      const nuevo = (pct===0) ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
-      if (p.estado === nuevo) return;
-
-      const payload = {
-        id: p.id,
-        nombreProyecto: p.nombreProyecto,
-        descripcion: p.descripcion,
-        estado: nuevo,
-        equipoId: p.equipoId,
-        fechaInicio: p.fechaInicio || null,
-        fechaFin: p.fechaFin || null,
-        ultimoAcceso: p.ultimoAcceso || null
-      };
-      try{
-        const res = await fetch(`${API_BASE}/${p.id}`, {
-          method:"PUT",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify(payload)
-        });
-        if (res.ok){
-          const updated = await res.json();
-          p.estado = updated.estado;
-        }
-      }catch(e){ /* no-op */ }
-    }
-
-    function updateRowProgress(projectId, pct){
-      const row = $tbody.querySelector(`tr[data-id="${projectId}"]`);
-      if (!row) return;
-      const bar = row.querySelector(".progress > span");
-      if (bar) bar.style.width = `${pct}%`;
-      const estChip = row.querySelector("td:nth-child(4) .chip");
-      if (estChip){
-        const nuevo = pct===0 ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
-        estChip.textContent = nuevo;
-        estChip.className = estadoToChipClass(nuevo);
-      }
-    }
-
-    async function refreshProgressForAllProjects(){
-      const promises = proyectosCache.map(async (p) => {
-        const tasks = await fetchTasksForProject(p.id);
-        const { pct } = calcProgressFromTasks(tasks);
-        p._progress = pct;
-        updateRowProgress(p.id, pct);
-        await persistProjectEstadoFromPct(p, pct);
+  /* ========= PROGRESO REAL POR TAREAS (vista compartida) ========= */
+  async function fetchTasksForProject(projectId){
+    try{
+      const res = await fetch(`${TASKS_API}?projectId=${encodeURIComponent(projectId)}`, {
+        // ✅ ahora mandamos el X-User-Id (para validar membresía en backend)
+        headers: { "X-User-Id": String(currentUserId || "") }
       });
-      await Promise.all(promises);
+      if (!res.ok) return [];
+      return await res.json();
+    }catch{ return []; }
+  }
+  function calcProgressFromTasks(tasks){
+    const total = tasks.length;
+    const done = tasks.filter(t => (t.status||"").toLowerCase()==="done" || t.completedAt != null || (t.status||"").toLowerCase()==="hecho").length;
+    const pct = total === 0 ? 0 : Math.round((done/total)*100);
+    return { total, done, pct };
+  }
+
+  async function persistProjectEstadoFromPct(p, pct){
+    if (!p || !p.id) return;
+    const nuevo = (pct===0) ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
+    if (p.estado === nuevo) return;
+
+    const payload = {
+      id: p.id,
+      nombreProyecto: p.nombreProyecto,
+      descripcion: p.descripcion,
+      estado: nuevo,
+      equipoId: p.equipoId,
+      fechaInicio: p.fechaInicio || null,
+      fechaFin: p.fechaFin || null,
+      ultimoAcceso: p.ultimoAcceso || null
+    };
+    try{
+      const res = await fetch(`${API_BASE}/${p.id}`, {
+        method:"PUT",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok){
+        const updated = await res.json();
+        p.estado = updated.estado;
+      }
+    }catch(e){ /* no-op */ }
+  }
+
+  function updateRowProgress(projectId, pct){
+    const row = $tbody.querySelector(`tr[data-id="${projectId}"]`);
+    if (!row) return;
+    const bar = row.querySelector(".progress > span");
+    if (bar) bar.style.width = `${pct}%`;
+    const estChip = row.querySelector("td:nth-child(4) .chip");
+    if (estChip){
+      const nuevo = pct===0 ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
+      estChip.textContent = nuevo;
+      estChip.className = estadoToChipClass(nuevo);
+    }
+  }
+
+  async function refreshProgressForAllProjects(){
+    const promises = proyectosCache.map(async (p) => {
+      const tasks = await fetchTasksForProject(p.id);
+      const { pct } = calcProgressFromTasks(tasks);
+      p._progress = pct;
+      updateRowProgress(p.id, pct);
+      await persistProjectEstadoFromPct(p, pct);
+    });
+    await Promise.all(promises);
+    aplicarFiltros();
+  }
+
+  function setDetalle(p) {
+    if (!p) return;
+    selectedProjectId = p.id || null;
+    if ($btnIrHomework) $btnIrHomework.disabled = !selectedProjectId;
+
+    $dNombre.textContent = p.nombreProyecto ?? "—";
+    $dDesc.textContent   = p.descripcion ?? "—";
+
+    const cached = p.equipoId ? (equipoNombreCache.get(p.equipoId) || null) : null;
+    $dEquipo.textContent = cached ?? (p.equipoId ?? "—");
+    if (p.equipoId && !cached){
+      fetchEquipoNombre(p.equipoId).then(name => {
+        if (selectedProjectId === p.id) $dEquipo.textContent = name;
+      });
+    }
+
+    $dIni.textContent    = formatFecha(p.fechaInicio);
+    $dFin.textContent    = formatFecha(p.fechaFin);
+
+    $dEstado.innerHTML   = `<span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span>`;
+    $dAvance.style.width = (typeof p._progress === "number" ? p._progress : estadoToAvance(p.estado)) + "%";
+
+    loadProjectTasksAndProgress(p.id);
+  }
+
+  if ($btnIrHomework) {
+    $btnIrHomework.addEventListener("click", () => {
+      if (!selectedProjectId) return;
+      goToHomework(selectedProjectId);
+    });
+  }
+
+  async function loadProjectTasksAndProgress(projectId){
+    $tasksBox.style.display = "block";
+    $tasksList.innerHTML = `<div class="muted">Cargando tareas…</div>`;
+    $tasksCount.textContent = '';
+
+    const tasks = await fetchTasksForProject(projectId);
+
+    if (!tasks.length) {
+      $tasksList.innerHTML = `<div class="muted">Este proyecto no tiene tareas.</div>`;
+      $tasksCount.textContent = `0 tareas`;
+    } else {
+      $tasksList.innerHTML = tasks.map(t => `
+        <div class="task-item">
+          <div>
+            <div class="task-title">${escapeHtml(t.title || '')}</div>
+            <div class="task-meta">Prio: ${escapeHtml(t.priority||'')} · Est: ${t.estimatedHours??'-'}h ${t.realHours?(' · Real: '+t.realHours+'h'):''}</div>
+          </div>
+          <div><span class="badge status ${escapeHtml((t.status||'todo').toLowerCase())}">${escapeHtml((t.status||'todo'))}</span></div>
+        </div>
+      `).join('');
+      $tasksCount.textContent = `${tasks.length} tarea(s)`;
+    }
+
+    const { pct } = calcProgressFromTasks(tasks);
+    $dAvance.style.width = `${pct}%`;
+    const nuevoEstado = pct===0 ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
+    $dEstado.innerHTML = `<span class="${estadoToChipClass(nuevoEstado)}">${nuevoEstado}</span>`;
+
+    updateRowProgress(projectId, pct);
+
+    const idx = proyectosCache.findIndex(x => x.id === projectId);
+    if (idx >= 0) proyectosCache[idx]._progress = pct;
+
+    if (idx >= 0) {
+      await persistProjectEstadoFromPct(proyectosCache[idx], pct);
       aplicarFiltros();
     }
+  }
 
-    function setDetalle(p) {
-      if (!p) return;
-      selectedProjectId = p.id || null;
-      if ($btnIrHomework) $btnIrHomework.disabled = !selectedProjectId;
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
 
-      $dNombre.textContent = p.nombreProyecto ?? "—";
-      $dDesc.textContent   = p.descripcion ?? "—";
-      $dEquipo.textContent = (p.equipoId ?? "—");
-      $dIni.textContent    = formatFecha(p.fechaInicio);
-      $dFin.textContent    = formatFecha(p.fechaFin);
+  // ====== Cargar equipos donde soy ADMIN y llenar el <select> (crear proyecto)
+  async function cargarEquiposAdminParaSelect() {
+    const $select = document.getElementById("f-equipo");
+    const $help   = document.getElementById("equipos-help");
+    if (!$select) return;
 
-      $dEstado.innerHTML   = `<span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span>`;
-      $dAvance.style.width = (typeof p._progress === "number" ? p._progress : estadoToAvance(p.estado)) + "%";
-
-      loadProjectTasksAndProgress(p.id);
-    }
-
-    if ($btnIrHomework) {
-      $btnIrHomework.addEventListener("click", () => {
-        if (!selectedProjectId) return;
-        goToHomework(selectedProjectId);
-      });
-    }
-
-    async function loadProjectTasksAndProgress(projectId){
-      $tasksBox.style.display = "block";
-      $tasksList.innerHTML = `<div class="muted">Cargando tareas…</div>`;
-      $tasksCount.textContent = '';
-
-      const tasks = await fetchTasksForProject(projectId);
-
-      if (!tasks.length) {
-        $tasksList.innerHTML = `<div class="muted">Este proyecto no tiene tareas.</div>`;
-        $tasksCount.textContent = `0 tareas`;
-      } else {
-        $tasksList.innerHTML = tasks.map(t => `
-          <div class="task-item">
-            <div>
-              <div class="task-title">${escapeHtml(t.title || '')}</div>
-              <div class="task-meta">Prio: ${escapeHtml(t.priority||'')} · Est: ${t.estimatedHours??'-'}h ${t.realHours?(' · Real: '+t.realHours+'h'):''}</div>
-            </div>
-            <div><span class="badge status ${escapeHtml((t.status||'todo').toLowerCase())}">${escapeHtml((t.status||'todo'))}</span></div>
-          </div>
-        `).join('');
-        $tasksCount.textContent = `${tasks.length} tarea(s)`;
-      }
-
-      const { pct } = calcProgressFromTasks(tasks);
-      $dAvance.style.width = `${pct}%`;
-      const nuevoEstado = pct===0 ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
-      $dEstado.innerHTML = `<span class="${estadoToChipClass(nuevoEstado)}">${nuevoEstado}</span>`;
-
-      updateRowProgress(projectId, pct);
-
-      const idx = proyectosCache.findIndex(x => x.id === projectId);
-      if (idx >= 0) proyectosCache[idx]._progress = pct;
-
-      if (idx >= 0) {
-        await persistProjectEstadoFromPct(proyectosCache[idx], pct);
-        aplicarFiltros();
-      }
-    }
-
-    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
-
-    function renderTabla(items) {
-      if (!items.length) {
-        $tbody.innerHTML = `<tr><td colspan="6">No hay proyectos.</td></tr>`;
-        $resumen.innerHTML = `<strong>0</strong> resultado(s)`;
+    const renderOpciones = (equipos) => {
+      if (!equipos?.length) {
+        $select.innerHTML = `<option value="">No tienes equipos como ADMIN</option>`;
+        if ($btnGuardar) $btnGuardar.disabled = true;
+        if ($help) $help.textContent = "No apareces como ADMIN en ningún equipo.";
         return;
       }
-      $resumen.innerHTML = `<strong>${items.length}</strong> resultado(s)`;
-      $tbody.innerHTML = items.map(p => `
-        <tr data-id="${p.id}">
-          <td>${p.id ?? "-"}</td>
-          <td>${p.equipoId ?? "-"}</td>
-          <td>${p.nombreProyecto ?? "-"}</td>
-          <td><span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span></td>
-          <td><div class="progress"><span style="width:${typeof p._progress==='number' ? p._progress : estadoToAvance(p.estado)}%"></span></div></td>
-          <td>
-            <button class="btn-danger btn-xs" onclick="borrarProyecto(${p.id}, event)" title="Borrar proyecto" onkeydown="event.stopPropagation()">Borrar</button>
-          </td>
-        </tr>
-      `).join("");
+      $select.innerHTML = `<option value="">Selecciona un equipo…</option>` +
+        equipos.map(e => `<option value="${e.id}">${escapeHtml(e.nombreEquipo || ("Equipo #" + e.id))}</option>`).join("");
+      validarYActualizarEstado();
+    };
 
-      Array.from($tbody.querySelectorAll("tr")).forEach(tr => {
-        tr.addEventListener("click", (e) => {
-          if (e.target.closest('button')) return;
-          const id = Number(tr.dataset.id);
-          const p = proyectosCache.find(x => x.id === id);
-          setDetalle(p);
-        });
-
-        tr.addEventListener("dblclick", (e) => {
-          if (e.target.closest('button')) return;
-          const id = Number(tr.dataset.id);
-          if (id) goToHomework(id);
-        });
-      });
-    }
-
-    async function cargarProyectos() {
-      try {
-        if (!currentUserId) {
-          $tbody.innerHTML = `<tr><td colspan="6">Inicia sesión para ver tus proyectos.</td></tr>`;
-          return;
-        }
-        const res = await fetch(API_MY);
-        proyectosCache = await res.json();
-
-        aplicarFiltros();
-        await refreshProgressForAllProjects();
-
-        if (proyectosCache[0]) setDetalle(proyectosCache[0]);
-
-      } catch {
-        $tbody.innerHTML = `<tr><td colspan="6">Error al cargar proyectos</td></tr>`;
+    try {
+      const direct = await fetch(`${EQUIPOS_API}?adminId=${encodeURIComponent(currentUserId)}`);
+      if (direct.ok) {
+        const data = await direct.json();
+        renderOpciones(data);
+        return;
       }
-    }
+    } catch { /* no-op */ }
 
-    function mostrarConfirmacion(mensaje, onYes) {
-      const overlay = document.createElement("div");
-      overlay.className = "confirm-overlay";
-      overlay.innerHTML = `
-        <div class="confirm-box">
-          <h3>Confirmar acción</h3>
-          <p>${mensaje}</p>
-          <div class="confirm-buttons">
-            <button class="confirm-btn confirm-cancel">Cancelar</button>
-            <button class="confirm-btn confirm-yes">Sí, borrar</button>
-          </div>
-        </div>
-      `;
-      $confirmRoot.appendChild(overlay);
-      const close = () => overlay.remove();
-      overlay.querySelector(".confirm-cancel").onclick = close;
-      overlay.querySelector(".confirm-yes").onclick = () => { close(); onYes(); };
-      overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
-      document.addEventListener("keydown", function esc(e){ if(e.key === "Escape"){ close(); document.removeEventListener("keydown", esc); }});
-    }
+    $select.innerHTML = `<option value="">Error cargando equipos</option>`;
+    if ($btnGuardar) $btnGuardar.disabled = true;
+  }
 
-    async function borrarProyecto(id, evt) {
-      if (evt) evt.stopPropagation();
-      mostrarConfirmacion("¿Seguro que deseas borrar este proyecto?", async () => {
-        await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
-        proyectosCache = proyectosCache.filter(p => p.id !== id);
-        aplicarFiltros();
-        $tasksBox.style.display = "none";
-        selectedProjectId = null;
-        if ($btnIrHomework) $btnIrHomework.disabled = true;
+  // ====== Validación de formulario (crear proyecto)
+  let formTriedSubmit = false;
+
+  function setFieldState($fieldEl, isValid, show){
+    if (!$fieldEl) return;
+    if (!show){
+      $fieldEl.classList.remove("invalid");
+      return;
+    }
+    if (isValid) $fieldEl.classList.remove("invalid");
+    else $fieldEl.classList.add("invalid");
+  }
+
+  function isNonEmpty(s){ return !!(s && s.trim().length > 0); }
+
+  function validarFormulario(show=false){
+    const nombreOK = isNonEmpty($fNombre.value) && $fNombre.value.trim().length >= 3;
+    const descOK   = isNonEmpty($fDesc.value)   && $fDesc.value.trim().length >= 5;
+    const equipoOK = isNonEmpty($fEquipo.value);
+
+    const ini = $fInicio.value ? new Date($fInicio.value) : null;
+    const fin = $fFin.value    ? new Date($fFin.value)    : null;
+
+    const inicioOK = !!ini && !isNaN(ini.getTime());
+    const finOK    = !!fin && !isNaN(fin.getTime());
+    const rangoOK  = inicioOK && finOK && (ini.getTime() <= fin.getTime());
+
+    setFieldState($fNombreField, nombreOK, show);
+    setFieldState($fDescField,   descOK,   show);
+    setFieldState($fEquipoField, equipoOK, show);
+    setFieldState($fInicioField, inicioOK, show);
+    setFieldState($fFinField,    finOK && rangoOK, show);
+
+    const errors = [];
+    if (!nombreOK) errors.push("• Nombre (mín. 3 caracteres)");
+    if (!descOK)   errors.push("• Descripción (mín. 5 caracteres)");
+    if (!equipoOK) errors.push("• Equipo (selecciona uno)");
+    if (!inicioOK) errors.push("• Fecha inicio (válida)");
+    if (!finOK)    errors.push("• Fecha fin (válida)");
+    else if (!rangoOK) errors.push("• Rango de fechas (Fin ≥ Inicio)");
+
+    return { ok: nombreOK && descOK && equipoOK && inicioOK && finOK && rangoOK, errors };
+  }
+
+  function validarYActualizarEstado(){
+    const { ok } = validarFormulario(false);
+    if ($btnGuardar) $btnGuardar.disabled = !ok;
+    return ok;
+  }
+
+  [$fNombre, $fDesc, $fEquipo, $fInicio, $fFin].forEach(el => {
+    el.addEventListener("input", validarYActualizarEstado);
+    el.addEventListener("change", validarYActualizarEstado);
+  });
+
+  function renderTabla(items) {
+    if (!items.length) {
+      $tbody.innerHTML = `<tr><td colspan="6">No hay proyectos.</td></tr>`;
+      $resumen.innerHTML = `<strong>0</strong> resultado(s)`;
+      return;
+    }
+    $resumen.innerHTML = `<strong>${items.length}</strong> resultado(s)`;
+    $tbody.innerHTML = items.map(p => {
+      const teamName = p.equipoId ? (equipoNombreCache.get(p.equipoId) ?? `Equipo #${p.equipoId}`) : "-";
+      return `
+      <tr data-id="${p.id}">
+        <td>${p.id ?? "-"}</td>
+        <td>${teamName}</td>
+        <td>${p.nombreProyecto ?? "-"}</td>
+        <td><span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span></td>
+        <td><div class="progress"><span style="width:${typeof p._progress==='number' ? p._progress : estadoToAvance(p.estado)}%"></span></div></td>
+        <td>
+          <button class="btn-danger btn-xs" onclick="borrarProyecto(${p.id}, event)" title="Borrar proyecto" onkeydown="event.stopPropagation()">Borrar</button>
+        </td>
+      </tr>`;
+    }).join("");
+
+    Array.from($tbody.querySelectorAll("tr")).forEach(tr => {
+      tr.addEventListener("click", (e) => {
+        if (e.target.closest('button')) return;
+        const id = Number(tr.dataset.id);
+        const p = proyectosCache.find(x => x.id === id);
+        setDetalle(p);
       });
-    }
-    window.borrarProyecto = borrarProyecto;
 
-    async function crearProyecto() {
-      if (!currentUserId) { alert("No hay usuario logueado. Inicia sesión primero."); return; }
-      const nuevo = {
-        nombreProyecto: $fNombre.value.trim(),
-        descripcion: $fDesc.value.trim(),
-        estado: "Pendiente",
-        equipoId: Number($fEquipo.value),
-        fechaInicio: $fInicio.value || null,
-        fechaFin: $fFin.value || null,
-        creadorId: currentUserId
-      };
-      const res = await fetch(API_BASE, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-User-Id": String(currentUserId)
-        },
-        body: JSON.stringify(nuevo)
-      });
-      if (res.ok) {
-        const creado = await res.json();
-        proyectosCache.push(creado);
-        cerrarModal();
-        aplicarFiltros();
-        updateRowProgress(creado.id, 0);
-      } else alert("Error al crear el proyecto.");
-    }
-
-    function aplicarFiltros() {
-      const q = ($buscar.value || "").toLowerCase();
-      const estSel = ($filtro.value || "Todos").toLowerCase();
-      const chipActivo = (document.querySelector(".chip.active")?.dataset.est || "Todos").toLowerCase();
-
-      let items = proyectosCache.filter(p =>
-        (!q || (p.nombreProyecto || "").toLowerCase().includes(q)) &&
-        (
-          estSel === "todos" && chipActivo === "todos"
-            ? true
-            : (p.estado || "").toLowerCase() === estSel || (p.estado || "").toLowerCase() === chipActivo
-        )
-      );
-      if (chipActivo !== "todos") items = items.filter(p => (p.estado || "").toLowerCase() === chipActivo);
-      renderTabla(items);
-    }
-
-    // Chips
-    $chips.querySelectorAll(".chip").forEach(chip => {
-      chip.addEventListener("click", () => {
-        $chips.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-        chip.classList.add("active");
-        aplicarFiltros();
+      tr.addEventListener("dblclick", (e) => {
+        if (e.target.closest('button')) return;
+        const id = Number(tr.dataset.id);
+        if (id) goToHomework(id);
       });
     });
+  }
 
-    // Modal
-    function abrirModal() { $modalOverlay.style.display = "flex"; }
-    function cerrarModal() {
-      $modalOverlay.style.display = "none";
-      $fNombre.value = ""; $fDesc.value = ""; $fEquipo.value = "";
-      $fInicio.value = ""; $fFin.value = "";
+  async function borrarProyecto(id, evt) {
+    if (evt) evt.stopPropagation();
+    mostrarConfirmacion("¿Seguro que deseas borrar este proyecto?", async () => {
+      await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+      proyectosCache = proyectosCache.filter(p => p.id !== id);
+      aplicarFiltros();
+      $tasksBox.style.display = "none";
+      selectedProjectId = null;
+      if ($btnIrHomework) $btnIrHomework.disabled = true;
+    });
+  }
+  window.borrarProyecto = borrarProyecto;
+
+  async function crearProyecto() {
+    if (!currentUserId) { alert("No hay usuario logueado. Inicia sesión primero."); return; }
+
+    const result = validarFormulario(true);
+    if (!result.ok) {
+      alert("Completa correctamente todos los campos:\n\n" + result.errors.join("\n"));
+      return;
     }
-    $btnNuevo.addEventListener("click", e => { e.preventDefault(); abrirModal(); });
-    $btnCancel.addEventListener("click", e => { e.preventDefault(); cerrarModal(); });
-    $btnGuardar.addEventListener("click", e => { e.preventDefault(); crearProyecto(); });
-    $modalOverlay.addEventListener("click", e => { if (e.target === $modalOverlay) cerrarModal(); });
 
-    $buscar.addEventListener("input", aplicarFiltros);
-    $filtro.addEventListener("change", aplicarFiltros);
+    const nuevo = {
+      nombreProyecto: $fNombre.value.trim(),
+      descripcion: $fDesc.value.trim(),
+      estado: "Pendiente",
+      equipoId: Number($fEquipo.value),
+      fechaInicio: $fInicio.value,
+      fechaFin: $fFin.value,
+      creadorId: currentUserId
+    };
+    const res = await fetch(API_BASE, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-User-Id": String(currentUserId) // opcional; tu backend lo usa en /proyectos si lo necesitas
+      },
+      body: JSON.stringify(nuevo)
+    });
+    if (res.ok) {
+      const creado = await res.json();
 
-    document.addEventListener("DOMContentLoaded", cargarProyectos);
-  </script>
+      if (creado?.equipoId && !equipoNombreCache.has(creado.equipoId)) {
+        await fetchEquipoNombre(creado.equipoId);
+      }
+
+      proyectosCache.push(creado);
+      cerrarModal();
+      aplicarFiltros();
+      updateRowProgress(creado.id, 0);
+    } else alert("Error al crear el proyecto.");
+  }
+
+  function aplicarFiltros() {
+    const q = ($buscar.value || "").toLowerCase();
+    const estSel = ($filtro.value || "Todos").toLowerCase();
+    const chipActivo = (document.querySelector(".chip.active")?.dataset.est || "Todos").toLowerCase();
+
+    let items = proyectosCache.filter(p =>
+      (!q || (p.nombreProyecto || "").toLowerCase().includes(q)) &&
+      (
+        estSel === "todos" && chipActivo === "todos"
+          ? true
+          : (p.estado || "").toLowerCase() === estSel || (p.estado || "").toLowerCase() === chipActivo
+      )
+    );
+    if (chipActivo !== "todos") items = items.filter(p => (p.estado || "").toLowerCase() === chipActivo);
+    renderTabla(items);
+  }
+
+  // ===== Confirm UI
+  function mostrarConfirmacion(mensaje, onYes) {
+    const overlay = document.createElement("div");
+    overlay.className = "confirm-overlay";
+    overlay.innerHTML = `
+      <div class="confirm-box">
+        <h3>Confirmar acción</h3>
+        <p>${mensaje}</p>
+        <div class="confirm-buttons">
+          <button class="confirm-btn confirm-cancel">Cancelar</button>
+          <button class="confirm-btn confirm-yes">Sí, borrar</button>
+        </div>
+      </div>
+    `;
+    $confirmRoot.appendChild(overlay);
+    const close = () => overlay.remove();
+    overlay.querySelector(".confirm-cancel").onclick = close;
+    overlay.querySelector(".confirm-yes").onclick = () => { close(); onYes(); };
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+    document.addEventListener("keydown", function esc(e){ if(e.key === "Escape"){ close(); document.removeEventListener("keydown", esc); }});
+  }
+
+  // =======================
+  // CARGA DE PROYECTOS (visibles)
+  // =======================
+  async function getJsonOrNull(url){
+    try{ const r = await fetch(url); if (!r.ok) return null; return await r.json(); }
+    catch{ return null; }
+  }
+
+  // (Robusto) por si algún endpoint sigue devolviendo formato embebido
+  async function fetchUserEquipoIds(userId){
+    const rels = await getJsonOrNull(`http://localhost:8080/usuarios-equipos/usuario/${encodeURIComponent(userId)}`);
+    if (!Array.isArray(rels)) return [];
+    return rels
+      .map(r => (r?.equipoId ?? r?.id?.equipoId))
+      .filter(id => id != null);
+  }
+
+  // ✅ Directo desde /proyectos/visibles/{usuarioId}
+  async function fetchUserVisibleProjects(userId){
+    const direct = await getJsonOrNull(`${API_BASE}/visibles/${encodeURIComponent(userId)}`);
+    if (Array.isArray(direct)) return direct;
+
+    // Fallback defensivo
+    const byId = new Map();
+    const mine = await getJsonOrNull(`${API_BASE}/mios/${encodeURIComponent(userId)}`) || [];
+    for (const p of mine) if (p?.id != null) byId.set(p.id, p);
+
+    const equipoIds = await fetchUserEquipoIds(userId);
+    for (const eid of equipoIds) {
+      const arr = await getJsonOrNull(`${API_BASE}?equipoId=${encodeURIComponent(eid)}`) || [];
+      for (const p of arr) if (p?.id != null) byId.set(p.id, p);
+    }
+    return Array.from(byId.values());
+  }
+
+  async function cargarProyectos() {
+    try {
+      if (!currentUserId) {
+        $tbody.innerHTML = `<tr><td colspan="6">Inicia sesión para ver tus proyectos.</td></tr>`;
+        return;
+      }
+
+      // ✅ Proyectos visibles para el usuario (propios + de equipos miembro)
+      proyectosCache = await fetchUserVisibleProjects(currentUserId);
+
+      // Prefetch nombres de equipos
+      const uniqueEquipoIds = [...new Set(proyectosCache.map(p => p.equipoId).filter(Boolean))];
+      await Promise.all(uniqueEquipoIds.map(id => fetchEquipoNombre(id)));
+
+      aplicarFiltros();
+      await refreshProgressForAllProjects();
+
+      if (proyectosCache[0]) setDetalle(proyectosCache[0]);
+
+    } catch {
+      $tbody.innerHTML = `<tr><td colspan="6">Error al cargar proyectos</td></tr>`;
+    }
+  }
+
+  // Chips
+  $chips.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      $chips.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      aplicarFiltros();
+    });
+  });
+
+  // Modal
+  function abrirModal() {
+    $modalOverlay.style.display = "flex";
+    validarYActualizarEstado();
+    cargarEquiposAdminParaSelect();
+  }
+  function cerrarModal() {
+    $modalOverlay.style.display = "none";
+    $fNombre.value = ""; $fDesc.value = ""; $fEquipo.value = "";
+    $fInicio.value = ""; $fFin.value = "";
+    [$fNombreField,$fDescField,$fEquipoField,$fInicioField,$fFinField].forEach(f=>f.classList.remove("invalid"));
+    if ($btnGuardar) $btnGuardar.disabled = true;
+  }
+
+  $btnNuevo.addEventListener("click", e => { e.preventDefault(); abrirModal(); });
+  $btnCancel.addEventListener("click", e => { e.preventDefault(); cerrarModal(); });
+  $btnGuardar.addEventListener("click", e => { e.preventDefault(); crearProyecto(); });
+  $modalOverlay.addEventListener("click", e => { if (e.target === $modalOverlay) cerrarModal(); });
+
+  $buscar.addEventListener("input", aplicarFiltros);
+  $filtro.addEventListener("change", aplicarFiltros);
+
+  document.addEventListener("DOMContentLoaded", cargarProyectos);
+</script>
+
 </body>
 </html>

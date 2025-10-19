@@ -7,13 +7,11 @@
   <link rel="stylesheet" href="Css/projects.css"/>
   <link rel="stylesheet" href="Css/homework-project.css"/>
 
-    <!-- Sprite de íconos -->
+  <!-- Sprite de íconos -->
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-    <!-- Dashboard -->
     <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.6" d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/>
     </symbol>
-    <!-- Equipos -->
     <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
       <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
       <path d="M7 21v-2a4 4 0 0 1 3-3.87"/>
@@ -21,119 +19,76 @@
       <path d="M5.5 8a3.5 3.5 0 1 0 0 7"/>
       <path d="M18.5 8a3.5 3.5 0 1 1 0 7"/>
     </symbol>
-    <!-- Proyectos -->
     <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.6" d="M3 7h6l2 2h10v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/>
     </symbol>
-    <!-- Tareas -->
     <symbol id="i-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
       <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
       <path d="M12 11h4"/><path d="M12 16h4"/>
       <path d="M8 11h.01"/><path d="M8 16h.01"/>
     </symbol>
-    <!-- KPIs -->
     <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 16v5"/>
-      <path d="M16 14v7"/>
-      <path d="M20 10v11"/>
+      <path d="M12 16v5"/><path d="M16 14v7"/><path d="M20 10v11"/>
       <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/>
-      <path d="M4 18v3"/>
-      <path d="M8 14v7"/>
+      <path d="M4 18v3"/><path d="M8 14v7"/>
     </symbol>
-    <!-- Chatbot -->
     <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <rect x="4" y="8" width="16" height="10" rx="4" stroke-width="1.6"/>
       <circle cx="9" cy="13" r="1" stroke-width="1.6"/>
       <circle cx="15" cy="13" r="1" stroke-width="1.6"/>
       <path stroke-width="1.6" d="M12 4v2m-7 6H4m16 0h1"/>
     </symbol>
-    <!-- Notificaciones -->
     <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.6" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
       <path stroke-width="1.6" d="M13.73 21a2 2 0 0 1-3.46 0"/>
     </symbol>
-    <!-- Ajustes -->
     <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <circle cx="12" cy="12" r="3" />
-      <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0  0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+      <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
     </symbol>
-    <!-- Exit -->
     <symbol id="i-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="m16 17 5-5-5-5"/>
       <path d="M21 12H9"/>
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
     </symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-width="1.6" d="M12 20h9"/><path stroke-width="1.6" d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+    </symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M3 6h18" stroke-width="1.6"/>
+      <path d="M8 6V4h8v2" stroke-width="1.6"/>
+      <rect x="6" y="6" width="12" height="14" rx="2" stroke-width="1.6"/>
+      <path d="M10 11v6M14 11v6" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-width="2" d="M12 5v14M5 12h14"/>
+    </symbol>
   </svg>
 
   <style>
-    body{ background:
-      radial-gradient(1200px 600px at -10% -20%, rgba(225,38,28,.06), transparent 60%),
-      radial-gradient(1200px 600px at 110% -10%, rgba(16,24,40,.06), transparent 55%),
-      var(--bg);
-    }
-    .container-wide{ padding:26px }
-    .page-actions{ display:flex; gap:10px; align-items:center; margin-bottom:14px }
-    .hero-card{
-      padding:20px; border-radius:24px;
-      background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%),
-                 radial-gradient(600px 180px at 20% -40%, rgba(225,38,28,.08), transparent 60%);
-      border:1px solid var(--line); box-shadow:0 16px 40px rgba(17,24,39,.06);
-    }
-    .hero-head{ display:flex; flex-direction:column; gap:6px }
-    .project-title{ margin:0; font-weight:900; letter-spacing:.2px; font-size: clamp(22px, 3.2vw, 28px) }
-    .meta-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap }
-    .project-desc{ color:var(--muted-2); background:#fff; border:1px solid var(--line); padding:6px 10px; border-radius:12px }
-    .team-pill{ background:#fff; border:1px solid var(--line); padding:6px 10px; border-radius:999px; font-size:12px }
-    .status-advance{ margin-top:12px }
-    .status-chip-wrap{ display:flex; gap:8px }
-    .progress-layout{ display:grid; gap:16px; grid-template-columns: 210px 1fr; align-items:center; margin-top:8px; }
-    @media (max-width: 980px){ .progress-layout{ grid-template-columns: 1fr } }
-    .board{ display:grid; gap:12px; grid-template-columns: repeat(2, minmax(0,1fr)); }
-    @media (max-width: 720px){ .board{ grid-template-columns: 1fr } }
-    .stat-card{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:12px 14px; display:flex; flex-direction:column; gap:8px; }
-    .stat-card .label{ font-size:12px; color:var(--muted-2); font-weight:700 }
-    .stat-card .value{ font-weight:900 }
-    .radial-wrap{ display:flex; align-items:center; justify-content:center; background:#fff; border:1px solid var(--line); border-radius:18px; padding:16px; }
-    .radial-progress{ --p:0; width:150px; height:150px; border-radius:50%;
-      background: conic-gradient(var(--brand) calc(var(--p)*1%), #eef1f6 0);
-      display:grid; place-items:center; color:#111; position:relative; box-shadow: inset 0 0 0 1px #f3f4f6;
-    }
-    .radial-progress::after{ content:""; position:absolute; inset:12px; background:#fff; border-radius:50%; box-shadow: inset 0 0 0 1px var(--line); }
-    .radial-progress > span{ position:relative; font-weight:900; font-size:22px }
-    .tasks-card{ border-radius:24px; border:1px solid var(--line); background:linear-gradient(180deg,#fff 0%, #fbfcff 100%); box-shadow: var(--shadow-md); }
-    .tasks-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--line); }
-    .tasks-head h2{ margin:0; font-size:18px; font-weight:900 }
-    .task-form{ padding:14px 16px; display:grid; gap:10px; grid-template-columns: 1.2fr .8fr .7fr auto; align-items:start }
-    .task-form textarea{ min-height:38px; height:38px; resize:vertical; max-height:140px }
-    @media (max-width: 980px){ .task-form{ grid-template-columns: 1fr 1fr } .task-form .span-2{ grid-column: 1 / -1 } }
-    .field{ display:flex; flex-direction:column; gap:6px }
-    .field label{ font-size:12px; color:var(--muted) }
-    .field input, .field select, .field textarea{ border:1px solid var(--line-2); border-radius:12px; padding:9px 12px; background:#fff; color:#111; outline:none; transition:border-color .12s ease, box-shadow .12s ease; }
-    .field input:focus, .field select:focus, .field textarea:focus{ border-color:#d4dae1; box-shadow:0 0 0 4px rgba(225,38,28,.08) }
-    .hint{ font-size:11px; color:#6b7280 }
-    .hint .ok{ color:#0a7a2e; font-weight:700 }
-    .hint .bad{ color:#b42318; font-weight:700 }
-    .tasks-list{ padding:6px 16px 16px 16px }
-    .task-item{ border:1px solid var(--line); border-radius:14px; background:#fff; padding:10px 12px; margin:10px 0; display:grid; grid-template-columns: auto 1fr auto; gap:10px; align-items:center; box-shadow: var(--shadow-sm); }
-    .task-title{ font-weight:900 }
-    .task-meta{ font-size:12px; color:#64748b }
-    .task-actions{ display:flex; gap:6px; align-items:center }
-    .badge{ font-size:12px; border:1px solid var(--line); padding:2px 8px; border-radius:999px; background:#fff }
-    .badge.status.todo{ background:#fff4f3 }
-    .badge.status.done{ background:#e9fff0 }
-    .desc-toggle{ cursor:pointer; font-size:12px; color:#1a56db; text-decoration:underline; background:none; border:none; padding:0 }
-    .task-desc{ grid-column: 2 / -1; margin-top:-4px; margin-bottom:2px; padding:10px; border-radius:10px; background:#f8fafc; color:#334155; border:1px dashed #e6e9ef; display:none; }
-    .task-desc.show{ display:block }
-    .btn-danger.btn-xs{ padding:6px 10px; border-radius:10px; font-size:11px }
-    .btn-ghost{ display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border-radius:12px; background:#fff; color:var(--dark); border:1px solid var(--line-2); font-weight:800; font-size:13px; text-decoration:none; cursor:pointer; box-shadow: var(--shadow-sm); }
-    .btn-ghost:hover{ transform: translateY(-1px); box-shadow: var(--shadow-md); border-color:#d9dde3; }
+    .page-actions{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px }
+    .page-actions .right-actions{ display:flex; gap:10px; align-items:center }
+    .btn-fab .ico{ width:18px; height:18px }
+    .member-item { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border:1px solid var(--line); border-radius:10px; margin:6px 0; background:#fff }
+    .member-name { font-weight:700 }
+    .role-badge { font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); background:#f8fafc }
+    .role-badge.admin { background:#fff4f3 }
+    .role-badge.super { background:#fff8e6 }
+    .role-badge.user  { background:#e9fff0 }
+
+    /* Confirm modal */
+    .confirm-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:9999 }
+    .confirm-overlay.open{ display:flex }
+    .confirm-box{ width:420px; max-width:95%; background:#fff; border-radius:16px; padding:18px 20px; box-shadow:0 8px 32px rgba(0,0,0,.25) }
+    .confirm-title{ font-weight:800; font-size:16px; margin-bottom:6px }
+    .confirm-msg{ color:#334155; font-size:14px }
+    .confirm-actions{ margin-top:14px; display:flex; justify-content:flex-end; gap:10px }
   </style>
 </head>
 
 <body>
-
-      <!-- Topbar -->
+  <!-- Topbar -->
   <header class="topbar">
     <div class="brand">
       <h1 class="logo-text">TMDV</h1>
@@ -148,50 +103,28 @@
   </header>
 
   <div class="app">
-        <!-- Sidebar -->
     <aside class="aside">
       <nav class="menu">
-        <a class="mi" href="/dashboard.html">
-          <svg class="ico"><use href="#i-dashboard"/></svg>
-          <span>Dashboard</span>
-        </a>
-        <a class="mi" href="/Equipos.html">
-          <svg class="ico"><use href="#i-users"/></svg>
-          <span>Equipos</span>
-        </a>
-        <a class="mi active" href="/projects.html">
-          <svg class="ico"><use href="#i-folder"/></svg>
-          <span>Proyectos</span>
-        </a>
-        <a class="mi" href="/tarea.html">
-          <svg class="ico"><use href="#i-board"/></svg>
-          <span>Tareas</span>
-        </a>
-        <a class="mi" href="/KPIs.html">
-          <svg class="ico"><use href="#i-chart"/></svg>
-          <span>KPIs</span>
-        </a>
-        <a class="mi" href="/chatbot.html">
-          <svg class="ico"><use href="#i-bot"/></svg>
-          <span>Chatbot</span>
-        </a>
-        <a class="mi" href="/notifications.html">
-          <svg class="ico"><use href="#i-bell"/></svg>
-          <span>Notificaciones</span>
-        </a>
-        <a class="mi" href="/settings.html">
-          <svg class="ico"><use href="#i-gear"/></svg>
-          <span>Ajustes</span>
-        </a>
+        <a class="mi" href="/dashboard.html"><svg class="ico"><use href="#i-dashboard"/></svg><span>Dashboard</span></a>
+        <a class="mi" href="/Equipos.html"><svg class="ico"><use href="#i-users"/></svg><span>Equipos</span></a>
+        <a class="mi active" href="/projects.html"><svg class="ico"><use href="#i-folder"/></svg><span>Proyectos</span></a>
+        <a class="mi" href="/tarea.html"><svg class="ico"><use href="#i-board"/></svg><span>Tareas</span></a>
+        <a class="mi" href="/KPIs.html"><svg class="ico"><use href="#i-chart"/></svg><span>KPIs</span></a>
+        <a class="mi" href="/chatbot.html"><svg class="ico"><use href="#i-bot"/></svg><span>Chatbot</span></a>
+        <a class="mi" href="/notifications.html"><svg class="ico"><use href="#i-bell"/></svg><span>Notificaciones</span></a>
+        <a class="mi" href="/settings.html"><svg class="ico"><use href="#i-gear"/></svg><span>Ajustes</span></a>
       </nav>
     </aside>
 
     <main class="container container-wide">
       <div class="page-actions">
         <a href="projects.html" class="btn btn-outline">← Volver</a>
-        <button id="btn-editar" class="btn btn-primary">Editar proyecto</button>
+        <div class="right-actions">
+          <button id="btn-editar" class="btn btn-primary">Editar proyecto</button>
+        </div>
       </div>
 
+      <!-- Hero Proyecto -->
       <section class="card hero-card">
         <div class="hero-head">
           <h1 class="project-title" id="vm-nombre">Nombre del proyecto</h1>
@@ -232,55 +165,53 @@
         </div>
       </section>
 
-      <section class="tasks-card">
-        <div class="tasks-head">
-          <h2 class="h6">Tareas del proyecto</h2>
-          <button id="btn-refrescar" class="btn-ghost">↻ Refrescar</button>
+      <!-- Tareas + Integrantes -->
+      <section class="two-col">
+        <!-- Col izquierda: TAREAS -->
+        <div class="col">
+          <section class="tasks-card">
+            <div class="tasks-head">
+              <h2 class="h6">Tareas del proyecto</h2>
+              <button id="btn-open-task-modal" class="btn-fab">
+                <svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>
+                Crear tarea
+              </button>
+            </div>
+            <div id="tasks-list" class="tasks-list">
+              <div class="muted" style="padding:6px 0 12px">Cargando tareas…</div>
+            </div>
+          </section>
         </div>
 
-        <div class="task-form">
-          <div class="field">
-            <label for="t-title">Título</label>
-            <input id="t-title" placeholder="Ej. Diseñar mockups de login">
-            <div class="hint" id="hint-title">Obligatorio</div>
-          </div>
-
-          <div class="field">
-            <label for="t-estimated">Horas estimadas (≤ 4)</label>
-            <input id="t-estimated" type="number" step="0.5" min="0" max="4" placeholder="Ej. 2">
-            <div class="hint" id="hint-est">Recomendado: ≤ 4h</div>
-          </div>
-
-          <div class="field">
-            <label for="t-priority">Prioridad</label>
-            <select id="t-priority">
-              <option value="">Seleccionar</option>
-              <option>Alta</option>
-              <option>Media</option>
-              <option>Baja</option>
-            </select>
-          </div>
-
-          <div class="field span-2">
-            <label for="t-desc">Descripción</label>
-            <textarea id="t-desc" placeholder="Breve detalle de la tarea…"></textarea>
-            <div class="hint" id="hint-desc"><span id="desc-count">0</span>/300</div>
-          </div>
-
-          <div class="field">
-            <label>&nbsp;</label>
-            <button id="btn-add-task" class="btn btn-primary">+ Agregar</button>
-          </div>
-        </div>
-
-        <div id="tasks-list" class="tasks-list">
-          <div class="muted" style="padding:6px 0 12px">Cargando tareas…</div>
-        </div>
+        <!-- Col derecha: INTEGRANTES -->
+        <aside class="col">
+          <section class="card members-card">
+            <div class="members-head">
+              <h2 class="h6">Integrantes del equipo</h2>
+              <span id="members-count" class="tiny muted">—</span>
+            </div>
+            <div id="members-list" class="members-list">
+              <div class="muted">Cargando integrantes…</div>
+            </div>
+          </section>
+        </aside>
       </section>
     </main>
   </div>
 
   <div id="toast-stack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Confirmación -->
+  <div id="confirm-overlay" class="confirm-overlay" aria-hidden="true">
+    <div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+      <div class="confirm-title" id="confirm-title">Confirmar acción</div>
+      <div id="confirm-msg" class="confirm-msg">¿Seguro que deseas borrar esta tarea?</div>
+      <div class="confirm-actions">
+        <button id="confirm-cancel" class="btn btn-outline">Cancelar</button>
+        <button id="confirm-yes" class="btn btn-danger">Sí, borrar</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Modal Edición Proyecto -->
   <div id="edit-modal-overlay" class="edit-modal-overlay" aria-hidden="true">
@@ -289,7 +220,6 @@
         <h2 class="h6" id="edit-modal-title">Editar proyecto <span id="p-id">—</span></h2>
         <button id="btn-close-modal" class="icon-btn" aria-label="Cerrar">✕</button>
       </div>
-
       <div class="edit-modal-body">
         <div class="grid2">
           <div class="field">
@@ -312,29 +242,8 @@
             <label>Fin</label>
             <input id="p-fin" type="date">
           </div>
-          <div class="field">
-            <label>Estado</label>
-            <select id="p-estado-sel">
-              <option value="Pendiente">Pendiente</option>
-              <option value="En curso">En curso</option>
-              <option value="Finalizado">Finalizado</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="edit-progress" style="display:flex; align-items:center; gap:12px; margin-top:10px;">
-          <div class="radial-wrap" style="padding:10px">
-            <div id="p-radial" class="radial-progress" style="--p:0; width:80px;height:80px">
-              <span id="p-percent" style="font-size:14px">0%</span>
-            </div>
-          </div>
-          <div style="flex:1">
-            <div class="progress"><span id="p-avance" style="width:0%"></span></div>
-            <div class="tiny muted" id="p-avance-text">0%</div>
-          </div>
         </div>
       </div>
-
       <div class="edit-modal-footer" style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
         <button id="btn-cancelar" class="btn btn-outline">Cancelar</button>
         <button id="btn-guardar" class="btn btn-primary">Guardar</button>
@@ -342,12 +251,115 @@
     </div>
   </div>
 
+  <!-- Modal Crear Tarea -->
+  <div id="task-create-overlay" class="edit-modal-overlay task-modal" aria-hidden="true">
+    <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="task-create-title">
+      <div class="edit-modal-header">
+        <h2 class="h6" id="task-create-title">Crear tarea</h2>
+        <button id="btn-close-task-create" class="icon-btn" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="edit-modal-body">
+        <div class="grid2">
+          <div class="field field-full">
+            <label>Título <span class="tiny muted">(obligatorio)</span></label>
+            <input id="ct-title" type="text" placeholder="Ej. Diseñar mockups de login">
+          </div>
+
+          <div class="field">
+            <label>Horas estimadas (≤ 4)</label>
+            <input id="ct-estimated" type="number" step="0.5" min="0" max="4" placeholder="Ej. 2">
+          </div>
+
+          <div class="field">
+            <label>Prioridad</label>
+            <select id="ct-priority">
+              <option value="">Seleccionar</option>
+              <option>Alta</option>
+              <option>Media</option>
+              <option>Baja</option>
+            </select>
+          </div>
+
+          <!-- Asignado a -->
+          <div class="field field-full">
+            <label>Asignado a</label>
+            <select id="ct-assignee">
+              <option value="">Seleccionar miembro del equipo</option>
+            </select>
+            <div class="hint tiny muted">Solo se muestra nombre y rol.</div>
+          </div>
+
+          <div class="field field-full">
+            <label>Descripción <span class="tiny muted">(máx. 300)</span></label>
+            <textarea id="ct-desc" placeholder="Breve detalle de la tarea…" rows="4"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="edit-modal-footer" style="display:flex; justify-content:flex-end; gap:10px;">
+        <button id="btn-cancel-task-create" class="btn btn-outline">Cancelar</button>
+        <button id="btn-save-task-create" class="btn btn-primary">Crear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar Tarea -->
+  <div id="task-edit-overlay" class="edit-modal-overlay task-modal" aria-hidden="true">
+    <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="task-edit-title">
+      <div class="edit-modal-header">
+        <h2 class="h6" id="task-edit-title">Editar tarea <span id="et-id">—</span></h2>
+        <button id="btn-close-task-edit" class="icon-btn" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="edit-modal-body">
+        <div class="grid2">
+          <div class="field field-full">
+            <label>Título</label>
+            <input id="et-title" type="text" placeholder="Título de la tarea">
+          </div>
+
+          <div class="field">
+            <label>Horas estimadas (≤ 4)</label>
+            <input id="et-estimated" type="number" step="0.5" min="0" max="4" placeholder="Ej. 2">
+          </div>
+
+          <div class="field">
+            <label>Prioridad</label>
+            <select id="et-priority">
+              <option value="">Seleccionar</option>
+              <option>Alta</option>
+              <option>Media</option>
+              <option>Baja</option>
+            </select>
+          </div>
+
+          <!-- Asignado a -->
+          <div class="field field-full">
+            <label>Asignado a</label>
+            <select id="et-assignee">
+              <option value="">Seleccionar miembro del equipo</option>
+            </select>
+          </div>
+
+          <div class="field field-full">
+            <label>Descripción</label>
+            <textarea id="et-desc" placeholder="Breve detalle…" rows="4"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="edit-modal-footer" style="display:flex; justify-content:flex-end; gap:10px;">
+        <button id="btn-cancel-task-edit" class="btn btn-outline">Cancelar</button>
+        <button id="btn-save-task-edit" class="btn btn-primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     /* ================== CONFIG ================== */
-    const API_BASE  = "http://localhost:8080/proyectos";
-    const TASKS_API = "/api/tasks";
+    const API_BASE     = "http://localhost:8080/proyectos";
+    const TASKS_API    = "http://localhost:8080/api/tasks";
+    const EQUIPOS_API  = "http://localhost:8080/equipos";
+    const USUARIOS_API = "http://localhost:8080/usuarios";
 
-    /* ========= UTILIDADES ========= */
+    /* ========= UTIL ========= */
     function qs(name){ return new URL(window.location.href).searchParams.get(name); }
     function estadoToChipClass(estado){
       switch((estado||"").toLowerCase()){
@@ -357,47 +369,36 @@
         default: return "chip";
       }
     }
-    function fmtFecha(iso){
-      if(!iso) return "—";
-      const d = new Date(iso);
-      if (isNaN(d.getTime())) return iso;
-      return d.toLocaleDateString();
-    }
-    function toISODateInput(iso){
-      if(!iso) return "";
-      const d = new Date(iso);
-      if (isNaN(d.getTime())) return iso;
-      const yy = d.getFullYear(), mm = String(d.getMonth()+1).padStart(2,"0"), dd = String(d.getDate()).padStart(2,"0");
-      return `${yy}-${mm}-${dd}`;
-    }
-    function getRadialPercent(el){
-      const v = getComputedStyle(el).getPropertyValue('--p').trim();
-      const n = parseFloat(v || '0');
-      return isNaN(n) ? 0 : n;
-    }
+    function fmtFecha(iso){ if(!iso) return "—"; const d = new Date(iso); return isNaN(d.getTime()) ? iso : d.toLocaleDateString(); }
+    function toISODateInput(iso){ if(!iso) return ""; const d = new Date(iso); if (isNaN(d.getTime())) return iso; const yy=d.getFullYear(),mm=String(d.getMonth()+1).padStart(2,"0"),dd=String(d.getDate()).padStart(2,"0"); return `${yy}-${mm}-${dd}`; }
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]) ); }
     function easeInOut(t){ return t<.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2; }
+    function getRadialPercent(el){ const v = getComputedStyle(el).getPropertyValue('--p').trim(); const n = parseFloat(v||'0'); return isNaN(n)?0:n; }
     function setRadialAnimated(el, toPercent, labelEl, duration=600){
-      const from = getRadialPercent(el);
-      const to = Math.max(0, Math.min(100, toPercent|0));
-      if (from === to){
-        if (labelEl) labelEl.textContent = to + "%";
-        el.style.setProperty('--p', to);
-        return;
-      }
+      const from = getRadialPercent(el); const to = Math.max(0, Math.min(100, toPercent|0));
+      if (from === to){ if(labelEl) labelEl.textContent = to + "%"; el.style.setProperty('--p', to); return; }
       const start = performance.now();
-      function step(now){
-        const t = Math.min(1, (now - start) / duration);
-        const eased = easeInOut(t);
-        const val = Math.round(from + (to - from) * eased);
-        el.style.setProperty('--p', val);
-        if (labelEl) labelEl.textContent = val + "%";
-        if (t < 1) requestAnimationFrame(step);
+      function step(now){ const t = Math.min(1, (now-start)/duration); const eased = easeInOut(t);
+        const val = Math.round(from + (to-from)*eased);
+        el.style.setProperty('--p', val); if (labelEl) labelEl.textContent = val + "%";
+        if (t<1) requestAnimationFrame(step);
       }
       requestAnimationFrame(step);
     }
-    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
 
-    // Toasts
+    /* ========= SESIÓN ========= */
+    const sessionUser  = JSON.parse(localStorage.getItem("user") || "null");
+    const sessionEmail = sessionUser?.email || "";
+    const $userInitial = document.querySelector(".user-circle");
+    if ($userInitial && (sessionUser?.nombre || sessionUser?.email)) {
+      const ch = (sessionUser?.nombre?.trim()?.[0] ?? sessionUser?.email?.trim()?.[0] ?? "U").toUpperCase();
+      $userInitial.textContent = ch;
+    }
+    function mustHaveEmail(){
+      if(!sessionEmail){ showToast({type:"error", title:"Sesión requerida", message:"Inicia sesión para gestionar tareas."}); throw new Error("No session email"); }
+    }
+
+    /* ========= TOASTS ========= */
     const $toastStack = document.getElementById('toast-stack');
     function showToast({type="success", title="Listo", message="", timeout=3000}={}){
       const item = document.createElement('div');
@@ -422,16 +423,6 @@
       item.addEventListener('mouseleave', ()=>{ bar.style.animationPlayState="running"; setTimeout(dismiss, 1200); });
     }
 
-    /* ========= SESIÓN ========= */
-    const sessionUser  = JSON.parse(localStorage.getItem("user") || "null");
-    const sessionEmail = sessionUser?.email || "";
-    function mustHaveEmail(){
-      if(!sessionEmail){
-        showToast({type:"error", title:"Sesión requerida", message:"Inicia sesión para gestionar tareas."});
-        throw new Error("No session email");
-      }
-    }
-
     /* ========= REFS VISTA ========= */
     const $vmNombre = document.getElementById("vm-nombre");
     const $vmEquipo = document.getElementById("vm-equipo");
@@ -445,11 +436,111 @@
     const $tasksSummary = document.getElementById("tasks-summary");
 
     const $btnEditar = document.getElementById("btn-editar");
-    const $btnRefrescar = document.getElementById("btn-refrescar");
+    const $tasksListEl  = document.getElementById("tasks-list");
 
-    // Modal edición
+    // Crear Tarea
+    const $taskCreateOverlay = document.getElementById("task-create-overlay");
+    const $btnOpenTaskModal  = document.getElementById("btn-open-task-modal");
+    const $btnCloseTaskCreate= document.getElementById("btn-close-task-create");
+    const $btnCancelTaskCreate= document.getElementById("btn-cancel-task-create");
+    const $btnSaveTaskCreate = document.getElementById("btn-save-task-create");
+    const $ctTitle     = document.getElementById("ct-title");
+    const $ctEstimated = document.getElementById("ct-estimated");
+    const $ctPriority  = document.getElementById("ct-priority");
+    const $ctDesc      = document.getElementById("ct-desc");
+    const $ctAssignee  = document.getElementById("ct-assignee");
+
+    // Editar Tarea
+    const $taskEditOverlay = document.getElementById("task-edit-overlay");
+    const $btnCloseTaskEdit= document.getElementById("btn-close-task-edit");
+    const $btnCancelTaskEdit= document.getElementById("btn-cancel-task-edit");
+    const $btnSaveTaskEdit = document.getElementById("btn-save-task-edit");
+    const $etId = document.getElementById("et-id");
+    const $etTitle     = document.getElementById("et-title");
+    const $etEstimated = document.getElementById("et-estimated");
+    const $etPriority  = document.getElementById("et-priority");
+    const $etDesc      = document.getElementById("et-desc");
+    const $etAssignee  = document.getElementById("et-assignee");
+
+    /* ========= ESTADO ========= */
+    let proyectoActual = null;
+    let tareasCache = [];
+    let teamMembersCache = []; // [{usuarioId, rol, nombre}]
+    let isTeamAdmin = false;   // 🔑
+
+    /* ========= MODALES ========= */
+    function openEl(ov){ ov.classList.add("open"); ov.setAttribute("aria-hidden","false"); }
+    function closeEl(ov){ ov.classList.remove("open"); ov.setAttribute("aria-hidden","true"); }
+
+    $btnOpenTaskModal?.addEventListener("click", ()=>{ populateAssigneeSelect($ctAssignee); openEl($taskCreateOverlay); });
+    $btnCloseTaskCreate?.addEventListener("click", ()=> closeEl($taskCreateOverlay));
+    $btnCancelTaskCreate?.addEventListener("click", (e)=>{ e.preventDefault(); closeEl($taskCreateOverlay); });
+
+    $btnCloseTaskEdit?.addEventListener("click", ()=> closeEl($taskEditOverlay));
+    $btnCancelTaskEdit?.addEventListener("click", (e)=>{ e.preventDefault(); closeEl($taskEditOverlay); });
+
+    /* ========= CONFIRM DIALOG ========= */
+    const $confirm = document.getElementById('confirm-overlay');
+    function confirmDialog(message="¿Seguro que deseas continuar?"){
+      return new Promise(resolve=>{
+        document.getElementById('confirm-msg').textContent = message;
+        openEl($confirm);
+        const onYes = ()=>{ cleanup(); resolve(true); };
+        const onNo  = ()=>{ cleanup(); resolve(false); };
+        function cleanup(){
+          document.getElementById('confirm-yes').removeEventListener('click', onYes);
+          document.getElementById('confirm-cancel').removeEventListener('click', onNo);
+          closeEl($confirm);
+        }
+        document.getElementById('confirm-yes').addEventListener('click', onYes);
+        document.getElementById('confirm-cancel').addEventListener('click', onNo);
+        $confirm.addEventListener('click', (e)=>{ if(e.target===$confirm) onNo(); }, {once:true});
+        document.addEventListener('keydown', function esc(e){ if(e.key==='Escape'){ onNo(); document.removeEventListener('keydown', esc); } }, {once:true});
+      });
+    }
+
+    /* ========= PROYECTO ========= */
+    async function fetchEquipoNombre(equipoId){
+      if (equipoId == null) return "—";
+      try{ const res = await fetch(`${EQUIPOS_API}/${equipoId}`); if(!res.ok) return `Equipo #${equipoId}`;
+        const eq = await res.json(); return eq.nombreEquipo || `Equipo #${equipoId}`;
+      }catch(_){ return `Equipo #${equipoId}`; }
+    }
+
+    async function pintarView(p){
+      $vmNombre.textContent = p.nombreProyecto || "—";
+      $vmDesc.textContent   = p.descripcion || "—";
+      $vmEstadoChip.className = estadoToChipClass(p.estado);
+      $vmEstadoChip.textContent = p.estado || "—";
+      $vmIni.textContent = fmtFecha(p.fechaInicio);
+      $vmFin.textContent = fmtFecha(p.fechaFin);
+      const teamName = await fetchEquipoNombre(p.equipoId);
+      $vmEquipo.textContent = teamName;
+      const initialPct = (p.estado==="Finalizado") ? 100 : (p.estado==="En curso" ? 50 : 0);
+      setRadialAnimated($vmRadial, initialPct, $vmPercent, 600);
+      $vmBar.style.width = initialPct + "%";
+    }
+
+    async function cargarProyecto(){
+      const id = qs("id");
+      if(!id){ showToast({type:"error", title:"Falta el id", message:"No se encontró ?id en la URL"}); window.location.href = "projects.html"; return; }
+      try{
+        const res = await fetch(`${API_BASE}/${id}`);
+        if(!res.ok) throw new Error("No encontrado");
+        const p = await res.json();
+        proyectoActual = p;
+        await pintarView(p);
+        await loadTeamMembers(p.equipoId); // establece isTeamAdmin
+        await loadTasks(p.id);
+        await renderMembersList();
+      }catch(e){
+        showToast({type:"error", title:"No se pudo cargar", message:"Intenta de nuevo más tarde"});
+        window.location.href = "projects.html";
+      }
+    }
+
+    /* ========= EDITAR PROYECTO ========= */
     const $overlay = document.getElementById("edit-modal-overlay");
-    const $btnClose = document.getElementById("btn-close-modal");
     const $btnCancelar = document.getElementById("btn-cancelar");
     const $btnGuardar = document.getElementById("btn-guardar");
     const $pId = document.getElementById("p-id");
@@ -458,67 +549,7 @@
     const $descP  = document.getElementById("p-desc");
     const $inicio = document.getElementById("p-inicio");
     const $fin    = document.getElementById("p-fin");
-    const $estadoSel = document.getElementById("p-estado-sel");
-    const $pRadial = document.getElementById("p-radial");
-    const $pPercent= document.getElementById("p-percent");
-    const $pAvance = document.getElementById("p-avance");
-    const $pAvanceText = document.getElementById("p-avance-text");
 
-    // Tareas
-    const $tasksListEl  = document.getElementById("tasks-list");
-    const $btnAddTask   = document.getElementById("btn-add-task");
-    const $tTitle       = document.getElementById("t-title");
-    const $tEstimated   = document.getElementById("t-estimated");
-    const $tPriority    = document.getElementById("t-priority");
-    const $tDesc        = document.getElementById("t-desc");
-    const $descCount    = document.getElementById("desc-count");
-
-    /* ========= ESTADO ========= */
-    let proyectoActual = null;
-    let tareasCache = [];
-
-    /* ========= HELPERS UI ========= */
-    $tDesc.addEventListener("input", ()=>{
-      const len = ($tDesc.value || "").length;
-      $descCount.textContent = len;
-      if (len > 300) $tDesc.value = $tDesc.value.slice(0, 300);
-    });
-
-    function pintarView(p){
-      $vmNombre.textContent = p.nombreProyecto || "—";
-      $vmEquipo.textContent = (p.equipoId ?? "—");
-      $vmDesc.textContent   = p.descripcion || "—";
-      $vmEstadoChip.className = estadoToChipClass(p.estado);
-      $vmEstadoChip.textContent = p.estado || "—";
-      $vmIni.textContent = fmtFecha(p.fechaInicio);
-      $vmFin.textContent = fmtFecha(p.fechaFin);
-
-      const initialPct = (p.estado==="Finalizado") ? 100 : (p.estado==="En curso" ? 50 : 0);
-      setRadialAnimated($vmRadial, initialPct, $vmPercent, 600);
-      $vmBar.style.width = initialPct + "%";
-    }
-
-    async function cargarProyecto(){
-      const id = qs("id");
-      if(!id){
-        showToast({type:"error", title:"Falta el id", message:"No se encontró ?id en la URL"});
-        window.location.href = "projects.html";
-        return;
-      }
-      try{
-        const res = await fetch(`${API_BASE}/${id}`);
-        if(!res.ok) throw new Error("No encontrado");
-        const p = await res.json();
-        proyectoActual = p;
-        pintarView(p);
-        await loadTasks(p.id);
-      }catch(e){
-        showToast({type:"error", title:"No se pudo cargar", message:"Intenta de nuevo más tarde"});
-        window.location.href = "projects.html";
-      }
-    }
-
-    /* ========= MODAL EDICIÓN ========= */
     function openModal(){
       if(!proyectoActual) return;
       const p = proyectoActual;
@@ -528,29 +559,11 @@
       $descP.value  = p.descripcion || "";
       $inicio.value = toISODateInput(p.fechaInicio);
       $fin.value    = toISODateInput(p.fechaFin);
-      $estadoSel.value = p.estado || "Pendiente";
-
-      const av = (p.estado==="Finalizado") ? 100 : (p.estado==="En curso" ? 50 : 0);
-      setRadialAnimated($pRadial, av, $pPercent, 500);
-      $pAvance.style.width = av + "%";
-      $pAvanceText.textContent = av + "%";
-
-      $overlay.classList.add("open");
-      $overlay.setAttribute("aria-hidden","false");
+      openEl($overlay);
     }
-    function closeModal(){
-      $overlay.classList.remove("open");
-      $overlay.setAttribute("aria-hidden","true");
-    }
-    $estadoSel.addEventListener("change", () => {
-      const est = $estadoSel.value;
-      const av = (est==="Finalizado") ? 100 : (est==="En curso" ? 50 : 0);
-      setRadialAnimated($pRadial, av, $pPercent, 500);
-      $pAvance.style.width = av + "%";
-      $pAvanceText.textContent = av + "%";
-    });
+    function closeModal(){ closeEl($overlay); }
     $btnEditar.addEventListener("click", openModal);
-    $btnClose.addEventListener("click", closeModal);
+    document.getElementById("btn-close-modal").addEventListener("click", closeModal);
     $overlay.addEventListener("click", (e) => { if (e.target === $overlay) closeModal(); });
     $btnCancelar.addEventListener("click", (e) => { e.preventDefault(); closeModal(); });
     $btnGuardar.addEventListener("click", async () => {
@@ -559,7 +572,7 @@
         id: proyectoActual.id,
         nombreProyecto: $nombre.value.trim(),
         descripcion: $descP.value.trim(),
-        estado: $estadoSel.value,
+        estado: proyectoActual.estado,
         equipoId: Number($equipo.value||0),
         fechaInicio: $inicio.value || null,
         fechaFin: $fin.value || null,
@@ -567,16 +580,16 @@
       };
       try{
         const res = await fetch(`${API_BASE}/${proyectoActual.id}`, {
-          method:"PUT",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify(payload)
+          method:"PUT", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(payload)
         });
         if (res.ok){
           proyectoActual = await res.json();
-          pintarView(proyectoActual);
+          await pintarView(proyectoActual);
           closeModal();
           showToast({type:"success", title:"Cambios guardados", message:"El proyecto se actualizó correctamente."});
-          updateProgressFromTasks(); // re-sincroniza visual con tareas
+          updateProgressFromTasks();
+          await loadTeamMembers(proyectoActual.equipoId);
+          await renderMembersList();
         } else {
           showToast({type:"error", title:"Error al guardar", message:"Revisa los datos e inténtalo nuevamente."});
         }
@@ -584,9 +597,9 @@
         showToast({type:"error", title:"Error de red", message:"No se pudo conectar con el servidor."});
       }
     });
-    document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closeModal(); });
+    document.addEventListener("keydown", (e)=>{ if(e.key==="Escape"){ closeModal(); closeEl($taskCreateOverlay); closeEl($taskEditOverlay); } });
 
-    /* ========= PERSISTIR ESTADO DESDE % ========= */
+    /* ========= ESTADO POR % ========= */
     async function persistProjectEstadoFromPct(pct){
       if (!proyectoActual?.id) return;
       const nuevo = (pct===0) ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
@@ -603,24 +616,112 @@
       };
       try{
         const res = await fetch(`${API_BASE}/${proyectoActual.id}`, {
-          method:"PUT",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify(payload)
+          method:"PUT", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(payload)
         });
         if (res.ok){
           const updated = await res.json();
           proyectoActual.estado = updated.estado;
-          // Refrescar chip
           $vmEstadoChip.className = estadoToChipClass(updated.estado);
           $vmEstadoChip.textContent = updated.estado;
         }
-      }catch(e){ /* silencioso */ }
+      }catch(e){}
+    }
+
+    /* ========= INTEGRANTES (solo nombre + rol) ========= */
+    async function loadTeamMembers(equipoId){
+      teamMembersCache = [];
+      isTeamAdmin = false;
+      if (!equipoId) return;
+      try{
+        const res = await fetch(`${EQUIPOS_API}/${equipoId}/miembros`);
+        if(!res.ok) throw new Error('No se pudo obtener miembros');
+        const miembros = await res.json();
+        for (const m of miembros){
+          let nombre = 'Usuario #' + (m.id?.usuarioId ?? m.usuarioId ?? '?');
+          try{
+            const ru = await fetch(`${USUARIOS_API}/${m.id.usuarioId}`, {
+              headers: {
+                "X-User-Role": String(sessionUser?.rol || ""),
+                "X-User-Id":   String(sessionUser?.id  || "")
+              }
+            });
+            if(ru.ok){
+              const u = await ru.json();
+              if (u?.nombre) nombre = u.nombre;
+              else if (u?.email) nombre = u.email.split('@')[0];
+            }
+          }catch(_){}
+          teamMembersCache.push({
+            usuarioId: m.id.usuarioId,
+            rol: m.rol,
+            nombre
+          });
+        }
+        // ADMIN del equipo (o admin global)
+        const isGlobalAdmin = ["Super Admin","Scrum Master"].includes(String(sessionUser?.rol||""));
+        const row = teamMembersCache.find(x => String(x.usuarioId) === String(sessionUser?.id));
+        isTeamAdmin = isGlobalAdmin || (row && String(row.rol).toUpperCase()==="ADMIN");
+        populateAssigneeSelect($ctAssignee);
+        populateAssigneeSelect($etAssignee);
+      }catch(_){
+        teamMembersCache = [];
+      }
+    }
+
+    function tinyRoleBadge(rolRaw){
+      const rol = (rolRaw||'').toUpperCase();
+      const cls = rol === 'ADMIN' ? 'admin' : (rol === 'USUARIO_SUPERIOR' ? 'super' : 'user');
+      const text = rol === 'ADMIN' ? 'ADMIN' : (rol === 'USUARIO_SUPERIOR' ? 'USUARIO SUP.' : 'USUARIO');
+      return `<span class="role-badge ${cls}">${text}</span>`;
+    }
+
+    async function renderMembersList(){
+      const wrap = document.getElementById('members-list');
+      const counter = document.getElementById('members-count');
+      if (!wrap) return;
+      if (!teamMembersCache.length){
+        wrap.innerHTML = `<div class="muted">Este equipo aún no tiene integrantes.</div>`;
+        if (counter) counter.textContent = '0';
+        return;
+      }
+      wrap.innerHTML = teamMembersCache.map(m => `
+        <div class="member-item">
+          <div class="member-name">${escapeHtml(m.nombre)}</div>
+          ${tinyRoleBadge(m.rol)}
+        </div>
+      `).join('');
+      if (counter) counter.textContent = String(teamMembersCache.length);
+    }
+
+    function populateAssigneeSelect(selectEl){
+      if (!selectEl) return;
+      const prev = selectEl.value || "";
+      selectEl.innerHTML = `<option value="">Seleccionar miembro del equipo</option>` +
+        teamMembersCache
+          .map(m => `<option value="${m.usuarioId}">${escapeHtml(m.nombre)} — ${escapeHtml((m.rol||'').toUpperCase())}</option>`)
+          .join('');
+      if (prev) selectEl.value = prev;
+    }
+
+    function resolveAssigneeName(id){
+      if (!id && id !== 0) return '-';
+      const m = teamMembersCache.find(x => String(x.usuarioId) === String(id));
+      return m ? m.nombre : ('#' + id);
     }
 
     /* ========= TAREAS ========= */
+    function canDeleteTask(t){
+      // ADMIN del equipo o Admin global ⇒ puede borrar todas
+      if (isTeamAdmin) return true;
+      // Si no es admin, solo puede borrar si es el asignado
+      return String(t.assigneeUserId) === String(sessionUser?.id || "");
+    }
+
     function tareaRow(t){
-      const isDone = (t.status||"").toLowerCase()==="done" || (t.completedAt != null);
+      const isDone = (t.status||"").toLowerCase()==="done" || (t.completedAt != null) || (t.status||"").toLowerCase()==="hecho";
       const descHtml = escapeHtml(t.description || t.longDescription || "");
+      const asigName = resolveAssigneeName(t.assigneeUserId);
+      const showDelete = canDeleteTask(t);
       return `
         <div class="task-item" data-id="${t.id}">
           <input type="checkbox" class="t-check" ${isDone ? "checked" : ""} title="Completar / Reabrir">
@@ -630,12 +731,20 @@
               Prio: ${escapeHtml(t.priority||'-')}
               · Est: ${t.estimatedHours ?? '-'}h
               ${t.realHours ? (' · Real: '+t.realHours+'h') : ''}
+              · Asig: ${escapeHtml(asigName)}
             </div>
           </div>
           <div class="task-actions">
             <span class="badge status ${isDone?'done':'todo'}">${isDone?'done':'todo'}</span>
-            ${descHtml ? `<button class="desc-toggle" type="button">ver descripción</button>` : ""}
-            <button class="btn-danger btn-xs t-del" title="Borrar">Borrar</button>
+            ${descHtml ? `<button class="desc-btn" type="button">Ver descripción</button>` : ""}
+            <button class="btn-xs t-edit" title="Editar">
+              <svg class="ico-sm" aria-hidden="true"><use href="#i-edit"/></svg> Editar
+            </button>
+            ${showDelete ? `
+              <button class="btn-danger btn-xs t-del" title="Borrar">
+                <svg class="ico-sm" aria-hidden="true"><use href="#i-trash"/></svg> Borrar
+              </button>
+            ` : ""}
           </div>
           ${descHtml ? `<div class="task-desc">${descHtml}</div>` : ""}
         </div>
@@ -644,14 +753,11 @@
 
     function updateProgressFromTasks(){
       const total = tareasCache.length;
-      const done  = tareasCache.filter(t => (t.status||"").toLowerCase()==="done" || t.completedAt != null).length;
-      $tasksSummary.textContent = `${done}/${total} completadas`;
+      const done  = tareasCache.filter(t => (t.status||"").toLowerCase()==="done" || t.completedAt != null || (t.status||"").toLowerCase()==="hecho").length;
+      document.getElementById("tasks-summary").textContent = `${done}/${total} completadas`;
       const pct = total === 0 ? 0 : Math.round((done/total)*100);
-
       setRadialAnimated($vmRadial, pct, $vmPercent, 500);
       $vmBar.style.width = pct + "%";
-
-      // Persistir estado en BD según %
       persistProjectEstadoFromPct(pct);
     }
 
@@ -670,28 +776,39 @@
       });
       $tasksListEl.querySelectorAll(".t-del").forEach(btn => {
         btn.addEventListener("click", async (e)=>{
-          const id = Number(e.target.closest(".task-item").dataset.id);
-          await deleteTask(id);
+          const row = e.target.closest(".task-item");
+          const id = Number(row.dataset.id);
+          const ok = await confirmDialog("¿Seguro que deseas borrar esta tarea?");
+          if (ok) await deleteTask(id);
         });
       });
-      $tasksListEl.querySelectorAll(".desc-toggle").forEach(btn => {
+      $tasksListEl.querySelectorAll(".desc-btn").forEach(btn => {
         btn.addEventListener("click", (e)=>{
           const row = e.target.closest(".task-item");
           const desc = row.querySelector(".task-desc");
           if (!desc) return;
           desc.classList.toggle("show");
-          e.target.textContent = desc.classList.contains("show") ? "ocultar descripción" : "ver descripción";
+          e.target.textContent = desc.classList.contains("show") ? "Ocultar descripción" : "Ver descripción";
+        });
+      });
+      $tasksListEl.querySelectorAll(".t-edit").forEach(btn => {
+        btn.addEventListener("click", (e)=>{
+          const row = e.target.closest(".task-item");
+          const id = Number(row.dataset.id);
+          const t = tareasCache.find(x => x.id === id);
+          if (!t) return;
+          openTaskEditModal(t);
         });
       });
 
       updateProgressFromTasks();
     }
 
+    // Listado compartido
     async function loadTasks(projectId){
-      mustHaveEmail();
       try{
         const res = await fetch(`${TASKS_API}?projectId=${encodeURIComponent(projectId)}`, {
-          headers: { "X-User-Email": sessionEmail }
+          headers: { "X-User-Id": String(sessionUser?.id || "") }
         });
         if(!res.ok) throw new Error("Error listando tareas");
         tareasCache = await res.json();
@@ -701,28 +818,20 @@
       }
     }
 
+    // Crear Tarea
     async function createTask(projectId){
       mustHaveEmail();
-      const title = ($tTitle.value||"").trim();
-      const description = ($tDesc.value||"").trim();
-      const estimatedHours = $tEstimated.value ? Number($tEstimated.value) : null;
-      const priority = ($tPriority.value||"").trim() || null;
+      const title = ($ctTitle.value||"").trim();
+      const description = ($ctDesc.value||"").trim();
+      const estimatedHours = $ctEstimated.value ? Number($ctEstimated.value) : null;
+      const priority = ($ctPriority.value||"").trim() || null;
+      const assigneeUserId = $ctAssignee.value ? Number($ctAssignee.value) : null;
 
-      if (!title){
-        showToast({type:"error", title:"Falta título", message:"Escribe el título de la tarea."});
-        return;
-      }
-      if ((description||"").length > 300){
-        showToast({type:"error", title:"Descripción muy larga", message:"Máximo 300 caracteres."});
-        return;
-      }
-      if (estimatedHours != null && estimatedHours > 4){
-        showToast({type:"error", title:"Máximo 4 horas", message:"Divide en subtareas si supera 4h."});
-        return;
-      }
+      if (!title){ showToast({type:"error", title:"Falta título"}); return; }
+      if ((description||"").length > 300){ showToast({type:"error", title:"Descripción muy larga", message:"Máximo 300 caracteres."}); return; }
+      if (estimatedHours != null && estimatedHours > 4){ showToast({type:"error", title:"Máximo 4 horas"}); return; }
 
-      const payload = { title, description, projectId: Number(projectId), estimatedHours, priority };
-
+      const payload = { title, description, projectId: Number(projectId), estimatedHours, priority, assigneeUserId };
       try{
         const res = await fetch(TASKS_API, {
           method: "POST",
@@ -733,7 +842,8 @@
           const created = await res.json();
           tareasCache.unshift(created);
           renderTareas(tareasCache);
-          $tTitle.value = ""; $tEstimated.value = ""; $tPriority.value = ""; $tDesc.value = ""; $descCount.textContent = "0";
+          $ctTitle.value = ""; $ctEstimated.value = ""; $ctPriority.value = ""; $ctDesc.value = ""; $ctAssignee.value = "";
+          closeEl($taskCreateOverlay);
           showToast({type:"success", title:"Tarea creada"});
         } else {
           const text = await res.text();
@@ -743,26 +853,34 @@
         showToast({type:"error", title:"Error de red", message:"No se pudo crear la tarea."});
       }
     }
+    document.getElementById("btn-save-task-create")?.addEventListener("click", ()=>{ if (!proyectoActual?.id) return; createTask(proyectoActual.id); });
 
+    // Borrar Tarea (ADMIN puede borrar todas; headers incluyen role e id)
     async function deleteTask(id){
       mustHaveEmail();
       try{
         const res = await fetch(`${TASKS_API}/${id}`, {
           method: "DELETE",
-          headers: { "X-User-Email": sessionEmail }
+          headers: {
+            "X-User-Email": sessionEmail,
+            "X-User-Role": String(sessionUser?.rol || ""),
+            "X-User-Id": String(sessionUser?.id || "")
+          }
         });
         if (res.status === 204){
           tareasCache = tareasCache.filter(t => t.id !== id);
           renderTareas(tareasCache);
           showToast({type:"success", title:"Tarea eliminada"});
         } else {
-          showToast({type:"error", title:"No se pudo borrar"});
+          const text = await res.text();
+          showToast({type:"error", title:"No se pudo borrar", message: text || "Permisos insuficientes."});
         }
       }catch(err){
         showToast({type:"error", title:"Error de red"});
       }
     }
 
+    // Toggle estado
     async function toggleTaskStatus(id, checked){
       mustHaveEmail();
       const newStatus = checked ? "done" : "todo";
@@ -789,19 +907,55 @@
       }
     }
 
-    if ($btnAddTask){
-      $btnAddTask.addEventListener("click", ()=>{
-        if (!proyectoActual?.id) return;
-        createTask(proyectoActual.id);
-      });
-    }
-    if ($btnRefrescar){
-      $btnRefrescar.addEventListener("click", ()=>{
-        if (!proyectoActual?.id) return;
-        loadTasks(proyectoActual.id);
-      });
+    // Editar Tarea
+    function openTaskEditModal(t){
+      document.getElementById("et-id").textContent = `#${t.id}`;
+      document.getElementById("et-title").value = t.title || "";
+      document.getElementById("et-estimated").value = t.estimatedHours ?? "";
+      document.getElementById("et-priority").value = t.priority || "";
+      document.getElementById("et-desc").value = t.description || t.longDescription || "";
+      populateAssigneeSelect(document.getElementById("et-assignee"));
+      if (t.assigneeUserId != null) document.getElementById("et-assignee").value = String(t.assigneeUserId);
+      openEl($taskEditOverlay);
+      $btnSaveTaskEdit.onclick = () => saveTaskEdits(t.id);
     }
 
+    async function saveTaskEdits(taskId){
+      mustHaveEmail();
+      const title = (document.getElementById("et-title").value||"").trim();
+      const description = (document.getElementById("et-desc").value||"").trim();
+      const estimatedHours = document.getElementById("et-estimated").value ? Number(document.getElementById("et-estimated").value) : null;
+      const priority = (document.getElementById("et-priority").value||"").trim() || null;
+      const assigneeUserId = document.getElementById("et-assignee").value ? Number(document.getElementById("et-assignee").value) : null;
+
+      if (!title){ showToast({type:"error", title:"Falta título"}); return; }
+      if ((description||"").length > 300){ showToast({type:"error", title:"Descripción muy larga", message:"Máximo 300 caracteres."}); return; }
+      if (estimatedHours != null && estimatedHours > 4){ showToast({type:"error", title:"Máximo 4 horas"}); return; }
+
+      const payload = { title, description, estimatedHours, priority, assigneeUserId };
+      try{
+        const res = await fetch(`${TASKS_API}/${taskId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "X-User-Email": sessionEmail },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok){
+          const updated = await res.json();
+          const idx = tareasCache.findIndex(t => t.id === taskId);
+          if (idx >= 0) tareasCache[idx] = updated;
+          renderTareas(tareasCache);
+          closeEl($taskEditOverlay);
+          showToast({type:"success", title:"Tarea actualizada"});
+        } else {
+          const text = await res.text();
+          showToast({type:"error", title:"No se pudo actualizar", message:text || ""});
+        }
+      }catch(err){
+        showToast({type:"error", title:"Error de red"});
+      }
+    }
+
+    /* ========= INICIO ========= */
     document.addEventListener("DOMContentLoaded", cargarProyecto);
   </script>
 </body>

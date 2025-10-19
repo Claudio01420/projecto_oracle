@@ -1,41 +1,87 @@
 package com.springboot.MyTodoList.controller;
 
 import com.springboot.MyTodoList.model.Proyecto;
+import com.springboot.MyTodoList.model.UsuarioEquipo;
 import com.springboot.MyTodoList.repository.ProyectoRepository;
 import com.springboot.MyTodoList.repository.TareaRepository;
+import com.springboot.MyTodoList.repository.UsuarioEquipoRepository;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.Collections; // <-- nuevo
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/proyectos")
-@CrossOrigin(origins = "*")
 public class ProyectoController {
 
     private final ProyectoRepository repo;
     private final TareaRepository tareaRepo;
+    private final UsuarioEquipoRepository ueRepo; // para calcular proyectos visibles
 
-    public ProyectoController(ProyectoRepository repo, TareaRepository tareaRepo) {
+    public ProyectoController(ProyectoRepository repo,
+                              TareaRepository tareaRepo,
+                              UsuarioEquipoRepository ueRepo) {
         this.repo = repo;
         this.tareaRepo = tareaRepo;
+        this.ueRepo = ueRepo;
     }
 
-    // === TODOS (si aún lo quieres conservar para admin/debug) ===
+    // LISTA general con soporte a ?equipoId=...
     @GetMapping
-    public List<Proyecto> all() {
+    public List<Proyecto> all(@RequestParam(value = "equipoId", required = false) Long equipoId) {
+        if (equipoId != null) {
+            return repo.findByEquipoId(equipoId);
+        }
         return repo.findAll();
     }
 
-    // === SOLO MÍOS ===
+    // SOLO míos (creador)
     @GetMapping("/mios/{usuarioId}")
     public List<Proyecto> myProjects(@PathVariable Long usuarioId) {
         return repo.findByCreadorId(usuarioId);
+    }
+
+    // PROYECTOS por equipo (rutas compatibles con tu JS)
+    @GetMapping("/equipo/{equipoId}")
+    public List<Proyecto> byEquipoPath(@PathVariable Long equipoId) {
+        return repo.findByEquipoId(equipoId);
+    }
+
+    @GetMapping("/por-equipo/{equipoId}")
+    public List<Proyecto> byEquipoAlt(@PathVariable Long equipoId) {
+        return repo.findByEquipoId(equipoId);
+    }
+
+    // NUEVO: PROYECTOS VISIBLES para un usuario:
+    // Unión de: creados por mí + de equipos donde soy miembro (cualquier rol)
+    @GetMapping("/visibles/{usuarioId}")
+    public List<Proyecto> visibles(@PathVariable Long usuarioId) {
+        Map<Long, Proyecto> byId = new LinkedHashMap<>();
+
+        // A) Creados por el usuario
+        for (Proyecto p : repo.findByCreadorId(usuarioId)) {
+            if (p != null && p.getId() != null) byId.putIfAbsent(p.getId(), p);
+        }
+
+        // B) Equipos donde es miembro
+        List<UsuarioEquipo> rels = ueRepo.findByUsuarioId(usuarioId);
+        Set<Long> equipoIds = rels.stream()
+                .filter(Objects::nonNull)
+                .map(ue -> ue.getId() != null ? ue.getId().getEquipoId() : null)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        for (Long eid : equipoIds) {
+            for (Proyecto p : repo.findByEquipoId(eid)) {
+                if (p != null && p.getId() != null) byId.putIfAbsent(p.getId(), p);
+            }
+        }
+
+        return new ArrayList<>(byId.values());
     }
 
     @GetMapping("/{id}")
@@ -44,14 +90,11 @@ public class ProyectoController {
     }
 
     @PostMapping
-    public Proyecto create(@RequestBody Proyecto p, @RequestHeader(value="X-User-Id", required=false) Long userIdHeader) {
-        // Estado default
+    public Proyecto create(@RequestBody Proyecto p,
+                           @RequestHeader(value = "X-User-Id", required = false) Long userIdHeader) {
         if (p.getEstado() == null || p.getEstado().trim().isEmpty()) {
             p.setEstado("Pendiente");
         }
-        // === Setear creador ===
-        // 1) Si te mandan el creadorId en el body, se respeta; si no, intenta por header X-User-Id;
-        // 2) Si no hay ninguno, lo dejamos nulo (pero idealmente SIEMPRE mándalo).
         if (p.getCreadorId() == null && userIdHeader != null) {
             p.setCreadorId(userIdHeader);
         }
@@ -68,10 +111,8 @@ public class ProyectoController {
             actual.setFechaInicio(p.getFechaInicio());
             actual.setFechaFin(p.getFechaFin());
             actual.setUltimoAcceso(p.getUltimoAcceso());
-            // No cambiamos creadorId en update para mantener autoría
             return repo.save(actual);
         }).orElseGet(() -> {
-            // Si no existe, lo creamos con el id provisto (no usual, pero mantiene tu patrón actual)
             p.setId(id);
             return repo.save(p);
         });
@@ -82,24 +123,25 @@ public class ProyectoController {
         repo.deleteById(id);
     }
 
-    // Nuevo endpoint: último proyecto + conteos de tareas y días restantes
+    // ===== Helpers dashboard existentes =====
+
     @GetMapping("/ultimo")
     public Map<String, Object> ultimoProyecto() {
         Map<String, Object> resp = new HashMap<>();
         Proyecto p = repo.findTopByOrderByIdDesc();
-        if (p == null) {
-            return resp;
-        }
+        if (p == null) return resp;
+
         resp.put("projectId", p.getId());
         resp.put("projectName", p.getNombreProyecto());
-        resp.put("equipoId", p.getEquipoId()); // <-- agregado: devuelve equipoId
-        // días restantes (puede ser negativo si ya pasó la fecha)
+        resp.put("equipoId", p.getEquipoId());
+
         if (p.getFechaFin() != null) {
             long days = ChronoUnit.DAYS.between(LocalDate.now(), p.getFechaFin());
             resp.put("daysRemaining", days);
         } else {
             resp.put("daysRemaining", null);
         }
+
         long total = tareaRepo.countByProjectId(p.getId());
         long completed = tareaRepo.countCompletedByProjectId(p.getId());
         resp.put("totalTasks", total);
@@ -107,7 +149,6 @@ public class ProyectoController {
         return resp;
     }
 
-    // Nuevo: proyectos del usuario con stats (progreso, fechas)
     @GetMapping("/mios/{usuarioId}/stats")
     public List<Map<String, Object>> myProjectsWithStats(@PathVariable Long usuarioId) {
         List<Proyecto> proyectos = repo.findByCreadorId(usuarioId);
@@ -115,12 +156,11 @@ public class ProyectoController {
             Map<String,Object> m = new HashMap<>();
             m.put("projectId", p.getId());
             m.put("projectName", p.getNombreProyecto());
-            m.put("fechaInicio", p.getFechaInicio()); // LocalDate -> JSON "YYYY-MM-DD"
+            m.put("fechaInicio", p.getFechaInicio());
             m.put("fechaFin", p.getFechaFin());
             long total = tareaRepo.countByProjectId(p.getId());
             long completed = tareaRepo.countCompletedByProjectId(p.getId());
             double progress = total == 0 ? 0.0 : ((double) completed / (double) total) * 100.0;
-            // redondeo a 2 decimales
             double progressRounded = Math.round(progress * 100.0) / 100.0;
             m.put("totalTasks", total);
             m.put("completedTasks", completed);
@@ -129,7 +169,6 @@ public class ProyectoController {
         }).collect(Collectors.toList());
     }
 
-    // Nuevo endpoint: horas agregadas por proyecto (estimated vs real)
     @GetMapping("/horas")
     public List<Map<String, Object>> horasPorProyecto() {
         List<Proyecto> proyectos = repo.findAll();

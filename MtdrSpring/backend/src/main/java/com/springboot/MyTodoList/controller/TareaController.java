@@ -4,8 +4,12 @@ import com.springboot.MyTodoList.dto.CompleteTaskDto;
 import com.springboot.MyTodoList.dto.TaskCreateDto;
 import com.springboot.MyTodoList.dto.UpdateStatusDto;
 import com.springboot.MyTodoList.dto.UpdateTaskDto;
+import com.springboot.MyTodoList.model.Proyecto;
+import com.springboot.MyTodoList.model.UsuarioEquipoId;
 import com.springboot.MyTodoList.model.Tarea;
+import com.springboot.MyTodoList.repository.ProyectoRepository;
 import com.springboot.MyTodoList.repository.TareaRepository;
+import com.springboot.MyTodoList.repository.UsuarioEquipoRepository;
 import com.springboot.MyTodoList.service.TareaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*", exposedHeaders = "*")
 @RestController
@@ -26,10 +26,17 @@ public class TareaController {
 
     private final TareaService tareaService;
     private final TareaRepository tareaRepository;
+    private final ProyectoRepository proyectoRepository;           // ✅ nuevo
+    private final UsuarioEquipoRepository usuarioEquipoRepository; // ✅ nuevo
 
-    public TareaController(TareaService tareaService, TareaRepository tareaRepository) {
+    public TareaController(TareaService tareaService,
+                           TareaRepository tareaRepository,
+                           ProyectoRepository proyectoRepository,
+                           UsuarioEquipoRepository usuarioEquipoRepository) {
         this.tareaService = tareaService;
         this.tareaRepository = tareaRepository;
+        this.proyectoRepository = proyectoRepository;
+        this.usuarioEquipoRepository = usuarioEquipoRepository;
     }
 
     private String requireUserEmail(HttpServletRequest req) {
@@ -41,6 +48,23 @@ public class TareaController {
             throw new RuntimeException("Missing owner: provide X-User-Email header OR ?email=");
         }
         return email.trim();
+    }
+
+    // Helper: leer X-User-Id (opcional). Si no llega, devolvemos null.
+    private Long readUserId(HttpServletRequest req) {
+        String idH = req.getHeader("X-User-Id");
+        if (idH == null || idH.isBlank()) return null;
+        try { return Long.parseLong(idH.trim()); } catch (NumberFormatException e) { return null; }
+    }
+
+    // Helper: checar membresía del equipo del proyecto
+    private boolean isMemberOfProjectTeam(Long userId, Long projectId) {
+        if (userId == null || projectId == null) return true; // modo dev: permitir si no hay userId
+        Optional<Proyecto> opt = proyectoRepository.findById(projectId);
+        if (opt.isEmpty()) return false;
+        Long equipoId = opt.get().getEquipoId();
+        if (equipoId == null) return false;
+        return usuarioEquipoRepository.existsById(new UsuarioEquipoId(userId, equipoId));
     }
 
     // CREATE (projectId obligatorio)
@@ -58,23 +82,42 @@ public class TareaController {
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
-    // LIST (filtros opcionales)
+    // LIST (modo dueño y modo equipo/compartido)
     @GetMapping("/tasks")
-    public List<Tarea> list(HttpServletRequest req,
-                            @RequestParam(name = "projectId", required = false) Long projectId,
-                            @RequestParam(name = "sprintId",  required = false) String sprintId) {
+    public ResponseEntity<?> list(HttpServletRequest req,
+                                  @RequestParam(name = "projectId", required = false) Long projectId,
+                                  @RequestParam(name = "sprintId",  required = false) String sprintId) {
+        // 1) Si NO viene X-User-Email y SÍ viene projectId -> vista COMPARTIDA del proyecto (todas las tareas)
+        String emailHeader = req.getHeader("X-User-Email");
+        if ((emailHeader == null || emailHeader.isBlank()) && projectId != null) {
+            Long userId = readUserId(req); // opcional; si viene lo usamos para validar membresía
+            if (!isMemberOfProjectTeam(userId, projectId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No eres miembro del equipo del proyecto");
+            }
+            // ✅ devolver todas las tareas del proyecto (mismas para todos)
+            List<Tarea> tasks = tareaRepository.findByProjectIdOrderByCreatedAtDesc(projectId);
+            return ResponseEntity.ok(tasks);
+        }
+
+        // 2) Modo clásico: vista del dueño (requiere X-User-Email)
         String owner = requireUserEmail(req);
 
         if (projectId != null && sprintId != null && !sprintId.isBlank()) {
-            return tareaRepository.findByAssigneeIdAndProjectIdAndSprintIdOrderByCreatedAtDesc(owner, projectId, sprintId);
+            return ResponseEntity.ok(
+                tareaRepository.findByAssigneeIdAndProjectIdAndSprintIdOrderByCreatedAtDesc(owner, projectId, sprintId)
+            );
         }
         if (projectId != null) {
-            return tareaRepository.findByAssigneeIdAndProjectIdOrderByCreatedAtDesc(owner, projectId);
+            return ResponseEntity.ok(
+                tareaRepository.findByAssigneeIdAndProjectIdOrderByCreatedAtDesc(owner, projectId)
+            );
         }
         if (sprintId != null && !sprintId.isBlank()) {
-            return tareaRepository.findByAssigneeIdAndSprintIdOrderByCreatedAtDesc(owner, sprintId);
+            return ResponseEntity.ok(
+                tareaRepository.findByAssigneeIdAndSprintIdOrderByCreatedAtDesc(owner, sprintId)
+            );
         }
-        return tareaService.listByAssignee(owner);
+        return ResponseEntity.ok(tareaService.listByAssignee(owner));
     }
 
     @PatchMapping("/tasks/{id}/complete")
@@ -117,70 +160,37 @@ public class TareaController {
         return tareaService.updateStatus(id, body.status);
     }
 
-    // Nuevo endpoint: productividad del usuario
+    // === tus endpoints de métricas se mantienen igual ===
+
     @GetMapping("/tasks/productivity")
     public ResponseEntity<Map<String, Object>> productivity(HttpServletRequest req) {
         String owner = requireUserEmail(req);
         List<Tarea> tasks = tareaRepository.findByAssigneeId(owner);
 
         long totalAssigned = tasks.size();
-
-        // Conservamos totalCompleted para compatibilidad, pero la métrica principal será avgProgress
         long totalCompleted = tasks.stream()
-                .filter(t -> {
-                    if (t.getStatus() != null && t.getStatus().equalsIgnoreCase("Hecho")) return true;
-                    return t.getCompletedAt() != null;
-                }).count();
+                .filter(t -> (t.getStatus() != null && t.getStatus().equalsIgnoreCase("Hecho")) || t.getCompletedAt() != null)
+                .count();
 
-        double plannedHours = tasks.stream()
-                .mapToDouble(t -> t.getEstimatedHours() != null ? t.getEstimatedHours() : 0.0)
-                .sum();
-        double realHours = tasks.stream()
-                .mapToDouble(t -> t.getRealHours() != null ? t.getRealHours() : 0.0)
-                .sum();
+        double plannedHours = tasks.stream().mapToDouble(t -> t.getEstimatedHours() != null ? t.getEstimatedHours() : 0.0).sum();
+        double realHours    = tasks.stream().mapToDouble(t -> t.getRealHours() != null ? t.getRealHours() : 0.0).sum();
 
-        // Nuevo: calcular avance real por tarea y luego el promedio (avgProgress)
         double totalProgressSum = tasks.stream().mapToDouble(t -> {
             boolean done = (t.getStatus() != null && t.getStatus().equalsIgnoreCase("Hecho")) || t.getCompletedAt() != null;
-            if (done) {
-                return 1.0;
-            }
+            if (done) return 1.0;
             Double est = t.getEstimatedHours();
             Double real = t.getRealHours();
-            if (est != null && est > 0.0) {
-                if (real != null && real > 0.0) {
-                    return Math.min(real / est, 1.0);
-                } else {
-                    return 0.0;
-                }
-            } else {
-                // Heurística: si no hay estimado pero hay horas reales, consideramos progreso parcial (50%)
-                if (real != null && real > 0.0) {
-                    return 0.5;
-                } else {
-                    return 0.0;
-                }
-            }
+            if (est != null && est > 0.0) return Math.min((real != null ? real : 0.0)/est, 1.0);
+            return (real != null && real > 0.0) ? 0.5 : 0.0;
         }).sum();
 
-        double avgProgress = totalAssigned == 0 ? 0.0 : (totalProgressSum / totalAssigned); // 0..1
+        double avgProgress = totalAssigned == 0 ? 0.0 : (totalProgressSum / totalAssigned);
+        double hoursRatio =
+                (plannedHours == 0 && realHours == 0) ? 1.0 :
+                (plannedHours == 0) ? 0.0 :
+                (realHours == 0) ? 1.0 : plannedHours / realHours;
 
-        // Mantener la componente de horas como antes
-        double hoursRatio;
-        if (plannedHours == 0 && realHours == 0) {
-            hoursRatio = 1.0;
-        } else if (plannedHours == 0) {
-            hoursRatio = 0.0;
-        } else if (realHours == 0) {
-            hoursRatio = 1.0;
-        } else {
-            hoursRatio = plannedHours / realHours;
-        }
-
-        // Ahora la productividad usa avgProgress (avance real del usuario) en lugar de completed/assigned
-        double productivity = avgProgress * hoursRatio * 100.0;
-        if (productivity < 0) productivity = 0;
-        if (productivity > 100.0) productivity = 100.0;
+        double productivity = Math.max(0.0, Math.min(avgProgress * hoursRatio * 100.0, 100.0));
 
         Map<String, Object> resp = new HashMap<>();
         resp.put("assignee", owner);
@@ -188,15 +198,14 @@ public class TareaController {
         resp.put("totalCompleted", totalCompleted);
         resp.put("plannedHours", plannedHours);
         resp.put("realHours", realHours);
-        resp.put("avgProgress", avgProgress);           // nuevo: promedio de avance por tarea (0..1)
-        resp.put("tasksRatio", avgProgress);           // compatibilidad: tasksRatio refleja ahora avgProgress
+        resp.put("avgProgress", avgProgress);
+        resp.put("tasksRatio", avgProgress);
         resp.put("hoursRatio", hoursRatio);
         resp.put("productivityPercent", productivity);
 
         return ResponseEntity.ok(resp);
     }
 
-    // Nuevo endpoint: promedio global de horas reales para tareas completadas
     @GetMapping("/tasks/avg-resolution/all")
     public Map<String, Object> avgResolutionAll() {
         Double avg = tareaRepository.avgRealHoursOfCompletedTasks();
@@ -205,7 +214,6 @@ public class TareaController {
         return resp;
     }
 
-    // Nuevo endpoint: promedio global (todas las tareas con realHours)
     @GetMapping("/tasks/avg-resolution/all-tasks")
     public Map<String, Object> avgResolutionAllTasks() {
         Double avg = tareaRepository.avgRealHoursAllTasks();
