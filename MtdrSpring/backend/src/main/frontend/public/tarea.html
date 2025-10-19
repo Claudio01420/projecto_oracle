@@ -1,172 +1,91 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tareas</title>
-  <link rel="stylesheet" href="Css/tarea.css"/>
+  <link rel="stylesheet" href="Css/tarea.css" />
   <link href="https://api.fontshare.com/v2/css?f[]=panchang@500,600,700,800,900&display=swap" rel="stylesheet">
 
-  <!-- Sprite de íconos -->
+  <!-- Íconos -->
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-  <!-- Dashboard -->
-  <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-    <path stroke-width="1.6" d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/>
-  </symbol>
-      <!-- Equipos -->
-    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
-      <path d="M7 21v-2a4 4 0 0 1 3-3.87"/>
-      <circle cx="12" cy="7" r="4"/>
-      <path d="M5.5 8a3.5 3.5 0 1 0 0 7"/>
-      <path d="M18.5 8a3.5 3.5 0 1 1 0 7"/>
-    </symbol>
-  <!-- Proyectos -->
-  <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-    <path stroke-width="1.6" d="M3 7h6l2 2h10v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/>
-  </symbol>
-  <!-- Tareas -->
-  <symbol id="i-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
-    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-    <path d="M12 11h4"/><path d="M12 16h4"/>
-    <path d="M8 11h.01"/><path d="M8 16h.01"/>
-  </symbol >
-  <!-- KPIs -->
-  <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 16v5"/>
-    <path d="M16 14v7"/>
-    <path d="M20 10v11"/>
-    <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/>
-    <path d="M4 18v3"/>
-    <path d="M8 14v7"/>
-  </symbol>
-  <!-- Chatbot -->
-  <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-    <rect x="4" y="8" width="16" height="10" rx="4" stroke-width="1.6"/>
-    <circle cx="9" cy="13" r="1" stroke-width="1.6"/>
-    <circle cx="15" cy="13" r="1" stroke-width="1.6"/>
-    <path stroke-width="1.6" d="M12 4v2m-7 6H4m16 0h1"/>
-  </symbol>
-  <!-- Notificaciones -->
-  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-    <path stroke-width="1.6" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
-    <path stroke-width="1.6" d="M13.73 21a2 2 0 0 1-3.46 0"/>
-  </symbol>
-  <!-- Ajustes -->
-  <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-    <circle cx="12" cy="12" r="3" />
-    <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
-  </symbol>
-  <!-- Exit -->
-  <symbol id="i-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="m16 17 5-5-5-5"/>
-    <path d="M21 12H9"/>
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-  </symbol>
+    <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="1.6" d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-3-3.87"/><path d="M7 21v-2a4 4 0 0 1 3-3.87"/><circle cx="12" cy="7" r="4"/><path d="M5.5 8a3.5 3.5 0 1 0 0 7"/><path d="M18.5 8a3.5 3.5 0 1 1 0 7"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="1.6" d="M3 7h6l2 2h10v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/></symbol>
+    <symbol id="i-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0  0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v5"/><path d="M16 14v7"/><path d="M20 10v11"/><path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/><path d="M4 18v3"/><path d="M8 14v7"/></symbol>
+    <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="8" width="16" height="10" rx="4" stroke-width="1.6"/><circle cx="9" cy="13" r="1" stroke-width="1.6"/><circle cx="15" cy="13" r="1" stroke-width="1.6"/><path stroke-width="1.6" d="M12 4v2m-7 6H4m16 0h1"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="1.6" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/><path stroke-width="1.6" d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0  0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/></symbol>
+    <symbol id="i-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></symbol>
   </svg>
+
   <style>
-    /* estilos mínimos para filtros */
-    .filters { display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap; margin-top:10px }
-    .field { display:flex; flex-direction:column; gap:6px; }
-    .field label { font-size:12px; color:#6b7280; }
-    .select { padding:10px 12px; border:1px solid #e5e7eb; border-radius:12px; min-width:220px; background:#fff }
-    .link-reset { padding:10px 14px; border:1px solid #e5e7eb; border-radius:12px; background:#fff; cursor:pointer }
-    .link-reset:hover { filter:brightness(.97) }
-
-    .task-actions{ display:flex; gap:6px; margin-top:8px; flex-wrap:wrap }
-    .btn-xs{ font-size:12px; padding:4px 8px; border:1px solid var(--line); background:#fff; border-radius:8px; cursor:pointer }
-    .btn-xs.complete{ background:#e6ffed; border-color:#b7f0c0 }
-    .btn-xs.delete{ background:#fff5f5; border-color:#ffd2d2 }
-    .btn-xs.edit{ background:#eef2ff; border-color:#c7d2fe }
-    .btn-xs:hover{ filter:brightness(.97) }
-
-    .modal{ position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:300 }
-    .modal.open{ display:flex }
-    .modal-card{ width:520px; max-width:92vw; background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow-md); padding:16px }
-    .modal-row{ display:grid; grid-template-columns: 140px 1fr; gap:10px; margin:8px 0 }
-    .modal-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px }
-    .btn{ padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:#fff; cursor:pointer }
-    .btn.primary{ background:var(--brand); color:#fff; border:none }
-    .btn.primary:hover{ background:var(--brand-hover) }
-    .btn.danger{ background:#ef4444; color:#fff; border:none }
-    .btn.danger:hover{ background:#dc2626 }
-
-    .task.selected{ outline:2px solid var(--brand); outline-offset:2px }
-    .drop-target{ outline:2px dashed #cbd5e1; background:#f8fafc }
-    .col{ transition:background .15s }
-
-    .details{ display:none; } .details.open{ display:block; }
-    .details-head{ display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:10px }
-    .badges{ display:flex; gap:8px; flex-wrap:wrap }
-    .badge{ font-size:12px; padding:3px 8px; border-radius:999px; border:1px solid var(--line) }
-    .badge.status.todo{ background:#fff4f3 }
-    .badge.status.doing{ background:#fff8e6 }
-    .badge.status.done{ background:#e9fff0 }
-    .badge.prio.alta{ background:#ffe6e6 }
-    .badge.prio.media{ background:#fff3d6 }
-    .badge.prio.baja{ background:#e6f3ff }
-    .details-grid{ display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:12px }
-    .details-item{ background:#fafbfc; border:1px solid var(--line-2); border-radius:12px; padding:12px }
-    .details-label{ font-size:12px; color:var(--muted); margin-bottom:6px }
-    .details-value{ font-weight:700; color:var(--muted-2) }
-    .desc-box{ margin-top:10px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px }
+    .filters{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-top:10px}
+    .field{display:flex;flex-direction:column;gap:6px}
+    .field label{font-size:12px;color:#6b7280}
+    .select{padding:10px 12px;border:1px solid #e5e7eb;border-radius:12px;min-width:260px;background:#fff}
+    .task-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+    .btn-xs{font-size:12px;padding:4px 8px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer}
+    .btn-xs.complete{background:#e6ffed;border-color:#b7f0c0}
+    .btn-xs.delete{background:#fff5f5;border-color:#ffd2d2}
+    .btn-xs.edit{background:#eef2ff;border-color:#c7d2fe}
+    .btn-xs:hover{filter:brightness(.97)}
+    .task.selected{outline:2px solid var(--brand);outline-offset:2px}
+    .drop-target{outline:2px dashed #cbd5e1;background:#f8fafc}
+    .details{display:none}.details.open{display:block}
+    .details-head{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .badges{display:flex;gap:8px;flex-wrap:wrap}
+    .badge{font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid var(--line)}
+    .badge.status.todo{background:#fff4f3}
+    .badge.status.doing{background:#fff8e6}
+    .badge.status.done{background:#e9fff0}
+    .details-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .details-item{background:#fafbfc;border:1px solid var(--line-2);border-radius:12px;padding:12px}
+    .details-label{font-size:12px;color:#6b7280;margin-bottom:6px}
+    .details-value{font-weight:700;color:#334155}
+    .desc-box{margin-top:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
   </style>
   <script src="/session.js"></script>
 </head>
 
-
 <body>
-
-    <!-- Topbar -->
+  <!-- Topbar -->
   <header class="topbar">
-    <div class="brand">
-      <h1 class="logo-text">TMDV</h1>
-    </div>
+    <div class="brand"><h1 class="logo-text">TMDV</h1></div>
     <div class="topbar-right">
       <div class="user-circle" title="Usuario">U</div>
-      <a href="/index.html" class="logout-btn">
-        <svg class="ico-sm" aria-hidden="true"><use href="#i-exit"/></svg>
-        <span>Salir</span>
-      </a>
+      <a href="/index.html" class="logout-btn"><svg class="ico-sm" aria-hidden="true"><use href="#i-exit"/></svg><span>Salir</span></a>
     </div>
   </header>
 
   <div class="app">
-        <!-- Sidebar -->
+    <!-- Sidebar COMPLETO -->
     <aside class="aside">
       <nav class="menu">
         <a class="mi" href="/dashboard.html">
-          <svg class="ico"><use href="#i-dashboard"/></svg>
-          <span>Dashboard</span>
+          <svg class="ico"><use href="#i-dashboard"/></svg><span>Dashboard</span>
         </a>
         <a class="mi" href="/Equipos.html">
-          <svg class="ico"><use href="#i-users"/></svg>
-          <span>Equipos</span>
+          <svg class="ico"><use href="#i-users"/></svg><span>Equipos</span>
         </a>
         <a class="mi" href="/projects.html">
-          <svg class="ico"><use href="#i-folder"/></svg>
-          <span>Proyectos</span>
+          <svg class="ico"><use href="#i-folder"/></svg><span>Proyectos</span>
         </a>
         <a class="mi active" href="#">
-          <svg class="ico"><use href="#i-board"/></svg>
-          <span>Tareas</span>
+          <svg class="ico"><use href="#i-board"/></svg><span>Tareas</span>
         </a>
         <a class="mi" href="/KPIs.html">
-          <svg class="ico"><use href="#i-chart"/></svg>
-          <span>KPIs</span>
+          <svg class="ico"><use href="#i-chart"/></svg><span>KPIs</span>
         </a>
         <a class="mi" href="/chatbot.html">
-          <svg class="ico"><use href="#i-bot"/></svg>
-          <span>Chatbot</span>
+          <svg class="ico"><use href="#i-bot"/></svg><span>Chatbot</span>
         </a>
         <a class="mi" href="/notifications.html">
-          <svg class="ico"><use href="#i-bell"/></svg>
-          <span>Notificaciones</span>
+          <svg class="ico"><use href="#i-bell"/></svg><span>Notificaciones</span>
         </a>
         <a class="mi" href="/settings.html">
-          <svg class="ico"><use href="#i-gear"/></svg>
-          <span>Ajustes</span>
+          <svg class="ico"><use href="#i-gear"/></svg><span>Ajustes</span>
         </a>
       </nav>
     </aside>
@@ -174,26 +93,18 @@
     <!-- Main -->
     <main class="main">
       <section class="card card-soft">
-        <div style="display:flex; align-items:center; justify-content:space-between">
+        <div style="display:flex;align-items:center;justify-content:space-between">
           <h1 class="h4" style="margin:0">Tareas</h1>
-          <button id="btnNew" class="btn primary">+ Nueva tarea (Dev)</button>
         </div>
 
-        <!-- Filtros -->
+        <!-- Filtro -->
         <div class="filters">
           <div class="field">
-            <label for="filterProject">Proyecto</label>
+            <label for="filterProject">Proyecto (por nombre)</label>
             <select id="filterProject" class="select">
-              <option value="">Todas las tareas</option>
+              <option value="">Todos los proyectos</option>
             </select>
           </div>
-          <div class="field">
-            <label for="filterSprint">Sprint</label>
-            <select id="filterSprint" class="select">
-              <option value="">Todos los sprints</option>
-            </select>
-          </div>
-          <button id="btnClearFilters" class="link-reset">Limpiar filtros</button>
         </div>
 
         <div class="progress-row" style="margin-top:10px">
@@ -205,30 +116,17 @@
 
       <!-- Kanban -->
       <section class="board">
-        <article class="col" id="dropTodo" data-status="todo">
-          <header class="col-head">Por hacer</header>
-          <div id="colTodo"></div>
-        </article>
-        <article class="col" id="dropDoing" data-status="doing">
-          <header class="col-head">En progreso</header>
-          <div id="colDoing"></div>
-        </article>
-        <article class="col" id="dropDone" data-status="done">
-          <header class="col-head">Hecho</header>
-          <div id="colDone"></div>
-        </article>
+        <article class="col" id="dropTodo" data-status="todo"><header class="col-head">Por hacer</header><div id="colTodo"></div></article>
+        <article class="col" id="dropDoing" data-status="doing"><header class="col-head">En progreso</header><div id="colDoing"></div></article>
+        <article class="col" id="dropDone" data-status="done"><header class="col-head">Hecho</header><div id="colDone"></div></article>
       </section>
 
-      <!-- Panel de detalles -->
+      <!-- Detalles -->
       <section id="detailsCard" class="card details">
         <div class="details-head">
           <div>
             <div id="d_title" class="h4" style="margin:0 0 4px 0">—</div>
-            <div class="badges">
-              <span id="d_status" class="badge status">status</span>
-              <span id="d_priority" class="badge prio">prioridad</span>
-              <span id="d_sprint" class="badge">Sprint</span>
-            </div>
+            <div class="badges"><span id="d_status" class="badge status">status</span></div>
           </div>
           <div class="badges">
             <button id="d_edit_btn" class="btn-xs edit" title="Editar tarea">Editar…</button>
@@ -238,22 +136,11 @@
         </div>
 
         <div class="details-grid">
-          <div class="details-item">
-            <div class="details-label">Asignado a</div>
-            <div class="details-value" id="d_assignee">—</div>
-          </div>
-          <div class="details-item">
-            <div class="details-label">Horas (Est / Real)</div>
-            <div class="details-value"><span id="d_est">0</span> h / <span id="d_real">0</span> h</div>
-          </div>
-          <div class="details-item">
-            <div class="details-label">Creada</div>
-            <div class="details-value" id="d_created">—</div>
-          </div>
-          <div class="details-item">
-            <div class="details-label">Completada</div>
-            <div class="details-value" id="d_completed">—</div>
-          </div>
+          <div class="details-item"><div class="details-label">Proyecto</div><div class="details-value" id="d_project">—</div></div>
+          <div class="details-item"><div class="details-label">Asignado a</div><div class="details-value" id="d_assignee">—</div></div>
+          <div class="details-item"><div class="details-label">Horas (Est / Real)</div><div class="details-value"><span id="d_est">0</span> h / <span id="d_real">0</span> h</div></div>
+          <div class="details-item"><div class="details-label">Creada</div><div class="details-value" id="d_created">—</div></div>
+          <div class="details-item"><div class="details-label">Completada</div><div class="details-value" id="d_completed">—</div></div>
         </div>
 
         <div class="desc-box">
@@ -264,528 +151,222 @@
     </main>
   </div>
 
-  <!-- Modal crear -->
-  <div id="modal" class="modal" aria-hidden="true">
-    <div class="modal-card">
-      <h3 style="margin:4px 0 12px 0">Nueva tarea (Dev)</h3>
-      <div class="modal-row"><label>Título</label><input id="f_title" type="text" /></div>
-      <div class="modal-row"><label>Descripción</label><textarea id="f_desc" rows="3"></textarea></div>
-      <div class="modal-row"><label>Horas estimadas (≤4)</label><input id="f_hours" type="number" min="0" max="4" step="0.5" /></div>
-      <div class="modal-row"><label>Prioridad</label>
-        <select id="f_prio">
-          <option value="alta">Alta</option>
-          <option value="media" selected>Media</option>
-          <option value="baja">Baja</option>
-        </select>
-      </div>
-      <div class="modal-row"><label>Sprint</label><input id="f_sprint" type="text" placeholder="SPR-1" /></div>
-      <div class="modal-row"><label>Proyecto ID</label><input id="f_project" type="number" min="1" placeholder="Ej. 42" /></div>
-      <div class="modal-row"><label>Asignado a (Dev)</label><input id="f_assignee" type="text" placeholder="dev-123" /></div>
-      <div class="modal-row"><label>Nombre Dev</label><input id="f_assignee_name" type="text" placeholder="Juan Pérez" /></div>
-      <div class="modal-actions">
-        <button id="btnCancel" class="btn">Cancelar</button>
-        <button id="btnCreate" class="btn primary">Crear tarea</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal editar -->
-  <div id="modalEdit" class="modal" aria-hidden="true">
-    <div class="modal-card">
-      <h3 style="margin:4px 0 12px 0">Editar tarea</h3>
-      <input type="hidden" id="e_id"/>
-      <div class="modal-row"><label>Título</label><input id="e_title" type="text" /></div>
-      <div class="modal-row"><label>Descripción</label><textarea id="e_desc" rows="3"></textarea></div>
-      <div class="modal-row"><label>Horas estimadas (≤4)</label><input id="e_hours" type="number" min="0" max="4" step="0.5" /></div>
-      <div class="modal-row"><label>Prioridad</label>
-        <select id="e_prio">
-          <option value="alta">Alta</option>
-          <option value="media">Media</option>
-          <option value="baja">Baja</option>
-        </select>
-      </div>
-      <div class="modal-row"><label>Estado</label>
-        <select id="e_status">
-          <option value="todo">Por hacer</option>
-          <option value="doing">En progreso</option>
-          <option value="done">Hecho</option>
-        </select>
-      </div>
-      <div class="modal-row"><label>Sprint</label><input id="e_sprint" type="text" /></div>
-      <div class="modal-row"><label>Proyecto ID</label><input id="e_project" type="number" min="1" /></div>
-      <div class="modal-row"><label>Asignado a (Dev)</label><input id="e_assignee" type="text" /></div>
-      <div class="modal-row"><label>Nombre Dev</label><input id="e_assignee_name" type="text" /></div>
-      <div class="modal-actions">
-        <button id="btnCancelEdit" class="btn">Cancelar</button>
-        <button id="btnDoEdit" class="btn primary">Guardar cambios</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal completar -->
-  <div id="modalComplete" class="modal" aria-hidden="true">
-    <div class="modal-card">
-      <h3 style="margin:4px 0 12px 0">Completar tarea</h3>
-    <input type="hidden" id="complete_id"/>
-      <div class="modal-row"><label>Horas reales</label><input id="complete_hours" type="number" min="0" max="24" step="0.25"/></div>
-      <div class="modal-actions">
-        <button id="btnCancelComplete" class="btn">Cancelar</button>
-        <button id="btnDoComplete" class="btn primary">Marcar como hecha</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal eliminar -->
-  <div id="modalDelete" class="modal" aria-hidden="true">
-    <div class="modal-card">
-      <h3 style="margin:4px 0 12px 0;color:#b91c1c">Eliminar tarea</h3>
-      <input type="hidden" id="delete_id"/>
-      <p id="delete_text" style="margin:6px 0 12px 0">
-        ¿Seguro que quieres eliminar esta tarea? <b>Se borrará permanentemente.</b>
-      </p>
-      <div class="modal-actions">
-        <button id="btnCancelDelete" class="btn">Cancelar</button>
-        <button id="btnDoDelete" class="btn danger">Sí, borrar</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    // ======= CONFIG =======
-    const API = '/api';
+    // ===== CONFIG
+    const TASKS_API    = 'http://localhost:8080/api/tasks';
+    const PROJECTS_API = 'http://localhost:8080/proyectos';
     const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const USER_ID    = user?.id || null;
     const USER_EMAIL = user?.email || '';
 
-    // ======= ELEMENTOS =======
-    const modal = document.getElementById('modal');
-    const modalEdit = document.getElementById('modalEdit');
-    const modalComplete = document.getElementById('modalComplete');
-    const modalDelete = document.getElementById('modalDelete');
-
+    // ===== DOM
     const colTodo  = document.getElementById('colTodo');
     const colDoing = document.getElementById('colDoing');
     const colDone  = document.getElementById('colDone');
-
     const dropTodo = document.getElementById('dropTodo');
-    const dropDoing = document.getElementById('dropDoing');
+    const dropDoing= document.getElementById('dropDoing');
     const dropDone = document.getElementById('dropDone');
-
-    const btnNew = document.getElementById('btnNew');
-    const btnCancel = document.getElementById('btnCancel');
-    const btnCreate = document.getElementById('btnCreate');
 
     const progressBar = document.getElementById('progressBar');
     const progressPct = document.getElementById('progressPct');
-
-    // filtros
     const filterProject = document.getElementById('filterProject');
-    const filterSprint = document.getElementById('filterSprint');
-    const btnClearFilters = document.getElementById('btnClearFilters');
 
-    // crear
-    const f_title = document.getElementById('f_title');
-    const f_desc = document.getElementById('f_desc');
-    const f_hours = document.getElementById('f_hours');
-    const f_prio = document.getElementById('f_prio');
-    const f_sprint = document.getElementById('f_sprint');
-    const f_project = document.getElementById('f_project');
-    const f_assignee = document.getElementById('f_assignee');
-    const f_assignee_name = document.getElementById('f_assignee_name');
-
-    // editar
-    const e_id = document.getElementById('e_id');
-    const e_title = document.getElementById('e_title');
-    const e_desc = document.getElementById('e_desc');
-    const e_hours = document.getElementById('e_hours');
-    const e_prio = document.getElementById('e_prio');
-    const e_status = document.getElementById('e_status');
-    const e_sprint = document.getElementById('e_sprint');
-    const e_project = document.getElementById('e_project');
-    const e_assignee = document.getElementById('e_assignee');
-    const e_assignee_name = document.getElementById('e_assignee_name');
-    const btnCancelEdit = document.getElementById('btnCancelEdit');
-    const btnDoEdit = document.getElementById('btnDoEdit');
-
-    // completar
-    const c_id = document.getElementById('complete_id');
-    const c_hours = document.getElementById('complete_hours');
-    const btnCancelComplete = document.getElementById('btnCancelComplete');
-    const btnDoComplete = document.getElementById('btnDoComplete');
-
-    // eliminar
-    const del_id = document.getElementById('delete_id');
-    const del_text = document.getElementById('delete_text');
-    const btnCancelDelete = document.getElementById('btnCancelDelete');
-    const btnDoDelete = document.getElementById('btnDoDelete');
-
-    // detalles
     const detailsCard = document.getElementById('detailsCard');
     const d_title = document.getElementById('d_title');
-    const d_status = document.getElementById('d_status');
-    const d_priority = document.getElementById('d_priority');
-    const d_sprint = document.getElementById('d_sprint');
-    const d_assignee = document.getElementById('d_assignee');
-    const d_est = document.getElementById('d_est');
-    const d_real = document.getElementById('d_real');
-    const d_created = document.getElementById('d_created');
-    const d_completed = document.getElementById('d_completed');
-    const d_desc = document.getElementById('d_desc');
-    const d_complete_btn = document.getElementById('d_complete_btn');
-    const d_delete_btn = document.getElementById('d_delete_btn');
-    const d_edit_btn = document.getElementById('d_edit_btn');
+    const d_status= document.getElementById('d_status');
+    const d_project=document.getElementById('d_project');
+    const d_assignee=document.getElementById('d_assignee');
+    const d_est=document.getElementById('d_est');
+    const d_real=document.getElementById('d_real');
+    const d_created=document.getElementById('d_created');
+    const d_completed=document.getElementById('d_completed');
+    const d_desc=document.getElementById('d_desc');
+    const d_complete_btn=document.getElementById('d_complete_btn');
+    const d_delete_btn=document.getElementById('d_delete_btn');
+    const d_edit_btn=document.getElementById('d_edit_btn');
 
-    // ======= ESTADO =======
-    let masterTasks = [];  // TODAS las tareas del usuario
-    let allTasks = [];     // tareas visibles (filtradas)
+    // ===== ESTADO
+    let masterTasks = [];
+    let allTasks = [];
     let selectedId = null;
-    let draggingId = null;
+    let draggingId = null; // única
+    const PROJECTS_BY_ID = new Map(); // id(string) -> nombre
 
-    // ======= HELPERS =======
-    const authHeaders = () => USER_EMAIL ? { 'X-User-Email': USER_EMAIL } : {};
-
-    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
-    const fmt = (iso) => {
-      if (!iso) return '—';
-      try { const d = new Date(iso); return d.toLocaleString(); } catch { return '—'; }
+    // ===== HELPERS
+    const authHeaders = () => {
+      const h = {};
+      if (USER_EMAIL) h['X-User-Email'] = USER_EMAIL;
+      if (USER_ID != null) h['X-User-Id'] = String(USER_ID);
+      return h;
     };
+    function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+    const fmt = (iso)=>{ if(!iso) return '—'; const d=new Date(iso); return isNaN(d)?'—':d.toLocaleString(); };
+    const getProjectName = id => id==null ? '—' : (PROJECTS_BY_ID.get(String(id)) || `Proyecto #${id}`);
 
-    // ======= FILTROS =======
-    function buildFilterOptionsFromMaster() {
-      // Guardar selección actual
-      const selProject = filterProject.value;
-      const selSprint = filterSprint.value;
-
-      // Limpiar
-      filterProject.innerHTML = `<option value="">Todas las tareas</option>`;
-      filterSprint.innerHTML = `<option value="">Todos los sprints</option>`;
-
-      // Tomar SIEMPRE masterTasks (no la lista filtrada)
-      const projectIds = [...new Set(masterTasks.map(t => t.projectId).filter(v => v != null))].sort((a,b)=>a-b);
-      projectIds.forEach(id => {
-        const opt = document.createElement('option');
-        opt.value = String(id);
-        opt.textContent = String(id);
-        filterProject.appendChild(opt);
-      });
-
-      const sprints = [...new Set(masterTasks.map(t => (t.sprintId||'').trim()).filter(Boolean))].sort();
-      sprints.forEach(sp => {
-        const opt = document.createElement('option');
-        opt.value = sp; opt.textContent = sp;
-        filterSprint.appendChild(opt);
-      });
-
-      // Restaurar selección si aún existe
-      if ([...filterProject.options].some(o => o.value === selProject)) filterProject.value = selProject;
-      if ([...filterSprint.options].some(o => o.value === selSprint)) filterSprint.value = selSprint;
+    function populateProjectSelect(){
+      const prev = filterProject.value;
+      const entries = [...PROJECTS_BY_ID.entries()].sort((a,b)=> String(a[1]).localeCompare(String(b[1])));
+      filterProject.innerHTML = `<option value="">Todos los proyectos</option>` + entries.map(([id,name])=>`<option value="${id}">${escapeHtml(name)}</option>`).join('');
+      if ([...filterProject.options].some(o=>o.value===prev)) filterProject.value = prev;
     }
 
-    function applyFilters() {
-      const pid = filterProject.value;
-      const sp = filterSprint.value.trim();
-      allTasks = masterTasks.filter(t => {
-        const okProject = pid ? String(t.projectId) === pid : true;
-        const okSprint = sp ? String(t.sprintId||'') === sp : true;
-        return okProject && okSprint;
-      });
-      renderBoard(allTasks);
+    async function loadVisibleProjectsForUser(){
+      if (!USER_ID) return;
+      try{
+        const r = await fetch(`${PROJECTS_API}/visibles/${encodeURIComponent(USER_ID)}`, { headers: authHeaders() });
+        if (!r.ok) return;
+        const arr = await r.json();
+        let changed=false;
+        (arr||[]).forEach(p=>{
+          if (p?.id!=null){
+            const key=String(p.id), name=String(p.nombreProyecto||`Proyecto #${p.id}`);
+            if (PROJECTS_BY_ID.get(key)!==name){ PROJECTS_BY_ID.set(key,name); changed=true; }
+          }
+        });
+        if (changed){ populateProjectSelect(); renderBoard(allTasks); if(selectedId){const sel=allTasks.find(t=>t.id===selectedId); if(sel) showDetails(sel);} }
+      }catch{}
     }
 
-    btnClearFilters.onclick = () => {
-      filterProject.value = '';
-      filterSprint.value = '';
-      applyFilters();
-    };
-    filterProject.onchange = applyFilters;
-    filterSprint.onchange = applyFilters;
-
-    // ======= MODALES =======
-    const openModal = () => { 
-      f_title.value = '';
-      f_desc.value = '';
-      f_hours.value = '';
-      f_prio.value = 'media';
-      f_sprint.value = 'SPR-1';
-      f_project.value = '';
-      f_assignee.value = user?.email || '';
-      f_assignee_name.value = '';
-      modal.classList.add('open'); 
-    };
-    const closeModal = () => { modal.classList.remove('open'); };
-    const openEdit = (t) => {
-      e_id.value = t.id;
-      e_title.value = t.title || '';
-      e_desc.value = t.description || '';
-      e_hours.value = t.estimatedHours ?? '';
-      e_prio.value = (t.priority || 'media').toLowerCase();
-      e_status.value = (t.status || 'todo').toLowerCase();
-      e_sprint.value = t.sprintId || '';
-      e_project.value = t.projectId || '';
-      e_assignee.value = t.assigneeId || '';
-      e_assignee_name.value = t.assigneeName || '';
-      modalEdit.classList.add('open');
-    };
-    const closeEdit = () => { modalEdit.classList.remove('open'); };
-    const openComplete = (id) => { c_id.value = id; c_hours.value = ''; modalComplete.classList.add('open'); };
-    const closeComplete = () => { modalComplete.classList.remove('open'); };
-    const openDelete = (id, title) => {
-      del_id.value = id;
-      del_text.innerHTML = `¿Seguro que quieres eliminar <b>${escapeHtml(title||'esta tarea')}</b>? <b>Se borrará permanentemente.</b>`;
-      modalDelete.classList.add('open');
-    };
-    const closeDelete = () => { modalDelete.classList.remove('open'); };
-
-    btnNew.onclick = openModal;
-    btnCancel.onclick = closeModal;
-
-    btnCreate.onclick = async () => {
-      const payload = {
-        title: f_title.value.trim(),
-        description: f_desc.value.trim(),
-        estimatedHours: Number(f_hours.value || 0),
-        priority: f_prio.value,
-        status: 'todo',
-        sprintId: f_sprint.value.trim(),
-        projectId: f_project.value ? Number(f_project.value) : null,
-        assigneeId: user?.email || '',
-        assigneeName: f_assignee_name.value.trim()
-      };
-      if (!payload.title) return alert('Título es obligatorio');
-      if (!payload.projectId || payload.projectId < 1) return alert('Proyecto ID es obligatorio (>0)');
-      if (payload.estimatedHours > 4) return alert('Máximo 4 horas.');
-
-      btnCreate.disabled = true;
+    async function ensureProjectName(id){
+      const key=String(id);
+      if (!id || PROJECTS_BY_ID.has(key)) return;
       try{
-        const res = await fetch(`${API}/tasks`, {
-          method: 'POST',
-          headers:{ 'Content-Type':'application/json', ...authHeaders() },
-          body: JSON.stringify(payload)
-        });
-        if(!res.ok){ alert(await res.text() || 'Error creando tarea'); btnCreate.disabled=false; return; }
-        await res.json();
-        closeModal();
-        btnCreate.disabled = false;
-        await loadBoard(); // recarga master + filtros
-      } catch(e){ btnCreate.disabled = false; alert('Error de red'); }
-    };
+        const r = await fetch(`${PROJECTS_API}/${encodeURIComponent(id)}`, { headers: authHeaders() });
+        if (!r.ok) return;
+        const p = await r.json();
+        if (p && p.id!=null){
+          PROJECTS_BY_ID.set(String(p.id), String(p.nombreProyecto || `Proyecto #${p.id}`));
+          populateProjectSelect(); renderBoard(allTasks);
+          if (selectedId){ const sel=allTasks.find(t=>t.id===selectedId); if(sel) showDetails(sel); }
+        }
+      }catch{}
+    }
 
-    btnCancelEdit.onclick = closeEdit;
-    btnDoEdit.onclick = async () => {
-      const id = e_id.value;
-      const payload = {
-        title: e_title.value.trim(),
-        description: e_desc.value.trim(),
-        estimatedHours: e_hours.value === '' ? null : Number(e_hours.value),
-        priority: e_prio.value,
-        status: e_status.value,
-        sprintId: e_sprint.value.trim(),
-        projectId: e_project.value ? Number(e_project.value) : null,
-        assigneeId: e_assignee.value.trim(),
-        assigneeName: e_assignee_name.value.trim()
-      };
-      if (!payload.title) return alert('Título obligatorio');
-      if (payload.projectId != null && payload.projectId < 1) return alert('projectId debe ser > 0');
+    async function loadAllTasks(){
+      const url = USER_ID ? `${TASKS_API}?userId=${encodeURIComponent(USER_ID)}` : TASKS_API;
+      const r = await fetch(url, { headers: authHeaders() });
+      if (!r.ok) return [];
+      const data = await r.json();
+      return Array.isArray(data)?data:[];
+    }
 
-      btnDoEdit.disabled = true;
-      try{
-        const res = await fetch(`${API}/tasks/${id}`, {
-          method: 'PUT',
-          headers:{ 'Content-Type':'application/json', ...authHeaders() },
-          body: JSON.stringify(payload)
-        });
-        if(!res.ok){ alert('No se pudo editar'); btnDoEdit.disabled=false; return; }
-        closeEdit();
-        btnDoEdit.disabled = false;
-        await loadBoard();
-        if (selectedId == id) showDetails(allTasks.find(t => t.id==id));
-      }catch(e){ btnDoEdit.disabled=false; alert('Error de red'); }
-    };
-
-    btnCancelComplete.onclick = closeComplete;
-    btnDoComplete.onclick = async () => {
-      const id = c_id.value;
-      const hours = Number(c_hours.value || 0);
-      if (hours < 0) return alert('Horas inválidas');
-      btnDoComplete.disabled = true;
-      try{
-        const res = await fetch(`${API}/tasks/${id}/complete`, {
-          method: 'PATCH',
-          headers:{ 'Content-Type':'application/json', ...authHeaders() },
-          body: JSON.stringify({ realHours: hours, status: 'done' })
-        });
-        if(!res.ok){ alert('No se pudo completar la tarea'); btnDoComplete.disabled=false; return; }
-        closeComplete();
-        btnDoComplete.disabled = false;
-        await loadBoard();
-        if (selectedId == id) showDetails(allTasks.find(t => t.id==id));
-      }catch(e){ btnDoComplete.disabled=false; alert('Error de red'); }
-    };
-
-    btnCancelDelete.onclick = closeDelete;
-    btnDoDelete.onclick = async () => {
-      const id = del_id.value;
-      btnDoDelete.disabled = true;
-      try{
-        const res = await fetch(`${API}/tasks/${id}`, { method:'DELETE', headers: authHeaders() });
-        if(!res.ok){ alert('No se pudo eliminar'); btnDoDelete.disabled=false; return; }
-        closeDelete();
-        btnDoDelete.disabled = false;
-        if (selectedId == id) { selectedId = null; detailsCard.classList.remove('open'); }
-        await loadBoard();
-      }catch(e){ btnDoDelete.disabled=false; alert('Error de red'); }
-    };
-
-    // ======= DRAG & DROP =======
     function enableColumnDnD(colEl){
-      colEl.addEventListener('dragover', (ev) => {
-        ev.preventDefault();
-        colEl.classList.add('drop-target');
-      });
-      colEl.addEventListener('dragleave', () => colEl.classList.remove('drop-target'));
-      colEl.addEventListener('drop', async (ev) => {
-        ev.preventDefault();
-        colEl.classList.remove('drop-target');
-        const toStatus = colEl.dataset.status; // todo | doing | done
-        const id = draggingId;
-        draggingId = null;
+      colEl.addEventListener('dragover', ev=>{ev.preventDefault();colEl.classList.add('drop-target');});
+      colEl.addEventListener('dragleave', ()=>colEl.classList.remove('drop-target'));
+      colEl.addEventListener('drop', async ev=>{
+        ev.preventDefault(); colEl.classList.remove('drop-target');
+        const toStatus=colEl.dataset.status, id=draggingId; draggingId=null;
         if (!id || !toStatus) return;
-
         try{
-          const res = await fetch(`${API}/tasks/${id}/status`, {
-            method: 'PATCH',
-            headers:{ 'Content-Type':'application/json', ...authHeaders() },
-            body: JSON.stringify({ status: toStatus })
-          });
-          if (!res.ok) { alert('No se pudo mover la tarea'); return; }
+          const res = await fetch(`${TASKS_API}/${id}/status`, { method:'PATCH', headers:{'Content-Type':'application/json', ...authHeaders()}, body: JSON.stringify({ status: toStatus }) });
+          if (!res.ok){ alert('No se pudo mover la tarea'); return; }
           await loadBoard();
-          if (selectedId == id) showDetails(allTasks.find(t => t.id==id));
-        }catch(e){ alert('Error de red'); }
+          if (selectedId==id) showDetails(allTasks.find(t=>t.id==id));
+        }catch{ alert('Error de red'); }
       });
     }
-    enableColumnDnD(dropTodo);
-    enableColumnDnD(dropDoing);
-    enableColumnDnD(dropDone);
+    enableColumnDnD(dropTodo); enableColumnDnD(dropDoing); enableColumnDnD(dropDone);
 
-    // ======= RENDER =======
     function taskCard(t){
-      const div = document.createElement('div');
-      div.className = 'task';
-      if (t.id === selectedId) div.classList.add('selected');
+      const div=document.createElement('div');
+      div.className='task';
+      if (t.id===selectedId) div.classList.add('selected');
+      div.setAttribute('draggable','true');
+      div.addEventListener('dragstart', ev=>{ draggingId=t.id; ev.dataTransfer.setData('text/plain', String(t.id)); });
 
-      // Drag
-      div.setAttribute('draggable', 'true');
-      div.addEventListener('dragstart', (ev) => {
-        draggingId = t.id;
-        ev.dataTransfer.setData('text/plain', String(t.id));
-      });
-
-      div.innerHTML = `
-        <div class="task-title">${escapeHtml(t.title || '')}</div>
-        <div class="task-meta">Prio: ${escapeHtml(t.priority||'')} · Est: ${t.estimatedHours??'-'}h ${t.realHours?(' · Real: '+t.realHours+'h'):''}</div>
-        <div class="task-meta">Sprint: ${escapeHtml(t.sprintId||'—')} · Proy: ${escapeHtml(t.projectId ?? '—')}</div>
+      const pname=getProjectName(t.projectId);
+      div.innerHTML=`
+        <div class="task-title">${escapeHtml(t.title||'')}</div>
+        <div class="task-meta">Est: ${t.estimatedHours??'-'}h${t.realHours?(' · Real: '+t.realHours+'h'):''} · Proy: ${escapeHtml(pname)}</div>
         <div class="task-meta">${escapeHtml(t.assigneeName||'')} (${escapeHtml(t.assigneeId||'')})</div>
       `;
 
-      // click ⇒ abrir detalles
-      div.onclick = () => {
-        selectedId = t.id;
-        renderBoard(allTasks); // re-render para marcar selección
-        showDetails(t);
-      };
-
-      // acciones
-      const actions = document.createElement('div');
-      actions.className = 'task-actions';
-
-      const bEdit = document.createElement('button');
-      bEdit.className = 'btn-xs edit';
-      bEdit.textContent = 'Editar…';
-      bEdit.onclick = (ev) => { ev.stopPropagation(); openEdit(t); };
-      actions.appendChild(bEdit);
-
-      if ((t.status||'').toLowerCase() !== 'done') {
-        const bComplete = document.createElement('button');
-        bComplete.className = 'btn-xs complete';
-        bComplete.textContent = 'Completar…';
-        bComplete.onclick = (ev) => { ev.stopPropagation(); openComplete(t.id); };
-        actions.appendChild(bComplete);
-      }
-
-      const bDelete = document.createElement('button');
-      bDelete.className = 'btn-xs delete';
-      bDelete.textContent = 'Eliminar…';
-      bDelete.onclick = (ev) => { ev.stopPropagation(); openDelete(t.id, t.title); };
-      actions.appendChild(bDelete);
+      const actions=document.createElement('div'); actions.className='task-actions';
+      const bEdit=document.createElement('button'); bEdit.className='btn-xs edit'; bEdit.textContent='Editar…'; bEdit.onclick=e=>{e.stopPropagation();openEdit(t);}; actions.appendChild(bEdit);
+      if ((t.status||'').toLowerCase()!=='done'){ const bComplete=document.createElement('button'); bComplete.className='btn-xs complete'; bComplete.textContent='Completar…'; bComplete.onclick=e=>{e.stopPropagation();openComplete(t.id);}; actions.appendChild(bComplete); }
+      const bDelete=document.createElement('button'); bDelete.className='btn-xs delete'; bDelete.textContent='Eliminar…'; bDelete.onclick=e=>{e.stopPropagation();openDelete(t.id,t.title);}; actions.appendChild(bDelete);
 
       div.appendChild(actions);
+      div.onclick=()=>{ selectedId=t.id; renderBoard(allTasks); showDetails(t); };
       return div;
     }
 
     function showDetails(t){
-      if (!t) { detailsCard.classList.remove('open'); return; }
+      if (!t){ detailsCard.classList.remove('open'); return; }
       detailsCard.classList.add('open');
+      d_title.textContent=t.title||'—';
 
-      d_title.textContent = t.title || '—';
+      const st=(t.status||'todo').toLowerCase();
+      d_status.textContent=st;
+      d_status.className=`badge status ${st}`;
 
-      const st = (t.status||'todo').toLowerCase();
-      d_status.textContent = st;
-      d_status.className = `badge status ${st}`;
+      d_project.textContent=getProjectName(t.projectId);
+      d_assignee.textContent=`${t.assigneeName||'—'} ${t.assigneeId?('('+t.assigneeId+')'):''}`;
+      d_est.textContent=t.estimatedHours??0;
+      d_real.textContent=t.realHours??0;
+      d_created.textContent=fmt(t.createdAt);
+      d_completed.textContent=fmt(t.completedAt);
+      d_desc.textContent=t.description||'—';
 
-      const pr = (t.priority||'').toLowerCase();
-      d_priority.textContent = `prioridad: ${pr||'—'}`;
-      d_priority.className = `badge prio ${pr || ''}`;
-
-      d_sprint.textContent = t.sprintId ? `Sprint: ${t.sprintId}` : 'Sprint: —';
-
-      d_assignee.textContent = `${t.assigneeName||'—'} ${t.assigneeId?('('+t.assigneeId+')'):''}`;
-      d_est.textContent = t.estimatedHours ?? 0;
-      d_real.textContent = t.realHours ?? 0;
-      d_created.textContent = fmt(t.createdAt);
-      d_completed.textContent = fmt(t.completedAt);
-      d_desc.textContent = t.description || '—';
-
-      d_edit_btn.onclick = () => openEdit(t);
-      if (st === 'done') {
-        d_complete_btn.style.display = 'none';
-      } else {
-        d_complete_btn.style.display = 'inline-block';
-        d_complete_btn.onclick = () => openComplete(t.id);
-      }
-      d_delete_btn.onclick = () => openDelete(t.id, t.title);
+      d_edit_btn.onclick=()=>openEdit(t);
+      if (st==='done'){ d_complete_btn.style.display='none'; }
+      else { d_complete_btn.style.display='inline-block'; d_complete_btn.onclick=()=>openComplete(t.id); }
+      d_delete_btn.onclick=()=>openDelete(t.id,t.title);
     }
 
     function renderBoard(list){
-      colTodo.innerHTML = '';
-      colDoing.innerHTML = '';
-      colDone.innerHTML = '';
-      let doneCount = 0;
-
-      list.forEach(t => {
-        const s = (t.status||'todo').toLowerCase();
-        if (s === 'done') doneCount++;
-        const card = taskCard(t);
-        if (s === 'doing') colDoing.appendChild(card);
-        else if (s === 'done') colDone.appendChild(card);
+      colTodo.innerHTML=''; colDoing.innerHTML=''; colDone.innerHTML='';
+      let doneCount=0;
+      list.forEach(t=>{
+        const s=(t.status||'todo').toLowerCase();
+        if (s==='done') doneCount++;
+        const card=taskCard(t);
+        if (s==='doing') colDoing.appendChild(card);
+        else if (s==='done') colDone.appendChild(card);
         else colTodo.appendChild(card);
       });
-
-      const pct = list.length ? Math.round((doneCount/list.length)*100) : 0;
-      progressBar.style.width = pct + '%';
-      progressPct.textContent = pct + '%';
+      const pct=list.length?Math.round((doneCount/list.length)*100):0;
+      progressBar.style.width=pct+'%';
+      progressPct.textContent=pct+'%';
 
       if (selectedId){
-        const sel = list.find(x => x.id === selectedId);
-        if (sel) showDetails(sel); else { selectedId = null; detailsCard.classList.remove('open'); }
+        const sel=list.find(x=>x.id===selectedId);
+        if (sel) showDetails(sel); else { selectedId=null; detailsCard.classList.remove('open'); }
       }
     }
 
-    async function loadBoard(){
-      const res = await fetch(`${API}/tasks`, { headers: authHeaders() });
-      masterTasks = await res.json();
-      buildFilterOptionsFromMaster(); // <- opciones SIEMPRE desde master
-      applyFilters();                  // <- aplica los filtros vigentes
+    // Placeholders para modales (si ya tienes los tuyos, reemplázalos)
+    function openEdit(t){ alert('Implementa tu modal de edición (ID: '+t.id+').'); }
+    function openComplete(id){ alert('Implementa tu modal de completar (ID: '+id+').'); }
+    function openDelete(id,title){
+      if (confirm(`¿Eliminar "${title}"?`)){
+        fetch(`${TASKS_API}/${id}`, { method:'DELETE', headers: authHeaders() }).then(()=>loadBoard());
+      }
     }
 
+    // CARGA
+    async function loadBoard(){
+      masterTasks = await loadAllTasks();
+
+      // Añade placeholders solo si faltan
+      const ids=new Set();
+      for (const t of masterTasks){
+        if (t.projectId!=null){
+          const key=String(t.projectId); ids.add(key);
+          if (!PROJECTS_BY_ID.has(key)) PROJECTS_BY_ID.set(key, `Proyecto #${t.projectId}`);
+        }
+      }
+      populateProjectSelect();
+
+      const selId = filterProject.value;
+      allTasks = selId ? masterTasks.filter(t=>String(t.projectId)===selId) : masterTasks;
+      renderBoard(allTasks);
+
+      await loadVisibleProjectsForUser();
+      await Promise.all([...ids].map(id=>ensureProjectName(id)));
+    }
+
+    filterProject.onchange=loadBoard;
     document.addEventListener('DOMContentLoaded', loadBoard);
   </script>
 </body>
