@@ -1,13 +1,14 @@
 package com.springboot.MyTodoList.service;
 
-import com.springboot.MyTodoList.model.Equipo;
-import com.springboot.MyTodoList.model.UsuarioEquipo;
-import com.springboot.MyTodoList.model.UsuarioEquipoId;
-import com.springboot.MyTodoList.model.RolEquipo;
-import com.springboot.MyTodoList.repository.EquipoRepository;
-import com.springboot.MyTodoList.repository.UsuarioEquipoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.springboot.MyTodoList.model.Equipo;
+import com.springboot.MyTodoList.model.RolEquipo;
+import com.springboot.MyTodoList.model.UsuarioEquipo;
+import com.springboot.MyTodoList.model.UsuarioEquipoId;
+import com.springboot.MyTodoList.repository.EquipoRepository;
+import com.springboot.MyTodoList.repository.UsuarioEquipoRepository;
 
 @Service
 public class EquipoService {
@@ -31,9 +32,11 @@ public class EquipoService {
 
     @Transactional
     public void eliminarEquipo(Long equipoId) {
-        // 1) Borrar relaciones
-        ueRepo.deleteByEquipoId(equipoId);
-        // 2) Borrar equipo
+        // 1) Borrar relaciones USUARIOS_EQUIPOS (método derivado)
+        ueRepo.deleteById_EquipoId(equipoId);
+        // (Si prefieres la query explícita: ueRepo.deleteAllByEquipoId(equipoId);)
+
+        // 2) Borrar el equipo
         equipoRepo.deleteById(equipoId);
     }
 }

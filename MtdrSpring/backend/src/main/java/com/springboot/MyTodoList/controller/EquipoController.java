@@ -1,5 +1,29 @@
 package com.springboot.MyTodoList.controller;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.springboot.MyTodoList.model.Equipo;
 import com.springboot.MyTodoList.model.Proyecto;
 import com.springboot.MyTodoList.model.RolEquipo;
@@ -9,12 +33,6 @@ import com.springboot.MyTodoList.repository.ProyectoRepository;
 import com.springboot.MyTodoList.repository.TareaRepository;
 import com.springboot.MyTodoList.repository.UsuarioEquipoRepository;
 import com.springboot.MyTodoList.service.EquipoService;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -43,7 +61,8 @@ public class EquipoController {
     @GetMapping
     public List<Equipo> all(@RequestParam(value = "adminId", required = false) Long adminId) {
         if (adminId == null) {
-            return repo.findAll();
+            // AJUSTE: devolver ordenado por nombre para la UI (no rompe compatibilidad)
+            return repo.findAll(Sort.by(Sort.Direction.ASC, "nombreEquipo"));
         }
         List<UsuarioEquipo> rels = ueRepo.findByUsuarioId(adminId);
         Set<Long> adminEquipoIds = rels.stream()
@@ -55,17 +74,44 @@ public class EquipoController {
         // Filtramos por IDs
         return repo.findAll().stream()
                 .filter(eq -> adminEquipoIds.contains(eq.getId()))
+                .sorted(Comparator.comparing(e -> Optional.ofNullable(e.getNombreEquipo()).orElse("")))
                 .collect(Collectors.toList());
     }
 
+    // OPCIONAL: equipos donde el usuario es miembro (cualquier rol)
+    // Útil si prefieres poblar el combo del Scrum Master con un solo request.
+    @GetMapping("/member/{usuarioId}")
+    public List<Equipo> listMemberTeams(@PathVariable Long usuarioId) {
+        List<UsuarioEquipo> rels = ueRepo.findByUsuarioId(usuarioId);
+        if (rels == null || rels.isEmpty()) return Collections.emptyList();
+        Set<Long> equipoIds = rels.stream()
+                .filter(ue -> ue.getId() != null)
+                .map(ue -> ue.getId().getEquipoId())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (equipoIds.isEmpty()) return Collections.emptyList();
+        List<Equipo> equipos = repo.findAllById(equipoIds);
+        equipos.sort(Comparator.comparing(e -> Optional.ofNullable(e.getNombreEquipo()).orElse("")));
+        return equipos;
+    }
+
+    // OPCIONAL (para optimizar): GET /equipos/by-ids?ids=1,2,3
+    @GetMapping("/by-ids")
+    public List<Equipo> byIds(@RequestParam("ids") List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return Collections.emptyList();
+        List<Equipo> equipos = repo.findAllById(ids);
+        equipos.sort(Comparator.comparing(e -> Optional.ofNullable(e.getNombreEquipo()).orElse("")));
+        return equipos;
+    }
+
     @GetMapping("/{id}")
-    public Equipo one(@PathVariable Long id) { 
-        return repo.findById(id).orElse(null); 
+    public Equipo one(@PathVariable Long id) {
+        return repo.findById(id).orElse(null);
     }
 
     @PostMapping
-    public Equipo create(@RequestBody Equipo e) { 
-        return repo.save(e); 
+    public Equipo create(@RequestBody Equipo e) {
+        return repo.save(e);
     }
 
     // Crear equipo y vincular creador como ADMIN
