@@ -219,7 +219,7 @@ public class TareaController {
         return tareaService.updateStatus(id, body.status);
     }
 
-    // === tus endpoints de métricas se mantienen igual ===
+        // TareaController.java  (método /api/tasks/productivity)
     @GetMapping("/tasks/productivity")
     public ResponseEntity<Map<String, Object>> productivity(HttpServletRequest req) {
         String owner = requireUserEmail(req);
@@ -227,14 +227,24 @@ public class TareaController {
 
         long totalAssigned = tasks.size();
         long totalCompleted = tasks.stream()
-                .filter(t -> (t.getStatus() != null && t.getStatus().equalsIgnoreCase("Hecho")) || t.getCompletedAt() != null)
+                .filter(t -> (t.getStatus() != null && t.getStatus().equalsIgnoreCase("done")) 
+                        || t.getCompletedAt() != null)
                 .count();
 
-        double plannedHours = tasks.stream().mapToDouble(t -> t.getEstimatedHours() != null ? t.getEstimatedHours() : 0.0).sum();
-        double realHours = tasks.stream().mapToDouble(t -> t.getRealHours() != null ? t.getRealHours() : 0.0).sum();
+        double plannedHours = tasks.stream()
+                .mapToDouble(t -> t.getEstimatedHours() != null ? t.getEstimatedHours() : 0.0)
+                .sum();
+
+        // ⬇️ SOLO sumar horas reales de tareas terminadas
+        double realHours = tasks.stream()
+                .filter(t -> (t.getStatus() != null && t.getStatus().equalsIgnoreCase("done")) 
+                        || t.getCompletedAt() != null)
+                .mapToDouble(t -> t.getRealHours() != null ? t.getRealHours() : 0.0)
+                .sum();
 
         double totalProgressSum = tasks.stream().mapToDouble(t -> {
-            boolean done = (t.getStatus() != null && t.getStatus().equalsIgnoreCase("Hecho")) || t.getCompletedAt() != null;
+            boolean done = (t.getStatus() != null && t.getStatus().equalsIgnoreCase("done")) 
+                        || t.getCompletedAt() != null;
             if (done) {
                 return 1.0;
             }
@@ -247,10 +257,10 @@ public class TareaController {
         }).sum();
 
         double avgProgress = totalAssigned == 0 ? 0.0 : (totalProgressSum / totalAssigned);
-        double hoursRatio
-                = (plannedHours == 0 && realHours == 0) ? 1.0
-                        : (plannedHours == 0) ? 0.0
-                                : (realHours == 0) ? 1.0 : plannedHours / realHours;
+        double hoursRatio =
+                (plannedHours == 0 && realHours == 0) ? 1.0
+                : (plannedHours == 0) ? 0.0
+                : (realHours == 0) ? 1.0 : plannedHours / realHours;
 
         double productivity = Math.max(0.0, Math.min(avgProgress * hoursRatio * 100.0, 100.0));
 
@@ -259,7 +269,7 @@ public class TareaController {
         resp.put("totalAssigned", totalAssigned);
         resp.put("totalCompleted", totalCompleted);
         resp.put("plannedHours", plannedHours);
-        resp.put("realHours", realHours);
+        resp.put("realHours", realHours); // ⬅️ ya solo de “Hecho”
         resp.put("avgProgress", avgProgress);
         resp.put("tasksRatio", avgProgress);
         resp.put("hoursRatio", hoursRatio);
@@ -267,6 +277,7 @@ public class TareaController {
 
         return ResponseEntity.ok(resp);
     }
+
 
     @GetMapping("/tasks/avg-resolution/all")
     public Map<String, Object> avgResolutionAll() {
