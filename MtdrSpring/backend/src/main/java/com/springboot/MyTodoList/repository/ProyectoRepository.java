@@ -1,9 +1,11 @@
 package com.springboot.MyTodoList.repository;
 
-import com.springboot.MyTodoList.model.Proyecto;
-import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.springboot.MyTodoList.model.Proyecto;
 
 public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
 
@@ -15,7 +17,16 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
     // Proyectos por equipo
     List<Proyecto> findByEquipoId(Long equipoId);
 
-    // ✅ Nuevo: buscar por nombre (ignora mayúsculas/minúsculas)
+    // ✅ Buscar por nombre (case-insensitive)
     Optional<Proyecto> findFirstByNombreProyectoIgnoreCase(String nombreProyecto);
+
+    // ✅ NUEVO: helpers para "buscar por letras" (case-insensitive)
+    List<Proyecto> findByNombreProyectoContainingIgnoreCase(String q);
+
+    // ✅ NUEVO: versión limitada (si tu JPA soporta TopN)
+    List<Proyecto> findTop10ByNombreProyectoContainingIgnoreCase(String q);
 }
+
+
+
 

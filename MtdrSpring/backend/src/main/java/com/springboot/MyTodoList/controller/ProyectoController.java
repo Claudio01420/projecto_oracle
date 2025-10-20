@@ -1,17 +1,37 @@
 package com.springboot.MyTodoList.controller;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.springboot.MyTodoList.model.Proyecto;
 import com.springboot.MyTodoList.model.UsuarioEquipo;
 import com.springboot.MyTodoList.repository.ProyectoRepository;
 import com.springboot.MyTodoList.repository.TareaRepository;
 import com.springboot.MyTodoList.repository.UsuarioEquipoRepository;
-
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -82,6 +102,60 @@ public class ProyectoController {
         }
 
         return new ArrayList<>(byId.values());
+    }
+
+    // ✅✅ NUEVO: AUTOCOMPLETE /picker
+    // Soporta /proyectos/buscar y /proyectos/search
+    // Si llega usuarioId, se limita a proyectos "visibles" para ese usuario.
+    @GetMapping({"/buscar", "/search"})
+    public List<Proyecto> buscar(
+            @RequestParam("q") String q,
+            @RequestParam(value = "usuarioId", required = false) Long usuarioId
+    ) {
+        if (q == null || q.trim().length() < 2) return Collections.emptyList();
+        final String needle = q.trim().toLowerCase();
+
+        // Si tenemos usuarioId, usamos "visibles(usuarioId)" y filtramos por nombre
+        if (usuarioId != null) {
+            return visibles(usuarioId).stream()
+                    .filter(Objects::nonNull)
+                    .filter(p -> {
+                        String name = p.getNombreProyecto();
+                        return name != null && name.toLowerCase().contains(needle);
+                    })
+                    .sorted(Comparator.comparing(
+                            p -> Optional.ofNullable(p.getNombreProyecto()).orElse(""),
+                            String.CASE_INSENSITIVE_ORDER
+                    ))
+                    .limit(10)
+                    .collect(Collectors.toList());
+        }
+
+        // Sin usuarioId: intenta usar Top10 por nombre (si no, fallback a all + filtro)
+        List<Proyecto> top = repo.findTop10ByNombreProyectoContainingIgnoreCase(q.trim());
+        if (top != null && !top.isEmpty()) {
+            // Asegura orden estable por nombre
+            return top.stream()
+                    .sorted(Comparator.comparing(
+                            p -> Optional.ofNullable(p.getNombreProyecto()).orElse(""),
+                            String.CASE_INSENSITIVE_ORDER
+                    ))
+                    .collect(Collectors.toList());
+        }
+
+        // Fallback (no debería ser necesario, pero es inofensivo)
+        return repo.findAll().stream()
+                .filter(Objects::nonNull)
+                .filter(p -> {
+                    String name = p.getNombreProyecto();
+                    return name != null && name.toLowerCase().contains(needle);
+                })
+                .sorted(Comparator.comparing(
+                        p -> Optional.ofNullable(p.getNombreProyecto()).orElse(""),
+                        String.CASE_INSENSITIVE_ORDER
+                ))
+                .limit(10)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
