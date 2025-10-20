@@ -44,8 +44,8 @@ public class TareaController {
 
     private final TareaService tareaService;
     private final TareaRepository tareaRepository;
-    private final ProyectoRepository proyectoRepository;
-    private final UsuarioEquipoRepository usuarioEquipoRepository;
+    private final ProyectoRepository proyectoRepository;           // ✅ nuevo
+    private final UsuarioEquipoRepository usuarioEquipoRepository; // ✅ nuevo
 
     public TareaController(TareaService tareaService,
             TareaRepository tareaRepository,
@@ -68,6 +68,7 @@ public class TareaController {
         return email.trim();
     }
 
+    // Helper: leer X-User-Id (opcional). Si no llega, devolvemos null.
     private Long readUserId(HttpServletRequest req) {
         String idH = req.getHeader("X-User-Id");
         if (idH == null || idH.isBlank()) {
@@ -80,18 +81,24 @@ public class TareaController {
         }
     }
 
+    // Helper: checar membresía del equipo del proyecto
     private boolean isMemberOfProjectTeam(Long userId, Long projectId) {
         if (userId == null || projectId == null) {
-            return true; // Modo dev: permitir si no hay userId
+            return true; // modo dev: permitir si no hay userId
+
         }
         Optional<Proyecto> opt = proyectoRepository.findById(projectId);
-        if (opt.isEmpty()) return false;
+        if (opt.isEmpty()) {
+            return false;
+        }
         Long equipoId = opt.get().getEquipoId();
-        if (equipoId == null) return false;
+        if (equipoId == null) {
+            return false;
+        }
         return usuarioEquipoRepository.existsById(new UsuarioEquipoId(userId, equipoId));
     }
 
-    // ======= CREATE (cambios mínimos solicitados) =======
+    // CREATE (projectId obligatorio)
     @PostMapping("/tasks")
     public ResponseEntity<?> createTask(HttpServletRequest req, @Valid @RequestBody TaskCreateDto dto) {
         if (dto.projectId == null || dto.projectId < 1) {
@@ -100,30 +107,18 @@ public class TareaController {
         if (dto.estimatedHours != null && dto.estimatedHours > 4.0) {
             return ResponseEntity.badRequest().body("Máximo 4 horas por tarea. Divide en subtareas.");
         }
-
-        // 1) Dueño/creador (quien hace la petición)
-        String ownerEmail = requireUserEmail(req);
-
-        // 2) Si no vino asignado, por defecto el creador
-        if (dto.assigneeId == null || dto.assigneeId.isBlank()) {
-            dto.assigneeId = ownerEmail;
-        }
-        if (dto.assigneeName == null || dto.assigneeName.isBlank()) {
-            dto.assigneeName = null; // opcional: deja null o usa parte del email
-        }
-
-        // 3) Crear pasando el ownerEmail al servicio (se guardará en userEmail)
-        Tarea created = tareaService.createFromDto(dto, ownerEmail);
+        String owner = requireUserEmail(req);
+        dto.assigneeId = owner; // forzar dueño
+        Tarea created = tareaService.createFromDto(dto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
-    // ======= LIST =======
     @GetMapping("/tasks")
     public ResponseEntity<?> list(HttpServletRequest req,
             @RequestParam(name = "projectId", required = false) Long projectId,
             @RequestParam(name = "sprintId", required = false) String sprintId,
             @RequestParam(name = "projectName", required = false) String projectName) {
-
+        // 1) Si NO viene X-User-Email y SÍ viene projectName -> vista COMPARTIDA del proyecto (todas las tareas)
         String emailHeader = req.getHeader("X-User-Email");
         if ((emailHeader == null || emailHeader.isBlank()) && projectName != null && !projectName.isBlank()) {
             Optional<Proyecto> p = proyectoRepository.findFirstByNombreProyectoIgnoreCase(projectName);
@@ -131,7 +126,7 @@ public class TareaController {
                 return ResponseEntity.ok(Collections.emptyList());
             }
             Long resolvedProjectId = p.get().getId();
-            Long userId = readUserId(req);
+            Long userId = readUserId(req); // opcional; si viene lo usamos para validar membresía
             if (!isMemberOfProjectTeam(userId, resolvedProjectId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No eres miembro del equipo del proyecto");
             }
@@ -139,8 +134,9 @@ public class TareaController {
             return ResponseEntity.ok(tasks);
         }
 
+        // 1b) Modo compartido por projectId (compatibilidad existente)
         if ((emailHeader == null || emailHeader.isBlank()) && projectId != null) {
-            Long userId = readUserId(req);
+            Long userId = readUserId(req); // opcional
             if (!isMemberOfProjectTeam(userId, projectId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No eres miembro del equipo del proyecto");
             }
@@ -148,8 +144,10 @@ public class TareaController {
             return ResponseEntity.ok(tasks);
         }
 
+        // 2) Modo clásico: vista del dueño (requiere X-User-Email)
         String owner = requireUserEmail(req);
 
+        // 2a) Filtro por nombre de proyecto (nuevo)
         if (projectName != null && !projectName.isBlank()) {
             Optional<Proyecto> p = proyectoRepository.findFirstByNombreProyectoIgnoreCase(projectName);
             if (p.isPresent()) {
@@ -162,6 +160,7 @@ public class TareaController {
             }
         }
 
+        // 2b) Ramas existentes por id (compatibilidad)
         if (projectId != null && sprintId != null && !sprintId.isBlank()) {
             return ResponseEntity.ok(
                     tareaRepository.findByAssigneeIdAndProjectIdAndSprintIdOrderByCreatedAtDesc(owner, projectId, sprintId)
@@ -180,7 +179,6 @@ public class TareaController {
         return ResponseEntity.ok(tareaService.listByAssignee(owner));
     }
 
-    // ======= COMPLETE =======
     @PatchMapping("/tasks/{id}/complete")
     public Tarea complete(HttpServletRequest req, @PathVariable Long id, @RequestBody CompleteTaskDto dto) {
         String owner = requireUserEmail(req);
@@ -189,7 +187,6 @@ public class TareaController {
         return tareaService.completeTask(id, dto);
     }
 
-    // ======= DELETE =======
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> delete(HttpServletRequest req, @PathVariable Long id) {
         String owner = requireUserEmail(req);
@@ -199,20 +196,21 @@ public class TareaController {
         return ResponseEntity.noContent().build();
     }
 
-    // ======= UPDATE =======
     @PutMapping("/tasks/{id}")
     public Tarea update(HttpServletRequest req, @PathVariable Long id, @RequestBody UpdateTaskDto dto) {
         String owner = requireUserEmail(req);
         tareaRepository.findByIdAndAssigneeId(id, owner)
                 .orElseThrow(() -> new NoSuchElementException("Task not found or not owned by user"));
 
+        if (dto != null && dto.assigneeId != null && !Objects.equals(dto.assigneeId, owner)) {
+            dto.assigneeId = owner;
+        }
         if (dto != null && dto.projectId != null && dto.projectId < 1) {
             throw new IllegalArgumentException("projectId debe ser > 0");
         }
         return tareaService.updateTask(id, dto);
     }
 
-    // ======= PATCH STATUS =======
     @PatchMapping("/tasks/{id}/status")
     public Tarea updateStatus(HttpServletRequest req, @PathVariable Long id, @RequestBody UpdateStatusDto body) {
         String owner = requireUserEmail(req);
@@ -221,7 +219,7 @@ public class TareaController {
         return tareaService.updateStatus(id, body.status);
     }
 
-    // ======= Métricas (sin cambios funcionales) =======
+    // === tus endpoints de métricas se mantienen igual ===
     @GetMapping("/tasks/productivity")
     public ResponseEntity<Map<String, Object>> productivity(HttpServletRequest req) {
         String owner = requireUserEmail(req);
@@ -237,17 +235,22 @@ public class TareaController {
 
         double totalProgressSum = tasks.stream().mapToDouble(t -> {
             boolean done = (t.getStatus() != null && t.getStatus().equalsIgnoreCase("Hecho")) || t.getCompletedAt() != null;
-            if (done) return 1.0;
+            if (done) {
+                return 1.0;
+            }
             Double est = t.getEstimatedHours();
             Double real = t.getRealHours();
-            if (est != null && est > 0.0) return Math.min((real != null ? real : 0.0) / est, 1.0);
+            if (est != null && est > 0.0) {
+                return Math.min((real != null ? real : 0.0) / est, 1.0);
+            }
             return (real != null && real > 0.0) ? 0.5 : 0.0;
         }).sum();
 
         double avgProgress = totalAssigned == 0 ? 0.0 : (totalProgressSum / totalAssigned);
-        double hoursRatio = (plannedHours == 0 && realHours == 0) ? 1.0
-                : (plannedHours == 0) ? 0.0
-                : (realHours == 0) ? 1.0 : plannedHours / realHours;
+        double hoursRatio
+                = (plannedHours == 0 && realHours == 0) ? 1.0
+                        : (plannedHours == 0) ? 0.0
+                                : (realHours == 0) ? 1.0 : plannedHours / realHours;
 
         double productivity = Math.max(0.0, Math.min(avgProgress * hoursRatio * 100.0, 100.0));
 

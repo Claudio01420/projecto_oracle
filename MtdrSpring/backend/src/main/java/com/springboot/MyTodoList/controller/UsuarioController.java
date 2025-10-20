@@ -10,14 +10,14 @@ import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
+// nuevas imports
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
-import java.util.HashMap;           // ← IMPORT NECESARIO
 import java.util.UUID;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // ajusta en producción
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
@@ -43,6 +43,7 @@ public class UsuarioController {
                                       @RequestHeader(value = "X-User-Role", required = false) String callerRole,
                                       @RequestHeader(value = "X-User-Id", required = false) String callerIdHeader) {
 
+        // Super Admin / Scrum Master -> pueden ver cualquiera
         if (hasAnyRole(callerRole, Usuario.ROLE_SUPER_ADMIN, Usuario.ROLE_SCRUM_MASTER)) {
             Optional<Usuario> u = repo.findById(id);
             if (u.isPresent()) {
@@ -54,6 +55,7 @@ public class UsuarioController {
             }
         }
 
+        // Desarrollador -> solo su propio id
         if (hasAnyRole(callerRole, Usuario.ROLE_DEVELOPER)) {
             try {
                 Long callerId = callerIdHeader != null ? Long.parseLong(callerIdHeader) : null;
@@ -80,6 +82,7 @@ public class UsuarioController {
     @PostMapping
     public ResponseEntity<Usuario> create(@RequestBody Usuario u,
                                           @RequestHeader(value = "X-User-Role", required = false) String callerRole) {
+        // autorización
         if (!hasAnyRole(callerRole, Usuario.ROLE_SUPER_ADMIN)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -92,19 +95,27 @@ public class UsuarioController {
         }
 
         String email = u.getEmail().trim();
+        // si ya existe usuario con el mismo email (case-insensitive)
         if (repo.findByEmailIgnoreCase(email).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
+        // asignar rol por defecto si no viene: Desarrollador
         if (u.getRol() == null || u.getRol().trim().isEmpty()) {
             u.setRol(Usuario.ROLE_DEVELOPER);
         }
 
         Usuario saved = repo.save(u);
+        // no devolver la contraseña
         saved.setContrasenia(null);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
+    /**
+     * Login: recibe { "email": "...", "contrasenia": "..." }
+     * - Email case-insensitive
+     * - No devuelve la contraseña en la respuesta
+     */
     @PostMapping("/login")
     public ResponseEntity<Usuario> login(@RequestBody Usuario credentials) {
         if (credentials == null ||
@@ -119,12 +130,16 @@ public class UsuarioController {
         Optional<Usuario> opt = repo.findByEmailIgnoreCase(email);
         if (opt.isPresent() && pass.equals(opt.get().getContrasenia())) {
             Usuario user = opt.get();
+            // no exponer contraseña
             user.setContrasenia(null);
             return ResponseEntity.ok(user);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
+    /**
+     * Buscar usuario por email (case-insensitive). Devuelve 404 si no existe.
+     */
     @GetMapping("/by-email")
     public ResponseEntity<Usuario> findByEmail(@RequestParam("email") String email) {
         if (email == null || email.trim().isEmpty()) {
@@ -137,6 +152,7 @@ public class UsuarioController {
                 }).orElse(ResponseEntity.notFound().build());
     }
 
+    // Helper para comprobar roles (null seguro)
     private boolean hasAnyRole(String callerRole, String... allowedRoles) {
         if (callerRole == null) return false;
         for (String ar : allowedRoles) {
@@ -145,21 +161,7 @@ public class UsuarioController {
         return false;
     }
 
-    // ===== NUEVO: endpoint público (id, nombre, email) =====
-    @GetMapping("/public/{id}")
-    public ResponseEntity<Map<String, Object>> publicUser(@PathVariable Long id) {
-        return repo.findById(id)
-                .map(u -> {
-                    Map<String, Object> out = new HashMap<>();
-                    out.put("id", u.getId());
-                    out.put("nombre", u.getNombre());
-                    out.put("email", u.getEmail());
-                    return ResponseEntity.ok(out);
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    // ===== Reset password (como lo tenías) =====
+    // Mapa en memoria para tokens temporales (token -> TokenInfo)
     private static final Map<String, TokenInfo> resetTokens = new ConcurrentHashMap<>();
 
     private static class TokenInfo {
@@ -171,6 +173,12 @@ public class UsuarioController {
         }
     }
 
+    /**
+     * Solicitud de reseteo:
+     * Recibe { "email": "user@..." }
+     * - Si el usuario existe: genera token temporal y lo devuelve (simulación de envío por email en dev).
+     * - En producción se debe enviar email y NO devolver el token en la respuesta.
+     */
     @PostMapping("/reset-request")
     public ResponseEntity<Map<String,String>> resetRequest(@RequestBody Map<String,String> body) {
         if (body == null || body.get("email") == null || body.get("email").trim().isEmpty()) {
@@ -182,11 +190,17 @@ public class UsuarioController {
             String token = UUID.randomUUID().toString().replace("-", "");
             Instant expires = Instant.now().plus(15, ChronoUnit.MINUTES);
             resetTokens.put(token, new TokenInfo(email.toLowerCase(), expires));
+            // RESPUESTA: en desarrollo devolvemos el token para que puedas probar. En producción envía email.
             return ResponseEntity.ok(Map.of("message","token generado (dev)", "token", token));
         }
+        // No revelar si el email existe: devolver mensaje genérico
         return ResponseEntity.ok(Map.of("message","Si la cuenta existe, se ha enviado un correo con instrucciones"));
     }
 
+    /**
+     * Confirmar reseteo:
+     * Recibe { "email": "...", "token": "...", "newPassword": "..." }
+     */
     @PostMapping("/reset-confirm")
     public ResponseEntity<Map<String,String>> resetConfirm(@RequestBody Map<String,String> body) {
         if (body == null ||
@@ -214,6 +228,7 @@ public class UsuarioController {
 
         Optional<Usuario> opt = repo.findByEmailIgnoreCase(email);
         if (opt.isEmpty()) {
+            // raro: usuario no existe aunque token exista -> retirar token
             resetTokens.remove(token);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","usuario no encontrado"));
         }
@@ -225,3 +240,4 @@ public class UsuarioController {
         return ResponseEntity.ok(Map.of("message","contraseña actualizada"));
     }
 }
+

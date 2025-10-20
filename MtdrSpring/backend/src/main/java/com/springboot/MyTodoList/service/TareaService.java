@@ -9,14 +9,13 @@ import java.util.List;
 
 public interface TareaService {
     Tarea createFromDto(TaskCreateDto dto);
-
-    // === NUEVO: overload para registrar al creador (userEmail) ===
-    Tarea createFromDto(TaskCreateDto dto, String ownerEmail);
-
     List<Tarea> listByAssignee(String assigneeId);
     Tarea completeTask(Long id, CompleteTaskDto dto);
     void delete(Long id);
 
+    // NUEVO
     Tarea updateTask(Long id, UpdateTaskDto dto);
     Tarea updateStatus(Long id, String status);
 }
+
+
