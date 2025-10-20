@@ -21,6 +21,13 @@ public class TareaServiceImpl implements TareaService {
 
     @Override
     public Tarea createFromDto(TaskCreateDto dto) {
+        // Mantén este método para compatibilidad (sin userEmail explícito)
+        return createFromDto(dto, null);
+    }
+
+    // === NUEVO: crea y setea userEmail (dueño/creador) ===
+    @Override
+    public Tarea createFromDto(TaskCreateDto dto, String ownerEmail) {
         Tarea t = new Tarea();
         t.setTitle(dto.title);
         t.setDescription(dto.description);
@@ -28,12 +35,16 @@ public class TareaServiceImpl implements TareaService {
         t.setPriority(dto.priority);
         t.setStatus(dto.status != null ? dto.status.toLowerCase() : "todo");
         t.setSprintId(dto.sprintId);
-        t.setAssigneeId(dto.assigneeId);
-        t.setAssigneeName(dto.assigneeName);
+        t.setAssigneeId(dto.assigneeId);       // email del asignado
+        t.setAssigneeName(dto.assigneeName);   // nombre visible
         t.setCreatedAt(LocalDateTime.now());
 
-        // NUEVO: projectId
         t.setProjectId(dto.projectId);
+
+        // Guardar quién creó la tarea (userEmail)
+        if (ownerEmail != null && !ownerEmail.isBlank()) {
+            t.setUserEmail(ownerEmail);
+        }
 
         return repo.save(t);
     }
@@ -70,7 +81,6 @@ public class TareaServiceImpl implements TareaService {
         if (dto.assigneeId != null) t.setAssigneeId(dto.assigneeId);
         if (dto.assigneeName != null) t.setAssigneeName(dto.assigneeName);
 
-        // NUEVO: projectId (si viene)
         if (dto.projectId != null) t.setProjectId(dto.projectId);
 
         return repo.save(t);
@@ -88,4 +98,3 @@ public class TareaServiceImpl implements TareaService {
         return repo.save(t);
     }
 }
-
