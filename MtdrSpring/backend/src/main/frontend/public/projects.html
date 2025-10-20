@@ -48,7 +48,7 @@
     </symbol>
     <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <circle cx="12" cy="12" r="3" />
-      <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0  0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+      <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
     </symbol>
     <symbol id="i-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="m16 17 5-5-5-5"/>
@@ -90,6 +90,19 @@
     .field.invalid input, .field.invalid select { border-color:#E1261C; background:#fff6f5; }
     .field .msg { display:none; font-size:12px; color:#E1261C; margin-top:6px; }
     .field.invalid .msg { display:block; }
+
+    /* ===== Picker / Autocomplete ===== */
+    .search-wrap { position:relative; }
+    .ac-wrap { position:absolute; left:0; right:0; top:calc(100% + 6px); background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow: var(--shadow-md, 0 6px 24px rgba(16,24,40,.08)); display:none; z-index: 500; }
+    .ac-wrap.open { display:block; }
+    .ac-head { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--line); font-size:12px; color:#6b7280; }
+    .ac-list { max-height:260px; overflow:auto; padding:4px; margin:0; list-style:none; }
+    .ac-item { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; padding:8px 10px; border-radius:10px; cursor:pointer; }
+    .ac-item:hover { background:#f8fafc; }
+    .ac-item.active { outline:2px solid #e5e7eb; background:#f1f5f9; }
+    .ac-title { font-weight:800; margin-bottom:2px; }
+    .ac-sub  { font-size:12px; color:#6b7280; }
+    .ac-chip { font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); background:#fff; white-space:nowrap; }
   </style>
 </head>
 
@@ -149,10 +162,17 @@
       <section class="card card-soft">
         <h1 class="h4">Proyectos</h1>
         <div class="toolbar">
-          <div class="field">
+          <!-- 🔎 Buscador con picker -->
+          <div class="field search-wrap">
             <label for="buscar">Buscar</label>
-            <input id="buscar" type="text" placeholder="Buscar proyecto…">
+            <input id="buscar" type="text" placeholder="Buscar proyecto…" autocomplete="off" />
+            <!-- Panel de sugerencias -->
+            <div id="ac-wrap" class="ac-wrap" aria-hidden="true">
+              <div class="ac-head"><span>Coincidencias</span><span id="ac-count">0</span></div>
+              <ul id="ac-list" class="ac-list"></ul>
+            </div>
           </div>
+
           <div class="field">
             <label for="filtro">Filtrar</label>
             <select id="filtro">
@@ -276,7 +296,7 @@
   </div>
 
   <div id="confirm-root"></div>
-  
+
 <script>
   // ===== Sesión
   const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -328,6 +348,11 @@
   const $fEquipoField = document.getElementById("f-equipo-field");
   const $fInicioField = document.getElementById("f-inicio-field");
   const $fFinField    = document.getElementById("f-fin-field");
+
+  // ===== Picker / Autocomplete DOM
+  const $acWrap  = document.getElementById("ac-wrap");
+  const $acList  = document.getElementById("ac-list");
+  const $acCount = document.getElementById("ac-count");
 
   // API
   const currentUserId = user?.id || null;
@@ -394,7 +419,6 @@
   async function fetchTasksForProject(projectId){
     try{
       const res = await fetch(`${TASKS_API}?projectId=${encodeURIComponent(projectId)}`, {
-        // ✅ ahora mandamos el X-User-Id (para validar membresía en backend)
         headers: { "X-User-Id": String(currentUserId || "") }
       });
       if (!res.ok) return [];
@@ -693,7 +717,7 @@
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-User-Id": String(currentUserId) // opcional; tu backend lo usa en /proyectos si lo necesitas
+        "X-User-Id": String(currentUserId)
       },
       body: JSON.stringify(nuevo)
     });
@@ -758,7 +782,6 @@
     catch{ return null; }
   }
 
-  // (Robusto) por si algún endpoint sigue devolviendo formato embebido
   async function fetchUserEquipoIds(userId){
     const rels = await getJsonOrNull(`http://localhost:8080/usuarios-equipos/usuario/${encodeURIComponent(userId)}`);
     if (!Array.isArray(rels)) return [];
@@ -767,12 +790,10 @@
       .filter(id => id != null);
   }
 
-  // ✅ Directo desde /proyectos/visibles/{usuarioId}
   async function fetchUserVisibleProjects(userId){
     const direct = await getJsonOrNull(`${API_BASE}/visibles/${encodeURIComponent(userId)}`);
     if (Array.isArray(direct)) return direct;
 
-    // Fallback defensivo
     const byId = new Map();
     const mine = await getJsonOrNull(`${API_BASE}/mios/${encodeURIComponent(userId)}`) || [];
     for (const p of mine) if (p?.id != null) byId.set(p.id, p);
@@ -792,10 +813,8 @@
         return;
       }
 
-      // ✅ Proyectos visibles para el usuario (propios + de equipos miembro)
       proyectosCache = await fetchUserVisibleProjects(currentUserId);
 
-      // Prefetch nombres de equipos
       const uniqueEquipoIds = [...new Set(proyectosCache.map(p => p.equipoId).filter(Boolean))];
       await Promise.all(uniqueEquipoIds.map(id => fetchEquipoNombre(id)));
 
@@ -841,7 +860,122 @@
   $filtro.addEventListener("change", aplicarFiltros);
 
   document.addEventListener("DOMContentLoaded", cargarProyectos);
+
+  /* ===========================
+     ==== Picker / Autocomplete
+     =========================== */
+  const acState = { open:false, index:-1, items:[] };
+
+  function debounce(fn, ms){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); }; }
+
+  function acOpen(){ if (!$acWrap) return; $acWrap.classList.add("open"); $acWrap.setAttribute("aria-hidden","false"); acState.open = true; }
+  function acClose(){ if (!$acWrap) return; $acWrap.classList.remove("open"); $acWrap.setAttribute("aria-hidden","true"); acState.open = false; acState.index = -1; }
+  function acRender(items){
+    acState.items = items || [];
+    $acCount.textContent = String(acState.items.length);
+    $acList.innerHTML = acState.items.map((p,idx)=>`
+      <li class="ac-item ${idx===acState.index?'active':''}" data-id="${p.id}">
+        <div>
+          <div class="ac-title">${escapeHtml(p.nombreProyecto || '')}</div>
+          <div class="ac-sub">${escapeHtml(p.descripcion || '')}</div>
+        </div>
+        <div class="ac-chip">${escapeHtml(p.estado || '')}</div>
+      </li>
+    `).join('');
+    if (!acState.items.length) {
+      $acList.innerHTML = `<li class="ac-item" style="cursor:default;opacity:.7">Sin resultados…</li>`;
+    }
+  }
+
+  function acHighlight(nextIndex){
+    const n = acState.items.length;
+    if (!n) return;
+    if (nextIndex < 0) nextIndex = n - 1;
+    if (nextIndex >= n) nextIndex = 0;
+    acState.index = nextIndex;
+    Array.from($acList.children).forEach((li,i)=>{
+      if (li.classList.contains('ac-item')) {
+        if (i===acState.index) li.classList.add('active'); else li.classList.remove('active');
+      }
+    });
+    const active = $acList.children[acState.index];
+    if (active && active.scrollIntoView) active.scrollIntoView({ block:'nearest' });
+  }
+
+  async function acFetch(q){
+    if (!q || q.trim().length < 2) { acClose(); return; }
+    const url = `${API_BASE}/buscar?q=${encodeURIComponent(q)}${currentUserId ? `&usuarioId=${encodeURIComponent(currentUserId)}`:''}`;
+    try{
+      const r = await fetch(url);
+      if (!r.ok) { acRender([]); acOpen(); return; }
+      const data = await r.json();
+      acRender(Array.isArray(data) ? data : []);
+      acOpen();
+    }catch{
+      acRender([]); acOpen();
+    }
+  }
+  const acFetchDebounced = debounce(acFetch, 180);
+
+  async function acChooseById(id){
+    if (!id) return;
+    // Opción A: NO tocar la tabla ni el cache. Solo mostrar detalle.
+    const fromCache = proyectosCache.find(p => p.id === Number(id));
+    if (fromCache) {
+      setDetalle(fromCache);
+      return;
+    }
+    try{
+      const r = await fetch(`${API_BASE}/${encodeURIComponent(id)}`);
+      if (!r.ok) return;
+      const p = await r.json();
+      if (p?.equipoId && !equipoNombreCache.has(p.equipoId)) {
+        await fetchEquipoNombre(p.equipoId);
+      }
+      setDetalle(p);
+    }catch{ /* no-op */ }
+  }
+
+  // Eventos del picker
+  $buscar.addEventListener('input', (e)=>{
+    const q = e.target.value || '';
+    acFetchDebounced(q);
+  });
+
+  $buscar.addEventListener('keydown', (e)=>{
+    if (!acState.open) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); acHighlight(acState.index + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); acHighlight(acState.index - 1); }
+    else if (e.key === 'Enter') {
+      if (acState.index >= 0 && acState.index < acState.items.length) {
+        const chosen = acState.items[acState.index];
+        $buscar.value = chosen?.nombreProyecto || $buscar.value;
+        acClose();
+        acChooseById(chosen?.id);
+      }
+    } else if (e.key === 'Escape') {
+      acClose();
+    }
+  });
+
+  $acList.addEventListener('click', (e)=>{
+    const li = e.target.closest('.ac-item[data-id]');
+    if (!li) return;
+    const id = Number(li.dataset.id);
+    const it = acState.items.find(x => x.id === id);
+    if (it) $buscar.value = it.nombreProyecto || $buscar.value;
+    acClose();
+    acChooseById(id);
+  });
+
+  document.addEventListener('click', (e)=>{
+    if (!acState.open) return;
+    if (e.target === $buscar) return;
+    if (e.target.closest('.ac-wrap')) return;
+    acClose();
+  });
 </script>
 
 </body>
 </html>
+
