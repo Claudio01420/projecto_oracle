@@ -1,26 +1,19 @@
-/* ===========================
-   HOMEWORK-PROJECT (Estilo A)
-   =========================== */
-
-/* ---- Layout contenedor ---- */
 .container{
   max-width:1240px;
-  margin:0 auto 32px;
+  margin:0 auto 32px; /* eliminado margen superior */
   padding:0 22px;
 }
 .container-wide{ max-width:1240px; }
 .app{ padding-top:50px; }
 
-/* ---- Tarjeta principal del proyecto ---- */
+/* Tarjeta principal */
 .hero-card{
   padding:26px 24px;
   border-radius:24px;
   box-shadow:var(--shadow-md);
-  background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
-  border:1px solid var(--line);
 }
 
-/* ---- Encabezado ---- */
+/* Encabezado */
 .project-title{
   font-size:clamp(26px,3.2vw,40px);
   line-height:1.15;
@@ -35,264 +28,162 @@
 .project-desc{
   color:var(--muted-2);
   font-size:clamp(14px,1.8vw,16px);
-  background:#fff;
-  border:1px solid var(--line);
-  padding:6px 10px;
-  border-radius:12px;
 }
 .team-pill{
   display:inline-flex; align-items:center; gap:6px;
-  background:#fff; border:1px solid var(--line);
+  background:var(--chip); border:1px solid var(--line);
   border-radius:999px; padding:6px 10px;
-  font-size:13px; font-weight:700;
+  font-size:13px;
 }
 
-/* ---- Estado y avance ---- */
-.status-advance{ margin-top:18px; display:grid; gap:14px }
-.status-chip-wrap{ display:flex; justify-content:flex-end }
-
-/* ---- Board de progreso ---- */
-.progress-layout{
-  display:grid; gap:16px;
-  grid-template-columns: 210px 1fr; align-items:center;
+/* Estado y avance */
+.status-advance{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:14px;
 }
-@media (max-width:980px){ .progress-layout{ grid-template-columns:1fr } }
-
-.board{
-  display:grid; gap:12px;
-  grid-template-columns: repeat(2, minmax(0,1fr));
+.status-chip-wrap{
+  display:flex;
+  justify-content:flex-end;
 }
-@media (max-width:720px){ .board{ grid-template-columns:1fr } }
 
-.stat-card{
-  background:#fff; border:1px solid var(--line);
-  border-radius:16px; padding:12px 14px;
-  display:flex; flex-direction:column; gap:8px;
+/* Progreso */
+.progress-board{
+  display:grid;
+  grid-template-columns:240px minmax(0,1fr);
+  align-items:center;
+  gap:20px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:16px;
   box-shadow:var(--shadow-sm);
 }
-.stat-card .label{ font-size:12px; color:var(--muted-2); font-weight:700 }
-.stat-card .value{ font-weight:900; color:var(--ink) }
 
-/* ---- Progreso radial ---- */
+/* Radial */
 .radial-wrap{
   display:flex; align-items:center; justify-content:center;
-  background:#fff; border:1px solid var(--line);
-  border-radius:18px; padding:16px;
+  width:180px; height:180px;
 }
+.radial-wrap.big{ width:220px; height:220px; }
+.radial-wrap.small{ width:120px; height:120px; }
+
 .radial-progress{
-  --p:0; width:150px; height:150px; border-radius:50%;
-  background: conic-gradient(var(--brand) calc(var(--p)*1%), #eef1f6 0);
-  display:grid; place-items:center; color:#111; position:relative;
-  box-shadow: inset 0 0 0 1px #f3f4f6;
+  --p:0; --size:100%; --thickness:14px;
+  width:var(--size); height:var(--size);
+  border-radius:50%;
+  background:
+    conic-gradient(from -90deg,
+      #ffb347 calc(var(--p)*1%), #ffe29f 0, #eceff3 0),
+    radial-gradient(#fff calc(50% - var(--thickness)), transparent calc(50% - var(--thickness) + 1));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 10px 28px rgba(0,0,0,.08);
 }
-.radial-progress::after{
-  content:""; position:absolute; inset:12px; background:#fff;
-  border-radius:50%; box-shadow: inset 0 0 0 1px var(--line);
+.radial-progress span{
+  font-weight:900; color:var(--dark);
+  font-size:clamp(20px,2.6vw,28px);
 }
-.radial-progress > span{ position:relative; font-weight:900; font-size:22px }
 
-/* ---- Barra lineal ---- */
-.progress{ height:8px; background:#eef2f7; border-radius:999px; overflow:hidden; border:1px solid var(--line) }
-.progress > span{ display:block; height:100%; background:var(--brand); width:0%; transition:width .45s ease }
+/* Fechas */
+.dates-col .date-item{
+  display:grid; grid-template-columns:100px 1fr; gap:8px; margin-bottom:8px;
+}
+.dates-col .label{ font-size:12px; color:var(--muted); }
+.dates-col .value{ font-weight:700; color:var(--ink); }
+.mt-10{ margin-top:10px; }
+.progress > span{ transition:width .45s ease; }
 
-/* ===========================
-   Tareas + Integrantes (2 col)
-   =========================== */
-.two-col{
-  display:grid;
-  grid-template-columns: 1.4fr 0.8fr;
-  gap:16px;
-  margin-top:16px;
+/* Acciones */
+.page-actions{
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:12px;
 }
-@media (max-width:980px){ .two-col{ grid-template-columns:1fr } }
 
-/* ---- Card de tareas ---- */
-.tasks-card{
-  border-radius:24px; border:1px solid var(--line);
-  background:linear-gradient(180deg,#fff 0%, #fbfcff 100%);
-  box-shadow: var(--shadow-md);
+/* Toasts */
+.toast-stack{
+  position:fixed; top:70px; right:18px;
+  display:flex; flex-direction:column; gap:10px; z-index:3000;
 }
-.tasks-head{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:14px 16px; border-bottom:1px solid var(--line);
-}
-.tasks-head h2{ margin:0; font-size:18px; font-weight:900 }
-.tasks-list{ padding:6px 16px 16px 16px }
-
-/* ---- Items de tarea ---- */
-.task-item{
-  border:1px solid var(--line); border-radius:14px; background:#fff;
-  padding:10px 12px; margin:10px 0;
-  display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center;
-  box-shadow: var(--shadow-sm);
-}
-.task-title{ font-weight:900 }
-.task-meta{ font-size:12px; color:#64748b }
-.task-actions{ display:flex; gap:6px; align-items:center }
-
-/* Badges de estado */
-.badge{ font-size:12px; border:1px solid var(--line); padding:2px 8px; border-radius:999px; background:#fff }
-.badge.status.todo{ background:#fff4f3 }
-.badge.status.done{ background:#e9fff0 }
-
-/* Botón pequeño sólido (Editar / Borrar) */
-.btn-xs{
-  appearance:none; border:none; cursor:pointer;
-  display:inline-flex; align-items:center; gap:6px;
-  background: var(--brand); color:#fff; font-weight:800; font-size:12px;
-  padding:6px 10px; border-radius:10px;
-  box-shadow:0 6px 14px rgba(225,38,28,.2);
-  transition: transform .08s ease, box-shadow .2s ease, background .12s ease;
-}
-.btn-xs:hover{ transform:translateY(-1px); background:var(--brand-hover) }
-.btn-danger.btn-xs{ background:#dc2626 }
-.btn-danger.btn-xs:hover{ background:#b91c1c }
-
-/* Botón sólido “Crear tarea” */
-.btn-fab{
-  appearance:none; border:none; cursor:pointer;
-  display:inline-flex; align-items:center; gap:8px;
-  background: var(--brand); color:#fff; font-weight:900;
-  padding:10px 14px; border-radius:999px;
-  box-shadow:0 8px 20px rgba(225,38,28,.25);
-  transition: transform .08s ease, box-shadow .2s ease, background .12s ease;
-}
-.btn-fab:hover{ transform: translateY(-1px); box-shadow:0 12px 28px rgba(225,38,28,.33); background: var(--brand-hover) }
-.btn-fab .ico{ width:18px; height:18px }
-
-/* Botón ghost reutilizado (si lo usas en descripción) */
-.desc-btn{
-  appearance:none; border:1px solid var(--line-2);
-  background:#fff; color:var(--dark);
-  padding:6px 10px; border-radius:10px; font-weight:800; font-size:12px; cursor:pointer;
-  transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease, background .15s ease;
-}
-.desc-btn:hover{ transform:translateY(-1px); box-shadow:var(--shadow-sm); border-color:#d9dde3 }
-
-/* Descripción desplegable */
-.task-desc{
-  grid-column: 2 / -1;
-  margin-top:-4px; margin-bottom:2px;
-  padding:10px; border-radius:10px;
-  background:#f8fafc; color:#334155;
-  border:1px dashed #e6e9ef; display:none;
-}
-.task-desc.show{ display:block; }
-
-/* ===========================
-   Tarjeta de Integrantes
-   =========================== */
-.members-card{
-  border-radius:24px; border:1px solid var(--line);
-  background:linear-gradient(180deg,#fff 0%, #fbfcff 100%);
-  box-shadow: var(--shadow-md);
-}
-.members-head{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:14px 16px; border-bottom:1px solid var(--line);
-}
-.members-list{
-  padding:10px 12px 14px; display:flex; flex-direction:column; gap:10px;
-}
-.member-item{
-  display:flex; align-items:center; justify-content:space-between;
-  gap:10px; padding:10px 12px;
+.toast{ display:flex; gap:12px; align-items:flex-start;
+  min-width:280px; max-width:380px;
   background:#fff; border:1px solid var(--line);
-  border-radius:14px; box-shadow: var(--shadow-sm);
+  border-radius:14px; padding:12px 14px;
+  box-shadow:var(--shadow-md);
+  opacity:0; transform:translateY(-6px);
+  transition:opacity .2s ease, transform .2s ease;
 }
-.member-left{ display:flex; align-items:center; gap:10px }
-.member-avatar{
-  width:34px; height:34px; border-radius:50%;
-  display:grid; place-items:center; font-weight:900;
-  background:#f3f4f6; color:#111; border:1px solid var(--line-2);
-}
-.member-name{ font-weight:800 }
+.toast.show{ opacity:1; transform:translateY(0); }
 
-/* Badge de rol (compacto) */
-.role-badge{
-  font-size:12px; font-weight:800;
-  padding:4px 8px; border-radius:999px;
-  border:1px solid var(--line); background:#fff;
+/* Responsive */
+@media(max-width:1140px){
+  .progress-board{ grid-template-columns:1fr; }
+  .radial-wrap.big{ margin:0 auto; }
 }
-.role-badge.admin{ background:#fff2f1; border-color:#ffd6d2 }
-.role-badge.super{ background:#fff7e6; border-color:#ffe2b3 }
-.role-badge.user { background:#eef6ff; border-color:#d7e7ff }
+@media(max-width:720px){
+  .container{ margin:8px 0 30px; max-width:100%; }
+  .toast-stack{ right:10px; left:10px; }
+}
 
-/* ===========================
-   Modal genérico (reutiliza base)
-   =========================== */
+/* ===== MODAL EDICIÓN PROYECTO ===== */
 .edit-modal-overlay{
-  position: fixed; inset: 0; display:none;
-  align-items: center; justify-content: center;
-  background: rgba(17,24,39,.45); z-index: 4000;
+  position: fixed;
+  inset: 0;
+  display: none;                  /* oculto por defecto */
+  align-items: center;
+  justify-content: center;
+  background: rgba(17,24,39,.45); /* backdrop */
+  z-index: 4000;                  /* por encima de topbar/aside */
 }
+
+/* se muestra si tiene la clase .open o aria-hidden="false" */
 .edit-modal-overlay.open,
-.edit-modal-overlay[aria-hidden="false"]{ display:flex; }
+.edit-modal-overlay[aria-hidden="false"]{
+  display: flex;
+}
 
 .edit-modal{
-  width:min(820px,94vw); max-height:88vh; background:#fff;
-  border:1px solid var(--line); border-radius:20px;
-  box-shadow:0 22px 70px rgba(0,0,0,.35);
-  overflow:hidden; display:flex; flex-direction:column;
+  width: min(820px, 94vw);
+  max-height: 88vh;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: 0 22px 70px rgba(0,0,0,.35);
+  overflow: hidden;               /* header fijo + body scroll */
+  display: flex;
+  flex-direction: column;
 }
+
+/* header/footer/body básicos */
 .edit-modal-header{
   display:flex; align-items:center; justify-content:space-between;
-  padding:12px 14px; border-bottom:1px solid var(--line); background:#fff;
+  padding:12px 14px; border-bottom:1px solid var(--line);
+  background:#fff;
 }
-.edit-modal-body{ padding:14px; overflow:auto }
+.edit-modal-body{
+  padding:14px; overflow:auto;
+}
 .edit-modal-footer{
-  padding:12px 14px; border-top:1px solid var(--line); background:#fff;
+  padding:12px 14px; border-top:1px solid var(--line);
+  background:#fff;
 }
+
+/* botón de cierre */
 .icon-btn{
   appearance:none; border:1px solid var(--line-2);
   background:#fff; border-radius:10px;
   padding:6px 10px; cursor:pointer;
 }
-.icon-btn:hover{ box-shadow:var(--shadow-sm) }
-.grid2{ display:grid; gap:12px; grid-template-columns:1fr 1fr }
-.field-full{ grid-column:1 / -1 }
-@media (max-width:720px){ .grid2{ grid-template-columns:1fr } }
+.icon-btn:hover{ box-shadow:var(--shadow-sm); }
 
-/* Inputs / selects coherentes */
-.field label{ font-size:12px; color:var(--muted) }
-.field input, .field select, .field textarea{
-  border:1px solid var(--line-2); border-radius:12px;
-  padding:9px 12px; background:#fff; color:#111; outline:none;
-  transition:border-color .12s ease, box-shadow .12s ease;
+/* grid del formulario del modal */
+.grid2{
+  display:grid; gap:12px;
+  grid-template-columns:1fr 1fr;
 }
-.field input:focus, .field select:focus, .field textarea:focus{
-  border-color:#d4dae1; box-shadow:0 0 0 4px rgba(225,38,28,.08)
+.field-full{ grid-column: 1 / -1; }
+
+@media (max-width:720px){
+  .grid2{ grid-template-columns:1fr; }
 }
 
-/* ===========================
-   Botones globales coherentes
-   =========================== */
-.btn{ appearance:none; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:900; border-radius:12px; padding:10px 14px; transition:.15s }
-.btn-primary{ background:var(--brand); color:#fff; border:none; box-shadow:0 8px 20px rgba(225,38,28,.2) }
-.btn-primary:hover{ background:var(--brand-hover) }
-.btn-outline{ background:#fff; color:var(--brand); border:1px solid var(--brand) }
-.btn-outline:hover{ background:#fff5f5 }
-.btn-ghost{ background:#fff; color:var(--dark); border:1px solid var(--line-2) }
-.btn-ghost:hover{ box-shadow:var(--shadow-sm); border-color:#d9dde3 }
-
-/* ===========================
-   Toasts (si no tienes globales)
-   =========================== */
-.toast-stack{
-  position:fixed; top:70px; right:18px;
-  display:flex; flex-direction:column; gap:10px; z-index:3000;
-}
-.toast{
-  display:flex; gap:12px; align-items:flex-start;
-  min-width:280px; max-width:380px; background:#fff;
-  border:1px solid var(--line); border-radius:14px; padding:12px 14px;
-  box-shadow:var(--shadow-md); opacity:0; transform:translateY(-6px);
-  transition:opacity .2s ease, transform .2s ease;
-}
-.toast.show{ opacity:1; transform:translateY(0) }
-.toast .toast-progress{
-  height:3px; background:var(--brand);
-  width:100%; border-radius:999px; margin-top:6px;
-  animation: toast-progress linear forwards;
-}
-@keyframes toast-progress{ from{ width:100% } to{ width:0% } }

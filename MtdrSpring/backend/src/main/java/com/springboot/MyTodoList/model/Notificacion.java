@@ -4,56 +4,55 @@ import javax.persistence.*;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "NOTIFICACIONES", schema = "TMDV")
+@Table(schema = "TMDV", name = "NOTIFICACIONES")
 public class Notificacion {
 
     @Id
-    @Column(name = "NOTIF_ID")          // <--- PK REAL
-    // Si tu columna NOTIF_ID es IDENTITY en Oracle, deja esta línea; 
-    // si NO lo es, comenta la siguiente anotación.
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "NOTIF_ID")
     private Long id;
 
     @Column(name = "USUARIO_ID")
     private Long usuarioId;
 
-    @Column(name = "TITULO")
-    private String titulo;
-
-    @Column(name = "MENSAJE")
+    @Column(name = "MENSAJE", length = 4000)
     private String mensaje;
 
-    @Column(name = "TIPO")
-    private String tipo;
-
-    @Column(name = "PRIORIDAD")
-    private String prioridad;
+    @Column(name = "TIPO", length = 50)
+    private String tipo; // "Proyectos" | "Tareas" | "Sprints" | "Equipo"
 
     @Column(name = "FECHA_ENVIO")
     private OffsetDateTime fechaEnvio;
 
+    @Column(name = "PRIORIDAD", length = 400)
+    private String prioridad;
+
+    // NUEVO
+    @Column(name = "LEIDA", length = 1)
+    private String leida; // 'N' (default) | 'Y'
+
     @Column(name = "FECHA_LEIDO")
     private OffsetDateTime fechaLeido;
 
-    // En tu tabla existe LEIDA ('S'/'N')
-    @Column(name = "LEIDA")
-    private String leida;
+    public Notificacion() {}
 
-    @Column(name = "EQUIPO_ID")
-    private Long equipoId;
+    public Notificacion(Long id, Long usuarioId, String mensaje, String tipo,
+                        OffsetDateTime fechaEnvio, String prioridad) {
+        this.id = id;
+        this.usuarioId = usuarioId;
+        this.mensaje = mensaje;
+        this.tipo = tipo;
+        this.fechaEnvio = fechaEnvio;
+        this.prioridad = prioridad;
+        this.leida = "N";
+    }
 
-    @Column(name = "CREADA_POR")
-    private Long creadaPor;
-
-    // ===== Getters/Setters =====
+    // Getters / Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public Long getUsuarioId() { return usuarioId; }
     public void setUsuarioId(Long usuarioId) { this.usuarioId = usuarioId; }
-
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
 
     public String getMensaje() { return mensaje; }
     public void setMensaje(String mensaje) { this.mensaje = mensaje; }
@@ -61,21 +60,15 @@ public class Notificacion {
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
 
-    public String getPrioridad() { return prioridad; }
-    public void setPrioridad(String prioridad) { this.prioridad = prioridad; }
-
     public OffsetDateTime getFechaEnvio() { return fechaEnvio; }
     public void setFechaEnvio(OffsetDateTime fechaEnvio) { this.fechaEnvio = fechaEnvio; }
 
-    public OffsetDateTime getFechaLeido() { return fechaLeido; }
-    public void setFechaLeido(OffsetDateTime fechaLeido) { this.fechaLeido = fechaLeido; }
+    public String getPrioridad() { return prioridad; }
+    public void setPrioridad(String prioridad) { this.prioridad = prioridad; }
 
     public String getLeida() { return leida; }
     public void setLeida(String leida) { this.leida = leida; }
 
-    public Long getEquipoId() { return equipoId; }
-    public void setEquipoId(Long equipoId) { this.equipoId = equipoId; }
-
-    public Long getCreadaPor() { return creadaPor; }
-    public void setCreadaPor(Long creadaPor) { this.creadaPor = creadaPor; }
+    public OffsetDateTime getFechaLeido() { return fechaLeido; }
+    public void setFechaLeido(OffsetDateTime fechaLeido) { this.fechaLeido = fechaLeido; }
 }

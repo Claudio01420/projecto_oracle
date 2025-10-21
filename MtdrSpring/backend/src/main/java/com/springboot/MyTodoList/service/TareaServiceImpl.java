@@ -1,41 +1,22 @@
 package com.springboot.MyTodoList.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.springboot.MyTodoList.dto.CompleteTaskDto;
 import com.springboot.MyTodoList.dto.TaskCreateDto;
 import com.springboot.MyTodoList.dto.UpdateTaskDto;
 import com.springboot.MyTodoList.model.Tarea;
 import com.springboot.MyTodoList.repository.TareaRepository;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
-@Transactional
 public class TareaServiceImpl implements TareaService {
 
-    private final TareaRepository tareaRepository;
+    private final TareaRepository repo;
 
-    public TareaServiceImpl(TareaRepository tareaRepository) {
-        this.tareaRepository = tareaRepository;
-    }
-
-    /** Normaliza cualquier variante a los 3 valores canónicos que usa el front. */
-    private static String canonStatus(String s) {
-        if (s == null) return null;
-        String v = s.trim().toLowerCase();
-        switch (v) {
-            case "por hacer":   return "todo";
-            case "en progreso": return "doing";
-            case "hecho":       return "done";
-            case "todo":
-            case "doing":
-            case "done":        return v;
-            default:            return v; // deja pasar otros valores en minúscula
-        }
+    public TareaServiceImpl(TareaRepository repo) {
+        this.repo = repo;
     }
 
     @Override
@@ -45,82 +26,66 @@ public class TareaServiceImpl implements TareaService {
         t.setDescription(dto.description);
         t.setEstimatedHours(dto.estimatedHours);
         t.setPriority(dto.priority);
-        t.setStatus(canonStatus(dto.status == null ? "todo" : dto.status));
+        t.setStatus(dto.status != null ? dto.status.toLowerCase() : "todo");
         t.setSprintId(dto.sprintId);
-        t.setProjectId(dto.projectId);
         t.setAssigneeId(dto.assigneeId);
         t.setAssigneeName(dto.assigneeName);
-
         t.setCreatedAt(LocalDateTime.now());
-        t.setFechaAsignacion(LocalDate.now());
-        return tareaRepository.save(t);
+
+        // NUEVO: projectId
+        t.setProjectId(dto.projectId);
+
+        return repo.save(t);
     }
 
     @Override
     public List<Tarea> listByAssignee(String assigneeId) {
-        return tareaRepository.findByAssigneeIdOrderByCreatedAtDesc(assigneeId);
+        return repo.findByAssigneeIdOrderByCreatedAtDesc(assigneeId);
     }
 
     @Override
     public Tarea completeTask(Long id, CompleteTaskDto dto) {
-        Tarea t = tareaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Tarea no encontrada: " + id));
+        Tarea t = repo.findById(id).orElseThrow();
         t.setRealHours(dto.realHours);
         t.setCompletedAt(LocalDateTime.now());
-        t.setStatus("done");
-        return tareaRepository.save(t);
+        if (dto.status != null) t.setStatus(dto.status.toLowerCase());
+        return repo.save(t);
     }
 
     @Override
     public void delete(Long id) {
-        tareaRepository.deleteById(id);
+        repo.deleteById(id);
     }
 
     @Override
     public Tarea updateTask(Long id, UpdateTaskDto dto) {
-        Tarea t = tareaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Tarea no encontrada: " + id));
+        Tarea t = repo.findById(id).orElseThrow();
 
-        if (dto.title != null)           t.setTitle(dto.title);
-        if (dto.description != null)     t.setDescription(dto.description);
-        if (dto.estimatedHours != null)  t.setEstimatedHours(dto.estimatedHours);
-        if (dto.priority != null)        t.setPriority(dto.priority);
-        if (dto.sprintId != null)        t.setSprintId(dto.sprintId);
-        if (dto.projectId != null)       t.setProjectId(dto.projectId);
-        if (dto.assigneeId != null)      t.setAssigneeId(dto.assigneeId);
-        if (dto.assigneeName != null)    t.setAssigneeName(dto.assigneeName);
+        if (dto.title != null) t.setTitle(dto.title);
+        if (dto.description != null) t.setDescription(dto.description);
+        if (dto.estimatedHours != null) t.setEstimatedHours(dto.estimatedHours);
+        if (dto.priority != null) t.setPriority(dto.priority);
+        if (dto.status != null) t.setStatus(dto.status.toLowerCase());
+        if (dto.sprintId != null) t.setSprintId(dto.sprintId);
+        if (dto.assigneeId != null) t.setAssigneeId(dto.assigneeId);
+        if (dto.assigneeName != null) t.setAssigneeName(dto.assigneeName);
 
-        if (dto.status != null) {
-            String s = canonStatus(dto.status);
-            t.setStatus(s);
-            if ("done".equals(s)) {
-                if (t.getCompletedAt() == null) t.setCompletedAt(LocalDateTime.now());
-                // realHours se fija con /complete
-            } else {
-                // Al descompletar, limpia marcas y horas reales
-                t.setCompletedAt(null);
-                t.setRealHours(null);
-            }
-        }
+        // NUEVO: projectId (si viene)
+        if (dto.projectId != null) t.setProjectId(dto.projectId);
 
-        return tareaRepository.save(t);
+        return repo.save(t);
     }
 
     @Override
     public Tarea updateStatus(Long id, String status) {
-        Tarea t = tareaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Tarea no encontrada: " + id));
-
-        String s = canonStatus(status);
-        t.setStatus(s);
-        if ("done".equals(s)) {
-            if (t.getCompletedAt() == null) t.setCompletedAt(LocalDateTime.now());
-            // realHours se fija con /complete
-        } else {
-            // Si sale de 'done', resetear completado y horas reales
-            t.setCompletedAt(null);
-            t.setRealHours(null);
+        Tarea t = repo.findById(id).orElseThrow();
+        if (status != null) {
+            t.setStatus(status.toLowerCase());
+            if ("done".equalsIgnoreCase(status) && t.getCompletedAt() == null) {
+                t.setCompletedAt(LocalDateTime.now());
+            }
         }
-        return tareaRepository.save(t);
+        return repo.save(t);
     }
 }
+

@@ -1,68 +1,68 @@
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/UsuarioEquipoRepository.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/Sprint.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/SprintController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/Chatbot.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/service/ToDoItemService.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/config/BotProps.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/ProductividadController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/Usuario.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/ToDoItem.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/UsuarioEquipoId.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/util/BotHelper.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/UsuarioEquipoController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/ProductividadRepository.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/config/TelegramBotConfig.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/ProyectoController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/ToDoItemBotController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/Tarea.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/EquipoController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/ProyectoRepository.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/UserController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/Equipo.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/service/UserService.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/dto/CompleteTaskDto.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/UserRepository.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/Kpi.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/ChatbotController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/KpiController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/service/EquipoService.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/ToDoItemRepository.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/dto/UpdateTaskDto.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/AjustesRepository.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/dto/UpdateStatusDto.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/util/BotCommands.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/ToDoItemController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/RolEquipo.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/UsuarioEquipo.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/User.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/NotificacionRepository.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/AjustesController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/UsuarioController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/ChatbotRepository.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/KpiRepository.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/EquipoMembersController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/Proyecto.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/Ajustes.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/MyTodoListApplication.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/TareaController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/Productividad.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/config/DbSettings.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/config/OracleConfiguration.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/Dashbord.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/model/Notificacion.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/EquipoRepository.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/config/CorsConfig.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/NotificacionController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/DashbordRepository.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/TareaRepository.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/util/BotMessages.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/util/UserRequestContext.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/util/BotLabels.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/service/TareaService.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/SprintRepository.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/controller/DashbordController.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/dto/TaskCreateDto.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/util/BotActions.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/service/TareaServiceImpl.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/security/WebSecurityConfiguration.java
-/Users/mac/projecto_oracle/MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/repository/UsuarioRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\ChatbotController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\ToDoItemController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Equipo.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\UsuarioEquipoRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\util\BotMessages.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\config\DbSettings.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\ToDoItemRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\service\UserService.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\RolEquipo.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Proyecto.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\EquipoRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\ProductividadController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\UsuarioEquipoController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\DashbordRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\AjustesController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\UsuarioEquipoId.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\UsuarioEquipo.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Productividad.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\UsuarioController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\SprintController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\NotificacionRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\KpiController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\AjustesRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\util\UserRequestContext.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\TareaController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Chatbot.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\service\TareaServiceImpl.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\config\OracleConfiguration.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\dto\UpdateTaskDto.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\ToDoItemBotController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\config\TelegramBotConfig.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Notificacion.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\service\ToDoItemService.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Tarea.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\NotificacionController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\UsuarioRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\dto\CompleteTaskDto.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\dto\TaskCreateDto.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\User.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\service\EquipoService.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\ToDoItem.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\MyTodoListApplication.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\util\BotActions.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\EquipoMembersController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\UserController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\service\TareaService.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\util\BotCommands.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\util\BotLabels.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\EquipoController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\security\WebSecurityConfiguration.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Sprint.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\util\BotHelper.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Ajustes.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\ChatbotRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\config\CorsConfig.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Kpi.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\UserRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\ProyectoController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\controller\DashbordController.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Usuario.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\SprintRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\config\BotProps.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\ProyectoRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\dto\UpdateStatusDto.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\model\Dashbord.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\TareaRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\ProductividadRepository.java
+C:\Users\ipaul\OneDrive\Documentos\Tec MTY\Oracle\projecto_oracle\MtdrSpring\backend\src\main\java\com\springboot\MyTodoList\repository\KpiRepository.java

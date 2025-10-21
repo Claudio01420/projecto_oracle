@@ -55,7 +55,46 @@ body{margin:0;font-family:system-ui;background:var(--bg);color:var(--ink)}
 .aside .menu{margin-top:0 !important;}
 .topbar > .brand{display:flex;align-items:center;justify-content:flex-start;height:100%;margin:0 !important;padding:0 0 0 40px}
 
-/* Sidebar */
+/* --- Sidebar Estilos --- */
+.aside .brand{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:56px;
+  margin:8px 0 14px !important;
+  line-height:0;
+  font-size:inherit;
+  letter-spacing:normal;
+}
+
+.aside .topbar-left{ display:none; height:0; margin:0; padding:0; }
+
+.aside .menu{ padding:0; margin-top:0 !important; }
+
+/* --- Items del sidebar --- */
+.aside .menu .mi{
+  display:flex; align-items:center; gap:10px;
+  min-height:44px;
+  padding:12px 14px;
+  line-height:1.2;
+}
+
+/* --- Iconos del sidebar --- */
+.aside .menu .mi .ico{
+  width:18px; height:18px;
+  flex:0 0 18px;
+  display:block;
+  color:#9aa3af;
+}
+
+/* --- Textos del sidebar --- */
+.aside .menu .mi span{
+  display:inline-block;
+  line-height:1.2;
+}
+
+/* Main + cards */
+/* Layout */
 .app{
   display:grid;
   grid-template-columns:260px 1fr;
@@ -70,23 +109,30 @@ body{margin:0;font-family:system-ui;background:var(--bg);color:var(--ink)}
   top:50px;
   height:calc(100vh - 50px)
 }
-.brand{ text-align:center; margin:8px 0 26px }
-.brand img{ max-width:160px; height:auto }
-.menu{ display:flex; flex-direction:column; gap:14px }
+.brand{
+  text-align:center;
+  margin:8px 0 26px
+}
+.brand img{
+  max-width:160px;
+  height:auto
+}
+.menu{
+  display:flex;
+  flex-direction:column;
+  gap:14px
+}
 .mi{
   padding:14px 14px;
   border-radius:12px;
   color:#e5e7eb;
   text-decoration:none;
   display:flex;
-  gap:10px;
-  align-items:center;
+  gap:10px
 }
 .mi:hover{background:#1f1f1f}
 .mi.active{background:#3a1b1b;color:#fff}
-.aside .menu .mi .ico{ width:18px; height:18px; display:block; flex:0 0 18px; }
 
-/* Main + cards */
 .main{padding:24px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow-sm);margin-bottom:16px}
 .card-soft{background:linear-gradient(180deg,#fff 0%,#fafbfc 100%)}

@@ -6,372 +6,294 @@
   <title>Notificaciones</title>
   <link rel="stylesheet" href="Css/notifications.css"/>
   <link href="https://api.fontshare.com/v2/css?f[]=panchang@500,600,700,800,900&display=swap" rel="stylesheet">
-  <script src="/session.js"></script>
 
-  <style>
-    .toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between}
-    .btn{padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:700}
-    .btn.primary{background:var(--brand);color:#fff;border:none}
-    .btn:disabled{opacity:.5;cursor:not-allowed}
-    .list{margin-top:14px;display:grid;gap:12px}
-    .item{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;display:flex;justify-content:space-between;gap:12px}
-    .item.unread{background:#fffdf5}
-    .meta{font-size:12px;color:#64748b}
-    .badge{font-size:12px;border:1px solid var(--line);padding:2px 8px;border-radius:999px;background:#fff}
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:300}
-    .modal.open{display:flex}
-    .card{width:560px;max-width:92vw;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}
-    .row{display:grid;grid-template-columns:160px 1fr;gap:10px;margin:8px 0}
-    .row input,.row textarea,.row select{width:100%;padding:8px;border:1px solid var(--line);border-radius:10px}
-    .toast{position:fixed;right:18px;bottom:18px;background:#111;color:#fff;padding:10px 14px;border-radius:10px;opacity:.95;display:none}
-    .toast.show{display:block}
-  </style>
+    <!-- Sprite de íconos -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <!-- Dashboard -->
+  <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-width="1.6" d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/>
+  </symbol>
+  <!-- Equipos -->
+  <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M7 21v-2a4 4 0 0 1 3-3.87"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M5.5 8a3.5 3.5 0 1 0 0 7"/>
+    <path d="M18.5 8a3.5 3.5 0 1 1 0 7"/>
+  </symbol>
+  <!-- Proyectos -->
+  <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-width="1.6" d="M3 7h6l2 2h10v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/>
+  </symbol>
+  <!-- Tareas -->
+  <symbol id="i-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+    <path d="M12 11h4"/><path d="M12 16h4"/>
+    <path d="M8 11h.01"/><path d="M8 16h.01"/>
+  </symbol>
+  <!-- KPIs -->
+  <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 16v5"/>
+    <path d="M16 14v7"/>
+    <path d="M20 10v11"/>
+    <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/>
+    <path d="M4 18v3"/>
+    <path d="M8 14v7"/>
+  </symbol>
+  <!-- Chatbot -->
+  <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <rect x="4" y="8" width="16" height="10" rx="4" stroke-width="1.6"/>
+    <circle cx="9" cy="13" r="1" stroke-width="1.6"/>
+    <circle cx="15" cy="13" r="1" stroke-width="1.6"/>
+    <path stroke-width="1.6" d="M12 4v2m-7 6H4m16 0h1"/>
+  </symbol>
+  <!-- Notificaciones -->
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-width="1.6" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
+    <path stroke-width="1.6" d="M13.73 21a2 2 0 0 1-3.46 0"/>
+  </symbol>
+  <!-- Ajustes -->
+  <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <circle cx="12" cy="12" r="3" />
+    <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+  </symbol>
+  <!-- Power -->
+  <symbol id="i-power" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-width="1.8" d="M12 2v8"/>
+    <path stroke-width="1.6" d="M5.5 7a8 8 0 1 0 13 0"/>
+  </symbol>
+  </svg>
 </head>
+
+
 <body>
-  <!-- Topbar -->
+
+ <!-- Topbar -->
   <header class="topbar">
-    <div class="brand"><h1 class="logo-text">TMDV</h1></div>
+    <div class="brand">
+      <h1 class="logo-text">TMDV</h1>
+    </div>
     <div class="topbar-right">
       <div class="user-circle" title="Usuario">U</div>
       <a href="/index.html" class="logout-btn">
-        <svg class="ico-sm" aria-hidden="true"><use href="#i-exit"/></svg>
+        <svg class="ico-sm" aria-hidden="true"><use href="#i-power"/></svg>
         <span>Salir</span>
       </a>
     </div>
   </header>
 
-  <div class="app">
+ <div class="app">
     <!-- Sidebar -->
     <aside class="aside">
       <nav class="menu">
-        <a class="mi" href="/dashboard.html"><svg class="ico"><use href="#i-dashboard"/></svg><span>Dashboard</span></a>
-        <a class="mi" href="/Equipos.html"><svg class="ico"><use href="#i-users"/></svg><span>Equipos</span></a>
-        <a class="mi" href="/projects.html"><svg class="ico"><use href="#i-folder"/></svg><span>Proyectos</span></a>
-        <a class="mi" href="/tarea.html"><svg class="ico"><use href="#i-board"/></svg><span>Tareas</span></a>
-        <a class="mi" href="/KPIs.html"><svg class="ico"><use href="#i-chart"/></svg><span>KPIs</span></a>
-        <a class="mi" href="/chatbot.html"><svg class="ico"><use href="#i-bot"/></svg><span>Chatbot</span></a>
-        <a class="mi active" href="#"><svg class="ico"><use href="#i-bell"/></svg><span>Notificaciones</span></a>
-        <a class="mi" href="/settings.html"><svg class="ico"><use href="#i-gear"/></svg><span>Ajustes</span></a>
+        <a class="mi" href="/dashboard.html">
+          <svg class="ico" aria-hidden="true"><use href="#i-dashboard"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a class="mi" href="/Equipos.html">
+          <svg class="ico"><use href="#i-users"/></svg>
+          <span>Equipos</span>
+        </a>
+        <a class="mi" href="/projects.html">
+          <svg class="ico"><use href="#i-folder"/></svg>
+          <span>Proyectos</span>
+        </a>
+        <a class="mi" href="/tarea.html">
+          <svg class="ico"><use href="#i-board"/></svg>
+          <span>Tareas</span>
+        </a>
+        <a class="mi" href="/KPIs.html">
+          <svg class="ico"><use href="#i-chart"/></svg>
+          <span>KPIs</span>
+        </a>
+        <a class="mi" href="/chatbot.html">
+          <svg class="ico"><use href="#i-bot"/></svg>
+          <span>Chatbot</span>
+        </a>
+        <a class="mi active" href="#">
+          <svg class="ico"><use href="#i-bell"/></svg>
+          <span>Notificaciones</span>
+        </a>
+        <a class="mi" href="/settings.html">
+          <svg class="ico"><use href="#i-gear"/></svg>
+          <span>Ajustes</span>
+        </a>
       </nav>
     </aside>
 
-    <!-- Main -->
     <main class="main">
       <section class="card card-soft">
-        <div class="toolbar">
-          <h1 class="h4" style="margin:0">Notificaciones</h1>
-          <div>
-            <button id="btnMarkAll" class="btn">Marcar todas como leídas</button>
-            <button id="btnNew" class="btn primary">+ Crear notificación</button>
+        <h1 class="h4">Notificaciones</h1>
+
+        <div class="grid">
+          <!-- Filtros -->
+          <div class="col filters">
+            <h3 class="h6">Filtros</h3>
+
+            <div class="filter-group">
+              <span class="filter-label">Tipo</span>
+              <label><input type="checkbox" class="f-tipo" value="Proyectos" checked/> Proyectos</label>
+              <label><input type="checkbox" class="f-tipo" value="Tareas" checked/> Tareas</label>
+              <label><input type="checkbox" class="f-tipo" value="Sprints" checked/> Sprints</label>
+              <label><input type="checkbox" class="f-tipo" value="Equipo" checked/> Equipo</label>
+            </div>
+
+            <div class="filter-group">
+              <span class="filter-label">Estado</span>
+              <label><input type="radio" name="estado" value="unread" checked/> No leídas</label>
+              <label><input type="radio" name="estado" value="read"/> Leídas</label>
+              <label><input type="radio" name="estado" value="all"/> Todas</label>
+            </div>
+
+            <label class="switch">
+              <input type="checkbox" id="toggle-notifs"/>
+              <span class="slider"></span>
+              Activar notificaciones
+            </label>
+
+            <button id="btn-read-all" class="btn">Marcar todas como leídas</button>
+          </div>
+
+          <!-- Bandeja -->
+          <div class="col inbox">
+            <h3 class="h6">Bandeja</h3>
+            <ul id="notif-list" class="notif-list"></ul>
           </div>
         </div>
-        <div class="meta" id="counter">—</div>
-      </section>
-
-      <section class="list" id="list">
-        <div class="meta">Cargando…</div>
       </section>
     </main>
   </div>
 
-  <!-- Modal crear notificación -->
-  <div id="modal" class="modal" aria-hidden="true">
-    <div class="card">
-      <h3 style="margin:4px 0 12px 0">Nueva notificación</h3>
-
-      <div class="row">
-        <label>Nombre</label>
-        <input id="f_title" type="text" placeholder="Ej. Aviso sprint / Nueva tarea asignada">
-      </div>
-
-      <div class="row">
-        <label>Asunto</label>
-        <textarea id="f_msg" rows="4" placeholder="Describe el mensaje para tu equipo…"></textarea>
-      </div>
-
-      <div class="row">
-        <label>Equipo</label>
-        <select id="f_team">
-          <option value="">Cargando…</option>
-        </select>
-      </div>
-
-      <div class="row">
-        <label>Urgencia</label>
-        <select id="f_prio">
-          <option value="">—</option>
-          <option>BAJA</option>
-          <option>MEDIA</option>
-          <option>ALTA</option>
-        </select>
-      </div>
-
-      <div class="row">
-        <label>Tipo</label>
-        <select id="f_type">
-          <option value="">—</option>
-          <option>INFO</option>
-          <option>WARN</option>
-          <option>ALERT</option>
-        </select>
-      </div>
-
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px">
-        <button id="btnCancel" class="btn">Cancelar</button>
-        <button id="btnCreate" class="btn primary">Crear notificación</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast" class="toast">Listo</div>
-
   <script>
-    /* ===== Config ===== */
-    const API_BASE    = 'http://localhost:8080';
-    const NOTIF_API   = `${API_BASE}/notificaciones`;
-    const EQUIPOS_API = `${API_BASE}/equipos`;
-    const UE_API      = `${API_BASE}/usuarios-equipos`;
+    // ===== Sesión =====
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const userEmail = user?.email || null;
 
-    /* ===== Sesión / usuario ===== */
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
-    const USER_ID   = Number(user?.usuarioId ?? user?.id ?? NaN);
-    const USER_MAIL = (user?.email || '').toLowerCase();
+    // ===== DOM =====
+    const $list = document.getElementById("notif-list");
+    const $btnReadAll = document.getElementById("btn-read-all");
 
-    // Normalizador: "Super Admin" -> "SUPER_ADMIN", "Scrum Master" -> "SCRUM_MASTER"
-    const normalizeRole = r => String(r||'').trim().toUpperCase().replace(/\s+/g,'_');
-    const USER_ROLE = normalizeRole(user?.rol ?? user?.role);
+    function getEstado() {
+      const r = document.querySelector('input[name="estado"]:checked');
+      return r ? r.value : "unread";
+    }
+    function getTiposCSV() {
+      const vals = Array.from(document.querySelectorAll('.f-tipo:checked')).map(i => i.value);
+      return vals.join(',');
+    }
 
-    // Claudio siempre puede crear, además de SUPER_ADMIN / SCRUM_MASTER
-    const CAN_EMAILS = ['claudio@correo.com'];
-    const canCreate = ['SUPER_ADMIN','SCRUM_MASTER'].includes(USER_ROLE) || CAN_EMAILS.includes(USER_MAIL);
-
-    const authHeaders = () => {
-      const h = {};
-      if (!Number.isNaN(USER_ID)) h['X-User-Id'] = String(USER_ID);
-      if (!h['X-User-Id'] && USER_MAIL) h['X-User-Email'] = USER_MAIL;
-      return h;
-    };
-
-    /* ===== DOM ===== */
-    const $btnNew     = document.getElementById('btnNew');
-    const $btnMarkAll = document.getElementById('btnMarkAll');
-    const $list       = document.getElementById('list');
-    const $counter    = document.getElementById('counter');
-    const $modal      = document.getElementById('modal');
-    const $fTitle     = document.getElementById('f_title');
-    const $fMsg       = document.getElementById('f_msg');
-    const $fTeam      = document.getElementById('f_team');
-    const $fPrio      = document.getElementById('f_prio');
-    const $fType      = document.getElementById('f_type');
-    const $btnCancel  = document.getElementById('btnCancel');
-    const $btnCreate  = document.getElementById('btnCreate');
-    const $toast      = document.getElementById('toast');
-
-    /* ===== UI permisos ===== */
-    $btnNew.disabled = !canCreate;
-
-    /* ===== Utils ===== */
-    const escapeHtml = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    const fmt = iso => { try{ const d=new Date(iso); return isNaN(d)?'—':d.toLocaleString(); }catch{ return '—'; } };
-    const toast = (msg='Hecho') => { $toast.textContent = msg; $toast.classList.add('show'); setTimeout(()=> $toast.classList.remove('show'), 1800); };
-
-    /* ===== Render ===== */
-    function render(list) {
-      if (!Array.isArray(list) || list.length === 0) {
-        $list.innerHTML = `<div class="meta">No tienes notificaciones.</div>`;
-        $counter.textContent = '0 notificaciones';
+    async function loadNotifs() {
+      $list.innerHTML = '';
+      if (!userEmail) {
+        $list.innerHTML = `<li class="empty">Inicia sesión para ver tus notificaciones.</li>`;
         return;
       }
-      $counter.textContent = `${list.length} notificación(es)`;
-      $list.innerHTML = list.map(n => `
-        <div class="item ${n.leida === 'N' ? 'unread' : ''}">
-          <div>
-            <div style="font-weight:800">${escapeHtml(n.titulo || 'Notificación')}</div>
-            <div class="meta">${fmt(n.fechaEnvio)}
-              ${n.prioridad ? ' · '+escapeHtml(n.prioridad) : ''}
-              ${n.tipo ? ' · '+escapeHtml(n.tipo) : ''}
-            </div>
-            <div style="margin-top:6px">${escapeHtml(n.mensaje || '')}</div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
-            ${n.leida === 'N' ? `<span class="badge">Nueva</span>` : `<span class="badge">Leída</span>`}
-            ${n.leida === 'N' ? `<button class="btn" data-act="read" data-id="${n.id}">Marcar leída</button>` : ``}
-          </div>
-        </div>
-      `).join('');
+      const estado = getEstado();
+      const tipos = getTiposCSV();
 
-      // Acciones "Marcar leída"
-      $list.querySelectorAll('button[data-act="read"]').forEach(b=>{
-        b.onclick = async () => {
-          const id = b.dataset.id;
-          try{
-            const r = await fetch(`${NOTIF_API}/${id}/leer`, { method:'PATCH', headers:{ 'Content-Type':'application/json', ...authHeaders() }});
-            if (r.ok) { load(); toast('Notificación marcada'); }
-          }catch{}
-        };
-      });
-    }
+      const url = new URL(window.location.origin + '/notificaciones');
+      url.searchParams.set('estado', estado);
+      if (tipos) url.searchParams.set('tipos', tipos);
 
-    /* ===== Carga con fallback ===== */
-    async function load() {
-      // 1) ?usuarioId=
-      if (!Number.isNaN(USER_ID)) {
-        try {
-          const r1 = await fetch(`${NOTIF_API}?usuarioId=${encodeURIComponent(USER_ID)}`, { headers: authHeaders() });
-          if (r1.ok) { render(await r1.json()); return; }
-        } catch {}
-        // 2) /usuario/{id}
-        try {
-          const r2 = await fetch(`${NOTIF_API}/usuario/${encodeURIComponent(USER_ID)}`, { headers: authHeaders() });
-          if (r2.ok) { render(await r2.json()); return; }
-        } catch {}
-      }
-      // 3) /notificaciones con headers
       try {
-        const r3 = await fetch(`${NOTIF_API}`, { headers: authHeaders() });
-        if (r3.ok) { render(await r3.json()); return; }
-      } catch {}
-      $list.innerHTML = `<div class="meta">Error cargando notificaciones.</div>`;
-      $counter.textContent = '—';
-    }
-
-    /* ===== Crear ===== */
-    function openModal(){ if (!canCreate) return; $fTitle.value=''; $fMsg.value=''; $fTeam.value=''; $fPrio.value=''; $fType.value=''; $modal.classList.add('open'); }
-    function closeModal(){ $modal.classList.remove('open'); }
-
-    $btnNew.onclick    = openModal;
-    $btnCancel.onclick = closeModal;
-
-    $btnCreate.onclick = async () => {
-      const payload = {
-        titulo:   $fTitle.value.trim() || 'Notificación',
-        mensaje:  $fMsg.value.trim(),
-        equipoId: $fTeam.value ? Number($fTeam.value) : null,
-        prioridad:$fPrio.value || null,   // Urgencia
-        tipo:     $fType.value || null
-      };
-      if (!payload.equipoId) { alert('Selecciona un equipo'); return; }
-      try{
-        $btnCreate.disabled = true;
-        const r = await fetch(`${NOTIF_API}`, {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json', ...authHeaders() },
-          body: JSON.stringify(payload)
+        const res = await fetch(url.toString(), {
+          headers: { 'X-User-Email': userEmail }
         });
-        if (!r.ok) { alert(await r.text() || 'No se pudo crear'); $btnCreate.disabled=false; return; }
-        $btnCreate.disabled=false; closeModal(); toast('Notificación creada');
-        load();
-      }catch{ $btnCreate.disabled=false; alert('Error de red'); }
-    };
-
-    /* ===== Marcar todas ===== */
-    $btnMarkAll.onclick = async () => {
-      try{
-        const r = await fetch(`${NOTIF_API}/leer-todas`, { method:'PATCH', headers: authHeaders() });
-        if (r.ok) { load(); toast('Listo'); }
-      }catch{}
-    };
-
-    /* ===== Cargar equipos para el creador (con cascada y logs) ===== */
-    async function loadTeamsForCreator() {
-      if (!canCreate) {
-        $fTeam.innerHTML = `<option value="">No autorizado a crear</option>`;
-        return;
-      }
-
-      const fill = (arr) => {
-        const opts = (arr || []).map(e => {
-          const name = e?.nombreEquipo || e?.nombre || `Equipo #${e?.id ?? ''}`;
-          return `<option value="${e.id}">${escapeHtml(name)}</option>`;
-        }).join('');
-        $fTeam.innerHTML = `<option value="">Selecciona equipo…</option>` + opts;
-      };
-
-      try {
-        if (USER_ROLE === 'SUPER_ADMIN') {
-          // Todos los equipos
-          const rAll = await fetch(`${EQUIPOS_API}`, { headers: authHeaders() });
-          if (rAll.ok) {
-            const arr = await rAll.json();
-            console.log('[equipos] (admin) ->', arr);
-            fill(arr);
-            return;
-          } else {
-            console.warn('GET /equipos ->', rAll.status, await rAll.text());
-          }
-          fill([]);
+        if (!res.ok) {
+          $list.innerHTML = `<li class="empty">Error al cargar notificaciones.</li>`;
           return;
         }
-
-        // SCRUM_MASTER o casos permitidos por email (Claudio)
-        // 1) Intentar /equipos/member/{id}
-        try {
-          const rMember = await fetch(`${EQUIPOS_API}/member/${encodeURIComponent(USER_ID)}`, { headers: authHeaders() });
-          if (rMember.ok) {
-            const data = await rMember.json();
-            console.log('[equipos/member]', data);
-            if (Array.isArray(data) && data.length) { fill(data); return; }
-          } else {
-            console.warn('GET /equipos/member/{id} ->', rMember.status, await rMember.text());
-          }
-        } catch (e) {
-          console.warn('Error /equipos/member', e);
-        }
-
-        // 2) Fallback: relaciones usuario-equipo
-        const rel = await fetch(`${UE_API}/usuario/${encodeURIComponent(USER_ID)}`, { headers: authHeaders() });
-        if (rel.ok) {
-          const lista = await rel.json();
-          console.log('[usuarios-equipos/usuario]', lista);
-          const ids = [...new Set((lista || []).map(r => r?.id?.equipoId).filter(Boolean))];
-
-          if (ids.length === 0) { fill([]); return; }
-
-          // 2.a) Intento de bulk si lo tienes implementado
-          try {
-            const bulk = await fetch(`${EQUIPOS_API}/by-ids?` + new URLSearchParams({ ids: ids.join(',') }), { headers: authHeaders() });
-            if (bulk.ok) {
-              const equipos = await bulk.json();
-              console.log('[equipos/by-ids]', equipos);
-              if (Array.isArray(equipos) && equipos.length) { fill(equipos); return; }
-            }
-          } catch (e) {
-            console.warn('falló /equipos/by-ids', e);
-          }
-
-          // 2.b) Último recurso: pedir cada equipo
-          const names = await Promise.all(ids.map(async id => {
-            try {
-              const rr = await fetch(`${EQUIPOS_API}/${id}`, { headers: authHeaders() });
-              if (rr.ok) {
-                const d = await rr.json();
-                return { id, nombreEquipo: d?.nombreEquipo || `Equipo #${id}` };
-              }
-            } catch {}
-            return { id, nombreEquipo: `Equipo #${id}` };
-          }));
-          fill(names);
+        const data = await res.json();
+        if (!data || !data.length) {
+          $list.innerHTML = `<li class="empty">No hay notificaciones</li>`;
           return;
-        } else {
-          console.warn('GET /usuarios-equipos/usuario/{id} ->', rel.status, await rel.text());
         }
-
-        fill([]); // si no hubo suerte
-      } catch (err) {
-        console.error('loadTeamsForCreator error', err);
-        $fTeam.innerHTML = `<option value="">Error al cargar equipos</option>`;
+        renderList(data);
+      } catch {
+        $list.innerHTML = `<li class="empty">Error de red al cargar notificaciones.</li>`;
       }
     }
 
-    /* ===== Init ===== */
-    document.addEventListener('DOMContentLoaded', async () => {
-      const $userInitial = document.querySelector('.user-circle');
-      if ($userInitial && (user?.nombre || user?.email)) {
-        $userInitial.textContent = String((user?.nombre?.[0] || user?.email?.[0] || 'U')).toUpperCase();
+    function fmt(dt) {
+      try { return new Date(dt).toLocaleString(); } catch { return ''; }
+    }
+
+    function renderList(items) {
+      $list.innerHTML = '';
+      for (const n of items) {
+        const li = document.createElement('li');
+        li.className = 'notif-item';
+
+        const icon = document.createElement('div');
+        if (n.leida === 'Y') {
+          icon.className = 'badge-check';
+          icon.innerHTML = '✔';
+        } else {
+          icon.className = 'badge-dot';
+        }
+
+        const content = document.createElement('div');
+        content.className = 'notif-content';
+        content.innerHTML = `
+          <div class="notif-title">${escapeHtml(n.mensaje)} <span class="chip ${escapeHtml(n.tipo)}">${escapeHtml(n.tipo)}</span></div>
+          <small>${fmt(n.fechaEnvio)}${n.prioridad ? ' – '+escapeHtml(n.prioridad): ''}</small>
+        `;
+
+        const actions = document.createElement('div');
+        actions.className = 'notif-actions';
+        if (n.leida !== 'Y') {
+          const a = document.createElement('span');
+          a.className = 'link';
+          a.textContent = 'Marcar como leído';
+          a.onclick = async () => {
+            const r = await fetch(`/notificaciones/${n.id}/leer`, { method:'PATCH' });
+            if (r.ok) loadNotifs();
+          };
+          actions.appendChild(a);
+        } else {
+          const ok = document.createElement('span');
+          ok.style.color = '#22c55e';
+          ok.textContent = 'Leída';
+          actions.appendChild(ok);
+        }
+
+        li.appendChild(icon);
+        li.appendChild(content);
+        li.appendChild(actions);
+        $list.appendChild(li);
       }
-      await load();
-      await loadTeamsForCreator();
+    }
+
+    function escapeHtml(s){
+      return String(s ?? '').replace(/[&<>"']/g, m => (
+        {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]
+      ));
+    }
+
+    // Eventos de filtros
+    document.querySelectorAll('.f-tipo').forEach(ch => ch.addEventListener('change', loadNotifs));
+    document.querySelectorAll('input[name="estado"]').forEach(r => r.addEventListener('change', loadNotifs));
+
+    // Marcar todas como leídas (con estado de carga)
+    $btnReadAll.addEventListener('click', async () => {
+      if (!userEmail) return;
+      const original = $btnReadAll.textContent;
+      $btnReadAll.disabled = true;
+      $btnReadAll.textContent = 'Marcando...';
+      try {
+        const r = await fetch(`/notificaciones/leer-todas`, {
+          method:'PATCH',
+          headers: { 'X-User-Email': userEmail }
+        });
+        if (r.ok) await loadNotifs();
+      } finally {
+        $btnReadAll.disabled = false;
+        $btnReadAll.textContent = original;
+      }
     });
+
+    document.addEventListener('DOMContentLoaded', loadNotifs);
   </script>
 </body>
 </html>

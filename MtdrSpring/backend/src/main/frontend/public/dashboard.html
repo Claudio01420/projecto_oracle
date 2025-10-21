@@ -181,8 +181,8 @@
             </div>
             <div class="kpi-body">
               <div class="kpi-value">Productividad</div>
-              <div class="kpi-title"><span id="productivity-percent">-</span></div>
-              <div class="kpi-sub" id="productivity-sub">Cargando datos...</div>
+              <div class="kpi-title">87%</div>
+              <div class="kpi-sub">+5% esta semana</div>
             </div>
           </article>
 
@@ -192,8 +192,8 @@
             </div>
             <div class="kpi-body">
               <div class="kpi-value">Tareas activas</div>
-              <div class="kpi-title"><span id="total-tasks">0</span></div>
-              <div class="kpi-sub"><span id="completed-tasks">0</span> completadas</div>
+              <div class="kpi-title">24</div>
+              <div class="kpi-sub">8 completadas hoy</div>
             </div>
           </article>
 
@@ -202,9 +202,9 @@
               <svg class="ico ico-foot"><use href="#i-foot"/></svg>
             </div>
             <div class="kpi-body">
-              <div class="kpi-value">Proyecto actual</div>
-              <div class="kpi-title"><span id="project-name">-</span></div>
-              <div class="kpi-sub"><span id="project-days">-</span> días restantes</div>
+              <div class="kpi-value">Sprint actual</div>
+              <div class="kpi-title">Sprint 12</div>
+              <div class="kpi-sub">5 días restantes</div>
             </div>
           </article>
 
@@ -214,8 +214,8 @@
             </div>
             <div class="kpi-body">
               <div class="kpi-value">Burnout Risk</div>
-              <div class="kpi-title"><span id="burnout-risk-level">-</span></div>
-              <div class="kpi-sub"><span id="burnout-icl">-</span> ICL · <span id="burnout-msg">Cargando...</span></div>
+              <div class="kpi-title">Bajo</div>
+              <div class="kpi-sub">Equipo saludable</div>
             </div>
           </article>
         </div>
@@ -264,11 +264,28 @@
       <section class="card">
         <div class="row-sb">
           <h2 class="h6">Proyectos activos</h2>
-          <a class="link" href="/projects.html">Ir a proyectos ➜</a>
+          <a class="link" href="#">Ir a proyectos ➜</a>
         </div>
-        <div class="stack" id="projects-list">
-          <!-- JS rellenará los proyectos del usuario aquí -->
-          <div class="muted small" id="projects-loading">Cargando proyectos...</div>
+        <div class="stack">
+          <article class="project">
+            <div class="row-sb">
+              <strong class="title">Sistema de Facturación v2.0</strong>
+              <span class="chip chip-outline-red">En Progreso</span>
+            </div>
+            <p class="muted small">Backend API y Frontend React</p>
+            <div class="progress"><span style="width:75%"></span></div>
+            <div class="muted tiny">75% completado</div>
+          </article>
+
+          <article class="project">
+            <div class="row-sb">
+              <strong class="title">Migración Base de Datos</strong>
+              <span class="chip chip-outline-red">Planificación</span>
+            </div>
+            <p class="muted small">Oracle 19c a Oracle 21c</p>
+            <div class="progress"><span style="width:25%"></span></div>
+            <div class="muted tiny">25% completado</div>
+          </article>
         </div>
       </section>
 
@@ -279,310 +296,10 @@
             <div class="cta-title">¿Quieres insights más detallados?</div>
             <div class="muted">Revisa los KPIs para detectar riesgos y oportunidades.</div>
           </div>
-          <a class="btn btn-primary" href="/KPIs.html">Abrir KPIs</a>
+          <a class="btn btn-primary" href="#">Abrir KPIs</a>
         </div>
       </section>
     </main>
   </div>
-
-  <!-- Script para obtener último proyecto del usuario y actualizar contadores -->
-<script>
-(async function(){
-  // Obtener email (usar localStorage si existe, sino pedir)
-  let email = localStorage.getItem('userEmail') || prompt('Introduce tu email para obtener tu último proyecto:');
-  if (!email) {
-    const pname = document.getElementById('project-name');
-    const pdays = document.getElementById('project-days');
-    if (pname) pname.textContent = '-';
-    if (pdays) pdays.textContent = '-';
-    return;
-  }
-  localStorage.setItem('userEmail', email);
-
-  try {
-    // 1) Obtener usuario por email
-    const resUser = await fetch('/usuarios/by-email?email=' + encodeURIComponent(email));
-    if (!resUser.ok) {
-      console.error('Usuario no encontrado:', await resUser.text());
-      const pname = document.getElementById('project-name');
-      const pdays = document.getElementById('project-days');
-      if (pname) pname.textContent = '-';
-      if (pdays) pdays.textContent = '-';
-      return;
-    }
-    const user = await resUser.json();
-    const userId = user.id || user.usuarioId || user.usuarioId;
-    if (!userId) {
-      console.error('Usuario sin id válido');
-      const pname = document.getElementById('project-name');
-      const pdays = document.getElementById('project-days');
-      if (pname) pname.textContent = '-';
-      if (pdays) pdays.textContent = '-';
-      return;
-    }
-
-    // 2) Obtener proyectos del usuario con stats
-    const res = await fetch('/proyectos/mios/' + encodeURIComponent(userId) + '/stats');
-    if (!res.ok) {
-      console.error('Error al cargar proyectos del usuario:', await res.text());
-      const pname = document.getElementById('project-name');
-      const pdays = document.getElementById('project-days');
-      if (pname) pname.textContent = '-';
-      if (pdays) pdays.textContent = '-';
-      return;
-    }
-    const projects = await res.json();
-    if (!Array.isArray(projects) || projects.length === 0) {
-      const pname = document.getElementById('project-name');
-      const pdays = document.getElementById('project-days');
-      if (pname) pname.textContent = '-';
-      if (pdays) pdays.textContent = '-';
-      return;
-    }
-
-    // 3) Elegir "último" proyecto del usuario (fallback: mayor id)
-    const latest = projects.reduce((a, b) => ((a && a.id ? a.id : 0) > (b && b.id ? b.id : 0) ? a : b), projects[0]);
-
-    // Actualizar UI
-    const pnameEl = document.getElementById('project-name');
-    const pdaysEl = document.getElementById('project-days');
-    if (pnameEl) pnameEl.textContent = latest.projectName ?? latest.nombreProyecto ?? latest.name ?? '-';
-
-    // Calcular días restantes si hay fecha de fin
-    function parseDateSafe(s) {
-      if (!s) return null;
-      const d = new Date(s);
-      return isNaN(d.getTime()) ? null : d;
-    }
-    const endDate = parseDateSafe(latest.fechaFin || latest.fecha_fin || latest.endDate);
-    if (pdaysEl) {
-      if (!endDate) {
-        pdaysEl.textContent = '-';
-      } else {
-        const now = new Date();
-        const diffDays = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
-        pdaysEl.textContent = diffDays <= 0 ? '0' : String(diffDays);
-      }
-    }
-
-    // Si el proyecto incluye equipoId, actualizar Burnout Risk (misma lógica previa)
-    if (latest.equipoId) {
-      try {
-        const res2 = await fetch('/equipos/' + encodeURIComponent(latest.equipoId) + '/icl');
-        if (res2.ok) {
-          const iclData = await res2.json();
-          const levelEl = document.getElementById('burnout-risk-level');
-          const iclEl = document.getElementById('burnout-icl');
-          const msgEl = document.getElementById('burnout-msg');
-          if (levelEl) levelEl.textContent = iclData.risk ?? '-';
-          if (iclEl) iclEl.textContent = (typeof iclData.icl === 'number') ? iclData.icl.toFixed(2) : '-';
-          if (msgEl) msgEl.textContent = iclData.message ?? '';
-        } else {
-          console.error('Error al cargar ICL del equipo:', await res2.text());
-          const msgEl = document.getElementById('burnout-msg');
-          if (msgEl) msgEl.textContent = 'Error al cargar ICL';
-        }
-      } catch (err) {
-        console.error('Excepción al recuperar ICL del equipo:', err);
-        const msgEl = document.getElementById('burnout-msg');
-        if (msgEl) msgEl.textContent = 'Excepción al cargar ICL';
-      }
-    } else {
-      const msgEl = document.getElementById('burnout-msg');
-      if (msgEl) msgEl.textContent = 'Equipo no definido';
-    }
-
-  } catch (err) {
-    console.error('Excepción al recuperar último proyecto del usuario:', err);
-  }
-})();
-</script>
-
-<!-- Nuevo script: obtiene productividad del usuario y actualiza KPI -->
-<script>
-(async function(){
-  // Obtener email (usa localStorage si existe, sino pide)
-  let email = localStorage.getItem('userEmail') || prompt('Introduce tu email (X-User-Email) para calcular productividad:');
-  if (!email) {
-    // dejar valores por defecto si no hay email
-    const p = document.getElementById('productivity-percent');
-    const s = document.getElementById('productivity-sub');
-    if (p) p.textContent = '-';
-    if (s) s.textContent = 'Email no proporcionado';
-    return;
-  }
-  localStorage.setItem('userEmail', email);
-
-  try {
-    const res = await fetch('/api/tasks/productivity?email=' + encodeURIComponent(email));
-    if (!res.ok) {
-      console.error('Error al cargar productividad:', await res.text());
-      const s = document.getElementById('productivity-sub');
-      if (s) s.textContent = 'Error cargando datos';
-      return;
-    }
-    const data = await res.json();
-    const percentEl = document.getElementById('productivity-percent');
-    const subEl = document.getElementById('productivity-sub');
-
-    // Mostrar porcentaje (entero)
-    const pct = Math.round((data.productivityPercent ?? 0) * 100) / 100; // 2 decimales
-    if (percentEl) percentEl.textContent = (isNaN(pct) ? '-' : pct + '%');
-
-    // Subtexto: tareas completadas/assignadas y horas planificadas/real
-    const totalAssigned = data.totalAssigned ?? 0;
-    const totalCompleted = data.totalCompleted ?? 0;
-    const planned = data.plannedHours ?? 0;
-    const real = data.realHours ?? 0;
-    if (subEl) {
-      subEl.textContent = `${totalCompleted}/${totalAssigned} tareas · ${real.toFixed(1)}/${planned.toFixed(1)} horas`;
-    }
-  } catch (err) {
-    console.error('Excepción al recuperar productividad:', err);
-    const s = document.getElementById('productivity-sub');
-    if (s) s.textContent = 'Excepción cargando datos';
-  }
-})();
-</script>
-
-<!-- Añadir script para cargar proyectos del usuario y renderizarlos -->
-<script>
-(async function(){
-  // esperar que el DOM esté listo es implícito aquí (script al final del body)
-  const container = document.getElementById('projects-list');
-  if(!container) return;
-
-  const email = localStorage.getItem('userEmail');
-  if(!email) {
-    container.innerHTML = '<div class="muted small">Inicia sesión para ver tus proyectos.</div>';
-    return;
-  }
-
-  try {
-    // 1) Obtener usuario por email (para conseguir su id)
-    const resUser = await fetch('/usuarios/by-email?email=' + encodeURIComponent(email));
-    if(!resUser.ok) {
-      container.innerHTML = '<div class="muted small">No se pudo obtener el usuario.</div>';
-      return;
-    }
-    const user = await resUser.json();
-    const userId = user.id || user.usuarioId || user.usuarioId;
-
-    if(!userId) {
-      container.innerHTML = '<div class="muted small">Usuario inválido.</div>';
-      return;
-    }
-
-    // 2) Obtener proyectos del usuario con stats
-    const res = await fetch('/proyectos/mios/' + encodeURIComponent(userId) + '/stats');
-    if(!res.ok) {
-      container.innerHTML = '<div class="muted small">Error cargando proyectos.</div>';
-      return;
-    }
-    const projects = await res.json();
-    if(!Array.isArray(projects) || projects.length === 0) {
-      container.innerHTML = '<div class="muted small">No hay proyectos activos.</div>';
-      return;
-    }
-
-    // 3) Renderizar cada proyecto
-    container.innerHTML = '';
-    projects.forEach(p => {
-      const article = document.createElement('article');
-      article.className = 'project';
-      const titleRow = document.createElement('div');
-      titleRow.className = 'row-sb';
-      const strong = document.createElement('strong');
-      strong.className = 'title';
-      strong.textContent = p.projectName || 'Proyecto';
-      const statusSpan = document.createElement('span');
-      statusSpan.className = 'chip chip-outline-red';
-      // inferir estado por progreso
-      const prog = Number(p.progressPercent ?? 0);
-      statusSpan.textContent = prog >= 100 ? 'Completado' : (prog >= 50 ? 'En Progreso' : 'Planificación');
-      titleRow.appendChild(strong);
-      titleRow.appendChild(statusSpan);
-
-      const desc = document.createElement('p');
-      desc.className = 'muted small';
-      // mostrar fechas si vienen
-      const start = p.fechaInicio ? p.fechaInicio : '-';
-      const end = p.fechaFin ? p.fechaFin : '-';
-      desc.textContent = `Inicio: ${start} · Fin: ${end}`;
-
-      const progressBar = document.createElement('div');
-      progressBar.className = 'progress';
-      const span = document.createElement('span');
-      span.style.width = (Math.max(0, Math.min(100, prog))) + '%';
-      progressBar.appendChild(span);
-
-      const tiny = document.createElement('div');
-      tiny.className = 'muted tiny';
-      tiny.textContent = `${p.progressPercent ?? 0}% completado · ${p.completedTasks ?? 0}/${p.totalTasks ?? 0} tareas`;
-
-      article.appendChild(titleRow);
-      article.appendChild(desc);
-      article.appendChild(progressBar);
-      article.appendChild(tiny);
-      container.appendChild(article);
-    });
-
-  } catch (err) {
-    console.error('Error al cargar proyectos del usuario:', err);
-    container.innerHTML = '<div class="muted small">Excepción al cargar proyectos.</div>';
-  }
-})();
-</script>
-
-<!-- NUEVO: Script que calcula y actualiza total-tasks y completed-tasks para el usuario logueado -->
-<script>
-(async function(){
-  const totalEl = document.getElementById('total-tasks');
-  const completedEl = document.getElementById('completed-tasks');
-  if (!totalEl && !completedEl) return;
-
-  const email = localStorage.getItem('userEmail');
-  if (!email) {
-    // si no hay email, mostrar 0
-    if (totalEl) totalEl.textContent = '0';
-    if (completedEl) completedEl.textContent = '0';
-    return;
-  }
-
-  try {
-    const res = await fetch('/api/tasks?email=' + encodeURIComponent(email));
-    if (!res.ok) {
-      console.error('Error al cargar tareas del usuario:', await res.text());
-      if (totalEl) totalEl.textContent = '0';
-      if (completedEl) completedEl.textContent = '0';
-      return;
-    }
-    const tasks = await res.json();
-    if (!Array.isArray(tasks) || tasks.length === 0) {
-      if (totalEl) totalEl.textContent = '0';
-      if (completedEl) completedEl.textContent = '0';
-      return;
-    }
-
-    const totalActive = tasks.length;
-    const completedCount = tasks.filter(t => {
-      try {
-        return (t.status && String(t.status).toLowerCase() === 'hecho') || (t.completedAt != null);
-      } catch (e) {
-        return false;
-      }
-    }).length;
-
-    if (totalEl) totalEl.textContent = String(totalActive);
-    if (completedEl) completedEl.textContent = String(completedCount);
-
-  } catch (err) {
-    console.error('Excepción al obtener tareas del usuario:', err);
-    if (totalEl) totalEl.textContent = '0';
-    if (completedEl) completedEl.textContent = '0';
-  }
-})();
-</script>
-
 </body>
 </html>
