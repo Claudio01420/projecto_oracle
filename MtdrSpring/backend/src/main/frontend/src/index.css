@@ -1,20 +1,17 @@
 :root{
-  --bg:#f4f6f9;
-  --bg-2:#eef1f6;
-  --ink:#111111;
-  --muted:#6b7280;
-  --muted-2:#374151;
-  --card:#ffffff;
-  --line:#e9edf2;
-  --line-2:#eef0f3;
+  --bg:#181818;
+  --ink:#ffffff;
+  --ink-2:#000000;
+  --muted:#b4b4b4;
+  --card:#202020; 
   --brand:#E1261C;
   --brand-hover:#c21f17;
-  --chip:#f1f5f9;
+  --chip:#2b2b2b;
   --shadow-sm:0 2px 8px rgba(0,0,0,.04);
   --shadow-md:0 8px 24px rgba(0,0,0,.06);
   --shadow-lg:0 12px 32px rgba(0,0,0,.18);
   --radius:12px;
-  --container:1100px;
+  --container:1700px;
 }
 
 *{box-sizing:border-box}
@@ -33,21 +30,16 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helve
 
 /* HERO */
 .hero{
-  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
-  border-bottom:1px solid var(--line);
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg) 100%);
   padding-top: clamp(48px, 6vw, 80px);
-  padding-bottom: clamp(48px, 6vw, 80px);
+  padding-bottom: clamp(16px, 3vw, 28px);
 }
 
 .hero-grid{
   display:grid;
-  grid-template-columns: 1fr;
-  gap: clamp(24px, 3vw, 48px);
+  grid-template-columns: 540px 1fr;
+  gap: clamp(24px, 2vw, 48px);
   align-items:center;
-}
-
-@media (min-width: 900px){
-  .hero-grid{ grid-template-columns: 1fr 1fr; }
 }
 
 .hero-title{
@@ -59,7 +51,7 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helve
 }
 
 .hero-desc{
-  color:var(--muted-2);
+  color:var(--muted);
   max-width: 620px;
   margin:0 0 20px 0;
 }
@@ -94,7 +86,7 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helve
 
 .btn-outline{
   background:#fff;
-  color:var(--ink);
+  color:var(--ink-2);
   border-color:#d6d9de;
 }
 .btn-outline:hover{ box-shadow: var(--shadow-sm); }
@@ -119,20 +111,18 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helve
 @media (min-width: 900px){ .hero-mock{ justify-content:flex-end } }
 
 .laptop{
-  display:inline-block;
-  width:100%;
-  max-width:560px;
-  border-radius:var(--radius);
-  background: var(--ink);
-  padding: 8px 8px 0 8px; /* marco superior */
-  border:1px solid #e5e7eb;
-  box-shadow: var(--shadow-lg);
+  border-radius:16px;
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
+  padding:12px;
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 0 0 1px rgba(255,255,255,.04) inset;
+  max-width: 900px;
 }
 .laptop img{
   display:block;
   width:100%;
   height:auto;
-  border-radius: 0 0 8px 8px;
+  border-radius:12px;
 }
 
 /* FEATURES */
@@ -156,10 +146,11 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helve
   .features-grid{ grid-template-columns: repeat(4, 1fr); }
 }
 
+/* Funciones Principales */
 .card{
   height:100%;
   background:var(--card);
-  border:1px solid var(--line-2);
+  border:1px solid var(--bg);
   border-radius:12px;
   padding:16px;
   transition:.15s ease-in-out;
@@ -187,8 +178,8 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helve
   align-items:flex-start;
   gap:16px;
   padding: clamp(16px, 3.5vw, 24px);
-  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
-  border:1px solid var(--line);
+  background:#202020;
+  border:1px solid var(--ink);
   border-radius:12px;
 }
 @media (min-width: 900px){
@@ -202,3 +193,161 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helve
   color:var(--ink);
 }
 .cta-desc{ margin:0; color:var(--muted); }
+
+
+
+
+/* ====== GALERÍA ====== */
+
+/* Contenedor principal (ocupa el área de la imagen original) */
+.hero-gallery {
+  position: relative;
+  width: 100%;
+  max-width: 650px; /* ajusta tamaño del contenedor */
+  margin: 0 auto;
+}
+
+/* Oculta todas las imágenes menos la activa */
+.hg-frame{
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
+  box-shadow: 0 0 0 1px rgba(255,255,255,.04) inset;
+  padding: 10px;       /* pequeño “bezel” */
+}
+
+/* Imagen dentro del marco */
+.hg-img {
+  width: 100%;
+  height: auto;
+  display: none;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.hg-img.is-active {
+  display: block;
+}
+
+/* Insignia “Vista previa” */
+.hg-badge{
+  position:absolute;
+  top:-34px;
+  left:50%;
+  transform:translateX(-50%);
+  background: none;
+  border: none;
+  padding:3px 10px;
+  font-size:15px;
+  color:var(--muted-2);
+  pointer-events:none;
+}
+
+/* Flechas inicialmente ocultas */
+.hero-gallery .hg-arrow{
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .2s ease;
+}
+
+/* Flechas izquierda y derecha */
+.hg-arrow{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  background:transparent;
+  color:#fff;
+  border:none;
+  font-size:2rem;
+  padding:0;
+  cursor:pointer;
+  z-index:10;
+}
+
+.hg-arrow:hover {
+  color:var(--brand);
+}
+
+.hg-left { left: -60px; }
+.hg-right { right: -60px; }
+
+/* ====== LIGHTBOX ====== */
+
+.hg-lightbox[hidden]{
+  display: none !important;
+}
+
+.hg-lightbox {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+}
+
+.hg-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+}
+
+.hg-modal {
+  position: relative;
+  max-width: 85vw;
+  max-height: 85vh;
+  text-align: center;
+  color: white;
+}
+
+.hg-modal img {
+  max-width: 100%;
+  max-height: 78vh;
+  border-radius: 10px;
+}
+
+.hg-close{
+  position: absolute;
+  top: -45px;
+  right: -5px;
+  font-size: 2rem;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.hg-close:hover {
+  color:var(--brand);
+}
+
+.hg-modal .hg-arrow {
+  top: 50%;
+}
+
+/* --- PUNTOS DE PÁGINA EN LIGHTBOX --- */
+.hg-dots{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  align-items:center;
+  margin:10px 0 0 0;
+}
+.hg-dot{
+  width: 10px;
+  aspect-ratio: 1/1;
+  height: auto;
+  display: block;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+.hg-dot:hover{ transform:scale(1.15); }
+.hg-dot.is-active{
+  background:#fff;
+  transform: scale(1.25);
+}
