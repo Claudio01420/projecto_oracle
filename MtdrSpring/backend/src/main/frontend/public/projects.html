@@ -80,18 +80,17 @@
 
     .btn-ghost { display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border-radius:12px; background:#fff; color:var(--dark); border:1px solid var(--line-2); font-weight:800; font-size:13px; text-decoration:none; cursor:pointer; box-shadow: var(--shadow-sm); transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease, background .15s ease; }
     .btn-ghost:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); border-color:#d9dde3; }
-    .btn-ghost:active { transform: translateY(0); box-shadow: var(--shadow-sm); }
     .btn-ghost[disabled] { opacity:.5; pointer-events:none }
     .btn-ghost .ico { width:16px; height:16px; display:inline-block; }
 
     .table tbody tr { cursor: pointer; }
 
-    /* === Estilos de validación del formulario === */
+    /* === Validación de formulario === */
     .field.invalid input, .field.invalid select, .field.invalid textarea { border-color:#E1261C; background:#fff6f5; }
     .field .msg { display:none; font-size:12px; color:#E1261C; margin-top:6px; }
     .field.invalid .msg { display:block; }
 
-    /* ===== Picker / Autocomplete ===== */
+    /* ===== Autocomplete ===== */
     .search-wrap { position:relative; }
     .ac-wrap { position:absolute; left:0; right:0; top:calc(100% + 6px); background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow: var(--shadow-md, 0 6px 24px rgba(16,24,40,.08)); display:none; z-index: 500; }
     .ac-wrap.open { display:block; }
@@ -239,13 +238,8 @@
             <div class="detail-item"><div class="label">Estado</div><div class="value" id="d-estado"><span class="chip">—</span></div></div>
             <div class="detail-item"><div class="label">Avance</div><div class="value"><div class="progress"><span id="d-avance" style="width:0%"></span></div></div></div>
 
-            <div class="tasks-box" id="tasks-box" style="display:none;">
-              <h3>
-                Tareas de este proyecto
-                <button id="btn-nueva-tarea" class="btn-ghost" style="margin-left:auto">
-                  + Nueva tarea
-                </button>
-              </h3>
+            <div class="tasks-box" id="tasks-box">
+              <h3>Tareas de este proyecto</h3>
               <div id="tasks-list"></div>
               <div class="muted small" id="tasks-count"></div>
             </div>
@@ -255,7 +249,7 @@
     </main>
   </div>
 
-  <!-- Modal: Nuevo Proyecto (igual que tenías) -->
+  <!-- Modal: Nuevo Proyecto -->
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <h2>Nuevo Proyecto</h2>
@@ -272,13 +266,13 @@
         <div class="msg" id="msg-desc">La descripción es obligatoria (mín. 5 caracteres).</div>
       </div>
 
-      <!-- SELECT de equipos donde eres ADMIN -->
+      <!-- SELECT de equipos donde eres ADMIN (con fallback a equipos donde participas) -->
       <div class="field" id="f-equipo-field">
         <label for="f-equipo">Equipo</label>
         <select id="f-equipo">
           <option value="">Cargando equipos…</option>
         </select>
-        <small id="equipos-help" class="muted">Solo verás equipos donde eres ADMIN.</small>
+        <small id="equipos-help" class="muted">Por defecto verás equipos donde eres ADMIN; si no hay, se mostrarán equipos donde participas.</small>
         <div class="msg" id="msg-equipo">Selecciona un equipo.</div>
       </div>
 
@@ -296,43 +290,7 @@
 
       <div class="modal-buttons">
         <button class="btn btn-outline" id="btn-cancelar">Cancelar</button>
-        <button class="btn btn-primary" id="btn-guardar">Guardar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 🆕 Modal: Nueva Tarea del proyecto (con Fecha Límite obligatoria) -->
-  <div class="modal-overlay" id="modal-overlay-task" style="display:none;">
-    <div class="modal">
-      <h2>Nueva Tarea</h2>
-
-      <div class="field" id="t-title-field">
-        <label>Título</label>
-        <input id="t-title" type="text" placeholder="Ej. Configurar CI/CD">
-        <div class="msg">El título es obligatorio (mín. 3 caracteres).</div>
-      </div>
-
-      <div class="field" id="t-desc-field">
-        <label>Descripción</label>
-        <textarea id="t-desc" rows="3" placeholder="Describe la tarea"></textarea>
-        <div class="msg">La descripción es obligatoria (mín. 5 caracteres).</div>
-      </div>
-
-      <div class="field" id="t-est-field">
-        <label>Horas estimadas (≤ 4 h)</label>
-        <input id="t-est" type="number" min="0" max="4" step="0.5" placeholder="0.5, 1, 2, 3.5…">
-        <div class="msg">Máximo 4 horas por tarea.</div>
-      </div>
-
-      <div class="field" id="t-due-field">
-        <label>Fecha límite</label>
-        <input id="t-due" type="date">
-        <div class="msg">La fecha límite es obligatoria.</div>
-      </div>
-
-      <div class="modal-buttons">
-        <button class="btn btn-outline" id="task-cancel">Cancelar</button>
-        <button class="btn btn-primary" id="task-save">Crear tarea</button>
+        <button class="btn btn-primary" id="btn-guardar" disabled>Guardar</button>
       </div>
     </div>
   </div>
@@ -370,26 +328,12 @@
   const $tasksBox   = document.getElementById("tasks-box");
   const $tasksList  = document.getElementById("tasks-list");
   const $tasksCount = document.getElementById("tasks-count");
-  const $btnNuevaTarea = document.getElementById("btn-nueva-tarea");
 
   // Modal Proyecto
   const $modalOverlay = document.getElementById("modal-overlay");
   const $btnNuevo  = document.getElementById("btn-nuevo");
   const $btnGuardar= document.getElementById("btn-guardar");
   const $btnCancel = document.getElementById("btn-cancelar");
-
-  // Modal Tarea
-  const $modalTask = document.getElementById("modal-overlay-task");
-  const $taskSave  = document.getElementById("task-save");
-  const $taskCancel= document.getElementById("task-cancel");
-  const $tTitle    = document.getElementById("t-title");
-  const $tDesc     = document.getElementById("t-desc");
-  const $tEst      = document.getElementById("t-est");
-  const $tDue      = document.getElementById("t-due");
-  const $tTitleField = document.getElementById("t-title-field");
-  const $tDescField  = document.getElementById("t-desc-field");
-  const $tEstField   = document.getElementById("t-est-field");
-  const $tDueField   = document.getElementById("t-due-field");
 
   // Form Proyecto inputs
   const $fNombre = document.getElementById("f-nombre");
@@ -405,19 +349,18 @@
   const $fInicioField = document.getElementById("f-inicio-field");
   const $fFinField    = document.getElementById("f-fin-field");
 
-  // ===== Picker / Autocomplete DOM
+  // Picker / Autocomplete DOM
   const $acWrap  = document.getElementById("ac-wrap");
   const $acList  = document.getElementById("ac-list");
   const $acCount = document.getElementById("ac-count");
 
   // API
-  const currentUserId = user?.id || null;
+  const currentUserId = user?.id ?? user?.usuarioId ?? null;   // <-- robusto
   const currentUserEmail = user?.email || "";
   const API_BASE    = "http://localhost:8080/proyectos";
-  const TASKS_API   = "http://localhost:8080/api/tasks";   // <-- importante
+  const TASKS_API   = "http://localhost:8080/api/tasks";
   const EQUIPOS_API = "http://localhost:8080/equipos";
   const UE_API      = "http://localhost:8080/usuarios-equipos";
-  const ROL_ADMIN   = "ADMIN";
 
   let proyectosCache = [];
   let selectedProjectId = null;
@@ -471,11 +414,11 @@
     return isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
   }
 
-  /* ========= PROGRESO REAL POR TAREAS (vista compartida) ========= */
+  /* ========= PROGRESO REAL POR TAREAS ========= */
   async function fetchTasksForProject(projectId){
     try{
       const res = await fetch(`${TASKS_API}?projectId=${encodeURIComponent(projectId)}`, {
-        headers: { "X-User-Id": String(currentUserId || "") }
+        headers: { "X-User-Id": String(currentUserId ?? "") } // lectura compartida
       });
       if (!res.ok) return [];
       return await res.json();
@@ -483,7 +426,10 @@
   }
   function calcProgressFromTasks(tasks){
     const total = tasks.length;
-    const done = tasks.filter(t => (t.status||"").toLowerCase()==="done" || t.completedAt != null || (t.status||"").toLowerCase()==="hecho").length;
+    const done = tasks.filter(t => {
+      const st = (t.status || "").toLowerCase();
+      return st === "done" || st === "hecho" || t.completedAt != null;
+    }).length;
     const pct = total === 0 ? 0 : Math.round((done/total)*100);
     return { total, done, pct };
   }
@@ -584,15 +530,26 @@
       $tasksList.innerHTML = `<div class="muted">Este proyecto no tiene tareas.</div>`;
       $tasksCount.textContent = `0 tareas`;
     } else {
-      $tasksList.innerHTML = tasks.map(t => `
-        <div class="task-item">
-          <div>
-            <div class="task-title">${escapeHtml(t.title || '')}</div>
-            <div class="task-meta">Prio: ${escapeHtml(t.priority||'')} · Est: ${t.estimatedHours??'-'}h ${t.realHours?(' · Real: '+t.realHours+'h'):''} ${t.fechaLimite?(' · Vence: '+new Date(t.fechaLimite).toLocaleDateString()):''}</div>
+      $tasksList.innerHTML = tasks.map(t => {
+        const asig = t.assigneeName && t.assigneeName.trim()
+          ? t.assigneeName
+          : (t.assigneeId || '-'); // respaldo por email/ID
+        return `
+          <div class="task-item">
+            <div>
+              <div class="task-title">${escapeHtml(t.title || '')}</div>
+              <div class="task-meta">
+                Prio: ${escapeHtml(t.priority||'')}
+                · Est: ${t.estimatedHours??'-'}h
+                · Asig: ${escapeHtml(asig)}
+                ${t.realHours?(' · Real: '+t.realHours+'h'):''}
+                ${t.fechaLimite?(' · Vence: '+new Date(t.fechaLimite).toLocaleDateString()):''}
+              </div>
+            </div>
+            <div><span class="badge status ${escapeHtml((t.status||'todo').toLowerCase())}">${escapeHtml((t.status||'todo'))}</span></div>
           </div>
-          <div><span class="badge status ${escapeHtml((t.status||'todo').toLowerCase())}">${escapeHtml((t.status||'todo'))}</span></div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
       $tasksCount.textContent = `${tasks.length} tarea(s)`;
     }
 
@@ -614,7 +571,7 @@
 
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
 
-  // ====== Cargar equipos donde soy ADMIN y llenar el <select> (crear proyecto)
+  // ====== Cargar equipos (ADMIN con fallback a participante) ======
   async function cargarEquiposAdminParaSelect() {
     const $select = document.getElementById("f-equipo");
     const $help   = document.getElementById("equipos-help");
@@ -622,9 +579,9 @@
 
     const renderOpciones = (equipos) => {
       if (!equipos?.length) {
-        $select.innerHTML = `<option value="">No tienes equipos como ADMIN</option>`;
+        $select.innerHTML = `<option value="">No tienes equipos disponibles</option>`;
         if ($btnGuardar) $btnGuardar.disabled = true;
-        if ($help) $help.textContent = "No apareces como ADMIN en ningún equipo.";
+        if ($help) $help.textContent = "No apareces en ningún equipo.";
         return;
       }
       $select.innerHTML = `<option value="">Selecciona un equipo…</option>` +
@@ -632,32 +589,40 @@
       validarYActualizarEstado();
     };
 
+    // 1) Intentar equipos donde eres ADMIN
     try {
       const direct = await fetch(`${EQUIPOS_API}?adminId=${encodeURIComponent(currentUserId)}`);
       if (direct.ok) {
         const data = await direct.json();
-        renderOpciones(data);
+        if (Array.isArray(data) && data.length) {
+          renderOpciones(data);
+          return;
+        }
+      }
+    } catch {}
+
+    // 2) Fallback: equipos donde participas
+    try {
+      const allMine = await fetch(`${EQUIPOS_API}?usuarioId=${encodeURIComponent(currentUserId)}`);
+      if (allMine.ok) {
+        const data2 = await allMine.json();
+        renderOpciones(Array.isArray(data2) ? data2 : []);
         return;
       }
-    } catch { /* no-op */ }
+    } catch {}
 
+    // 3) Error
     $select.innerHTML = `<option value="">Error cargando equipos</option>`;
     if ($btnGuardar) $btnGuardar.disabled = true;
+    if ($help) $help.textContent = "No se pudieron cargar los equipos.";
   }
 
   // ====== Validación de formulario (crear proyecto)
-  let formTriedSubmit = false;
-
   function setFieldState($fieldEl, isValid, show){
     if (!$fieldEl) return;
-    if (!show){
-      $fieldEl.classList.remove("invalid");
-      return;
-    }
-    if (isValid) $fieldEl.classList.remove("invalid");
-    else $fieldEl.classList.add("invalid");
+    if (!show){ $fieldEl.classList.remove("invalid"); return; }
+    if (isValid) $fieldEl.classList.remove("invalid"); else $fieldEl.classList.add("invalid");
   }
-
   function isNonEmpty(s){ return !!(s && s.trim().length > 0); }
 
   function validarFormulario(show=false){
@@ -668,8 +633,8 @@
     const ini = $fInicio.value ? new Date($fInicio.value) : null;
     const fin = $fFin.value    ? new Date($fFin.value)    : null;
 
-    const inicioOK = !!ini && !isNaN(ini.getTime());
-    const finOK    = !!fin && !isNaN(fin.getTime());
+    const inicioOK = !!(ini && !isNaN(ini.getTime()));
+    const finOK    = !!(fin && !isNaN(fin.getTime()));
     const rangoOK  = inicioOK && finOK && (ini.getTime() <= fin.getTime());
 
     setFieldState($fNombreField, nombreOK, show);
@@ -753,7 +718,6 @@
 
   async function crearProyecto() {
     if (!currentUserId) { alert("No hay usuario logueado. Inicia sesión primero."); return; }
-
     const result = validarFormulario(true);
     if (!result.ok) {
       alert("Completa correctamente todos los campos:\n\n" + result.errors.join("\n"));
@@ -769,26 +733,31 @@
       fechaFin: $fFin.value,
       creadorId: currentUserId
     };
-    const res = await fetch(API_BASE, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-User-Id": String(currentUserId)
-      },
-      body: JSON.stringify(nuevo)
-    });
-    if (res.ok) {
-      const creado = await res.json();
 
-      if (creado?.equipoId && !equipoNombreCache.has(creado.equipoId)) {
-        await fetchEquipoNombre(creado.equipoId);
+    try {
+      const res = await fetch(API_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }, // <-- sin X-User-Id para evitar CORS si no está permitido
+        body: JSON.stringify(nuevo)
+      });
+      if (res.ok) {
+        const creado = await res.json();
+
+        if (creado?.equipoId && !equipoNombreCache.has(creado.equipoId)) {
+          await fetchEquipoNombre(creado.equipoId);
+        }
+
+        proyectosCache.push(creado);
+        cerrarModal();
+        aplicarFiltros();
+        updateRowProgress(creado.id, 0);
+      } else {
+        const txt = await res.text().catch(()=> '');
+        alert("Error al crear el proyecto.\n" + (txt || "(sin detalle del servidor)"));
       }
-
-      proyectosCache.push(creado);
-      cerrarModal();
-      aplicarFiltros();
-      updateRowProgress(creado.id, 0);
-    } else alert("Error al crear el proyecto.");
+    } catch (e) {
+      alert("No se pudo contactar al servidor.");
+    }
   }
 
   function aplicarFiltros() {
@@ -831,7 +800,7 @@
   }
 
   // =======================
-  // CARGA DE PROYECTOS (visibles)
+  // CARGA DE PROYECTOS visibles
   // =======================
   async function getJsonOrNull(url){
     try{ const r = await fetch(url); if (!r.ok) return null; return await r.json(); }
@@ -839,7 +808,7 @@
   }
 
   async function fetchUserEquipoIds(userId){
-    const rels = await getJsonOrNull(`http://localhost:8080/usuarios-equipos/usuario/${encodeURIComponent(userId)}`);
+    const rels = await getJsonOrNull(`${UE_API}/usuario/${encodeURIComponent(userId)}`);
     if (!Array.isArray(rels)) return [];
     return rels
       .map(r => (r?.equipoId ?? r?.id?.equipoId))
@@ -1029,86 +998,7 @@
     if (e.target.closest('.ac-wrap')) return;
     acClose();
   });
-
-  /* ===========================
-     === Nueva Tarea (proyecto)
-     =========================== */
-  function openTaskModal(){
-    if (!selectedProjectId) { alert('Selecciona un proyecto.'); return; }
-    $tTitle.value = '';
-    $tDesc.value = '';
-    $tEst.value = '';
-    $tDue.value = '';
-    [$tTitleField,$tDescField,$tEstField,$tDueField].forEach(f=>f.classList.remove('invalid'));
-    $modalTask.style.display = 'flex';
-  }
-  function closeTaskModal(){ $modalTask.style.display = 'none'; }
-
-  function validateTaskForm(show=false){
-    const titleOK = !!($tTitle.value && $tTitle.value.trim().length >= 3);
-    const descOK  = !!($tDesc.value && $tDesc.value.trim().length >= 5);
-    const est = $tEst.value === '' ? null : Number($tEst.value);
-    const estOK = (est === null) || (est >= 0 && est <= 4);
-    const dueOK = !!$tDue.value;
-
-    if (show){
-      setFieldState($tTitleField, titleOK, true);
-      setFieldState($tDescField,  descOK,  true);
-      setFieldState($tEstField,   estOK,   true);
-      setFieldState($tDueField,   dueOK,   true);
-    }
-    return titleOK && descOK && estOK && dueOK;
-  }
-  function setFieldState($field, ok, show){
-    if (!show) { $field.classList.remove('invalid'); return; }
-    if (ok) $field.classList.remove('invalid'); else $field.classList.add('invalid');
-  }
-
-  async function createTaskForProject(){
-    if (!selectedProjectId){ alert('Selecciona un proyecto.'); return; }
-    if (!validateTaskForm(true)) return;
-
-    const payload = {
-      title: $tTitle.value.trim(),
-      description: $tDesc.value.trim(),
-      estimatedHours: $tEst.value === '' ? null : Number($tEst.value),
-      status: 'todo',
-      projectId: selectedProjectId,
-      assigneeId: currentUserEmail,     // el backend lo forzará igual a owner
-      assigneeName: '',                 // opcional
-      sprintId: null,                   // opcional
-      priority: null,                   // opcional
-      fechaLimite: $tDue.value          // <-- YYYY-MM-DD (LocalDate)
-    };
-
-    try{
-      const res = await fetch(TASKS_API, {
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'X-User-Email': currentUserEmail || ''
-        },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok){
-        const txt = await res.text().catch(()=> '');
-        alert('No se pudo crear la tarea.\n' + (txt||''));
-        return;
-      }
-      closeTaskModal();
-      await loadProjectTasksAndProgress(selectedProjectId);
-    }catch(e){
-      alert('Error de red al crear la tarea.');
-    }
-  }
-
-  if ($btnNuevaTarea) $btnNuevaTarea.addEventListener('click', openTaskModal);
-  if ($taskCancel) $taskCancel.addEventListener('click', closeTaskModal);
-  if ($taskSave) $taskSave.addEventListener('click', createTaskForProject);
-  $modalTask.addEventListener('click', (e)=>{ if (e.target === $modalTask) closeTaskModal(); });
 </script>
 
 </body>
 </html>
-
-

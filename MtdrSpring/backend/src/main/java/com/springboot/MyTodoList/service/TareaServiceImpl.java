@@ -40,6 +40,13 @@ public class TareaServiceImpl implements TareaService {
 
     @Override
     public Tarea createFromDto(TaskCreateDto dto) {
+        // Mantener compatibilidad: si no recibimos ownerEmail explícito
+        return createFromDto(dto, null);
+    }
+
+    // ✅ NUEVO: crear y setear userEmail (dueño/creador) sin perder tus campos extras
+    @Override
+    public Tarea createFromDto(TaskCreateDto dto, String ownerEmail) {
         Tarea t = new Tarea();
         t.setTitle(dto.title);
         t.setDescription(dto.description);
@@ -51,11 +58,18 @@ public class TareaServiceImpl implements TareaService {
         t.setAssigneeId(dto.assigneeId);
         t.setAssigneeName(dto.assigneeName);
 
-        // ⬅️ NUEVO: guardar fecha límite
+        // ⬅️ conservas tu fecha límite
         t.setFechaLimite(dto.fechaLimite);
 
+        // timestamps tuyos
         t.setCreatedAt(LocalDateTime.now());
         t.setFechaAsignacion(LocalDate.now());
+
+        // ⬅️ NUEVO: guardar quién creó la tarea
+        if (ownerEmail != null && !ownerEmail.isBlank()) {
+            t.setUserEmail(ownerEmail);
+        }
+
         return tareaRepository.save(t);
     }
 
@@ -93,8 +107,7 @@ public class TareaServiceImpl implements TareaService {
         if (dto.assigneeId != null)      t.setAssigneeId(dto.assigneeId);
         if (dto.assigneeName != null)    t.setAssigneeName(dto.assigneeName);
 
-        // Nota: si más adelante quieres permitir editar fecha límite,
-        // añade al UpdateTaskDto y descomenta:
+        // Si luego agregas fechaLimite al UpdateTaskDto, habilita:
         // if (dto.fechaLimite != null)     t.setFechaLimite(dto.fechaLimite);
 
         if (dto.status != null) {

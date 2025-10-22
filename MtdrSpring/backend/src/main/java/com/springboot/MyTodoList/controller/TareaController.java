@@ -44,8 +44,8 @@ public class TareaController {
 
     private final TareaService tareaService;
     private final TareaRepository tareaRepository;
-    private final ProyectoRepository proyectoRepository;           // ✅ nuevo
-    private final UsuarioEquipoRepository usuarioEquipoRepository; // ✅ nuevo
+    private final ProyectoRepository proyectoRepository;           // ✅ tu cambio
+    private final UsuarioEquipoRepository usuarioEquipoRepository; // ✅ tu cambio
 
     public TareaController(TareaService tareaService,
             TareaRepository tareaRepository,
@@ -85,7 +85,6 @@ public class TareaController {
     private boolean isMemberOfProjectTeam(Long userId, Long projectId) {
         if (userId == null || projectId == null) {
             return true; // modo dev: permitir si no hay userId
-
         }
         Optional<Proyecto> opt = proyectoRepository.findById(projectId);
         if (opt.isEmpty()) {
@@ -98,7 +97,7 @@ public class TareaController {
         return usuarioEquipoRepository.existsById(new UsuarioEquipoId(userId, equipoId));
     }
 
-    // CREATE (projectId obligatorio)
+    // ===== CREATE (fusionado: ahora NO forzamos asignado; por defecto owner si no viene) =====
     @PostMapping("/tasks")
     public ResponseEntity<?> createTask(HttpServletRequest req, @Valid @RequestBody TaskCreateDto dto) {
         if (dto.projectId == null || dto.projectId < 1) {
@@ -107,9 +106,19 @@ public class TareaController {
         if (dto.estimatedHours != null && dto.estimatedHours > 4.0) {
             return ResponseEntity.badRequest().body("Máximo 4 horas por tarea. Divide en subtareas.");
         }
-        String owner = requireUserEmail(req);
-        dto.assigneeId = owner; // forzar dueño
-        Tarea created = tareaService.createFromDto(dto);
+        String ownerEmail = requireUserEmail(req);
+
+        // Si no vino asignado, poner al creador como asignado
+        if (dto.assigneeId == null || dto.assigneeId.isBlank()) {
+            dto.assigneeId = ownerEmail;
+        }
+        // Nombre del asignado es opcional (lo puedes resolver en front con /usuarios/public/{id})
+        if (dto.assigneeName == null || dto.assigneeName.isBlank()) {
+            dto.assigneeName = null;
+        }
+
+        // Crear guardando quién la creó (userEmail)
+        Tarea created = tareaService.createFromDto(dto, ownerEmail);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
@@ -202,12 +211,11 @@ public class TareaController {
         tareaRepository.findByIdAndAssigneeId(id, owner)
                 .orElseThrow(() -> new NoSuchElementException("Task not found or not owned by user"));
 
-        if (dto != null && dto.assigneeId != null && !Objects.equals(dto.assigneeId, owner)) {
-            dto.assigneeId = owner;
-        }
+        // (conservamos tu validación de projectId > 0)
         if (dto != null && dto.projectId != null && dto.projectId < 1) {
             throw new IllegalArgumentException("projectId debe ser > 0");
         }
+        // (ya NO forzamos assigneeId = owner; permitimos reasignar en PUT si el dueño lo edita)
         return tareaService.updateTask(id, dto);
     }
 
@@ -219,7 +227,7 @@ public class TareaController {
         return tareaService.updateStatus(id, body.status);
     }
 
-        // TareaController.java  (método /api/tasks/productivity)
+    // TareaController.java  (método /api/tasks/productivity) — conservando tu lógica
     @GetMapping("/tasks/productivity")
     public ResponseEntity<Map<String, Object>> productivity(HttpServletRequest req) {
         String owner = requireUserEmail(req);
@@ -277,7 +285,6 @@ public class TareaController {
 
         return ResponseEntity.ok(resp);
     }
-
 
     @GetMapping("/tasks/avg-resolution/all")
     public Map<String, Object> avgResolutionAll() {

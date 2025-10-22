@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 // nuevas imports
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
+import java.util.HashMap;           // ✅ NECESARIO para el endpoint público
 import java.util.UUID;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -161,6 +162,20 @@ public class UsuarioController {
         return false;
     }
 
+    // ===== NUEVO: endpoint público (id, nombre, email) =====
+    @GetMapping("/public/{id}")
+    public ResponseEntity<Map<String, Object>> publicUser(@PathVariable Long id) {
+        return repo.findById(id)
+                .map(u -> {
+                    Map<String, Object> out = new HashMap<>();
+                    out.put("id", u.getId());
+                    out.put("nombre", u.getNombre());
+                    out.put("email", u.getEmail());
+                    return ResponseEntity.ok(out);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     // Mapa en memoria para tokens temporales (token -> TokenInfo)
     private static final Map<String, TokenInfo> resetTokens = new ConcurrentHashMap<>();
 
@@ -240,4 +255,3 @@ public class UsuarioController {
         return ResponseEntity.ok(Map.of("message","contraseña actualizada"));
     }
 }
-
