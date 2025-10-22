@@ -465,7 +465,7 @@
     /* ========= ESTADO ========= */
     let proyectoActual = null;
     let tareasCache = [];
-    let teamMembersCache = []; // [{usuarioId, rol, nombre}]
+    let teamMembersCache = []; // [{usuarioId, rol, nombre, email}]
     let isTeamAdmin = false;   // 🔑
 
     /* ========= MODALES ========= */
@@ -627,7 +627,7 @@
       }catch(e){}
     }
 
-    /* ========= INTEGRANTES (solo nombre + rol) ========= */
+    /* ========= INTEGRANTES (nombre + rol + email público) ========= */
     async function loadTeamMembers(equipoId){
       teamMembersCache = [];
       isTeamAdmin = false;
@@ -636,31 +636,33 @@
         const res = await fetch(`${EQUIPOS_API}/${equipoId}/miembros`);
         if(!res.ok) throw new Error('No se pudo obtener miembros');
         const miembros = await res.json();
+
+        const isGlobalAdmin = ["Super Admin","Scrum Master"].includes(String(sessionUser?.rol||""));
+
         for (const m of miembros){
-          let nombre = 'Usuario #' + (m.id?.usuarioId ?? m.usuarioId ?? '?');
+          const uid = m.id?.usuarioId ?? m.usuarioId;
+          let nombre = 'Usuario #' + uid;
+          let email  = null;
+
           try{
-            const ru = await fetch(`${USUARIOS_API}/${m.id.usuarioId}`, {
-              headers: {
-                "X-User-Role": String(sessionUser?.rol || ""),
-                "X-User-Id":   String(sessionUser?.id  || "")
-              }
-            });
+            const ru = await fetch(`${USUARIOS_API}/public/${uid}`);
             if(ru.ok){
               const u = await ru.json();
-              if (u?.nombre) nombre = u.nombre;
-              else if (u?.email) nombre = u.email.split('@')[0];
+              nombre = u?.nombre || (u?.email ? u.email.split('@')[0] : nombre);
+              email  = u?.email || null;
             }
           }catch(_){}
+
           teamMembersCache.push({
-            usuarioId: m.id.usuarioId,
+            usuarioId: uid,
             rol: m.rol,
-            nombre
+            nombre,
+            email
           });
         }
-        // ADMIN del equipo (o admin global)
-        const isGlobalAdmin = ["Super Admin","Scrum Master"].includes(String(sessionUser?.rol||""));
         const row = teamMembersCache.find(x => String(x.usuarioId) === String(sessionUser?.id));
         isTeamAdmin = isGlobalAdmin || (row && String(row.rol).toUpperCase()==="ADMIN");
+
         populateAssigneeSelect($ctAssignee);
         populateAssigneeSelect($etAssignee);
       }catch(_){
@@ -698,29 +700,27 @@
       const prev = selectEl.value || "";
       selectEl.innerHTML = `<option value="">Seleccionar miembro del equipo</option>` +
         teamMembersCache
-          .map(m => `<option value="${m.usuarioId}">${escapeHtml(m.nombre)} — ${escapeHtml((m.rol||'').toUpperCase())}</option>`)
+          .map(m => `<option value="${m.usuarioId}" data-nombre="${escapeHtml(m.nombre||'')}" data-email="${escapeHtml(m.email||'')}">${escapeHtml(m.nombre||('#'+m.usuarioId))} — ${(m.rol||'').toUpperCase()}</option>`)
           .join('');
       if (prev) selectEl.value = prev;
     }
 
-    function resolveAssigneeName(id){
-      if (!id && id !== 0) return '-';
-      const m = teamMembersCache.find(x => String(x.usuarioId) === String(id));
-      return m ? m.nombre : ('#' + id);
+    function resolveAssigneeNameFromTask(t){
+      if (t.assigneeName) return t.assigneeName;
+      if (t.assigneeId)   return t.assigneeId; // suele ser email
+      return '-';
     }
 
     /* ========= TAREAS ========= */
     function canDeleteTask(t){
-      // ADMIN del equipo o Admin global ⇒ puede borrar todas
       if (isTeamAdmin) return true;
-      // Si no es admin, solo puede borrar si es el asignado
-      return String(t.assigneeUserId) === String(sessionUser?.id || "");
+      return String(t.assigneeId||"").toLowerCase() === String(sessionEmail||"").toLowerCase();
     }
 
     function tareaRow(t){
       const isDone = (t.status||"").toLowerCase()==="done" || (t.completedAt != null) || (t.status||"").toLowerCase()==="hecho";
       const descHtml = escapeHtml(t.description || t.longDescription || "");
-      const asigName = resolveAssigneeName(t.assigneeUserId);
+      const asigName = resolveAssigneeNameFromTask(t);
       const showDelete = canDeleteTask(t);
       return `
         <div class="task-item" data-id="${t.id}">
@@ -818,20 +818,29 @@
       }
     }
 
-    // Crear Tarea
+    // Crear Tarea — guarda asignado (nombre+email) y el backend registrará quién creó por X-User-Email
     async function createTask(projectId){
       mustHaveEmail();
       const title = ($ctTitle.value||"").trim();
       const description = ($ctDesc.value||"").trim();
       const estimatedHours = $ctEstimated.value ? Number($ctEstimated.value) : null;
       const priority = ($ctPriority.value||"").trim() || null;
-      const assigneeUserId = $ctAssignee.value ? Number($ctAssignee.value) : null;
+
+      const assigneeSelect = $ctAssignee;
+      const selectedOpt = assigneeSelect?.selectedOptions?.[0];
+      const assigneeEmail = selectedOpt?.dataset?.email || sessionEmail; // fallback al creador
+      const assigneeName  = selectedOpt?.dataset?.nombre || (sessionUser?.nombre || sessionEmail);
 
       if (!title){ showToast({type:"error", title:"Falta título"}); return; }
       if ((description||"").length > 300){ showToast({type:"error", title:"Descripción muy larga", message:"Máximo 300 caracteres."}); return; }
       if (estimatedHours != null && estimatedHours > 4){ showToast({type:"error", title:"Máximo 4 horas"}); return; }
 
-      const payload = { title, description, projectId: Number(projectId), estimatedHours, priority, assigneeUserId };
+      const payload = { 
+        title, description, projectId: Number(projectId), 
+        estimatedHours, priority,
+        assigneeId: assigneeEmail,
+        assigneeName: assigneeName
+      };
       try{
         const res = await fetch(TASKS_API, {
           method: "POST",
@@ -915,7 +924,12 @@
       document.getElementById("et-priority").value = t.priority || "";
       document.getElementById("et-desc").value = t.description || t.longDescription || "";
       populateAssigneeSelect(document.getElementById("et-assignee"));
-      if (t.assigneeUserId != null) document.getElementById("et-assignee").value = String(t.assigneeUserId);
+      // Seleccionar por email si coincide con alguno
+      const etAssignee = document.getElementById("et-assignee");
+      if (t.assigneeId) {
+        const opt = [...etAssignee.options].find(o => o.dataset.email && o.dataset.email.toLowerCase() === String(t.assigneeId).toLowerCase());
+        if (opt) etAssignee.value = opt.value;
+      }
       openEl($taskEditOverlay);
       $btnSaveTaskEdit.onclick = () => saveTaskEdits(t.id);
     }
@@ -926,13 +940,21 @@
       const description = (document.getElementById("et-desc").value||"").trim();
       const estimatedHours = document.getElementById("et-estimated").value ? Number(document.getElementById("et-estimated").value) : null;
       const priority = (document.getElementById("et-priority").value||"").trim() || null;
-      const assigneeUserId = document.getElementById("et-assignee").value ? Number(document.getElementById("et-assignee").value) : null;
+
+      const assigneeSelect = document.getElementById("et-assignee");
+      const selectedOpt = assigneeSelect?.selectedOptions?.[0];
+      const assigneeEmail = selectedOpt?.dataset?.email || null;
+      const assigneeName  = selectedOpt?.dataset?.nombre || null;
 
       if (!title){ showToast({type:"error", title:"Falta título"}); return; }
       if ((description||"").length > 300){ showToast({type:"error", title:"Descripción muy larga", message:"Máximo 300 caracteres."}); return; }
       if (estimatedHours != null && estimatedHours > 4){ showToast({type:"error", title:"Máximo 4 horas"}); return; }
 
-      const payload = { title, description, estimatedHours, priority, assigneeUserId };
+      const payload = { 
+        title, description, estimatedHours, priority,
+        assigneeId: assigneeEmail || undefined, 
+        assigneeName: assigneeName || undefined
+      };
       try{
         const res = await fetch(`${TASKS_API}/${taskId}`, {
           method: "PUT",
