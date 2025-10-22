@@ -65,7 +65,7 @@
     .chip.active { background: var(--brand); color:#fff; font-weight:700; box-shadow: 0 2px 8px rgba(225,38,28,.25); }
 
     .tasks-box { margin-top:14px; border:1px solid var(--line); border-radius:12px; padding:12px; background:#fafbfc; }
-    .tasks-box h3 { margin:4px 0 10px 0; font-size:15px; }
+    .tasks-box h3 { margin:4px 0 10px 0; font-size:15px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
     .task-item { border:1px solid var(--line); background:#fff; border-radius:10px; padding:8px 10px; margin:6px 0; display:flex; justify-content:space-between; gap:10px; }
     .task-title { font-weight:700; }
     .task-meta { font-size:12px; color:#64748b; }
@@ -87,7 +87,7 @@
     .table tbody tr { cursor: pointer; }
 
     /* === Estilos de validación del formulario === */
-    .field.invalid input, .field.invalid select { border-color:#E1261C; background:#fff6f5; }
+    .field.invalid input, .field.invalid select, .field.invalid textarea { border-color:#E1261C; background:#fff6f5; }
     .field .msg { display:none; font-size:12px; color:#E1261C; margin-top:6px; }
     .field.invalid .msg { display:block; }
 
@@ -240,7 +240,12 @@
             <div class="detail-item"><div class="label">Avance</div><div class="value"><div class="progress"><span id="d-avance" style="width:0%"></span></div></div></div>
 
             <div class="tasks-box" id="tasks-box" style="display:none;">
-              <h3>Tareas de este proyecto</h3>
+              <h3>
+                Tareas de este proyecto
+                <button id="btn-nueva-tarea" class="btn-ghost" style="margin-left:auto">
+                  + Nueva tarea
+                </button>
+              </h3>
               <div id="tasks-list"></div>
               <div class="muted small" id="tasks-count"></div>
             </div>
@@ -250,6 +255,7 @@
     </main>
   </div>
 
+  <!-- Modal: Nuevo Proyecto (igual que tenías) -->
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <h2>Nuevo Proyecto</h2>
@@ -295,6 +301,42 @@
     </div>
   </div>
 
+  <!-- 🆕 Modal: Nueva Tarea del proyecto (con Fecha Límite obligatoria) -->
+  <div class="modal-overlay" id="modal-overlay-task" style="display:none;">
+    <div class="modal">
+      <h2>Nueva Tarea</h2>
+
+      <div class="field" id="t-title-field">
+        <label>Título</label>
+        <input id="t-title" type="text" placeholder="Ej. Configurar CI/CD">
+        <div class="msg">El título es obligatorio (mín. 3 caracteres).</div>
+      </div>
+
+      <div class="field" id="t-desc-field">
+        <label>Descripción</label>
+        <textarea id="t-desc" rows="3" placeholder="Describe la tarea"></textarea>
+        <div class="msg">La descripción es obligatoria (mín. 5 caracteres).</div>
+      </div>
+
+      <div class="field" id="t-est-field">
+        <label>Horas estimadas (≤ 4 h)</label>
+        <input id="t-est" type="number" min="0" max="4" step="0.5" placeholder="0.5, 1, 2, 3.5…">
+        <div class="msg">Máximo 4 horas por tarea.</div>
+      </div>
+
+      <div class="field" id="t-due-field">
+        <label>Fecha límite</label>
+        <input id="t-due" type="date">
+        <div class="msg">La fecha límite es obligatoria.</div>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn btn-outline" id="task-cancel">Cancelar</button>
+        <button class="btn btn-primary" id="task-save">Crear tarea</button>
+      </div>
+    </div>
+  </div>
+
   <div id="confirm-root"></div>
 
 <script>
@@ -328,21 +370,35 @@
   const $tasksBox   = document.getElementById("tasks-box");
   const $tasksList  = document.getElementById("tasks-list");
   const $tasksCount = document.getElementById("tasks-count");
+  const $btnNuevaTarea = document.getElementById("btn-nueva-tarea");
 
-  // Modal
+  // Modal Proyecto
   const $modalOverlay = document.getElementById("modal-overlay");
   const $btnNuevo  = document.getElementById("btn-nuevo");
   const $btnGuardar= document.getElementById("btn-guardar");
   const $btnCancel = document.getElementById("btn-cancelar");
 
-  // Form inputs
+  // Modal Tarea
+  const $modalTask = document.getElementById("modal-overlay-task");
+  const $taskSave  = document.getElementById("task-save");
+  const $taskCancel= document.getElementById("task-cancel");
+  const $tTitle    = document.getElementById("t-title");
+  const $tDesc     = document.getElementById("t-desc");
+  const $tEst      = document.getElementById("t-est");
+  const $tDue      = document.getElementById("t-due");
+  const $tTitleField = document.getElementById("t-title-field");
+  const $tDescField  = document.getElementById("t-desc-field");
+  const $tEstField   = document.getElementById("t-est-field");
+  const $tDueField   = document.getElementById("t-due-field");
+
+  // Form Proyecto inputs
   const $fNombre = document.getElementById("f-nombre");
   const $fDesc   = document.getElementById("f-desc");
   const $fEquipo = document.getElementById("f-equipo");
   const $fInicio = document.getElementById("f-inicio");
   const $fFin    = document.getElementById("f-fin");
 
-  // Form fields
+  // Form Proyecto fields
   const $fNombreField = document.getElementById("f-nombre-field");
   const $fDescField   = document.getElementById("f-desc-field");
   const $fEquipoField = document.getElementById("f-equipo-field");
@@ -532,7 +588,7 @@
         <div class="task-item">
           <div>
             <div class="task-title">${escapeHtml(t.title || '')}</div>
-            <div class="task-meta">Prio: ${escapeHtml(t.priority||'')} · Est: ${t.estimatedHours??'-'}h ${t.realHours?(' · Real: '+t.realHours+'h'):''}</div>
+            <div class="task-meta">Prio: ${escapeHtml(t.priority||'')} · Est: ${t.estimatedHours??'-'}h ${t.realHours?(' · Real: '+t.realHours+'h'):''} ${t.fechaLimite?(' · Vence: '+new Date(t.fechaLimite).toLocaleDateString()):''}</div>
           </div>
           <div><span class="badge status ${escapeHtml((t.status||'todo').toLowerCase())}">${escapeHtml((t.status||'todo'))}</span></div>
         </div>
@@ -837,7 +893,7 @@
     });
   });
 
-  // Modal
+  // Modal Proyecto
   function abrirModal() {
     $modalOverlay.style.display = "flex";
     validarYActualizarEstado();
@@ -919,7 +975,6 @@
 
   async function acChooseById(id){
     if (!id) return;
-    // Opción A: NO tocar la tabla ni el cache. Solo mostrar detalle.
     const fromCache = proyectosCache.find(p => p.id === Number(id));
     if (fromCache) {
       setDetalle(fromCache);
@@ -974,8 +1029,86 @@
     if (e.target.closest('.ac-wrap')) return;
     acClose();
   });
+
+  /* ===========================
+     === Nueva Tarea (proyecto)
+     =========================== */
+  function openTaskModal(){
+    if (!selectedProjectId) { alert('Selecciona un proyecto.'); return; }
+    $tTitle.value = '';
+    $tDesc.value = '';
+    $tEst.value = '';
+    $tDue.value = '';
+    [$tTitleField,$tDescField,$tEstField,$tDueField].forEach(f=>f.classList.remove('invalid'));
+    $modalTask.style.display = 'flex';
+  }
+  function closeTaskModal(){ $modalTask.style.display = 'none'; }
+
+  function validateTaskForm(show=false){
+    const titleOK = !!($tTitle.value && $tTitle.value.trim().length >= 3);
+    const descOK  = !!($tDesc.value && $tDesc.value.trim().length >= 5);
+    const est = $tEst.value === '' ? null : Number($tEst.value);
+    const estOK = (est === null) || (est >= 0 && est <= 4);
+    const dueOK = !!$tDue.value;
+
+    if (show){
+      setFieldState($tTitleField, titleOK, true);
+      setFieldState($tDescField,  descOK,  true);
+      setFieldState($tEstField,   estOK,   true);
+      setFieldState($tDueField,   dueOK,   true);
+    }
+    return titleOK && descOK && estOK && dueOK;
+  }
+  function setFieldState($field, ok, show){
+    if (!show) { $field.classList.remove('invalid'); return; }
+    if (ok) $field.classList.remove('invalid'); else $field.classList.add('invalid');
+  }
+
+  async function createTaskForProject(){
+    if (!selectedProjectId){ alert('Selecciona un proyecto.'); return; }
+    if (!validateTaskForm(true)) return;
+
+    const payload = {
+      title: $tTitle.value.trim(),
+      description: $tDesc.value.trim(),
+      estimatedHours: $tEst.value === '' ? null : Number($tEst.value),
+      status: 'todo',
+      projectId: selectedProjectId,
+      assigneeId: currentUserEmail,     // el backend lo forzará igual a owner
+      assigneeName: '',                 // opcional
+      sprintId: null,                   // opcional
+      priority: null,                   // opcional
+      fechaLimite: $tDue.value          // <-- YYYY-MM-DD (LocalDate)
+    };
+
+    try{
+      const res = await fetch(TASKS_API, {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'X-User-Email': currentUserEmail || ''
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok){
+        const txt = await res.text().catch(()=> '');
+        alert('No se pudo crear la tarea.\n' + (txt||''));
+        return;
+      }
+      closeTaskModal();
+      await loadProjectTasksAndProgress(selectedProjectId);
+    }catch(e){
+      alert('Error de red al crear la tarea.');
+    }
+  }
+
+  if ($btnNuevaTarea) $btnNuevaTarea.addEventListener('click', openTaskModal);
+  if ($taskCancel) $taskCancel.addEventListener('click', closeTaskModal);
+  if ($taskSave) $taskSave.addEventListener('click', createTaskForProject);
+  $modalTask.addEventListener('click', (e)=>{ if (e.target === $modalTask) closeTaskModal(); });
 </script>
 
 </body>
 </html>
+
 
