@@ -60,6 +60,7 @@
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
     </symbol>
   </svg>
+
   <style>
     .filters{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-top:10px}
     .field{display:flex;flex-direction:column;gap:6px}
@@ -96,6 +97,7 @@
     .details-value{font-weight:700;color:var(--muted-2)}
     .desc-box{margin-top:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
   </style>
+
   <script src="/session.js"></script>
 </head>
 
@@ -129,7 +131,6 @@
       <section class="card card-soft">
         <div style="display:flex; align-items:center; justify-content:space-between">
           <h1 class="h4" style="margin:0">Tareas</h1>
-          <!-- Botón crear tarea removido -->
         </div>
 
         <!-- Filtro SOLO por nombre de proyecto -->
@@ -343,7 +344,7 @@
     let selectedId = null;
     let draggingId = null; // única
     const PROJECTS_BY_ID = new Map(); // id -> nombre
-    let editingOriginal = { priority: null, sprintId: null }; // para preservar valores
+    let editingOriginal = { priority: null, sprintId: null, statusPrev: 'todo' };
 
     // ======= HELPERS =======
     const authHeaders = () => {
@@ -416,8 +417,9 @@
       e_assignee.value = t.assigneeId || '';
       e_assignee_name.value = t.assigneeName || '';
       // guarda los valores originales para no perderlos
-      editingOriginal.priority = t.priority ?? null;
-      editingOriginal.sprintId = t.sprintId ?? null;
+      editingOriginal.priority  = t.priority ?? null;
+      editingOriginal.sprintId  = t.sprintId ?? null;
+      editingOriginal.statusPrev= (t.status || 'todo').toLowerCase();
       modalEdit.classList.add('open');
     };
     const closeEdit = () => { modalEdit.classList.remove('open'); };
@@ -459,12 +461,24 @@
         });
         if(!res.ok){ alert('No se pudo editar'); btnDoEdit.disabled=false; return; }
         closeEdit(); btnDoEdit.disabled=false;
-        await loadBoard();
-        if (selectedId == id) showDetails(allTasks.find(t => t.id == id));
+
+        // si cambió de != done a done, pedimos horas
+        const nowIsDone = (e_status.value || '').toLowerCase() === 'done';
+        if (editingOriginal.statusPrev !== 'done' && nowIsDone){
+          openComplete(id);
+        } else {
+          await loadBoard();
+          if (selectedId == id) showDetails(allTasks.find(t => t.id == id));
+        }
       }catch{ btnDoEdit.disabled=false; alert('Error de red'); }
     };
 
-    btnCancelComplete.onclick = closeComplete;
+    btnCancelComplete.onclick = () => {
+      closeComplete();
+      // Si venía de DnD, no se había cambiado estado aún.
+      // Si venía de Editar y lo puso en done, la tarea queda en done (puede completar más tarde).
+    };
+
     btnDoComplete.onclick = async () => {
       const id = c_id.value;
       const hours = Number(c_hours.value || 0);
@@ -505,7 +519,14 @@
         const toStatus = colEl.dataset.status;
         const id = draggingId; draggingId = null;
         if(!id || !toStatus) return;
+
         try{
+          // si destino es 'done', abrimos modal de horas y usamos /complete después
+          if ((toStatus || '').toLowerCase() === 'done') {
+            openComplete(id);
+            return;
+          }
+          // caso normal: actualizar estado directo
           const res = await fetch(`${API}/tasks/${id}/status`, {
             method:'PATCH',
             headers:{ 'Content-Type':'application/json', ...authHeaders() },
