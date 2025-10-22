@@ -51,6 +51,9 @@ public class TareaServiceImpl implements TareaService {
         t.setAssigneeId(dto.assigneeId);
         t.setAssigneeName(dto.assigneeName);
 
+        // ⬅️ NUEVO: guardar fecha límite
+        t.setFechaLimite(dto.fechaLimite);
+
         t.setCreatedAt(LocalDateTime.now());
         t.setFechaAsignacion(LocalDate.now());
         return tareaRepository.save(t);
@@ -66,7 +69,7 @@ public class TareaServiceImpl implements TareaService {
         Tarea t = tareaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Tarea no encontrada: " + id));
         t.setRealHours(dto.realHours);
-        t.setCompletedAt(LocalDateTime.now());
+        t.setCompletedAt(LocalDateTime.now()); // ⬅️ aquí ya guardas fecha/hora de completado
         t.setStatus("done");
         return tareaRepository.save(t);
     }
@@ -89,6 +92,10 @@ public class TareaServiceImpl implements TareaService {
         if (dto.projectId != null)       t.setProjectId(dto.projectId);
         if (dto.assigneeId != null)      t.setAssigneeId(dto.assigneeId);
         if (dto.assigneeName != null)    t.setAssigneeName(dto.assigneeName);
+
+        // Nota: si más adelante quieres permitir editar fecha límite,
+        // añade al UpdateTaskDto y descomenta:
+        // if (dto.fechaLimite != null)     t.setFechaLimite(dto.fechaLimite);
 
         if (dto.status != null) {
             String s = canonStatus(dto.status);
@@ -114,7 +121,7 @@ public class TareaServiceImpl implements TareaService {
         String s = canonStatus(status);
         t.setStatus(s);
         if ("done".equals(s)) {
-            if (t.getCompletedAt() == null) t.setCompletedAt(LocalDateTime.now());
+            if (t.getCompletedAt() == null) t.setCompletedAt(LocalDateTime.now()); // ⬅️ también aquí
             // realHours se fija con /complete
         } else {
             // Si sale de 'done', resetear completado y horas reales
