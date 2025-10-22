@@ -1,69 +1,77 @@
 <!doctype html>
 <html lang="es">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>KPIs</title>
-  <link rel="stylesheet" href="Css/KPIs.css"/>
+  <link rel="stylesheet" href="Css/KPIs.css" />
   <link href="https://api.fontshare.com/v2/css?f[]=panchang@500,600,700,800,900&display=swap" rel="stylesheet">
 
   <!-- Sprite de íconos -->
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-  <!-- Dashboard -->
-  <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-    <path stroke-width="1.6" d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/>
-  </symbol>
- <!-- Equipos -->
-  <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
-    <path d="M7 21v-2a4 4 0 0 1 3-3.87"/>
-    <circle cx="12" cy="7" r="4"/>
-    <path d="M5.5 8a3.5 3.5 0 1 0 0 7"/>
-    <path d="M18.5 8a3.5 3.5 0 1 1 0 7"/>
-  </symbol>
-  <!-- Proyectos -->
-  <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-    <path stroke-width="1.6" d="M3 7h6l2 2h10v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/>
-  </symbol>
-  <!-- Tareas -->
-  <symbol id="i-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
-    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-    <path d="M12 11h4"/><path d="M12 16h4"/>
-    <path d="M8 11h.01"/><path d="M8 16h.01"/>
-  </symbol >
-  <!-- KPIs -->
-  <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 16v5"/>
-    <path d="M16 14v7"/>
-    <path d="M20 10v11"/>
-    <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/>
-    <path d="M4 18v3"/>
-    <path d="M8 14v7"/>
-  </symbol>
-  <!-- Chatbot -->
-  <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-    <rect x="4" y="8" width="16" height="10" rx="4" stroke-width="1.6"/>
-    <circle cx="9" cy="13" r="1" stroke-width="1.6"/>
-    <circle cx="15" cy="13" r="1" stroke-width="1.6"/>
-    <path stroke-width="1.6" d="M12 4v2m-7 6H4m16 0h1"/>
-  </symbol>
-  <!-- Notificaciones -->
-  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-    <path stroke-width="1.6" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
-    <path stroke-width="1.6" d="M13.73 21a2 2 0 0 1-3.46 0"/>
-  </symbol>
-  <!-- Ajustes -->
-  <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-    <circle cx="12" cy="12" r="3" />
-    <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
-  </symbol>
-  <!-- Exit -->
-  <symbol id="i-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="m16 17 5-5-5-5"/>
-    <path d="M21 12H9"/>
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-  </symbol>
+    <!-- Dashboard -->
+    <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-width="1.6" d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z" />
+    </symbol>
+    <!-- Equipos -->
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+      stroke-linejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M7 21v-2a4 4 0 0 1 3-3.87" />
+      <circle cx="12" cy="7" r="4" />
+      <path d="M5.5 8a3.5 3.5 0 1 0 0 7" />
+      <path d="M18.5 8a3.5 3.5 0 1 1 0 7" />
+    </symbol>
+    <!-- Proyectos -->
+    <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-width="1.6" d="M3 7h6l2 2h10v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z" />
+    </symbol>
+    <!-- Tareas -->
+    <symbol id="i-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round">
+      <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+      <path d="M12 11h4" />
+      <path d="M12 16h4" />
+      <path d="M8 11h.01" />
+      <path d="M8 16h.01" />
+    </symbol>
+    <!-- KPIs -->
+    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+      stroke-linejoin="round">
+      <path d="M12 16v5" />
+      <path d="M16 14v7" />
+      <path d="M20 10v11" />
+      <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15" />
+      <path d="M4 18v3" />
+      <path d="M8 14v7" />
+    </symbol>
+    <!-- Chatbot -->
+    <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="4" y="8" width="16" height="10" rx="4" stroke-width="1.6" />
+      <circle cx="9" cy="13" r="1" stroke-width="1.6" />
+      <circle cx="15" cy="13" r="1" stroke-width="1.6" />
+      <path stroke-width="1.6" d="M12 4v2m-7 6H4m16 0h1" />
+    </symbol>
+    <!-- Notificaciones -->
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-width="1.6" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7" />
+      <path stroke-width="1.6" d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </symbol>
+    <!-- Ajustes -->
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <circle cx="12" cy="12" r="3" />
+      <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+        d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+    </symbol>
+    <!-- Exit -->
+    <symbol id="i-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round">
+      <path d="m16 17 5-5-5-5" />
+      <path d="M21 12H9" />
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    </symbol>
   </svg>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -71,7 +79,7 @@
 
 <body>
 
-    <!-- Topbar -->
+  <!-- Topbar -->
   <header class="topbar">
     <div class="brand">
       <h1 class="logo-text">TMDV</h1>
@@ -79,46 +87,64 @@
     <div class="topbar-right">
       <div class="user-circle" title="Usuario">U</div>
       <a href="/index.html" class="logout-btn">
-        <svg class="ico-sm" aria-hidden="true"><use href="#i-exit"/></svg>
+        <svg class="ico-sm" aria-hidden="true">
+          <use href="#i-exit" />
+        </svg>
         <span>Salir</span>
       </a>
     </div>
   </header>
 
   <div class="app">
-        <!-- Sidebar -->
+    <!-- Sidebar -->
     <aside class="aside">
       <nav class="menu">
         <a class="mi" href="/dashboard.html">
-          <svg class="ico"><use href="#i-dashboard"/></svg>
+          <svg class="ico">
+            <use href="#i-dashboard" />
+          </svg>
           <span>Dashboard</span>
         </a>
         <a class="mi" href="/Equipos.html">
-          <svg class="ico"><use href="#i-users"/></svg>
+          <svg class="ico">
+            <use href="#i-users" />
+          </svg>
           <span>Equipos</span>
         </a>
         <a class="mi" href="/projects.html">
-          <svg class="ico"><use href="#i-folder"/></svg>
+          <svg class="ico">
+            <use href="#i-folder" />
+          </svg>
           <span>Proyectos</span>
         </a>
         <a class="mi" href="/tarea.html">
-          <svg class="ico"><use href="#i-board"/></svg>
+          <svg class="ico">
+            <use href="#i-board" />
+          </svg>
           <span>Tareas</span>
         </a>
         <a class="mi active" href="#">
-          <svg class="ico"><use href="#i-chart"/></svg>
+          <svg class="ico">
+            <use href="#i-chart" />
+          </svg>
           <span>KPIs</span>
         </a>
         <a class="mi" href="/chatbot.html">
-          <svg class="ico"><use href="#i-bot"/></svg>
+          <svg class="ico">
+            <use href="#i-bot" />
+          </svg>
           <span>Chatbot</span>
         </a>
         <a class="mi" href="/notifications.html">
-          <svg class="ico"><use href="#i-bell"/></svg>
+          <svg class="ico">
+            <use href="#i-bell" />
+          </svg>
           <span>Notificaciones</span>
         </a>
         <a class="mi" href="/settings.html">
-          <svg class="ico"><use href="#i-gear"/></svg>
+          <svg class="ico">
+            <use href="#i-gear" />
+          </svg>
           <span>Ajustes</span>
         </a>
       </nav>
@@ -141,7 +167,10 @@
             <div id="individualKpiValue" class="value">--h</div>
             <div class="label">Individual KPI Time</div>
           </div>
-          <div class="stat"><div class="value">76%</div><div class="label">Uso de OCI</div></div>
+          <div class="stat">
+            <div class="value">76%</div>
+            <div class="label">Uso de OCI</div>
+          </div>
         </div>
       </section>
 
@@ -161,8 +190,8 @@
   <script>
     // Datos iniciales para los gráficos (se actualizan opcionalmente después)
     // bar chart: inicialmente 3 categorías (To Do, In Progress, Done)
-    const statusLabels = ["To Do","In Progress","Done"];
-    const statusInitial = [0,0,0];
+    const statusLabels = ["To Do", "In Progress", "Done"];
+    const statusInitial = [0, 0, 0];
 
     // hours per project will be loaded from backend
 
@@ -174,12 +203,12 @@
         datasets: [{
           label: "Cantidad de tareas",
           data: statusInitial,
-          backgroundColor: ["#F59E0B","#3B82F6","#10B981"]
+          backgroundColor: ["#F59E0B", "#3B82F6", "#10B981"]
         }]
       },
       options: {
         scales: {
-          y: { 
+          y: {
             beginAtZero: true,
             min: 0,
             max: 20,
@@ -210,7 +239,7 @@
             data: [],
             borderColor: "#374151",
             backgroundColor: "#374151",
-            borderDash: [5,5],
+            borderDash: [5, 5],
             fill: false,
             tension: 0.2
           }
@@ -253,7 +282,7 @@
         const tasks = await res.json();
 
         const total = Array.isArray(tasks) ? tasks.length : 0;
-        const completedStatuses = ['done','completed','finalizado','completado','terminado','closed','hecho'];
+        const completedStatuses = ['done', 'completed', 'finalizado', 'completado', 'terminado', 'closed', 'hecho'];
         const completedTasks = (tasks || []).filter(t => {
           const s = (t.status || '').toString().toLowerCase();
           return completedStatuses.some(cs => s.includes(cs));
@@ -289,9 +318,9 @@
         // Filtrar tareas finalizadas asignadas al usuario
         const completedForUser = userKey
           ? completedTasks.filter(t => {
-              const a = (t.assigneeId || t.userEmail || '').toString().toLowerCase();
-              return a === userKey;
-            })
+            const a = (t.assigneeId || t.userEmail || '').toString().toLowerCase();
+            return a === userKey;
+          })
           : []; // si no hay userKey, no podemos calcular individual
         const userCount = completedForUser.length;
         const userSum = completedForUser.reduce((acc, t) => {
@@ -325,8 +354,8 @@
 
         // Calcular conteos por estado y actualizar barChart (To Do / In Progress / Done)
         if (window.barChartInstance && Array.isArray(tasks)) {
-          const doneStatuses = ['done','completed','finalizado','completado','terminado','closed','hecho'];
-          const inProgressStatuses = ['in progress','doing','en proceso','progreso','doing','inprogress'];
+          const doneStatuses = ['done', 'completed', 'finalizado', 'completado', 'terminado', 'closed', 'hecho'];
+          const inProgressStatuses = ['in progress', 'doing', 'en proceso', 'progreso', 'doing', 'inprogress'];
           // contar
           let todoCount = 0, inProgressCount = 0, doneCount = 0;
           tasks.forEach(t => {
@@ -340,11 +369,11 @@
               todoCount++;
             }
           });
-          window.barChartInstance.data.labels = ["To Do","In Progress","Done"];
+          window.barChartInstance.data.labels = ["To Do", "In Progress", "Done"];
           window.barChartInstance.data.datasets = [{
             label: "Cantidad de tareas",
             data: [todoCount, inProgressCount, doneCount],
-            backgroundColor: ["#F59E0B","#3B82F6","#10B981"]
+            backgroundColor: ["#F59E0B", "#3B82F6", "#10B981"]
           }];
           window.barChartInstance.update();
         }
@@ -360,27 +389,210 @@
     }
 
     // Cargar horas por proyecto y actualizar lineChart (eje X = proyectos, eje Y = horas)
+    // Reemplaza la función loadProjectHours actual por esta versión más robusta:
     async function loadProjectHours() {
       try {
-        const res = await fetch('/proyectos/horas');
-        if (!res.ok) throw new Error('Error fetching project hours: ' + res.status);
-        const data = await res.json(); // [{projectId, projectName, estimatedHours, realHours}, ...]
-        const labels = data.map(d => d.projectName || ('P' + d.projectId));
-        const estimated = data.map(d => Number.isFinite(d.estimatedHours) ? d.estimatedHours : 0);
-        const real = data.map(d => Number.isFinite(d.realHours) ? d.realHours : 0);
+        // 1) Determinar usuario (email -> userId)
+        let userEmail = localStorage.getItem('userEmail');
+        if (!userEmail) {
+          const qEmail = new URLSearchParams(location.search).get('email');
+          if (qEmail) userEmail = qEmail;
+        }
+        if (!userEmail) {
+          console.warn('No hay email de usuario en localStorage ni en querystring. No se cargan proyectos por usuario.');
+          return;
+        }
+
+        // Obtener userId desde backend
+        let userId = null;
+        try {
+          const rUser = await fetch('/usuarios/by-email?email=' + encodeURIComponent(userEmail));
+          if (!rUser.ok) throw new Error('User not found: ' + rUser.status);
+          const userObj = await rUser.json();
+          userId = userObj.id || userObj.usuarioId || userObj.usuario_id || null;
+        } catch (err) {
+          console.warn('No se pudo obtener userId por email:', err);
+          return;
+        }
+        if (!userId) {
+          console.warn('Usuario no tiene id válido:', userId);
+          return;
+        }
+
+        // 2) Obtener proyectos del usuario
+        const rProjects = await fetch('/proyectos/mios/' + encodeURIComponent(userId) + '/stats');
+        if (!rProjects.ok) throw new Error('Error cargando proyectos del usuario: ' + rProjects.status);
+        const userProjects = await rProjects.json();
+        if (!Array.isArray(userProjects) || userProjects.length === 0) {
+          console.info('Usuario no tiene proyectos.');
+          // limpiar gráfico
+          window.lineChartInstance.data.labels = [];
+          window.lineChartInstance.data.datasets[0].data = [];
+          window.lineChartInstance.data.datasets[1].data = [];
+          window.lineChartInstance.update();
+          return;
+        }
+
+        const projectIds = userProjects.map(p => p.id || p.projectId || p.proyectoId).filter(Boolean);
+
+        // 3) Intentar obtener horas con endpoints convenientes
+        let projectHoursData = null; // array [{ projectId, projectName, estimatedHours, realHours }, ...]
+
+        // Helper: convierte/normaliza un objeto devuelto por backend a la forma que necesitamos
+        function normalizeEntry(raw) {
+          if (!raw) return null;
+          const id = raw.projectId ?? raw.id ?? raw.proyectoId ?? null;
+          const name = raw.projectName ?? raw.nombreProyecto ?? raw.name ?? raw.project_name ?? ('P' + id);
+          // posibles campos que contienen horas planificadas/estimadas
+          const estimated = Number(raw.estimatedHours ?? raw.plannedHours ?? raw.planned_hours ?? raw.estimated_hours ?? raw.estimated ?? raw.planned ?? 0) || 0;
+          // posibles campos que contienen horas reales/registradas
+          const real = Number(raw.realHours ?? raw.actualHours ?? raw.real_hours ?? raw.actual_hours ?? raw.real ?? raw.loggedHours ?? 0) || 0;
+          return { projectId: id, projectName: name, estimatedHours: estimated, realHours: real, raw };
+        }
+
+        // 3.a) Intentar batch: /proyectos/horas?ids=1,2,3
+        try {
+          const q = projectIds.join(',');
+          const r = await fetch('/proyectos/horas?ids=' + encodeURIComponent(q));
+          if (r.ok) {
+            const all = await r.json();
+            if (Array.isArray(all)) {
+              projectHoursData = all.map(normalizeEntry).filter(Boolean);
+            }
+          }
+        } catch (err) {
+          console.debug('Batch /proyectos/horas?ids=... falló:', err);
+        }
+
+        // 3.b) Si no, intentar traer /proyectos/horas (todo) y filtrar
+        if (!projectHoursData) {
+          try {
+            const rAll = await fetch('/proyectos/horas');
+            if (rAll.ok) {
+              const all = await rAll.json();
+              if (Array.isArray(all)) {
+                // normalizar y filtrar por projectIds
+                const normalized = all.map(normalizeEntry).filter(Boolean);
+                const setIds = new Set(projectIds.map(String));
+                projectHoursData = normalized.filter(x => x.projectId && setIds.has(String(x.projectId)));
+              }
+            }
+          } catch (err) {
+            console.debug('/proyectos/horas (full) falló:', err);
+          }
+        }
+
+        // 3.c) Si aún no hay datos, intentar por proyecto individual: /proyectos/{id}/horas
+        if (!projectHoursData) {
+          const arr = [];
+          await Promise.all(projectIds.map(async (pid) => {
+            try {
+              const r = await fetch('/proyectos/' + encodeURIComponent(pid) + '/horas');
+              if (r.ok) {
+                const raw = await r.json();
+                const n = normalizeEntry(raw);
+                if (n) arr.push(n);
+              } else {
+                // puede que devuelva 404 o similar; ignorar
+                console.debug('No data for project hours endpoint for', pid, r.status);
+              }
+            } catch (err) {
+              console.debug('Error fetching /proyectos/{id}/horas for', pid, err);
+            }
+          }));
+          if (arr.length) projectHoursData = arr;
+        }
+
+        // 4) Fallback: si aún faltan valores 'estimated' o 'real', obtener tareas por proyecto y sumar campos
+        // También usamos este paso si algún proyecto tiene estimatedHours===0 y realHours===0 (posible falta de datos)
+        async function fetchTasksAndAggregate(pid) {
+          try {
+            // Intentar endpoint con projectId
+            const r = await fetch('/api/tasks?projectId=' + encodeURIComponent(pid));
+            if (!r.ok) return null;
+            const tasks = await r.json();
+            if (!Array.isArray(tasks)) return null;
+
+            // Sumar posibles campos
+            let sumPlanned = 0;
+            let sumEstimated = 0;
+            let sumReal = 0;
+            tasks.forEach(t => {
+              // varios nombres posibles
+              const p = Number(t.plannedHours ?? t.planned_hours ?? t.estimatedHours ?? t.estimated_hours ?? t.estimated ?? t.planned ?? 0) || 0;
+              const rH = Number(t.realHours ?? t.real_hours ?? t.actualHours ?? t.actual_hours ?? t.loggedHours ?? 0) || 0;
+              sumPlanned += p;
+              sumEstimated += p; // si no hay diferencia entre planned/estimated usamos p
+              sumReal += rH;
+            });
+            return { estimatedHours: sumEstimated, realHours: sumReal };
+          } catch (err) {
+            console.debug('Error agregando tareas para proyecto', pid, err);
+            return null;
+          }
+        }
+
+        // Asegurarnos que projectHoursData contenga una entrada por cada proyecto del usuario
+        const mapById = new Map();
+        if (projectHoursData && projectHoursData.length) {
+          projectHoursData.forEach(e => { if (e && e.projectId) mapById.set(String(e.projectId), e); });
+        }
+        // Añadir entradas faltantes (si el endpoint no devolvió uno por cada proyecto)
+        for (const p of userProjects) {
+          const pid = String(p.id || p.projectId || p.proyectoId || '');
+          if (!pid) continue;
+          if (!mapById.has(pid)) {
+            // construir objeto básico desde metadata del proyecto
+            const name = p.projectName || p.nombreProyecto || p.name || ('P' + pid);
+            mapById.set(pid, { projectId: pid, projectName: name, estimatedHours: 0, realHours: 0, raw: p });
+          }
+        }
+
+        // Para cada proyecto, si valores son 0 o faltantes, intentar agregar por tareas
+        const finalData = [];
+        for (const [pid, ent] of mapById.entries()) {
+          let normalized = Object.assign({}, ent); // copia
+          // si both are 0, intentar calcular
+          if ((!normalized.estimatedHours || normalized.estimatedHours === 0) || (!normalized.realHours || normalized.realHours === 0)) {
+            const agg = await fetchTasksAndAggregate(pid);
+            if (agg) {
+              // preferimos datos existentes, pero si están en 0 los reemplazamos
+              normalized.estimatedHours = (normalized.estimatedHours && normalized.estimatedHours > 0) ? normalized.estimatedHours : (agg.estimatedHours || 0);
+              normalized.realHours = (normalized.realHours && normalized.realHours > 0) ? normalized.realHours : (agg.realHours || 0);
+            }
+          }
+          // Como usuario pidió "lo que va del proyecto" usamos realHours acumuladas y estimated como total planificado
+          finalData.push({
+            projectId: normalized.projectId,
+            projectName: normalized.projectName,
+            estimatedHours: Number.isFinite(Number(normalized.estimatedHours)) ? Number(normalized.estimatedHours) : 0,
+            realHours: Number.isFinite(Number(normalized.realHours)) ? Number(normalized.realHours) : 0
+          });
+        }
+
+        // Ordenar por nombre o por id (puedes cambiar)
+        finalData.sort((a, b) => (a.projectName || '').localeCompare(b.projectName || ''));
+
+        // 5) Actualizar chart con SOLO estos proyectos
+        const labels = finalData.map(d => d.projectName);
+        const estimated = finalData.map(d => d.estimatedHours);
+        const real = finalData.map(d => d.realHours);
 
         window.lineChartInstance.data.labels = labels;
-        window.lineChartInstance.data.datasets[0].data = real;
-        window.lineChartInstance.data.datasets[1].data = estimated;
+        window.lineChartInstance.data.datasets[0].data = real;       // Reales
+        window.lineChartInstance.data.datasets[1].data = estimated;  // Planificadas
         window.lineChartInstance.update();
+
       } catch (err) {
-        console.error('Failed to load project hours', err);
+        console.error('loadProjectHours error:', err);
       }
     }
+
 
     // Ejecutar al cargar la página: métricas de tareas y horas por proyecto
     loadTaskCompletion();
     loadProjectHours();
   </script>
 </body>
+
 </html>

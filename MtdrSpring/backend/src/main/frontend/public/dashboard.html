@@ -102,8 +102,6 @@
   </svg>
 </head>
 
-
-
 <body>
 
     <!-- Topbar -->
@@ -445,75 +443,59 @@
 })();
 </script>
 
-<!-- Añadir script para cargar proyectos del usuario y renderizarlos -->
+<!-- Añadir script para cargar proyectos del usuario y renderizarlos (auto-refresh cada 15s) -->
 <script>
-(async function(){
-  // esperar que el DOM esté listo es implícito aquí (script al final del body)
+(function(){
   const container = document.getElementById('projects-list');
-  if(!container) return;
+  if (!container) return;
 
-  const email = localStorage.getItem('userEmail');
-  if(!email) {
-    container.innerHTML = '<div class="muted small">Inicia sesión para ver tus proyectos.</div>';
-    return;
+  // Estado local para evitar re-renders innecesarios
+  let lastSerialized = null;
+  const POLL_INTERVAL_MS = 15000; // 15 segundos, ajusta si quieres más/menos frecuencia
+
+  function showLoading() {
+    container.innerHTML = '<div class="muted small" id="projects-loading">Cargando proyectos...</div>';
+  }
+  function showError(msg) {
+    container.innerHTML = `<div class="muted small">${msg}</div>`;
   }
 
-  try {
-    // 1) Obtener usuario por email (para conseguir su id)
-    const resUser = await fetch('/usuarios/by-email?email=' + encodeURIComponent(email));
-    if(!resUser.ok) {
-      container.innerHTML = '<div class="muted small">No se pudo obtener el usuario.</div>';
-      return;
-    }
-    const user = await resUser.json();
-    const userId = user.id || user.usuarioId || user.usuarioId;
-
-    if(!userId) {
-      container.innerHTML = '<div class="muted small">Usuario inválido.</div>';
-      return;
-    }
-
-    // 2) Obtener proyectos del usuario con stats
-    const res = await fetch('/proyectos/mios/' + encodeURIComponent(userId) + '/stats');
-    if(!res.ok) {
-      container.innerHTML = '<div class="muted small">Error cargando proyectos.</div>';
-      return;
-    }
-    const projects = await res.json();
-    if(!Array.isArray(projects) || projects.length === 0) {
+  function renderProjects(projects) {
+    container.innerHTML = '';
+    if (!Array.isArray(projects) || projects.length === 0) {
       container.innerHTML = '<div class="muted small">No hay proyectos activos.</div>';
       return;
     }
 
-    // 3) Renderizar cada proyecto
-    container.innerHTML = '';
     projects.forEach(p => {
       const article = document.createElement('article');
       article.className = 'project';
+
       const titleRow = document.createElement('div');
       titleRow.className = 'row-sb';
+
       const strong = document.createElement('strong');
       strong.className = 'title';
-      strong.textContent = p.projectName || 'Proyecto';
+      strong.textContent = p.projectName || p.name || p.nombreProyecto || 'Proyecto';
+
       const statusSpan = document.createElement('span');
       statusSpan.className = 'chip chip-outline-red';
-      // inferir estado por progreso
       const prog = Number(p.progressPercent ?? 0);
       statusSpan.textContent = prog >= 100 ? 'Completado' : (prog >= 50 ? 'En Progreso' : 'Planificación');
+
       titleRow.appendChild(strong);
       titleRow.appendChild(statusSpan);
 
       const desc = document.createElement('p');
       desc.className = 'muted small';
-      // mostrar fechas si vienen
-      const start = p.fechaInicio ? p.fechaInicio : '-';
-      const end = p.fechaFin ? p.fechaFin : '-';
+      const start = p.fechaInicio || p.startDate || '-';
+      const end = p.fechaFin || p.endDate || '-';
       desc.textContent = `Inicio: ${start} · Fin: ${end}`;
 
       const progressBar = document.createElement('div');
       progressBar.className = 'progress';
       const span = document.createElement('span');
-      span.style.width = (Math.max(0, Math.min(100, prog))) + '%';
+      span.style.width = Math.max(0, Math.min(100, prog)) + '%';
       progressBar.appendChild(span);
 
       const tiny = document.createElement('div');
@@ -522,15 +504,69 @@
 
       article.appendChild(titleRow);
       article.appendChild(desc);
-      article.appendChild(progressBar); 
+      article.appendChild(progressBar);
       article.appendChild(tiny);
       container.appendChild(article);
     });
-
-  } catch (err) {
-    console.error('Error al cargar proyectos del usuario:', err);
-    container.innerHTML = '<div class="muted small">Excepción al cargar proyectos.</div>';
   }
+
+  async function fetchAndRender() {
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      showError('Inicia sesión para ver tus proyectos.');
+      return;
+    }
+
+    showLoading();
+
+    try {
+      // 1) Obtener usuario por email (para sacar su id)
+      const resUser = await fetch('/usuarios/by-email?email=' + encodeURIComponent(email));
+      if (!resUser.ok) {
+        showError('No se pudo obtener el usuario.');
+        return;
+      }
+      const user = await resUser.json();
+      const userId = user.id || user.usuarioId || user.usuario_id;
+      if (!userId) {
+        showError('Usuario inválido.');
+        return;
+      }
+
+      // 2) Obtener proyectos del usuario con stats
+      const res = await fetch('/proyectos/mios/' + encodeURIComponent(userId) + '/stats');
+      if (!res.ok) {
+        showError('Error cargando proyectos.');
+        return;
+      }
+      const projects = await res.json();
+
+      // Serializar ordenada por id para detección de cambios (evita re-renders si no cambió nada)
+      const sorted = Array.isArray(projects) ? projects.slice().sort((a,b) => (a.id||0)-(b.id||0)) : projects;
+      const serialized = JSON.stringify(sorted);
+
+      if (serialized === lastSerialized) {
+        // nada que hacer, no hubo cambios
+        const loader = document.getElementById('projects-loading');
+        if (loader) loader.remove();
+        return;
+      }
+
+      lastSerialized = serialized;
+      renderProjects(sorted);
+    } catch (err) {
+      console.error('Error cargando proyectos:', err);
+      showError('Excepción al cargar proyectos.');
+    }
+  }
+
+  // Llamada inicial y polling periódico
+  fetchAndRender();
+  const intervalId = setInterval(fetchAndRender, POLL_INTERVAL_MS);
+
+  // Si quieres detener el polling en algún momento (por ejemplo al navegar),
+  // puedes exponer intervalId o usar page visibility API. Ejemplo simple:
+  window.addEventListener('beforeunload', () => clearInterval(intervalId));
 })();
 </script>
 
@@ -586,3 +622,4 @@
 
 </body>
 </html>
+  
