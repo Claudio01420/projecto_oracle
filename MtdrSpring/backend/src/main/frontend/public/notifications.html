@@ -18,16 +18,59 @@
     .item.unread{background:#fffdf5}
     .meta{font-size:12px;color:#64748b}
     .badge{font-size:12px;border:1px solid var(--line);padding:2px 8px;border-radius:999px;background:#fff}
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:300}
-    .modal.open{display:flex}
-    .card{width:560px;max-width:92vw;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}
-    .row{display:grid;grid-template-columns:160px 1fr;gap:10px;margin:8px 0}
-    .row input,.row textarea,.row select{width:100%;padding:8px;border:1px solid var(--line);border-radius:10px}
-    .toast{position:fixed;right:18px;bottom:18px;background:#111;color:#fff;padding:10px 14px;border-radius:10px;opacity:.95;display:none}
+    .row-actions{display:flex;gap:8px;align-items:center}
+    .toast{position:fixed;right:18px;bottom:18px;color:#fff;padding:10px 14px;border-radius:10px;opacity:.97;display:none;font-weight:800}
     .toast.show{display:block}
+    .toast.ok{background:#16a34a}     /* verde */
+    .toast.err{background:#dc2626}    /* rojo */
   </style>
 </head>
 <body>
+  <!-- Sprite de iconos para el menú lateral -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-width="1.6" d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/>
+    </symbol>
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M7 21v-2a4 4 0 0 1 3-3.87"/>
+      <circle cx="12" cy="7" r="4"/>
+      <path d="M5.5 8a3.5 3.5 0 1 0 0 7"/>
+      <path d="M18.5 8a3.5 3.5 0 1 1 0 7"/>
+    </symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-width="1.6" d="M3 7h6l2 2h10v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/>
+    </symbol>
+    <symbol id="i-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+      <path d="M12 11h4"/><path d="M12 16h4"/>
+      <path d="M8 11h.01"/><path d="M8 16h.01"/>
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 16v5"/><path d="M16 14v7"/><path d="M20 10v11"/>
+      <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/>
+      <path d="M4 18v3"/><path d="M8 14v7"/>
+    </symbol>
+    <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="4" y="8" width="16" height="10" rx="4" stroke-width="1.6"/>
+      <circle cx="9" cy="13" r="1" stroke-width="1.6"/>
+      <circle cx="15" cy="13" r="1" stroke-width="1.6"/>
+      <path stroke-width="1.6" d="M12 4v2m-7 6H4m16 0h1"/>
+    </symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-width="1.6" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
+      <path stroke-width="1.6" d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <circle cx="12" cy="12" r="3"/>
+      <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+    </symbol>
+    <symbol id="i-power" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-width="1.8" d="M12 2v8"/><path stroke-width="1.6" d="M5.5 7a8 8 0 1 0 13 0"/>
+    </symbol>
+  </svg>
+
   <!-- Topbar -->
   <header class="topbar">
     <div class="brand"><h1 class="logo-text">TMDV</h1></div>
@@ -62,7 +105,6 @@
           <h1 class="h4" style="margin:0">Notificaciones</h1>
           <div>
             <button id="btnMarkAll" class="btn">Marcar todas como leídas</button>
-            <button id="btnNew" class="btn primary">+ Crear notificación</button>
           </div>
         </div>
         <div class="meta" id="counter">—</div>
@@ -74,304 +116,176 @@
     </main>
   </div>
 
-  <!-- Modal crear notificación -->
-  <div id="modal" class="modal" aria-hidden="true">
-    <div class="card">
-      <h3 style="margin:4px 0 12px 0">Nueva notificación</h3>
+  <div id="toast" class="toast ok">Hecho</div>
 
-      <div class="row">
-        <label>Nombre</label>
-        <input id="f_title" type="text" placeholder="Ej. Aviso sprint / Nueva tarea asignada">
-      </div>
+<script>
+const API_BASE = 'http://localhost:8080';
+const NOTIF_API = `${API_BASE}/notificaciones`;
+const EQUIPOS_API = `${API_BASE}/equipos`;
 
-      <div class="row">
-        <label>Asunto</label>
-        <textarea id="f_msg" rows="4" placeholder="Describe el mensaje para tu equipo…"></textarea>
-      </div>
+// sesión
+const user = JSON.parse(localStorage.getItem('user') || 'null');
+const USER_ID = Number(user?.usuarioId ?? user?.id ?? NaN);
 
-      <div class="row">
-        <label>Equipo</label>
-        <select id="f_team">
-          <option value="">Cargando…</option>
-        </select>
-      </div>
+// utils
+const escapeHtml = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fmt = iso => { try{ const d=new Date(iso); return isNaN(d)?'—':d.toLocaleString(); }catch{ return '—'; } };
+const toast = (msg='Hecho', type='ok') => {
+  const t=document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('err','ok');
+  t.classList.add(type === 'ok' ? 'ok' : 'err','show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+};
 
-      <div class="row">
-        <label>Urgencia</label>
-        <select id="f_prio">
-          <option value="">—</option>
-          <option>BAJA</option>
-          <option>MEDIA</option>
-          <option>ALTA</option>
-        </select>
-      </div>
+const authHeaders = () => {
+  const h = {};
+  if (!Number.isNaN(USER_ID)) h['X-User-Id'] = String(USER_ID);
+  return h;
+};
 
-      <div class="row">
-        <label>Tipo</label>
-        <select id="f_type">
-          <option value="">—</option>
-          <option>INFO</option>
-          <option>WARN</option>
-          <option>ALERT</option>
-        </select>
-      </div>
+// intenta capturar token guardado en el mensaje
+function extractToken(msg){
+  const s = String(msg || '');
+  const m = s.match(/token[:=]\s*([A-Za-z0-9_\-]+)/i) || s.match(/\b([A-Za-z0-9_\-]{16,})\b/);
+  return m ? m[1] : '';
+}
 
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px">
-        <button id="btnCancel" class="btn">Cancelar</button>
-        <button id="btnCreate" class="btn primary">Crear notificación</button>
-      </div>
-    </div>
-  </div>
+function render(list){
+  const $list = document.getElementById('list');
+  const $counter = document.getElementById('counter');
 
-  <div id="toast" class="toast">Listo</div>
+  if (!Array.isArray(list) || !list.length){
+    $list.innerHTML = `<div class="meta">No tienes notificaciones.</div>`;
+    $counter.textContent = '0 notificaciones';
+    return;
+  }
 
-  <script>
-    /* ===== Config ===== */
-    const API_BASE    = 'http://localhost:8080';
-    const NOTIF_API   = `${API_BASE}/notificaciones`;
-    const EQUIPOS_API = `${API_BASE}/equipos`;
-    const UE_API      = `${API_BASE}/usuarios-equipos`;
+  $counter.textContent = `${list.length} notificación(es)`;
+  $list.innerHTML = list.map(n => {
+    const isInvite = String(n.tipo || '').toUpperCase() === 'INVITACION_EQUIPO';
+    const token = isInvite ? extractToken(n.mensaje) : '';
+    const displayText = isInvite
+      ? `Has sido invitado al equipo #${n.equipoId}.`
+      : escapeHtml(n.mensaje || '');
 
-    /* ===== Sesión / usuario ===== */
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
-    const USER_ID   = Number(user?.usuarioId ?? user?.id ?? NaN);
-    const USER_MAIL = (user?.email || '').toLowerCase();
+    const actions = isInvite
+      ? `<div class="row-actions">
+           <button class="btn primary" data-accept="${token}" data-team-id="${n.equipoId || ''}" ${!token ? 'disabled' : ''}>Aceptar</button>
+           <button class="btn" data-decline="${token}" ${!token ? 'disabled' : ''}>Rechazar</button>
+         </div>`
+      : (n.leida==='N'
+         ? `<div class="row-actions"><button class="btn" data-read="${n.id}">Marcar leída</button></div>`
+         : ``);
 
-    // Normalizador: "Super Admin" -> "SUPER_ADMIN", "Scrum Master" -> "SCRUM_MASTER"
-    const normalizeRole = r => String(r||'').trim().toUpperCase().replace(/\s+/g,'_');
-    const USER_ROLE = normalizeRole(user?.rol ?? user?.role);
-
-    // Claudio siempre puede crear, además de SUPER_ADMIN / SCRUM_MASTER
-    const CAN_EMAILS = ['claudio@correo.com'];
-    const canCreate = ['SUPER_ADMIN','SCRUM_MASTER'].includes(USER_ROLE) || CAN_EMAILS.includes(USER_MAIL);
-
-    const authHeaders = () => {
-      const h = {};
-      if (!Number.isNaN(USER_ID)) h['X-User-Id'] = String(USER_ID);
-      if (!h['X-User-Id'] && USER_MAIL) h['X-User-Email'] = USER_MAIL;
-      return h;
-    };
-
-    /* ===== DOM ===== */
-    const $btnNew     = document.getElementById('btnNew');
-    const $btnMarkAll = document.getElementById('btnMarkAll');
-    const $list       = document.getElementById('list');
-    const $counter    = document.getElementById('counter');
-    const $modal      = document.getElementById('modal');
-    const $fTitle     = document.getElementById('f_title');
-    const $fMsg       = document.getElementById('f_msg');
-    const $fTeam      = document.getElementById('f_team');
-    const $fPrio      = document.getElementById('f_prio');
-    const $fType      = document.getElementById('f_type');
-    const $btnCancel  = document.getElementById('btnCancel');
-    const $btnCreate  = document.getElementById('btnCreate');
-    const $toast      = document.getElementById('toast');
-
-    /* ===== UI permisos ===== */
-    $btnNew.disabled = !canCreate;
-
-    /* ===== Utils ===== */
-    const escapeHtml = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    const fmt = iso => { try{ const d=new Date(iso); return isNaN(d)?'—':d.toLocaleString(); }catch{ return '—'; } };
-    const toast = (msg='Hecho') => { $toast.textContent = msg; $toast.classList.add('show'); setTimeout(()=> $toast.classList.remove('show'), 1800); };
-
-    /* ===== Render ===== */
-    function render(list) {
-      if (!Array.isArray(list) || list.length === 0) {
-        $list.innerHTML = `<div class="meta">No tienes notificaciones.</div>`;
-        $counter.textContent = '0 notificaciones';
-        return;
-      }
-      $counter.textContent = `${list.length} notificación(es)`;
-      $list.innerHTML = list.map(n => `
-        <div class="item ${n.leida === 'N' ? 'unread' : ''}">
-          <div>
-            <div style="font-weight:800">${escapeHtml(n.titulo || 'Notificación')}</div>
-            <div class="meta">${fmt(n.fechaEnvio)}
-              ${n.prioridad ? ' · '+escapeHtml(n.prioridad) : ''}
-              ${n.tipo ? ' · '+escapeHtml(n.tipo) : ''}
-            </div>
-            <div style="margin-top:6px">${escapeHtml(n.mensaje || '')}</div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
-            ${n.leida === 'N' ? `<span class="badge">Nueva</span>` : `<span class="badge">Leída</span>`}
-            ${n.leida === 'N' ? `<button class="btn" data-act="read" data-id="${n.id}">Marcar leída</button>` : ``}
-          </div>
+    return `
+      <div class="item ${n.leida==='N' ? 'unread' : ''}">
+        <div>
+          <div style="font-weight:800">${escapeHtml(n.titulo || 'Notificación')}</div>
+          <div class="meta">${fmt(n.fechaEnvio)}
+            ${n.prioridad ? (' · '+escapeHtml(n.prioridad)) : ''} ${n.tipo ? (' · '+escapeHtml(n.tipo)) : ''}</div>
+          <div style="margin-top:6px">${displayText}</div>
         </div>
-      `).join('');
+        ${actions}
+      </div>`;
+  }).join('');
 
-      // Acciones "Marcar leída"
-      $list.querySelectorAll('button[data-act="read"]').forEach(b=>{
-        b.onclick = async () => {
-          const id = b.dataset.id;
-          try{
-            const r = await fetch(`${NOTIF_API}/${id}/leer`, { method:'PATCH', headers:{ 'Content-Type':'application/json', ...authHeaders() }});
-            if (r.ok) { load(); toast('Notificación marcada'); }
-          }catch{}
-        };
-      });
-    }
-
-    /* ===== Carga con fallback ===== */
-    async function load() {
-      // 1) ?usuarioId=
-      if (!Number.isNaN(USER_ID)) {
-        try {
-          const r1 = await fetch(`${NOTIF_API}?usuarioId=${encodeURIComponent(USER_ID)}`, { headers: authHeaders() });
-          if (r1.ok) { render(await r1.json()); return; }
-        } catch {}
-        // 2) /usuario/{id}
-        try {
-          const r2 = await fetch(`${NOTIF_API}/usuario/${encodeURIComponent(USER_ID)}`, { headers: authHeaders() });
-          if (r2.ok) { render(await r2.json()); return; }
-        } catch {}
-      }
-      // 3) /notificaciones con headers
-      try {
-        const r3 = await fetch(`${NOTIF_API}`, { headers: authHeaders() });
-        if (r3.ok) { render(await r3.json()); return; }
-      } catch {}
-      $list.innerHTML = `<div class="meta">Error cargando notificaciones.</div>`;
-      $counter.textContent = '—';
-    }
-
-    /* ===== Crear ===== */
-    function openModal(){ if (!canCreate) return; $fTitle.value=''; $fMsg.value=''; $fTeam.value=''; $fPrio.value=''; $fType.value=''; $modal.classList.add('open'); }
-    function closeModal(){ $modal.classList.remove('open'); }
-
-    $btnNew.onclick    = openModal;
-    $btnCancel.onclick = closeModal;
-
-    $btnCreate.onclick = async () => {
-      const payload = {
-        titulo:   $fTitle.value.trim() || 'Notificación',
-        mensaje:  $fMsg.value.trim(),
-        equipoId: $fTeam.value ? Number($fTeam.value) : null,
-        prioridad:$fPrio.value || null,   // Urgencia
-        tipo:     $fType.value || null
-      };
-      if (!payload.equipoId) { alert('Selecciona un equipo'); return; }
+  // marcar leída (no invitación)
+  document.querySelectorAll('[data-read]').forEach(b=>{
+    b.onclick = async () => {
+      const id = b.getAttribute('data-read');
       try{
-        $btnCreate.disabled = true;
-        const r = await fetch(`${NOTIF_API}`, {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json', ...authHeaders() },
-          body: JSON.stringify(payload)
-        });
-        if (!r.ok) { alert(await r.text() || 'No se pudo crear'); $btnCreate.disabled=false; return; }
-        $btnCreate.disabled=false; closeModal(); toast('Notificación creada');
-        load();
-      }catch{ $btnCreate.disabled=false; alert('Error de red'); }
-    };
-
-    /* ===== Marcar todas ===== */
-    $btnMarkAll.onclick = async () => {
-      try{
-        const r = await fetch(`${NOTIF_API}/leer-todas`, { method:'PATCH', headers: authHeaders() });
-        if (r.ok) { load(); toast('Listo'); }
+        const r = await fetch(`${NOTIF_API}/${id}/leer`, { method:'PATCH', headers: { 'Content-Type':'application/json', ...authHeaders() } });
+        if (r.ok) { toast('Notificación marcada'); load(); }
       }catch{}
     };
+  });
 
-    /* ===== Cargar equipos para el creador (con cascada y logs) ===== */
-    async function loadTeamsForCreator() {
-      if (!canCreate) {
-        $fTeam.innerHTML = `<option value="">No autorizado a crear</option>`;
-        return;
-      }
+  // aceptar invitación (muestra aviso verde con nombre del equipo)
+  document.querySelectorAll('[data-accept]').forEach(b=>{
+    b.onclick = async () => {
+      const tk = b.getAttribute('data-accept');
+      const teamId = b.getAttribute('data-team-id');
+      if (!tk) return;
 
-      const fill = (arr) => {
-        const opts = (arr || []).map(e => {
-          const name = e?.nombreEquipo || e?.nombre || `Equipo #${e?.id ?? ''}`;
-          return `<option value="${e.id}">${escapeHtml(name)}</option>`;
-        }).join('');
-        $fTeam.innerHTML = `<option value="">Selecciona equipo…</option>` + opts;
-      };
-
-      try {
-        if (USER_ROLE === 'SUPER_ADMIN') {
-          // Todos los equipos
-          const rAll = await fetch(`${EQUIPOS_API}`, { headers: authHeaders() });
-          if (rAll.ok) {
-            const arr = await rAll.json();
-            console.log('[equipos] (admin) ->', arr);
-            fill(arr);
-            return;
-          } else {
-            console.warn('GET /equipos ->', rAll.status, await rAll.text());
-          }
-          fill([]);
-          return;
-        }
-
-        // SCRUM_MASTER o casos permitidos por email (Claudio)
-        // 1) Intentar /equipos/member/{id}
+      // intenta conocer el nombre del equipo antes de aceptar
+      let teamName = '';
+      if (teamId) {
         try {
-          const rMember = await fetch(`${EQUIPOS_API}/member/${encodeURIComponent(USER_ID)}`, { headers: authHeaders() });
-          if (rMember.ok) {
-            const data = await rMember.json();
-            console.log('[equipos/member]', data);
-            if (Array.isArray(data) && data.length) { fill(data); return; }
-          } else {
-            console.warn('GET /equipos/member/{id} ->', rMember.status, await rMember.text());
+          const rTeam = await fetch(`${EQUIPOS_API}/${teamId}`, { headers: { ...authHeaders() } });
+          if (rTeam.ok) {
+            const d = await rTeam.json();
+            teamName = d?.nombreEquipo || '';
           }
-        } catch (e) {
-          console.warn('Error /equipos/member', e);
-        }
+        } catch {}
+      }
 
-        // 2) Fallback: relaciones usuario-equipo
-        const rel = await fetch(`${UE_API}/usuario/${encodeURIComponent(USER_ID)}`, { headers: authHeaders() });
-        if (rel.ok) {
-          const lista = await rel.json();
-          console.log('[usuarios-equipos/usuario]', lista);
-          const ids = [...new Set((lista || []).map(r => r?.id?.equipoId).filter(Boolean))];
-
-          if (ids.length === 0) { fill([]); return; }
-
-          // 2.a) Intento de bulk si lo tienes implementado
-          try {
-            const bulk = await fetch(`${EQUIPOS_API}/by-ids?` + new URLSearchParams({ ids: ids.join(',') }), { headers: authHeaders() });
-            if (bulk.ok) {
-              const equipos = await bulk.json();
-              console.log('[equipos/by-ids]', equipos);
-              if (Array.isArray(equipos) && equipos.length) { fill(equipos); return; }
-            }
-          } catch (e) {
-            console.warn('falló /equipos/by-ids', e);
-          }
-
-          // 2.b) Último recurso: pedir cada equipo
-          const names = await Promise.all(ids.map(async id => {
-            try {
-              const rr = await fetch(`${EQUIPOS_API}/${id}`, { headers: authHeaders() });
-              if (rr.ok) {
-                const d = await rr.json();
-                return { id, nombreEquipo: d?.nombreEquipo || `Equipo #${id}` };
-              }
-            } catch {}
-            return { id, nombreEquipo: `Equipo #${id}` };
-          }));
-          fill(names);
-          return;
+      b.disabled = true;
+      try{
+        const r = await fetch(`${API_BASE}/equipos/invitaciones/${encodeURIComponent(tk)}/aceptar`, {
+          method:'POST',
+          headers: { ...authHeaders() }
+        });
+        if (r.ok){
+          toast(`Ahora eres parte del equipo "${teamName || ('#'+teamId) }"`, 'ok');
+          load();
         } else {
-          console.warn('GET /usuarios-equipos/usuario/{id} ->', rel.status, await rel.text());
+          toast(await r.text() || 'No se pudo aceptar', 'err');
+          b.disabled=false;
         }
-
-        fill([]); // si no hubo suerte
-      } catch (err) {
-        console.error('loadTeamsForCreator error', err);
-        $fTeam.innerHTML = `<option value="">Error al cargar equipos</option>`;
+      }catch{
+        toast('Error de red', 'err');
+        b.disabled=false;
       }
+    };
+  });
+
+  // rechazar invitación
+  document.querySelectorAll('[data-decline]').forEach(b=>{
+    b.onclick = async () => {
+      const tk = b.getAttribute('data-decline');
+      if (!tk) return;
+      b.disabled = true;
+      try{
+        const r = await fetch(`${API_BASE}/equipos/invitaciones/${encodeURIComponent(tk)}/rechazar`, {
+          method:'POST',
+          headers: { ...authHeaders() }
+        });
+        if (r.ok){ toast('Invitación rechazada', 'ok'); load(); }
+        else { toast(await r.text() || 'No se pudo rechazar', 'err'); b.disabled=false; }
+      }catch{ b.disabled=false; toast('Error de red', 'err'); }
+    };
+  });
+}
+
+async function load(){
+  try{
+    if (!Number.isNaN(USER_ID)) {
+      const r = await fetch(`${NOTIF_API}?usuarioId=${USER_ID}`, { headers: { ...authHeaders() } });
+      if (r.ok){ render(await r.json()); return; }
     }
+    const r2 = await fetch(`${NOTIF_API}`, { headers: { ...authHeaders() } });
+    if (r2.ok){ render(await r2.json()); return; }
+  }catch{}
+  document.getElementById('list').innerHTML = `<div class="meta">Error cargando notificaciones.</div>`;
+  document.getElementById('counter').textContent = '—';
+}
 
-    /* ===== Init ===== */
-    document.addEventListener('DOMContentLoaded', async () => {
-      const $userInitial = document.querySelector('.user-circle');
-      if ($userInitial && (user?.nombre || user?.email)) {
-        $userInitial.textContent = String((user?.nombre?.[0] || user?.email?.[0] || 'U')).toUpperCase();
-      }
-      await load();
-      await loadTeamsForCreator();
-    });
-  </script>
+document.getElementById('btnMarkAll').onclick = async () => {
+  try{
+    const r = await fetch(`${NOTIF_API}/leer-todas`, { method:'PATCH', headers: { ...authHeaders() } });
+    if (r.ok) load();
+  }catch{}
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  const $userInitial = document.querySelector('.user-circle');
+  if ($userInitial && (user?.nombre || user?.email)) {
+    $userInitial.textContent = String((user?.nombre?.[0] || user?.email?.[0] || 'U')).toUpperCase();
+  }
+  load();
+});
+</script>
 </body>
 </html>
+

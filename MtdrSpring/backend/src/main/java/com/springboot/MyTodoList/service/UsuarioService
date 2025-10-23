@@ -1,0 +1,48 @@
+package com.springboot.MyTodoList.service;
+
+import com.springboot.MyTodoList.model.Usuario;
+import com.springboot.MyTodoList.repository.UsuarioRepository;
+import org.springframework.stereotype.Service;
+
+import java.lang.reflect.Method;
+import java.util.Optional;
+
+/**
+ * Servicio utilitario para resolver el ID del usuario a partir del email.
+ * Lo usamos en NotificacionController para soportar el header X-User-Email.
+ */
+@Service
+public class UsuarioService {
+
+    private final UsuarioRepository repo;
+
+    public UsuarioService(UsuarioRepository repo) {
+        this.repo = repo;
+    }
+
+    /**
+     * Devuelve el ID (Long) del usuario cuyo email coincide (case-insensitive).
+     * Si tu entidad Usuario tiene getUsuarioId() en vez de getId(), este método
+     * lo detecta con reflexión para no forzar cambios en tu modelo.
+     */
+    public Optional<Long> findIdByEmail(String email) {
+        if (email == null || email.isBlank()) return Optional.empty();
+
+        return repo.findByEmailIgnoreCase(email.trim())
+                .map(u -> {
+                    Long id = tryGetter(u, "getId");
+                    if (id != null) return id;
+                    return tryGetter(u, "getUsuarioId");
+                });
+    }
+
+    private Long tryGetter(Usuario u, String getter) {
+        try {
+            Method m = u.getClass().getMethod(getter);
+            Object v = m.invoke(u);
+            return (v instanceof Long) ? (Long) v : null;
+        } catch (Exception ignore) {
+            return null;
+        }
+    }
+}
