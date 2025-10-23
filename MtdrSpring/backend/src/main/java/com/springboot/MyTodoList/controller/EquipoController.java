@@ -43,7 +43,7 @@ public class EquipoController {
     private final EquipoService equipoService;
     private final ProyectoRepository proyectoRepo;
     private final TareaRepository tareaRepo;
-    private final UsuarioEquipoRepository ueRepo; // para el filtro adminId
+    private final UsuarioEquipoRepository ueRepo; // para el filtro adminId/usuarioId
 
     public EquipoController(EquipoRepository repo,
                             EquipoService equipoService,
@@ -57,29 +57,47 @@ public class EquipoController {
         this.ueRepo = ueRepo;
     }
 
-    // GET con soporte a ?adminId=...  → solo devuelve equipos donde ese usuario es ADMIN
+    /**
+     * GET /equipos
+     * - Sin parámetros: lista todos (ordenado por nombre)
+     * - ?adminId=123: lista equipos donde el usuario es ADMIN
+     * - ?usuarioId=123: lista equipos donde el usuario es MIEMBRO (cualquier rol)
+     *
+     * Nota: Soportar ?usuarioId permite que tu frontend actual (fallback) funcione sin cambios.
+     */
     @GetMapping
-    public List<Equipo> all(@RequestParam(value = "adminId", required = false) Long adminId) {
-        if (adminId == null) {
-            // AJUSTE: devolver ordenado por nombre para la UI (no rompe compatibilidad)
-            return repo.findAll(Sort.by(Sort.Direction.ASC, "nombreEquipo"));
+    public List<Equipo> all(
+            @RequestParam(value = "adminId", required = false) Long adminId,
+            @RequestParam(value = "usuarioId", required = false) Long usuarioId
+    ) {
+        // 1) Filtro por ADMIN del equipo
+        if (adminId != null) {
+            List<UsuarioEquipo> rels = ueRepo.findByUsuarioId(adminId);
+            Set<Long> adminEquipoIds = rels.stream()
+                    .filter(ue -> ue.getRol() == RolEquipo.ADMIN && ue.getId() != null)
+                    .map(ue -> ue.getId().getEquipoId())
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            if (adminEquipoIds.isEmpty()) return Collections.emptyList();
+            return repo.findAll().stream()
+                    .filter(eq -> adminEquipoIds.contains(eq.getId()))
+                    .sorted(Comparator.comparing(e -> Optional.ofNullable(e.getNombreEquipo()).orElse("")))
+                    .collect(Collectors.toList());
         }
-        List<UsuarioEquipo> rels = ueRepo.findByUsuarioId(adminId);
-        Set<Long> adminEquipoIds = rels.stream()
-                .filter(ue -> ue.getRol() == RolEquipo.ADMIN && ue.getId() != null)
-                .map(ue -> ue.getId().getEquipoId())
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-        if (adminEquipoIds.isEmpty()) return Collections.emptyList();
-        // Filtramos por IDs
-        return repo.findAll().stream()
-                .filter(eq -> adminEquipoIds.contains(eq.getId()))
-                .sorted(Comparator.comparing(e -> Optional.ofNullable(e.getNombreEquipo()).orElse("")))
-                .collect(Collectors.toList());
+
+        // 2) Filtro por MIEMBRO (cualquier rol)
+        if (usuarioId != null) {
+            return listMemberTeams(usuarioId);
+        }
+
+        // 3) Sin filtros → todos ordenados por nombre
+        return repo.findAll(Sort.by(Sort.Direction.ASC, "nombreEquipo"));
     }
 
-    // OPCIONAL: equipos donde el usuario es miembro (cualquier rol)
-    // Útil si prefieres poblar el combo del Scrum Master con un solo request.
+    /**
+     * Equipos donde el usuario es miembro (cualquier rol).
+     * Reutilizado por ?usuarioId para evitar duplicar lógica.
+     */
     @GetMapping("/member/{usuarioId}")
     public List<Equipo> listMemberTeams(@PathVariable Long usuarioId) {
         List<UsuarioEquipo> rels = ueRepo.findByUsuarioId(usuarioId);
@@ -95,7 +113,10 @@ public class EquipoController {
         return equipos;
     }
 
-    // OPCIONAL (para optimizar): GET /equipos/by-ids?ids=1,2,3
+    /**
+     * GET /equipos/by-ids?ids=1,2,3
+     * Optimizador para cargar equipos por lote.
+     */
     @GetMapping("/by-ids")
     public List<Equipo> byIds(@RequestParam("ids") List<Long> ids) {
         if (ids == null || ids.isEmpty()) return Collections.emptyList();
@@ -136,7 +157,9 @@ public class EquipoController {
         return ResponseEntity.noContent().build();
     }
 
-    // ICL del equipo (como lo tenías)
+    /**
+     * ICL del equipo: agrega métricas de todos los proyectos del equipo.
+     */
     @GetMapping("/{id}/icl")
     public ResponseEntity<Map<String,Object>> getEquipoIcl(@PathVariable Long id) {
         List<Proyecto> proyectos = proyectoRepo.findByEquipoId(id);
