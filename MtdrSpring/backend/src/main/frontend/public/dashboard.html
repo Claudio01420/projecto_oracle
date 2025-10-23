@@ -219,43 +219,28 @@
         </div>
 
         <!-- Panel derecho -->
-        <aside class="panel card-soft">
-          <div class="panel-title"><span class="dot"></span><h3>Semana en una mirada</h3></div>
-          <div class="spark">
-            <svg viewBox="0 0 100 40" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="fillRed" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stop-color="rgba(225,38,28,0.28)"/>
-                  <stop offset="100%" stop-color="rgba(225,38,28,0.02)"/>
-                </linearGradient>
-              </defs>
-              <path d="M0,30 C12,16 22,24 34,18 C46,13 56,20 66,14 C76,10 86,22 100,12 L100,40 L0,40 Z" fill="url(#fillRed)"/>
-              <path d="M0,30 C12,16 22,24 34,18 C46,13 56,20 66,14 C76,10 86,22 100,12" fill="none" stroke="#E1261C" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
-            </svg>
-            <div class="chip-row">
-              <span class="chip chip-red">+5% productividad</span>
-              <span class="chip">24 tareas</span>
-            </div>
-          </div>
+        <aside id="calendar-panel" class="panel card-soft">
+        <div class="panel-title"><span class="dot"></span><h3>Semana en una mirada</h3></div>
 
-          <hr class="sep"/>
-          <div class="block-title"><strong>Próximos hitos</strong></div>
-          <div class="mini-card">
-            <div class="mini-left"><strong>Demo Sprint 12</strong></div>
-            <div class="mini-right"><span class="muted small">Vie 20</span></div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-left"><strong>Release 2.0</strong></div>
-            <div class="mini-right"><span class="muted small">Mar 24</span></div>
-          </div>
+        <div class="calendar-controls">
+          <button id="prev-week" class="btn-sm">←</button>
+          <div class="calendar-week-label" id="week-label"></div>
+          <button id="next-week" class="btn-sm">→</button>
+        </div>
 
-          <hr class="sep"/>
-          <div class="block-title danger"><strong>Riesgos del sprint</strong></div>
-          <div class="row-sb small">
-            <span>2 tareas bloqueadas</span>
-            <span class="chip chip-red">Revisar hoy</span>
-          </div>
-        </aside>
+        <div id="week-calendar" class="week-calendar">
+          <!-- JS rellenará el calendario -->
+          <div class="loading muted small" id="calendar-loading">Cargando calendario...</div>
+        </div>
+
+        <hr class="sep"/>
+        <div class="block-title"><strong>Próximas tareas</strong></div>
+        <div id="upcoming-tasks" class="upcoming-tasks">
+          <div class="muted small" id="upcoming-loading">Cargando próximas tareas...</div>
+        </div>
+        
+      </aside>
+
       </section>
 
       <!-- Proyectos activos -->
@@ -443,74 +428,291 @@
 })();
 </script>
 
+<!-- Script: Actualiza "Tareas activas" (total-tasks y completed-tasks) -->
+<script>
+/* SCRIPT REEMPLAZO: Actualiza "Tareas activas" */
+(function(){
+  const TOTAL_ID = 'total-tasks';
+  const COMPLETED_ID = 'completed-tasks';
+  const FETCH_TIMEOUT_MS = 10000;
+  const POLL_INTERVAL_MS = 30000; // actualiza cada 30s
+
+  const totalEl = document.getElementById(TOTAL_ID);
+  const completedEl = document.getElementById(COMPLETED_ID);
+  if (!totalEl && !completedEl) {
+    console.warn('[TareasActivas] No se encontraron elementos #' + TOTAL_ID + ' ni #' + COMPLETED_ID);
+    return;
+  }
+
+  function safeNumber(v, fallback = 0) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fallback;
+  }
+  function isCompleted(task) {
+    try {
+      const s = (task.status ?? task.estado ?? '').toString().toLowerCase();
+      if (s.includes('hecho') || s.includes('done') || s.includes('completed')) return true;
+      if (task.completedAt || task.completed_at || task.completed) return true;
+      return false;
+    } catch (e) { return false; }
+  }
+
+  async function fetchWithTimeout(url, options = {}, timeout = FETCH_TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    try {
+      const res = await fetch(url, {...options, signal: controller.signal});
+      clearTimeout(timer);
+      return res;
+    } catch (err) {
+      clearTimeout(timer);
+      throw err;
+    }
+  }
+
+  let lastTotal = null;
+  let lastCompleted = null;
+  let pollingHandle = null;
+
+  async function updateCountsOnce() {
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      if (totalEl) totalEl.textContent = '0';
+      if (completedEl) completedEl.textContent = '0';
+      console.info('[TareasActivas] userEmail no encontrado en localStorage');
+      return;
+    }
+
+    const url = '/api/tasks?email=' + encodeURIComponent(email);
+    try {
+      const res = await fetchWithTimeout(url, {}, FETCH_TIMEOUT_MS);
+      if (!res.ok) {
+        console.error('[TareasActivas] Error HTTP al obtener tareas:', res.status, await res.text().catch(()=>'<no body>'));
+        throw new Error('HTTP ' + res.status);
+      }
+      const tasks = await res.json();
+      if (!Array.isArray(tasks)) {
+        console.error('[TareasActivas] Formato de tareas inválido, se esperaba array:', tasks);
+        throw new Error('Formato inválido');
+      }
+
+      const totalActive = tasks.length;
+      const completedCount = tasks.filter(t => isCompleted(t)).length;
+
+      if (lastTotal !== totalActive) {
+        if (totalEl) totalEl.textContent = String(totalActive);
+        lastTotal = totalActive;
+      }
+      if (lastCompleted !== completedCount) {
+        if (completedEl) completedEl.textContent = String(completedCount);
+        lastCompleted = completedCount;
+      }
+
+      return { totalActive, completedCount };
+    } catch (err) {
+      console.warn('[TareasActivas] Error al obtener/parsear tareas:', err);
+      // no sobreescribimos valores si hubo error; intentaremos de nuevo después
+      throw err;
+    }
+  }
+
+  function startPolling() {
+    if (pollingHandle) return;
+    updateCountsOnce().catch(()=>{/* silent */});
+    pollingHandle = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        updateCountsOnce().catch(()=>{/* silent */});
+      }
+    }, POLL_INTERVAL_MS);
+  }
+  function stopPolling() {
+    if (pollingHandle) {
+      clearInterval(pollingHandle);
+      pollingHandle = null;
+    }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') startPolling();
+    else stopPolling();
+  });
+
+  startPolling();
+  window.addEventListener('beforeunload', stopPolling);
+
+})();
+</script>
+
+
 <!-- Añadir script para cargar proyectos del usuario y renderizarlos (auto-refresh cada 15s) -->
 <script>
+/* SCRIPT MEJORADO: Proyectos activos (reemplazar bloque antiguo) */
 (function(){
   const container = document.getElementById('projects-list');
-  if (!container) return;
+  if (!container) return console.warn('No existe #projects-list en el DOM');
 
-  // Estado local para evitar re-renders innecesarios
+  // ---------- CONFIG ----------
+  const POLL_INTERVAL_MS = 15000; // 15s
+  const FETCH_TIMEOUT_MS = 10000; // 10s
+  const USE_MOCK_ON_ERROR = true; // si quieres ver UI aun cuando el backend falle (para depuración)
+  // ----------------------------
+
   let lastSerialized = null;
-  const POLL_INTERVAL_MS = 15000; // 15 segundos, ajusta si quieres más/menos frecuencia
+  let pollingId = null;
+  let activeController = null;
 
   function showLoading() {
-    container.innerHTML = '<div class="muted small" id="projects-loading">Cargando proyectos...</div>';
+    container.innerHTML = `<div class="muted small" id="projects-loading">Cargando proyectos...</div>`;
   }
   function showError(msg) {
-    container.innerHTML = `<div class="muted small">${msg}</div>`;
+    container.innerHTML = `<div class="muted small error">${escapeHtml(msg)}</div>`;
+  }
+  function escapeHtml(str){
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
   }
 
-  function renderProjects(projects) {
+  function formatDateIsoLike(s){
+    if (!s) return '-';
+    try {
+      const d = new Date(s);
+      if (isNaN(d.getTime())) return String(s);
+      return d.toLocaleDateString();
+    } catch(e){ return String(s); }
+  }
+
+  function safeNumber(v, fallback = 0){
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
+  function buildProjectCard(p){
+    // normalización de campos (soporta varios nombres)
+    const id = p.id ?? p.projectId ?? p.proyectoId ?? null;
+    const name = p.projectName ?? p.name ?? p.nombreProyecto ?? 'Proyecto';
+    const start = p.fechaInicio ?? p.startDate ?? p.start_date ?? p.start ?? null;
+    const end = p.fechaFin ?? p.endDate ?? p.end_date ?? p.end ?? null;
+    const progress = safeNumber(p.progressPercent ?? p.progress ?? p.progress_percent, 0);
+    const completedTasks = safeNumber(p.completedTasks ?? p.completed_tasks ?? p.completed, 0);
+    const totalTasks = safeNumber(p.totalTasks ?? p.total_tasks ?? p.total, 0);
+
+    // crear nodo
+    const article = document.createElement('article');
+    article.className = 'project';
+
+    const titleRow = document.createElement('div');
+    titleRow.className = 'row-sb';
+
+    const strong = document.createElement('strong');
+    strong.className = 'title';
+    strong.textContent = name;
+
+    const statusSpan = document.createElement('span');
+    statusSpan.className = 'chip';
+    const state = progress >= 100 ? 'Completado' : (progress >= 50 ? 'En Progreso' : 'Planificación');
+    statusSpan.textContent = state;
+    // color class según progreso
+    statusSpan.classList.add(progress >= 80 ? 'chip-success' : (progress >= 50 ? 'chip-warning' : 'chip-danger'));
+
+    titleRow.appendChild(strong);
+    titleRow.appendChild(statusSpan);
+
+    const desc = document.createElement('p');
+    desc.className = 'muted small';
+    desc.textContent = `Inicio: ${formatDateIsoLike(start)} · Fin: ${formatDateIsoLike(end)}`;
+
+    const progressBar = document.createElement('div');
+    progressBar.className = 'progress';
+    const span = document.createElement('span');
+    span.style.width = Math.max(0, Math.min(100, progress)) + '%';
+    span.setAttribute('aria-valuenow', String(Math.round(progress)));
+    progressBar.appendChild(span);
+
+    const tiny = document.createElement('div');
+    tiny.className = 'muted tiny';
+    tiny.textContent = `${Math.round(progress)}% completado · ${completedTasks}/${totalTasks} tareas`;
+
+    article.appendChild(titleRow);
+    article.appendChild(desc);
+    article.appendChild(progressBar);
+    article.appendChild(tiny);
+
+    // click abre detalles (puedes redirigir a página de proyecto si existe)
+    article.addEventListener('click', () => {
+      if (id) {
+        // si tienes ruta /projects/{id} la puedes usar; solo la muestro como ejemplo
+        const href = `/projects.html?id=${encodeURIComponent(id)}`;
+        window.location.href = href;
+      } else {
+        alert(`${name}\n\nInicio: ${formatDateIsoLike(start)}\nFin: ${formatDateIsoLike(end)}\n\n${Math.round(progress)}% completado`);
+      }
+    });
+
+    return article;
+  }
+
+  function renderProjects(projects){
     container.innerHTML = '';
     if (!Array.isArray(projects) || projects.length === 0) {
       container.innerHTML = '<div class="muted small">No hay proyectos activos.</div>';
       return;
     }
-
-    projects.forEach(p => {
-      const article = document.createElement('article');
-      article.className = 'project';
-
-      const titleRow = document.createElement('div');
-      titleRow.className = 'row-sb';
-
-      const strong = document.createElement('strong');
-      strong.className = 'title';
-      strong.textContent = p.projectName || p.name || p.nombreProyecto || 'Proyecto';
-
-      const statusSpan = document.createElement('span');
-      statusSpan.className = 'chip chip-outline-red';
-      const prog = Number(p.progressPercent ?? 0);
-      statusSpan.textContent = prog >= 100 ? 'Completado' : (prog >= 50 ? 'En Progreso' : 'Planificación');
-
-      titleRow.appendChild(strong);
-      titleRow.appendChild(statusSpan);
-
-      const desc = document.createElement('p');
-      desc.className = 'muted small';
-      const start = p.fechaInicio || p.startDate || '-';
-      const end = p.fechaFin || p.endDate || '-';
-      desc.textContent = `Inicio: ${start} · Fin: ${end}`;
-
-      const progressBar = document.createElement('div');
-      progressBar.className = 'progress';
-      const span = document.createElement('span');
-      span.style.width = Math.max(0, Math.min(100, prog)) + '%';
-      progressBar.appendChild(span);
-
-      const tiny = document.createElement('div');
-      tiny.className = 'muted tiny';
-      tiny.textContent = `${p.progressPercent ?? 0}% completado · ${p.completedTasks ?? 0}/${p.totalTasks ?? 0} tareas`;
-
-      article.appendChild(titleRow);
-      article.appendChild(desc);
-      article.appendChild(progressBar);
-      article.appendChild(tiny);
-      container.appendChild(article);
+    // Renderizar en orden descendente por progreso y luego por id (opcional)
+    const sorted = projects.slice().sort((a,b)=>{
+      const pa = safeNumber(a.progressPercent ?? a.progress ?? 0);
+      const pb = safeNumber(b.progressPercent ?? b.progress ?? 0);
+      if (pa !== pb) return pb - pa; // mayor progreso primero
+      return (b.id ?? 0) - (a.id ?? 0);
     });
+
+    const fragment = document.createDocumentFragment();
+    sorted.forEach(p => fragment.appendChild(buildProjectCard(p)));
+    container.appendChild(fragment);
   }
 
-  async function fetchAndRender() {
+  // Fetch con timeout y AbortController
+  async function safeFetch(url, options = {}, timeout = FETCH_TIMEOUT_MS){
+    if (activeController) {
+      try { activeController.abort(); } catch(e) {}
+    }
+    activeController = new AbortController();
+    const signal = activeController.signal;
+    const timer = setTimeout(()=> activeController.abort(), timeout);
+
+    try {
+      const res = await fetch(url, {...options, signal});
+      clearTimeout(timer);
+      return res;
+    } catch (err) {
+      clearTimeout(timer);
+      throw err;
+    } finally {
+      activeController = null;
+    }
+  }
+
+  // Obtiene userId desde el servicio /usuarios/by-email
+  async function getUserIdFromEmail(email){
+    try {
+      const resUser = await safeFetch('/usuarios/by-email?email=' + encodeURIComponent(email));
+      if (!resUser.ok) {
+        const text = await resUser.text().catch(()=> '');
+        throw new Error('No se pudo obtener usuario: ' + text);
+      }
+      const user = await resUser.json();
+      return user.id ?? user.usuarioId ?? user.usuario_id ?? null;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  // Principal: obtener proyectos y renderizar
+  async function fetchAndRender(){
     const email = localStorage.getItem('userEmail');
     if (!email) {
       showError('Inicia sesión para ver tus proyectos.');
@@ -520,105 +722,436 @@
     showLoading();
 
     try {
-      // 1) Obtener usuario por email (para sacar su id)
-      const resUser = await fetch('/usuarios/by-email?email=' + encodeURIComponent(email));
-      if (!resUser.ok) {
-        showError('No se pudo obtener el usuario.');
-        return;
-      }
-      const user = await resUser.json();
-      const userId = user.id || user.usuarioId || user.usuario_id;
+      const userId = await getUserIdFromEmail(email);
       if (!userId) {
-        showError('Usuario inválido.');
+        showError('Usuario inválido (sin id).');
         return;
       }
 
-      // 2) Obtener proyectos del usuario con stats
-      const res = await fetch('/proyectos/mios/' + encodeURIComponent(userId) + '/stats');
+      const res = await safeFetch('/proyectos/mios/' + encodeURIComponent(userId) + '/stats');
       if (!res.ok) {
-        showError('Error cargando proyectos.');
-        return;
+        const t = await res.text().catch(()=> '');
+        throw new Error('Error cargando proyectos: ' + (t || res.statusText));
       }
-      const projects = await res.json();
+      let payload = await res.json();
 
-      // Serializar ordenada por id para detección de cambios (evita re-renders si no cambió nada)
-      const sorted = Array.isArray(projects) ? projects.slice().sort((a,b) => (a.id||0)-(b.id||0)) : projects;
-      const serialized = JSON.stringify(sorted);
+      // Soportar respuesta envuelta: { projects: [...]} u otros wrappers
+      if (!Array.isArray(payload)) {
+        if (Array.isArray(payload.projects)) payload = payload.projects;
+        else if (Array.isArray(payload.data)) payload = payload.data;
+        else {
+          // si es objeto con keys numéricas, convertir en array
+          const maybeArray = Object.values(payload).filter(v => v && typeof v === 'object');
+          if (maybeArray.length > 0) payload = maybeArray;
+          else payload = [];
+        }
+      }
 
+      // serializar para evitar rerender innecesario
+      const serialized = JSON.stringify(payload, replacerSorted);
       if (serialized === lastSerialized) {
-        // nada que hacer, no hubo cambios
         const loader = document.getElementById('projects-loading');
         if (loader) loader.remove();
         return;
       }
-
       lastSerialized = serialized;
-      renderProjects(sorted);
+
+      renderProjects(payload);
     } catch (err) {
-      console.error('Error cargando proyectos:', err);
-      showError('Excepción al cargar proyectos.');
+      console.error('Error fetchAndRender proyectos:', err);
+      if (USE_MOCK_ON_ERROR) {
+        // datos de ejemplo para depuración
+        const mock = [
+          { id: 101, projectName: 'Proyecto DEMO A', fechaInicio: '2025-10-01', fechaFin: '2025-12-01', progressPercent: 64, completedTasks: 16, totalTasks: 25 },
+          { id: 102, projectName: 'Proyecto DEMO B', fechaInicio: '2025-09-10', fechaFin: '2025-11-10', progressPercent: 40, completedTasks: 8, totalTasks: 20 },
+        ];
+        renderProjects(mock);
+        // mostrar mensaje leve
+        const notice = document.createElement('div');
+        notice.className = 'muted tiny';
+        notice.textContent = 'Mostrando datos de ejemplo por fallo al obtener proyectos reales.';
+        container.appendChild(notice);
+      } else {
+        showError('Excepción al cargar proyectos. Revisa consola.');
+      }
     }
   }
 
-  // Llamada inicial y polling periódico
-  fetchAndRender();
-  const intervalId = setInterval(fetchAndRender, POLL_INTERVAL_MS);
+  // JSON.stringify con claves ordenadas para comparación estable
+  function replacerSorted(key, value){
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      const ordered = {};
+      Object.keys(value).sort().forEach(k => ordered[k] = value[k]);
+      return ordered;
+    }
+    return value;
+  }
 
-  // Si quieres detener el polling en algún momento (por ejemplo al navegar),
-  // puedes exponer intervalId o usar page visibility API. Ejemplo simple:
-  window.addEventListener('beforeunload', () => clearInterval(intervalId));
+  // Polling con Page Visibility (solo cuando la pestaña visible)
+  function startPolling(){
+    if (pollingId) return;
+    fetchAndRender();
+    pollingId = setInterval(()=> {
+      if (document.visibilityState === 'visible') fetchAndRender();
+    }, POLL_INTERVAL_MS);
+  }
+  function stopPolling(){
+    if (pollingId) { clearInterval(pollingId); pollingId = null; }
+  }
+
+  document.addEventListener('visibilitychange', ()=>{
+    if (document.visibilityState === 'visible') startPolling();
+    else stopPolling();
+  });
+
+  // Inicializar
+  startPolling();
+  window.addEventListener('beforeunload', () => {
+    stopPolling();
+    if (activeController) try { activeController.abort(); } catch(e){}
+  });
+
 })();
 </script>
 
-<!-- NUEVO: Script que calcula y actualiza total-tasks y completed-tasks para el usuario logueado -->
+<script>
+/* Calendario semanal que muestra tareas del usuario */
+(async function(){
+  // --- utilidad de parseo de fechas robusto ---
+  function parseDateAny(value){
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    // tratar números unix (segundos o ms)
+    if (typeof value === 'number') {
+      // si mayor a 10^12 probablemente ms, si no segundos
+      return new Date(value > 1e12 ? value : value * 1000);
+    }
+    // intentar ISO
+    const d1 = new Date(value);
+    if (!isNaN(d1.getTime())) return d1;
+    // intentar reemplazar espacios comunes
+    const v2 = String(value).replace(' ', 'T');
+    const d2 = new Date(v2);
+    if (!isNaN(d2.getTime())) return d2;
+    return null;
+  }
+
+  // --- calcular lunes de la semana (hora local) ---
+  function startOfWeek(date){
+    const d = new Date(date);
+    const day = (d.getDay() + 6) % 7; // convertir para que lunes=0
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate() - day);
+    return d;
+  }
+  function addDays(d, n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+
+  // --- detectar posible campo fecha en tarea ---
+  function findTaskDate(task){
+    const keys = ['dueDate','fechaVencimiento','due_date','due','due_at','endDate','fechaFin','end_date','startDate','fechaInicio','start','fecha','date'];
+    for (const k of keys){
+      if (task[k]) return parseDateAny(task[k]);
+      // también propiedades en objetos nested
+      if (task.meta && task.meta[k]) return parseDateAny(task.meta[k]);
+    }
+    // si tiene timestamps
+    if (task.createdAt) return parseDateAny(task.createdAt);
+    return null;
+  }
+
+  // --- detectar título/name ---
+  function findTaskTitle(task){
+    return task.title || task.name || task.titulo || task.summary || task.subject || 'Tarea sin título';
+  }
+
+  // --- obtener email desde localStorage (como tus scripts anteriores) ---
+  const email = localStorage.getItem('userEmail');
+  const calendarEl = document.getElementById('week-calendar');
+  const weekLabel = document.getElementById('week-label');
+  const loading = document.getElementById('calendar-loading');
+
+  // estado semana
+  let curMonday = startOfWeek(new Date());
+
+  // renderizar etiqueta semana (ej: 6 Oct - 12 Oct)
+  function renderWeekLabel(monday){
+    const end = addDays(monday,6);
+    const opts = { day: 'numeric', month: 'short' };
+    weekLabel.textContent = `${monday.toLocaleDateString(undefined,opts)} – ${end.toLocaleDateString(undefined,opts)}`;
+  }
+
+  // render calendario con tareas filtradas
+  function renderCalendar(tasks, monday){
+    if (!calendarEl) return;
+    calendarEl.innerHTML = '';
+    const today = new Date();
+    for (let i=0;i<7;i++){
+      const dayDate = addDays(monday, i);
+      const dayBox = document.createElement('div');
+      dayBox.className = 'week-day' + (dayDate.toDateString() === today.toDateString() ? ' today' : '');
+      const header = document.createElement('div');
+      header.className = 'day-header';
+      const dayName = document.createElement('div');
+      dayName.textContent = dayDate.toLocaleDateString(undefined,{ weekday:'short' }).replace('.', '');
+      const dayNum = document.createElement('div');
+      dayNum.className = 'date-num';
+      dayNum.textContent = dayDate.getDate();
+      header.appendChild(dayName);
+      header.appendChild(dayNum);
+
+      const tasksList = document.createElement('div');
+      tasksList.className = 'tasks-list';
+
+      // filtrar tareas para ese día
+      const dayStart = new Date(dayDate); dayStart.setHours(0,0,0,0);
+      const dayEnd = new Date(dayDate); dayEnd.setHours(23,59,59,999);
+      const tasksForDay = tasks.filter(t => {
+        const dt = findTaskDate(t);
+        if (!dt) return false;
+        return (dt >= dayStart && dt <= dayEnd);
+      });
+
+      if (tasksForDay.length === 0){
+        const empty = document.createElement('div');
+        empty.className='muted small';
+        empty.textContent = 'Sin tareas';
+        tasksList.appendChild(empty);
+      } else {
+        tasksForDay.sort((a,b) => {
+          const da = findTaskDate(a) || 0;
+          const db = findTaskDate(b) || 0;
+          return da - db;
+        });
+        tasksForDay.forEach(t=>{
+          const dt = findTaskDate(t);
+          const pill = document.createElement('div');
+          pill.className = 'task-pill small';
+          const titleWrap = document.createElement('div');
+          titleWrap.className = 'task-title';
+          const title = document.createElement('div');
+          title.textContent = findTaskTitle(t);
+          const time = document.createElement('div');
+          time.className = 'task-time';
+          time.textContent = dt ? dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+          titleWrap.appendChild(title);
+          titleWrap.appendChild(time);
+          pill.appendChild(titleWrap);
+
+          // al hacer click mostrar detalles (modal simple alert — puedes cambiar por un modal)
+          pill.addEventListener('click', ()=> {
+            const desc = t.description || t.descripcion || t.detail || t.details || '';
+            alert(`${findTaskTitle(t)}\n\nFecha: ${dt ? dt.toLocaleString() : 'N/A'}\n\n${desc}`);
+          });
+
+          tasksList.appendChild(pill);
+        });
+      }
+
+      dayBox.appendChild(header);
+      dayBox.appendChild(tasksList);
+      calendarEl.appendChild(dayBox);
+    }
+  }
+
+  // contador de tareas bloqueadas (si tu tareas tienen campo blocked/blockedReason o status)
+  function computeBlocked(tasks){
+    return tasks.filter(t => {
+      const s = (t.status || t.estado || '').toString().toLowerCase();
+      if (s.includes('bloq') || s.includes('blocked')) return true;
+      // o campo explicit blocked
+      if (t.blocked === true || t.blocked === 'true') return true;
+      return false;
+    }).length;
+  }
+
+  // fetch tareas y actualizar UI
+  async function refreshCalendar(){
+    if (!calendarEl) return;
+    if (!email) {
+      calendarEl.innerHTML = '<div class="muted small">Inicia sesión (email) para ver tus tareas.</div>';
+      return;
+    }
+    if (loading) loading.style.display = 'block';
+    try {
+      const res = await fetch('/api/tasks?email=' + encodeURIComponent(email));
+      if (!res.ok) {
+        console.error('Error fetch tasks', await res.text());
+        calendarEl.innerHTML = '<div class="muted small">Error cargando tareas.</div>';
+        return;
+      }
+      const tasks = await res.json();
+      if (!Array.isArray(tasks)) {
+        calendarEl.innerHTML = '<div class="muted small">Formato de tareas inválido.</div>';
+        return;
+      }
+
+      // renderizar
+      renderWeekLabel(curMonday);
+      renderCalendar(tasks, curMonday);
+
+      // actualizar count bloqueadas
+      const blocked = computeBlocked(tasks);
+      const blockedEl = document.getElementById('blocked-count');
+      if (blockedEl) blockedEl.textContent = `${blocked} tareas bloqueadas`;
+    } catch (err) {
+      console.error(err);
+      calendarEl.innerHTML = '<div class="muted small">Excepción al cargar tareas.</div>';
+    } finally {
+      if (loading) loading.style.display = 'none';
+    }
+  }
+
+  // controls prev/next
+  const prevBtn = document.getElementById('prev-week');
+  const nextBtn = document.getElementById('next-week');
+  if (prevBtn) prevBtn.addEventListener('click', ()=>{ curMonday = addDays(curMonday, -7); refreshCalendar(); });
+  if (nextBtn) nextBtn.addEventListener('click', ()=>{ curMonday = addDays(curMonday, 7); refreshCalendar(); });
+
+  // inicial
+  await refreshCalendar();
+
+  // auto-refresh cada 30s
+  setInterval(refreshCalendar, 30000);
+})();
+</script>
+
 <script>
 (async function(){
-  const totalEl = document.getElementById('total-tasks');
-  const completedEl = document.getElementById('completed-tasks');
-  if (!totalEl && !completedEl) return;
+  // --- helpers internos (autónomos) ---
+  function parseDateAny(value){
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    if (typeof value === 'number') return new Date(value > 1e12 ? value : value * 1000);
+    const d = new Date(value);
+    if (!isNaN(d.getTime())) return d;
+    const v2 = String(value).replace(' ', 'T');
+    const d2 = new Date(v2);
+    if (!isNaN(d2.getTime())) return d2;
+    return null;
+  }
+  function findTaskDate(task){
+    const keys = ['dueDate','fechaVencimiento','due_date','due','due_at','endDate','fechaFin','end_date','startDate','fechaInicio','start','fecha','date','scheduledAt','completedAt'];
+    for (const k of keys){
+      if (task[k]) return parseDateAny(task[k]);
+      if (task.meta && task.meta[k]) return parseDateAny(task.meta[k]);
+    }
+    if (task.createdAt) return parseDateAny(task.createdAt);
+    return null;
+  }
+  function findTaskTitle(task){
+    return task.title || task.name || task.titulo || task.summary || task.subject || 'Tarea sin título';
+  }
+  function formatShortDate(d){
+    if (!d) return '';
+    return d.toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short' });
+  }
+  function formatTime(d){
+    if (!d) return '';
+    return d.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
+  }
 
+  // --- UI elements ---
+  const container = document.getElementById('upcoming-tasks');
+  const loading = document.getElementById('upcoming-loading');
+  if (!container) return;
+
+  // recuperar email (misma convención que en tu app)
   const email = localStorage.getItem('userEmail');
   if (!email) {
-    // si no hay email, mostrar 0
-    if (totalEl) totalEl.textContent = '0';
-    if (completedEl) completedEl.textContent = '0';
+    container.innerHTML = '<div class="muted small">Inicia sesión (email) para ver tus próximas tareas.</div>';
     return;
   }
 
+  // render mini-card (misma clase que usas en el layout)
+  function renderMiniCard(task){
+    const date = findTaskDate(task);
+    const title = findTaskTitle(task);
+    const wrapper = document.createElement('div');
+    wrapper.className = 'mini-card';
+
+    const left = document.createElement('div');
+    left.className = 'mini-left';
+    const strong = document.createElement('strong');
+    strong.textContent = title;
+    left.appendChild(strong);
+
+    const right = document.createElement('div');
+    right.className = 'mini-right';
+    const muted = document.createElement('span');
+    muted.className = 'muted small';
+    muted.textContent = date ? `${formatShortDate(date)} ${formatTime(date)}` : 'Sin fecha';
+    right.appendChild(muted);
+
+    wrapper.appendChild(left);
+    wrapper.appendChild(right);
+
+    // click -> mostrar detalles (puedes reemplazar alert por modal si quieres)
+    wrapper.addEventListener('click', () => {
+      const desc = task.description || task.descripcion || task.detail || task.notes || '';
+      const dText = date ? date.toLocaleString() : 'N/A';
+      const extra = desc ? `\n\n${desc}` : '';
+      alert(`${title}\n\nFecha: ${dText}${extra}`);
+    });
+
+    return wrapper;
+  }
+
+  // fetch tareas y calcular próximas 3
   try {
     const res = await fetch('/api/tasks?email=' + encodeURIComponent(email));
     if (!res.ok) {
-      console.error('Error al cargar tareas del usuario:', await res.text());
-      if (totalEl) totalEl.textContent = '0';
-      if (completedEl) completedEl.textContent = '0';
+      console.error('Error cargando tareas:', await res.text());
+      container.innerHTML = '<div class="muted small">Error cargando tareas.</div>';
       return;
     }
     const tasks = await res.json();
     if (!Array.isArray(tasks) || tasks.length === 0) {
-      if (totalEl) totalEl.textContent = '0';
-      if (completedEl) completedEl.textContent = '0';
+      container.innerHTML = '<div class="muted small">No tienes tareas asignadas.</div>';
       return;
     }
 
-    const totalActive = tasks.length;
-    const completedCount = tasks.filter(t => {
-      try {
-        return (t.status && String(t.status).toLowerCase() === 'hecho') || (t.completedAt != null);
-      } catch (e) {
-        return false;
-      }
-    }).length;
+    // filtrar tareas con fecha >= ahora (próximas)
+    const now = new Date();
+    const withDates = tasks.map(t => ({ t, dt: findTaskDate(t) })).filter(x => x.dt && x.dt >= new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0,0,0));
+    // ordenar por fecha ascendente
+    withDates.sort((a,b) => a.dt - b.dt);
 
-    if (totalEl) totalEl.textContent = String(totalActive);
-    if (completedEl) completedEl.textContent = String(completedCount);
+    // si no hay futuras (o son menos de 3) tomar próximas incluyendo pasadas recientes
+    let selection = withDates.slice(0,3).map(x => x.t);
+    if (selection.length < 3) {
+      // incluir tareas sin fecha o pasadas, ordenadas por fecha si existe o por prioridad / id
+      const others = tasks
+        .filter(t => !selection.includes(t))
+        .map(t => ({ t, dt: findTaskDate(t) }))
+        .sort((a,b) => {
+          if (a.dt && b.dt) return a.dt - b.dt;
+          if (a.dt && !b.dt) return -1;
+          if (!a.dt && b.dt) return 1;
+          return 0;
+        })
+        .slice(0, 3 - selection.length)
+        .map(x => x.t);
+      selection = selection.concat(others);
+    }
+
+    // renderizar las tarjetas
+    container.innerHTML = '';
+    if (selection.length === 0) {
+      container.innerHTML = '<div class="muted small">No hay próximas tareas detectadas.</div>';
+    } else {
+      selection.forEach(t => {
+        container.appendChild(renderMiniCard(t));
+      });
+    }
 
   } catch (err) {
-    console.error('Excepción al obtener tareas del usuario:', err);
-    if (totalEl) totalEl.textContent = '0';
-    if (completedEl) completedEl.textContent = '0';
+    console.error('Excepción al cargar próximas tareas:', err);
+    container.innerHTML = '<div class="muted small">Excepción al cargar próximas tareas.</div>';
   }
 })();
 </script>
+
+
 
 </body>
 </html>
