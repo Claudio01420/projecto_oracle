@@ -4,8 +4,8 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Detalle del Proyecto</title>
-  <link rel="stylesheet" href="Css/projects.css"/>
   <link rel="stylesheet" href="Css/homework-project.css"/>
+  <link href="https://api.fontshare.com/v2/css?f[]=panchang@500,600,700,800,900&display=swap" rel="stylesheet">
 
   <!-- Sprite de íconos -->
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
@@ -76,8 +76,6 @@
     .role-badge.admin { background:#fff4f3 }
     .role-badge.super { background:#fff8e6 }
     .role-badge.user  { background:#e9fff0 }
-
-    /* Confirm modal */
     .confirm-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:9999 }
     .confirm-overlay.open{ display:flex }
     .confirm-box{ width:420px; max-width:95%; background:#fff; border-radius:16px; padding:18px 20px; box-shadow:0 8px 32px rgba(0,0,0,.25) }
@@ -167,7 +165,6 @@
 
       <!-- Tareas + Integrantes -->
       <section class="two-col">
-        <!-- Col izquierda: TAREAS -->
         <div class="col">
           <section class="tasks-card">
             <div class="tasks-head">
@@ -183,7 +180,6 @@
           </section>
         </div>
 
-        <!-- Col derecha: INTEGRANTES -->
         <aside class="col">
           <section class="card members-card">
             <div class="members-head">
@@ -280,6 +276,12 @@
             </select>
           </div>
 
+          <!-- (opcional en UI) Fecha límite -->
+          <div class="field">
+            <label>Fecha límite (vencimiento)</label>
+            <input id="ct-due" type="date" />
+          </div>
+
           <!-- Asignado a -->
           <div class="field field-full">
             <label>Asignado a</label>
@@ -331,7 +333,12 @@
             </select>
           </div>
 
-          <!-- Asignado a -->
+          <!-- (opcional en UI) Fecha límite -->
+          <div class="field">
+            <label>Fecha límite (vencimiento)</label>
+            <input id="et-due" type="date" />
+          </div>
+
           <div class="field field-full">
             <label>Asignado a</label>
             <select id="et-assignee">
@@ -384,6 +391,14 @@
         if (t<1) requestAnimationFrame(step);
       }
       requestAnimationFrame(step);
+    }
+    function addDays(d, n){ const c = new Date(d); c.setDate(c.getDate()+n); return c; }
+    function fmtYMD(d){ const yy=d.getFullYear(),mm=String(d.getMonth()+1).padStart(2,"0"),dd=String(d.getDate()).padStart(2,"0"); return `${yy}-${mm}-${dd}`; }
+    function isValidYMD(s){
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+      const [y,m,dd] = s.split("-").map(Number);
+      const d = new Date(s+"T00:00:00");
+      return d.getFullYear()===y && (d.getMonth()+1)===m && d.getDate()===dd;
     }
 
     /* ========= SESIÓN ========= */
@@ -492,10 +507,75 @@
           document.getElementById('confirm-cancel').removeEventListener('click', onNo);
           closeEl($confirm);
         }
-        document.getElementById('confirm-yes').addEventListener('click', onYes);
-        document.getElementById('confirm-cancel').addEventListener('click', onNo);
+        document.getElementById('confirm-yes').addEventListener('click', onYes, {once:true});
+        document.getElementById('confirm-cancel').addEventListener('click', onNo, {once:true});
         $confirm.addEventListener('click', (e)=>{ if(e.target===$confirm) onNo(); }, {once:true});
         document.addEventListener('keydown', function esc(e){ if(e.key==='Escape'){ onNo(); document.removeEventListener('keydown', esc); } }, {once:true});
+      });
+    }
+
+    /* ========= MODAL HORAS (DINÁMICO) ========= */
+    function ensureHoursModal(){
+      let el = document.getElementById('hours-overlay');
+      if (el) return el;
+      const tpl = document.createElement('div');
+      tpl.id = 'hours-overlay';
+      tpl.className = 'edit-modal-overlay';
+      tpl.setAttribute('aria-hidden','true');
+      tpl.innerHTML = `
+        <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="hours-title" style="max-width:420px">
+          <div class="edit-modal-header">
+            <h2 class="h6" id="hours-title">¿Cuántas horas reales te tomó?</h2>
+            <button id="hours-close" class="icon-btn" aria-label="Cerrar">✕</button>
+          </div>
+          <div class="edit-modal-body">
+            <div class="field">
+              <label>Horas reales (0 - 12)</label>
+              <input id="hours-input" type="number" step="0.25" min="0" max="12" placeholder="Ej. 2.5">
+            </div>
+            <div class="tiny muted" style="margin-top:8px">Este dato se guardará junto con el estado "done".</div>
+          </div>
+          <div class="edit-modal-footer" style="display:flex; justify-content:flex-end; gap:10px;">
+            <button id="hours-cancel" class="btn btn-outline">Cancelar</button>
+            <button id="hours-ok" class="btn btn-primary">Guardar</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(tpl);
+      return tpl;
+    }
+    function askRealHours(){
+      return new Promise(resolve=>{
+        const ov = ensureHoursModal();
+        const $inp = ov.querySelector('#hours-input');
+        const $ok = ov.querySelector('#hours-ok');
+        const $cancel = ov.querySelector('#hours-cancel');
+        const $close = ov.querySelector('#hours-close');
+        $inp.value = '';
+        openEl(ov);
+        function done(v){ cleanup(); resolve(v); }
+        function cleanup(){
+          $ok.removeEventListener('click', onOk);
+          $cancel.removeEventListener('click', onCancel);
+          $close.removeEventListener('click', onCancel);
+          ov.removeEventListener('click', onBg);
+          closeEl(ov);
+        }
+        function onOk(){
+          const num = Number($inp.value);
+          if (Number.isNaN(num) || num < 0 || num > 12){
+            showToast({type:"error", title:"Horas inválidas", message:"Ingresa un número entre 0 y 12."});
+            return;
+          }
+          done(num);
+        }
+        function onCancel(){ done(null); }
+        function onBg(e){ if (e.target===ov) onCancel(); }
+        $ok.addEventListener('click', onOk);
+        $cancel.addEventListener('click', onCancel);
+        $close.addEventListener('click', onCancel);
+        ov.addEventListener('click', onBg);
+        setTimeout(()=> $inp.focus(), 50);
       });
     }
 
@@ -530,7 +610,7 @@
         const p = await res.json();
         proyectoActual = p;
         await pintarView(p);
-        await loadTeamMembers(p.equipoId); // establece isTeamAdmin
+        await loadTeamMembers(p.equipoId);
         await loadTasks(p.id);
         await renderMembersList();
       }catch(e){
@@ -627,7 +707,7 @@
       }catch(e){}
     }
 
-    /* ========= INTEGRANTES (nombre + rol + email público) ========= */
+    /* ========= INTEGRANTES ========= */
     async function loadTeamMembers(equipoId){
       teamMembersCache = [];
       isTeamAdmin = false;
@@ -707,7 +787,7 @@
 
     function resolveAssigneeNameFromTask(t){
       if (t.assigneeName) return t.assigneeName;
-      if (t.assigneeId)   return t.assigneeId; // suele ser email
+      if (t.assigneeId)   return t.assigneeId;
       return '-';
     }
 
@@ -721,7 +801,6 @@
       const isDone = (t.status||"").toLowerCase()==="done" || (t.completedAt != null) || (t.status||"").toLowerCase()==="hecho";
       const descHtml = escapeHtml(t.description || t.longDescription || "");
       const asigName = resolveAssigneeNameFromTask(t);
-      const showDelete = canDeleteTask(t);
       return `
         <div class="task-item" data-id="${t.id}">
           <input type="checkbox" class="t-check" ${isDone ? "checked" : ""} title="Completar / Reabrir">
@@ -731,6 +810,7 @@
               Prio: ${escapeHtml(t.priority||'-')}
               · Est: ${t.estimatedHours ?? '-'}h
               ${t.realHours ? (' · Real: '+t.realHours+'h') : ''}
+              ${t.fechaLimite?(' · Vence: '+fmtFecha(t.fechaLimite)):''}
               · Asig: ${escapeHtml(asigName)}
             </div>
           </div>
@@ -740,11 +820,10 @@
             <button class="btn-xs t-edit" title="Editar">
               <svg class="ico-sm" aria-hidden="true"><use href="#i-edit"/></svg> Editar
             </button>
-            ${showDelete ? `
+            ${canDeleteTask(t) ? `
               <button class="btn-danger btn-xs t-del" title="Borrar">
                 <svg class="ico-sm" aria-hidden="true"><use href="#i-trash"/></svg> Borrar
-              </button>
-            ` : ""}
+              </button>` : ""}
           </div>
           ${descHtml ? `<div class="task-desc">${descHtml}</div>` : ""}
         </div>
@@ -770,10 +849,22 @@
 
       $tasksListEl.querySelectorAll(".t-check").forEach(chk => {
         chk.addEventListener("change", async (e)=>{
-          const id = Number(e.target.closest(".task-item").dataset.id);
-          await toggleTaskStatus(id, e.target.checked);
+          const row = e.target.closest(".task-item");
+          const id = Number(row.dataset.id);
+          const goingDone = e.target.checked;
+          if (goingDone){
+            const hrs = await askRealHours();
+            if (hrs === null){
+              e.target.checked = false;
+              return;
+            }
+            await toggleTaskStatus(id, true, hrs);
+          } else {
+            await toggleTaskStatus(id, false, null);
+          }
         });
       });
+
       $tasksListEl.querySelectorAll(".t-del").forEach(btn => {
         btn.addEventListener("click", async (e)=>{
           const row = e.target.closest(".task-item");
@@ -782,6 +873,7 @@
           if (ok) await deleteTask(id);
         });
       });
+
       $tasksListEl.querySelectorAll(".desc-btn").forEach(btn => {
         btn.addEventListener("click", (e)=>{
           const row = e.target.closest(".task-item");
@@ -791,6 +883,7 @@
           e.target.textContent = desc.classList.contains("show") ? "Ocultar descripción" : "Ver descripción";
         });
       });
+
       $tasksListEl.querySelectorAll(".t-edit").forEach(btn => {
         btn.addEventListener("click", (e)=>{
           const row = e.target.closest(".task-item");
@@ -804,7 +897,6 @@
       updateProgressFromTasks();
     }
 
-    // Listado compartido
     async function loadTasks(projectId){
       try{
         const res = await fetch(`${TASKS_API}?projectId=${encodeURIComponent(projectId)}`, {
@@ -818,7 +910,20 @@
       }
     }
 
-    // Crear Tarea — guarda asignado (nombre+email) y el backend registrará quién creó por X-User-Email
+    // ==== NUEVO MENSAJE: prompt de vencimiento para CREAR tarea ====
+    async function askDueDateYMD(msg = "📅 Ingresa la fecha de vencimiento de la tarea (formato YYYY-MM-DD)") {
+      const def = fmtYMD(addDays(new Date(), 3));
+      let v = window.prompt(`${msg}\nEjemplo sugerido: ${def}`, def);
+      if (v == null) return null;
+      v = v.trim();
+      if (!isValidYMD(v)){
+        showToast({type:"error", title:"Fecha inválida", message:"Usa el formato YYYY-MM-DD"});
+        return await askDueDateYMD(msg);
+      }
+      return v;
+    }
+
+    // Crear Tarea — incluye fechaLimite requerida por backend
     async function createTask(projectId){
       mustHaveEmail();
       const title = ($ctTitle.value||"").trim();
@@ -828,18 +933,23 @@
 
       const assigneeSelect = $ctAssignee;
       const selectedOpt = assigneeSelect?.selectedOptions?.[0];
-      const assigneeEmail = selectedOpt?.dataset?.email || sessionEmail; // fallback al creador
+      const assigneeEmail = selectedOpt?.dataset?.email || sessionEmail;
       const assigneeName  = selectedOpt?.dataset?.nombre || (sessionUser?.nombre || sessionEmail);
 
       if (!title){ showToast({type:"error", title:"Falta título"}); return; }
       if ((description||"").length > 300){ showToast({type:"error", title:"Descripción muy larga", message:"Máximo 300 caracteres."}); return; }
       if (estimatedHours != null && estimatedHours > 4){ showToast({type:"error", title:"Máximo 4 horas"}); return; }
 
+      // 🔔 mensaje personalizado SOLO para crear
+      const fechaLimite = await askDueDateYMD("📅 Fecha de vencimiento (obligatoria). Formato YYYY-MM-DD");
+      if (fechaLimite == null){ showToast({type:"error", title:"Creación cancelada"}); return; }
+
       const payload = { 
         title, description, projectId: Number(projectId), 
         estimatedHours, priority,
         assigneeId: assigneeEmail,
-        assigneeName: assigneeName
+        assigneeName: assigneeName,
+        fechaLimite
       };
       try{
         const res = await fetch(TASKS_API, {
@@ -864,40 +974,53 @@
     }
     document.getElementById("btn-save-task-create")?.addEventListener("click", ()=>{ if (!proyectoActual?.id) return; createTask(proyectoActual.id); });
 
-    // Borrar Tarea (ADMIN puede borrar todas; headers incluyen role e id)
+    // ======== BORRAR TAREA (PARCHEADO) ========
     async function deleteTask(id){
       mustHaveEmail();
+      const url = `${TASKS_API}/${Number(id)}`;
+
+      // Solo headers con valores reales:
+      const headers = {};
+      if (sessionEmail) headers["X-User-Email"] = sessionEmail;
+      if (sessionUser?.rol) headers["X-User-Role"] = String(sessionUser.rol);
+      if (sessionUser?.id != null) headers["X-User-Id"] = String(sessionUser.id);
+
       try{
-        const res = await fetch(`${TASKS_API}/${id}`, {
+        const res = await fetch(url, {
           method: "DELETE",
-          headers: {
-            "X-User-Email": sessionEmail,
-            "X-User-Role": String(sessionUser?.rol || ""),
-            "X-User-Id": String(sessionUser?.id || "")
-          }
+          headers,
+          credentials: "include" // necesario si hay sesión/cookies
         });
+
         if (res.status === 204){
           tareasCache = tareasCache.filter(t => t.id !== id);
           renderTareas(tareasCache);
           showToast({type:"success", title:"Tarea eliminada"});
-        } else {
-          const text = await res.text();
-          showToast({type:"error", title:"No se pudo borrar", message: text || "Permisos insuficientes."});
+          return;
         }
+
+        const text = await res.text().catch(()=> "");
+        const msg = `Error ${res.status}${text ? `: ${text}` : ""}`;
+        console.error("DELETE /tasks error →", msg);
+        showToast({type:"error", title:"No se pudo borrar", message: text || "Revisa permisos/CORS/CSRF"});
       }catch(err){
+        console.error("DELETE /tasks network error →", err);
         showToast({type:"error", title:"Error de red"});
       }
     }
 
-    // Toggle estado
-    async function toggleTaskStatus(id, checked){
+    async function toggleTaskStatus(id, toDone, realHours){
       mustHaveEmail();
-      const newStatus = checked ? "done" : "todo";
+      const newStatus = toDone ? "done" : "todo";
+      const payload = toDone 
+        ? { status: newStatus, realHours: Number(realHours), completedAt: new Date().toISOString() }
+        : { status: newStatus, realHours: null, completedAt: null };
+
       try{
         const res = await fetch(`${TASKS_API}/${id}/status`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json", "X-User-Email": sessionEmail },
-          body: JSON.stringify({ status: newStatus })
+          body: JSON.stringify(payload)
         });
         if (res.ok){
           const updated = await res.json();
@@ -905,18 +1028,18 @@
           if (idx >= 0) tareasCache[idx] = updated;
           renderTareas(tareasCache);
         } else {
-          showToast({type:"error", title:"No se pudo actualizar estado"});
+          const text = await res.text().catch(()=> "");
+          showToast({type:"error", title:"No se pudo actualizar estado", message:text});
           const chk = $tasksListEl.querySelector(`.task-item[data-id="${id}"] .t-check`);
-          if (chk) chk.checked = !checked;
+          if (chk) chk.checked = !toDone;
         }
       }catch(err){
-        showToast({type:"error", title:"Error de red"});
+        showToast({type:"error", title:"Error de red", message:"No se pudo actualizar estado"});
         const chk = $tasksListEl.querySelector(`.task-item[data-id="${id}"] .t-check`);
-        if (chk) chk.checked = !checked;
+        if (chk) chk.checked = !toDone;
       }
     }
 
-    // Editar Tarea
     function openTaskEditModal(t){
       document.getElementById("et-id").textContent = `#${t.id}`;
       document.getElementById("et-title").value = t.title || "";
@@ -924,7 +1047,6 @@
       document.getElementById("et-priority").value = t.priority || "";
       document.getElementById("et-desc").value = t.description || t.longDescription || "";
       populateAssigneeSelect(document.getElementById("et-assignee"));
-      // Seleccionar por email si coincide con alguno
       const etAssignee = document.getElementById("et-assignee");
       if (t.assigneeId) {
         const opt = [...etAssignee.options].find(o => o.dataset.email && o.dataset.email.toLowerCase() === String(t.assigneeId).toLowerCase());
@@ -950,10 +1072,19 @@
       if ((description||"").length > 300){ showToast({type:"error", title:"Descripción muy larga", message:"Máximo 300 caracteres."}); return; }
       if (estimatedHours != null && estimatedHours > 4){ showToast({type:"error", title:"Máximo 4 horas"}); return; }
 
+      let fechaLimite = null;
+      const changeDue = confirm("¿Quieres actualizar la fecha límite? (Aceptar = sí)");
+      if (changeDue){
+        const v = await askDueDateYMD();
+        if (v == null){ showToast({type:"info", title:"Sin cambios de fecha"}); }
+        else fechaLimite = v;
+      }
+
       const payload = { 
         title, description, estimatedHours, priority,
         assigneeId: assigneeEmail || undefined, 
-        assigneeName: assigneeName || undefined
+        assigneeName: assigneeName || undefined,
+        ...(fechaLimite ? { fechaLimite } : {})
       };
       try{
         const res = await fetch(`${TASKS_API}/${taskId}`, {

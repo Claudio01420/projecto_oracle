@@ -601,11 +601,11 @@
       }
     } catch {}
 
-    // 2) Fallback: equipos donde participas
+    // 2) Fallback correcto: equipos donde eres miembro
     try {
-      const allMine = await fetch(`${EQUIPOS_API}?usuarioId=${encodeURIComponent(currentUserId)}`);
-      if (allMine.ok) {
-        const data2 = await allMine.json();
+      const resp = await fetch(`${EQUIPOS_API}/member/${encodeURIComponent(currentUserId)}`);
+      if (resp.ok) {
+        const data2 = await resp.json();
         renderOpciones(Array.isArray(data2) ? data2 : []);
         return;
       }
@@ -682,7 +682,9 @@
         <td><span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span></td>
         <td><div class="progress"><span style="width:${typeof p._progress==='number' ? p._progress : estadoToAvance(p.estado)}%"></span></div></td>
         <td>
-          <button class="btn-danger btn-xs" onclick="borrarProyecto(${p.id}, event)" title="Borrar proyecto" onkeydown="event.stopPropagation()">Borrar</button>
+          <button class="btn-danger btn-xs" onclick="borrarProyecto(${p.id}, event)" title="Borrar proyecto" onkeydown="event.stopPropagation()">
+            <span class="label">Borrar</span>
+          </button>
         </td>
       </tr>`;
     }).join("");
@@ -716,8 +718,12 @@
   }
   window.borrarProyecto = borrarProyecto;
 
+  // ======= Versión con manejo de errores mejorado =======
   async function crearProyecto() {
-    if (!currentUserId) { alert("No hay usuario logueado. Inicia sesión primero."); return; }
+    if (!currentUserId) { 
+      alert("No hay usuario logueado. Inicia sesión primero."); 
+      return; 
+    }
     const result = validarFormulario(true);
     if (!result.ok) {
       alert("Completa correctamente todos los campos:\n\n" + result.errors.join("\n"));
@@ -734,29 +740,48 @@
       creadorId: currentUserId
     };
 
+    const prevDisabled = $btnGuardar.disabled;
+    $btnGuardar.disabled = true;
+
     try {
       const res = await fetch(API_BASE, {
         method: "POST",
-        headers: { "Content-Type": "application/json" }, // <-- sin X-User-Id para evitar CORS si no está permitido
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(nuevo)
       });
-      if (res.ok) {
-        const creado = await res.json();
 
-        if (creado?.equipoId && !equipoNombreCache.has(creado.equipoId)) {
-          await fetchEquipoNombre(creado.equipoId);
-        }
-
-        proyectosCache.push(creado);
-        cerrarModal();
-        aplicarFiltros();
-        updateRowProgress(creado.id, 0);
-      } else {
-        const txt = await res.text().catch(()=> '');
-        alert("Error al crear el proyecto.\n" + (txt || "(sin detalle del servidor)"));
+      if (!res.ok) {
+        let msg = "Error al crear el proyecto.";
+        try {
+          const ct = res.headers.get("content-type") || "";
+          if (ct.includes("application/json")) {
+            const j = await res.json();
+            msg = j?.message || j?.error || JSON.stringify(j, null, 2);
+          } else {
+            const t = await res.text();
+            msg = t || msg;
+          }
+        } catch {}
+        if (res.status === 400) msg = "Datos inválidos. Revisa el formulario.\n\n" + msg;
+        if (res.status === 409) msg = "Conflicto: puede que exista un proyecto con datos similares.\n\n" + msg;
+        alert(msg);
+        return;
       }
+
+      const creado = await res.json();
+
+      if (creado?.equipoId && !equipoNombreCache.has(creado.equipoId)) {
+        await fetchEquipoNombre(creado.equipoId);
+      }
+
+      proyectosCache.push(creado);
+      cerrarModal();
+      aplicarFiltros();
+      updateRowProgress(creado.id, 0);
     } catch (e) {
       alert("No se pudo contactar al servidor.");
+    } finally {
+      $btnGuardar.disabled = prevDisabled;
     }
   }
 
@@ -999,6 +1024,7 @@
     acClose();
   });
 </script>
+
 
 </body>
 </html>
