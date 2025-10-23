@@ -223,25 +223,31 @@ public class ProyectoController {
         return resp;
     }
 
+    // Reemplaza el método existente @GetMapping("/mios/{usuarioId}/stats")
     @GetMapping("/mios/{usuarioId}/stats")
     public List<Map<String, Object>> myProjectsWithStats(@PathVariable Long usuarioId) {
-        List<Proyecto> proyectos = repo.findByCreadorId(usuarioId);
+        // Obtiene los proyectos "visibles" para el usuario: creados por él + de equipos donde es miembro
+        List<Proyecto> proyectos = visibles(usuarioId);
+
         return proyectos.stream().map(p -> {
             Map<String,Object> m = new HashMap<>();
             m.put("projectId", p.getId());
             m.put("projectName", p.getNombreProyecto());
             m.put("fechaInicio", p.getFechaInicio());
             m.put("fechaFin", p.getFechaFin());
+
             long total = tareaRepo.countByProjectId(p.getId());
             long completed = tareaRepo.countCompletedByProjectId(p.getId());
             double progress = total == 0 ? 0.0 : ((double) completed / (double) total) * 100.0;
             double progressRounded = Math.round(progress * 100.0) / 100.0;
+
             m.put("totalTasks", total);
             m.put("completedTasks", completed);
             m.put("progressPercent", progressRounded);
             return m;
         }).collect(Collectors.toList());
     }
+
 
     @GetMapping("/horas")
     public List<Map<String, Object>> horasPorProyecto() {
