@@ -50,7 +50,6 @@
     <symbol id="i-power" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.8" d="M12 2v8"/><path stroke-width="1.6" d="M5.5 7a8 8 0 1 0 13 0"/>
     </symbol>
-    <!-- Íconos para los botones de rol -->
     <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <circle cx="12" cy="8" r="4" stroke-width="1.6"/>
       <path d="M4 20a8 8 0 0 1 16 0" stroke-width="1.6"/>
@@ -187,7 +186,7 @@
     </div>
   </div>
 
-  <!-- Modal: Confirm (mejorado) -->
+  <!-- Modal: Confirm -->
   <div id="confirmModal" class="modal-backdrop" style="display:none;">
     <div class="card modal-card confirm-card">
       <div class="confirm-icon">
@@ -220,9 +219,6 @@ const sessionUser = JSON.parse(localStorage.getItem('user') || JSON.stringify(de
 if (!sessionUser.rol) sessionUser.rol = 'Scrum Master';
 localStorage.setItem('user', JSON.stringify(sessionUser));
 
-const userCircle = document.getElementById('userCircle');
-if (userCircle) userCircle.textContent = (sessionUser.nombre||'U').charAt(0).toUpperCase();
-
 /* ==================== UI helpers ==================== */
 function showToast(msg, type='error') {
   const toast = document.getElementById('toast');
@@ -235,7 +231,7 @@ function showToast(msg, type='error') {
 function openModal(el){ el.style.display = 'flex'; }
 function closeModal(el){ el.style.display = 'none'; }
 
-/* ======== Confirmación mejorada (eliminar) ======== */
+/* ======== Confirmación ======== */
 function showConfirmUI({title='¿Estás seguro?', message='Esta acción no se puede deshacer.', onConfirm}){
   const modal = document.getElementById('confirmModal');
   document.getElementById('confirmTitle').textContent = title;
@@ -264,7 +260,7 @@ function roleForHeader(rol) {
   return 'Desarrollador';
 }
 
-/* ==================== Caché & fetch usuarios con headers ==================== */
+/* ==================== Usuarios (cache) ==================== */
 const userCache = new Map();
 async function getUserById(id){
   if (userCache.has(id)) return userCache.get(id);
@@ -456,7 +452,7 @@ async function renderMembersRows(equipoId, miembros, miRol) {
     } catch(_) {}
 
     const isAdminRow = m.rol === 'ADMIN';
-    const canManage = miRol === 'ADMIN' && (!isAdminRow); // no editar al admin actual
+    const canManage = miRol === 'ADMIN' && (!isAdminRow);
 
     const isUser = (m.rol === 'USUARIO');
     const isSuper = (m.rol === 'USUARIO_SUPERIOR');
@@ -501,7 +497,7 @@ async function renderMembersRows(equipoId, miembros, miRol) {
 document.addEventListener('click', async (e) => {
   const t = e.target;
 
-  // Abrir modal de invitación
+  // abrir modal invitación
   if (t.matches('[data-open-invite]')) {
     currentInviteEquipoId = Number(t.getAttribute('data-eid'));
     const name = (t.getAttribute('data-name')||'');
@@ -510,7 +506,7 @@ document.addEventListener('click', async (e) => {
   }
   if (t === document.getElementById('btnCloseInvite')) closeModal(inviteModal);
 
-  // Toggle Ver/Ocultar miembros
+  // toggle ver/ocultar miembros
   const toggleBtn = t.closest('[data-toggle]');
   if (toggleBtn) {
     const card = t.closest('.team-card');
@@ -523,7 +519,7 @@ document.addEventListener('click', async (e) => {
     if (txt) txt.textContent = isOpen ? 'Ver miembros' : 'Ocultar';
   }
 
-  // Acciones
+  // acciones de fila
   if (t.dataset && t.dataset.action) {
     const equipoId = Number(t.dataset.eid);
 
@@ -568,7 +564,6 @@ document.addEventListener('click', async (e) => {
       await fetch(`${API.equipos}/${equipoId}/miembros/${usuarioId}/rol?rol=USUARIO_SUPERIOR`, { method: 'PUT' });
       await loadMyTeams();
     }
-    /* (Eliminado) if (t.dataset.action === 'make-admin') { ... } */
   }
 });
 
@@ -583,7 +578,14 @@ formInvite.addEventListener('submit', async (e) => {
   if (!email || !/^\S+@\S+\.\S+$/.test(email)) return showToast('Correo inválido');
   try {
     const resp = await fetch(`${API.equipos}/${currentInviteEquipoId}/invitar?email=${encodeURIComponent(email)}&rol=${encodeURIComponent(rol)}`, { method: 'POST' });
+
+    if (resp.status === 409) {
+      const text = await resp.text();
+      showToast(text || 'Esta persona ya fue invitada al equipo'); // <-- warning solicitado
+      return;
+    }
     if (!resp.ok) throw new Error('No se pudo invitar');
+
     closeModal(inviteModal);
     formInvite.reset();
     showToast('Invitación enviada', 'success');
