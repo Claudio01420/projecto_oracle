@@ -35,7 +35,7 @@ jobs:
       - name: Extract configuration files
         run: |
           cd MtdrSpring
-          wget https://objectstorage.mx-queretaro-1.oraclecloud.com/p/9d4QQeajBM0KpBMHJZXxz9dDo4Pj50TlCykE2_1HMkUwjVJAljLkJVcSnpFGm71i/n/axyqsveqbf4z/b/reacttodo-t9ldr/o/deployment_config.tgz
+          wget "${{ secrets.OCI_PAR_URL }}"
           tar -xzvf deployment_config.tgz
           source env.sh
           cat at.cfg | docker login -u "axyqsveqbf4z/a00835868@tec.mx" --password-stdin mx-queretaro-1.ocir.io
