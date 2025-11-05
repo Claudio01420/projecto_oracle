@@ -9,34 +9,62 @@
   <script src="/session.js"></script>
 
   <style>
-    .toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between}
-    .btn{padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:700}
+    /* Barra de herramientas y filtros */
+    .toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between}
+    .title-wrap{display:flex;align-items:center;gap:10px}
+    .pill{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+    .filters-bar{display:flex;gap:8px;align-items:center}
+    .seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:2px}
+    .seg button{border:0;background:transparent;padding:6px 10px;border-radius:10px;cursor:pointer;font-weight:700;color:var(--ink-muted)}
+    .seg button[aria-pressed="true"]{background:var(--brand);color:#fff}
+    .btn{padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-weight:700;color:var(--ink)}
     .btn.primary{background:var(--brand);color:#fff;border:none}
     .btn:disabled{opacity:.5;cursor:not-allowed}
-    .list{margin-top:14px;display:grid;gap:12px}
-    .item{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;display:flex;justify-content:space-between;gap:12px}
-    .item.unread{background:#fffdf5}
-    .meta{font-size:12px;color:#64748b}
-    .badge{font-size:12px;border:1px solid var(--line);padding:2px 8px;border-radius:999px;background:#fff}
+
+    /* Lista */
+    .list{margin-top:14px;display:grid;gap:10px}
+    .item{
+      display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;
+      background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;
+      transition: box-shadow .12s ease, transform .12s ease;
+    }
+    .item:hover{box-shadow:var(--shadow-elev); transform:translateY(-1px)}
+    .item.unread{background:var(--tint); box-shadow:inset 3px 0 0 var(--brand)}
+    .lead{font-weight:800;font-size:14px;color:var(--ink)}
+    .sub{font-size:13px;color:var(--ink)}
+    .meta{font-size:12px;color:var(--muted)}
+    .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .badge{font-size:11px;border:1px solid var(--line);padding:2px 8px;border-radius:999px;background:var(--card);color:var(--ink-muted)}
+    .badge.alt{background:var(--chip-bg)}
+    .icon-bubble{
+      width:30px;height:30px;border-radius:10px;background:var(--chip-bg);border:1px solid var(--line);
+      display:grid;place-items:center;color:var(--ico-color); margin-top:2px;
+    }
+    .icon-bubble.brand{color:var(--brand)}
     .row-actions{display:flex;gap:8px;align-items:center}
+    .row-actions .btn{padding:6px 10px}
+
+    /* Empty state */
+    .empty{border:1px dashed var(--line);border-radius:14px;background:var(--card);padding:28px;text-align:center;color:var(--muted)}
+    .empty strong{color:var(--ink)}
+
+    /* Toast */
     .toast{position:fixed;right:18px;bottom:18px;color:#fff;padding:10px 14px;border-radius:10px;opacity:.97;display:none;font-weight:800}
     .toast.show{display:block}
-    .toast.ok{background:#16a34a}     /* verde */
-    .toast.err{background:#dc2626}    /* rojo */
+    .toast.ok{background:#16a34a}
+    .toast.err{background:#dc2626}
   </style>
 </head>
 <body>
-  <!-- Sprite de iconos para el menú lateral -->
+  <!-- Sprite de iconos -->
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
     <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.6" d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/>
     </symbol>
     <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
-      <path d="M7 21v-2a4 4 0 0 1 3-3.87"/>
+      <path d="M17 21v-2a4 4 0 0 0-3-3.87"/><path d="M7 21v-2a4 4 0 0 1 3-3.87"/>
       <circle cx="12" cy="7" r="4"/>
-      <path d="M5.5 8a3.5 3.5 0 1 0 0 7"/>
-      <path d="M18.5 8a3.5 3.5 0 1 1 0 7"/>
+      <path d="M5.5 8a3.5 3.5 0 1 0 0 7"/><path d="M18.5 8a3.5 3.5 0 1 1 0 7"/>
     </symbol>
     <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.6" d="M3 7h6l2 2h10v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/>
@@ -54,8 +82,7 @@
     </symbol>
     <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <rect x="4" y="8" width="16" height="10" rx="4" stroke-width="1.6"/>
-      <circle cx="9" cy="13" r="1" stroke-width="1.6"/>
-      <circle cx="15" cy="13" r="1" stroke-width="1.6"/>
+      <circle cx="9" cy="13" r="1" stroke-width="1.6"/><circle cx="15" cy="13" r="1" stroke-width="1.6"/>
       <path stroke-width="1.6" d="M12 4v2m-7 6H4m16 0h1"/>
     </symbol>
     <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -69,6 +96,18 @@
     <symbol id="i-power" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.8" d="M12 2v8"/><path stroke-width="1.6" d="M5.5 7a8 8 0 1 0 13 0"/>
     </symbol>
+
+    <!-- Iconitos por tipo -->
+    <symbol id="i-invite" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-3-3.87"/><path d="M8 21v-2a4 4 0 0 1 3-3.87"/><circle cx="12" cy="7" r="4"/>
+      <path d="M20 8v6"/><path d="M23 11h-6"/>
+    </symbol>
+    <symbol id="i-task" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+    </symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+    </symbol>
   </svg>
 
   <!-- Topbar -->
@@ -76,10 +115,7 @@
     <div class="brand"><h1 class="logo-text">TMDV</h1></div>
     <div class="topbar-right">
       <div class="user-circle" title="Usuario">U</div>
-      <a href="/index.html" class="logout-btn">
-        <svg class="ico-sm" aria-hidden="true"><use href="#i-exit"/></svg>
-        <span>Salir</span>
-      </a>
+      <a href="/index.html" class="logout-btn"><span>Salir</span></a>
     </div>
   </header>
 
@@ -100,14 +136,21 @@
 
     <!-- Main -->
     <main class="main">
-      <section class="card card-soft">
+      <section class="card">
         <div class="toolbar">
-          <h1 class="h4" style="margin:0">Notificaciones</h1>
-          <div>
+          <div class="title-wrap">
+            <h1 class="h4" style="margin:0">Notificaciones</h1>
+            <span id="pillCounter" class="pill">—</span>
+          </div>
+          <div class="filters-bar">
+            <div class="seg" role="tablist" aria-label="Filtro">
+              <button id="segAll"   role="tab" aria-pressed="true">Todo</button>
+              <button id="segUnread" role="tab" aria-pressed="false">No leídas</button>
+              <button id="segInv"   role="tab" aria-pressed="false">Invitaciones</button>
+            </div>
             <button id="btnMarkAll" class="btn">Marcar todas como leídas</button>
           </div>
         </div>
-        <div class="meta" id="counter">—</div>
       </section>
 
       <section class="list" id="list">
@@ -137,37 +180,67 @@ const toast = (msg='Hecho', type='ok') => {
   t.classList.add(type === 'ok' ? 'ok' : 'err','show');
   setTimeout(()=>t.classList.remove('show'), 2200);
 };
-
 const authHeaders = () => {
   const h = {};
   if (!Number.isNaN(USER_ID)) h['X-User-Id'] = String(USER_ID);
   return h;
 };
 
-// intenta capturar token guardado en el mensaje
+// token en mensaje (invitaciones)
 function extractToken(msg){
   const s = String(msg || '');
   const m = s.match(/token[:=]\s*([A-Za-z0-9_\-]+)/i) || s.match(/\b([A-Za-z0-9_\-]{16,})\b/);
   return m ? m[1] : '';
 }
 
+// icono por tipo
+function iconFor(n){
+  const type = String(n.tipo || '').toUpperCase();
+  if (type === 'INVITACION_EQUIPO') return {use:'#i-invite', bubble:'brand'};
+  if (type.includes('TAREA') || /TASK|TAREA/i.test(type)) return {use:'#i-task', bubble:''};
+  return {use:'#i-info', bubble:''};
+}
+
+// filtro actual
+let FILTER = 'ALL'; // ALL | UNREAD | INV
+
+function applyFilter(list){
+  if (FILTER === 'UNREAD') return list.filter(n => n.leida === 'N');
+  if (FILTER === 'INV') return list.filter(n => String(n.tipo||'').toUpperCase() === 'INVITACION_EQUIPO');
+  return list;
+}
+
 function render(list){
   const $list = document.getElementById('list');
-  const $counter = document.getElementById('counter');
+  const $pill = document.getElementById('pillCounter');
+
+  const total = Array.isArray(list) ? list.length : 0;
+  const unread = (list || []).filter(n => n.leida === 'N').length;
+  $pill.textContent = `${total} · ${unread} sin leer`;
 
   if (!Array.isArray(list) || !list.length){
-    $list.innerHTML = `<div class="meta">No tienes notificaciones.</div>`;
-    $counter.textContent = '0 notificaciones';
+    $list.innerHTML = `
+      <div class="empty">
+        <strong>Todo en orden</strong><br/>
+        No tienes notificaciones por ahora.
+      </div>`;
     return;
   }
 
-  $counter.textContent = `${list.length} notificación(es)`;
-  $list.innerHTML = list.map(n => {
+  const filtered = applyFilter(list);
+
+  if (!filtered.length){
+    $list.innerHTML = `<div class="empty">No hay resultados para este filtro.</div>`;
+    return;
+  }
+
+  $list.innerHTML = filtered.map(n => {
     const isInvite = String(n.tipo || '').toUpperCase() === 'INVITACION_EQUIPO';
     const token = isInvite ? extractToken(n.mensaje) : '';
     const displayText = isInvite
       ? `Has sido invitado al equipo #${n.equipoId}.`
       : escapeHtml(n.mensaje || '');
+    const {use, bubble} = iconFor(n);
 
     const actions = isInvite
       ? `<div class="row-actions">
@@ -179,15 +252,21 @@ function render(list){
          : ``);
 
     return `
-      <div class="item ${n.leida==='N' ? 'unread' : ''}">
+      <article class="item ${n.leida==='N' ? 'unread' : ''}">
+        <div class="icon-bubble ${bubble}">
+          <svg class="ico" aria-hidden="true"><use href="${use}"/></svg>
+        </div>
         <div>
-          <div style="font-weight:800">${escapeHtml(n.titulo || 'Notificación')}</div>
-          <div class="meta">${fmt(n.fechaEnvio)}
-            ${n.prioridad ? (' · '+escapeHtml(n.prioridad)) : ''} ${n.tipo ? (' · '+escapeHtml(n.tipo)) : ''}</div>
-          <div style="margin-top:6px">${displayText}</div>
+          <div class="lead">${escapeHtml(n.titulo || 'Notificación')}</div>
+          <div class="sub" style="margin-top:4px">${displayText}</div>
+          <div class="row" style="margin-top:8px">
+            <span class="meta">${fmt(n.fechaEnvio)}</span>
+            ${n.prioridad ? (`<span class="badge">${escapeHtml(n.prioridad)}</span>`) : ''}
+            ${n.tipo ? (`<span class="badge alt">${escapeHtml(n.tipo)}</span>`) : ''}
+          </div>
         </div>
         ${actions}
-      </div>`;
+      </article>`;
   }).join('');
 
   // marcar leída (no invitación)
@@ -201,14 +280,14 @@ function render(list){
     };
   });
 
-  // aceptar invitación (muestra aviso verde con nombre del equipo)
+  // aceptar invitación
   document.querySelectorAll('[data-accept]').forEach(b=>{
     b.onclick = async () => {
       const tk = b.getAttribute('data-accept');
       const teamId = b.getAttribute('data-team-id');
       if (!tk) return;
 
-      // intenta conocer el nombre del equipo antes de aceptar
+      // nombre del equipo (opcional)
       let teamName = '';
       if (teamId) {
         try {
@@ -267,8 +346,17 @@ async function load(){
     const r2 = await fetch(`${NOTIF_API}`, { headers: { ...authHeaders() } });
     if (r2.ok){ render(await r2.json()); return; }
   }catch{}
-  document.getElementById('list').innerHTML = `<div class="meta">Error cargando notificaciones.</div>`;
-  document.getElementById('counter').textContent = '—';
+  document.getElementById('list').innerHTML = `<div class="empty">Error cargando notificaciones.</div>`;
+  document.getElementById('pillCounter').textContent = '—';
+}
+
+// UI filtros
+function setSeg(which){
+  FILTER = which;
+  document.getElementById('segAll').setAttribute('aria-pressed', which==='ALL');
+  document.getElementById('segUnread').setAttribute('aria-pressed', which==='UNREAD');
+  document.getElementById('segInv').setAttribute('aria-pressed', which==='INV');
+  load();
 }
 
 document.getElementById('btnMarkAll').onclick = async () => {
@@ -283,9 +371,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if ($userInitial && (user?.nombre || user?.email)) {
     $userInitial.textContent = String((user?.nombre?.[0] || user?.email?.[0] || 'U')).toUpperCase();
   }
+  document.getElementById('segAll').addEventListener('click', ()=>setSeg('ALL'));
+  document.getElementById('segUnread').addEventListener('click', ()=>setSeg('UNREAD'));
+  document.getElementById('segInv').addEventListener('click', ()=>setSeg('INV'));
   load();
 });
 </script>
 </body>
 </html>
-
