@@ -1,3 +1,5 @@
+// TareaController.java
+
 package com.springboot.MyTodoList.controller;
 
 import java.util.Collections;
@@ -5,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +36,7 @@ import com.springboot.MyTodoList.model.UsuarioEquipoId;
 import com.springboot.MyTodoList.repository.ProyectoRepository;
 import com.springboot.MyTodoList.repository.TareaRepository;
 import com.springboot.MyTodoList.repository.UsuarioEquipoRepository;
+import com.springboot.MyTodoList.service.NotificacionService;
 import com.springboot.MyTodoList.service.TareaService;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*", exposedHeaders = "*")
@@ -44,17 +46,22 @@ public class TareaController {
 
     private final TareaService tareaService;
     private final TareaRepository tareaRepository;
-    private final ProyectoRepository proyectoRepository;           // ✅ tu cambio
-    private final UsuarioEquipoRepository usuarioEquipoRepository; // ✅ tu cambio
+    private final ProyectoRepository proyectoRepository;
+    private final UsuarioEquipoRepository usuarioEquipoRepository;
+    private final NotificacionService notificacionService;
 
-    public TareaController(TareaService tareaService,
+    public TareaController(
+            TareaService tareaService,
             TareaRepository tareaRepository,
             ProyectoRepository proyectoRepository,
-            UsuarioEquipoRepository usuarioEquipoRepository) {
+            UsuarioEquipoRepository usuarioEquipoRepository,
+            NotificacionService notificacionService
+    ) {
         this.tareaService = tareaService;
         this.tareaRepository = tareaRepository;
         this.proyectoRepository = proyectoRepository;
         this.usuarioEquipoRepository = usuarioEquipoRepository;
+        this.notificacionService = notificacionService;
     }
 
     private String requireUserEmail(HttpServletRequest req) {
@@ -68,7 +75,15 @@ public class TareaController {
         return email.trim();
     }
 
-    // Helper: leer X-User-Id (opcional). Si no llega, devolvemos null.
+    // versión no-exigente (puede regresar null)
+    private String readUserEmail(HttpServletRequest req) {
+        String email = req.getHeader("X-User-Email");
+        if (email == null || email.trim().isEmpty()) {
+            email = req.getParameter("email");
+        }
+        return (email == null || email.trim().isEmpty()) ? null : email.trim();
+    }
+
     private Long readUserId(HttpServletRequest req) {
         String idH = req.getHeader("X-User-Id");
         if (idH == null || idH.isBlank()) {
@@ -81,7 +96,6 @@ public class TareaController {
         }
     }
 
-    // Helper: checar membresía del equipo del proyecto
     private boolean isMemberOfProjectTeam(Long userId, Long projectId) {
         if (userId == null || projectId == null) {
             return true; // modo dev: permitir si no hay userId
@@ -97,7 +111,6 @@ public class TareaController {
         return usuarioEquipoRepository.existsById(new UsuarioEquipoId(userId, equipoId));
     }
 
-    // ===== CREATE (fusionado: ahora NO forzamos asignado; por defecto owner si no viene) =====
     @PostMapping("/tasks")
     public ResponseEntity<?> createTask(HttpServletRequest req, @Valid @RequestBody TaskCreateDto dto) {
         if (dto.projectId == null || dto.projectId < 1) {
@@ -108,17 +121,20 @@ public class TareaController {
         }
         String ownerEmail = requireUserEmail(req);
 
-        // Si no vino asignado, poner al creador como asignado
         if (dto.assigneeId == null || dto.assigneeId.isBlank()) {
             dto.assigneeId = ownerEmail;
         }
-        // Nombre del asignado es opcional (lo puedes resolver en front con /usuarios/public/{id})
         if (dto.assigneeName == null || dto.assigneeName.isBlank()) {
             dto.assigneeName = null;
         }
 
-        // Crear guardando quién la creó (userEmail)
         Tarea created = tareaService.createFromDto(dto, ownerEmail);
+
+        // Notificar solo al asignado
+        try {
+            notificacionService.notificarNuevaTareaAAsignado(dto.projectId, created, ownerEmail);
+        } catch (Exception ignored) {}
+
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
@@ -127,7 +143,7 @@ public class TareaController {
             @RequestParam(name = "projectId", required = false) Long projectId,
             @RequestParam(name = "sprintId", required = false) String sprintId,
             @RequestParam(name = "projectName", required = false) String projectName) {
-        // 1) Si NO viene X-User-Email y SÍ viene projectName -> vista COMPARTIDA del proyecto (todas las tareas)
+
         String emailHeader = req.getHeader("X-User-Email");
         if ((emailHeader == null || emailHeader.isBlank()) && projectName != null && !projectName.isBlank()) {
             Optional<Proyecto> p = proyectoRepository.findFirstByNombreProyectoIgnoreCase(projectName);
@@ -135,7 +151,7 @@ public class TareaController {
                 return ResponseEntity.ok(Collections.emptyList());
             }
             Long resolvedProjectId = p.get().getId();
-            Long userId = readUserId(req); // opcional; si viene lo usamos para validar membresía
+            Long userId = readUserId(req); // opcional
             if (!isMemberOfProjectTeam(userId, resolvedProjectId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No eres miembro del equipo del proyecto");
             }
@@ -143,7 +159,6 @@ public class TareaController {
             return ResponseEntity.ok(tasks);
         }
 
-        // 1b) Modo compartido por projectId (compatibilidad existente)
         if ((emailHeader == null || emailHeader.isBlank()) && projectId != null) {
             Long userId = readUserId(req); // opcional
             if (!isMemberOfProjectTeam(userId, projectId)) {
@@ -153,10 +168,8 @@ public class TareaController {
             return ResponseEntity.ok(tasks);
         }
 
-        // 2) Modo clásico: vista del dueño (requiere X-User-Email)
         String owner = requireUserEmail(req);
 
-        // 2a) Filtro por nombre de proyecto (nuevo)
         if (projectName != null && !projectName.isBlank()) {
             Optional<Proyecto> p = proyectoRepository.findFirstByNombreProyectoIgnoreCase(projectName);
             if (p.isPresent()) {
@@ -169,7 +182,6 @@ public class TareaController {
             }
         }
 
-        // 2b) Ramas existentes por id (compatibilidad)
         if (projectId != null && sprintId != null && !sprintId.isBlank()) {
             return ResponseEntity.ok(
                     tareaRepository.findByAssigneeIdAndProjectIdAndSprintIdOrderByCreatedAtDesc(owner, projectId, sprintId)
@@ -197,10 +209,31 @@ public class TareaController {
     }
 
     @DeleteMapping("/tasks/{id}")
-    public ResponseEntity<Void> delete(HttpServletRequest req, @PathVariable Long id) {
-        String owner = requireUserEmail(req);
-        tareaRepository.findByIdAndAssigneeId(id, owner)
-                .orElseThrow(() -> new NoSuchElementException("Task not found or not owned by user"));
+    public ResponseEntity<?> delete(HttpServletRequest req, @PathVariable Long id) {
+        // 1) Buscar la tarea (si no existe -> 404)
+        Tarea t = tareaRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Task not found"));
+
+        // 2) Quien solicita
+        String requester = readUserEmail(req);
+        if (requester == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Falta X-User-Email o ?email=");
+        }
+
+        // 3) Permitir si es el asignado o el creador
+        String assignee = t.getAssigneeId() == null ? "" : t.getAssigneeId();
+        String creator  = t.getUserEmail()  == null ? "" : t.getUserEmail();
+
+        boolean isAssignee = requester.equalsIgnoreCase(assignee);
+        boolean isCreator  = requester.equalsIgnoreCase(creator);
+
+        if (!isAssignee && !isCreator) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("No puedes borrar esta tarea: no eres el asignado ni el creador.");
+        }
+
+        // 4) Borrar
         tareaService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -211,11 +244,9 @@ public class TareaController {
         tareaRepository.findByIdAndAssigneeId(id, owner)
                 .orElseThrow(() -> new NoSuchElementException("Task not found or not owned by user"));
 
-        // (conservamos tu validación de projectId > 0)
         if (dto != null && dto.projectId != null && dto.projectId < 1) {
             throw new IllegalArgumentException("projectId debe ser > 0");
         }
-        // (ya NO forzamos assigneeId = owner; permitimos reasignar en PUT si el dueño lo edita)
         return tareaService.updateTask(id, dto);
     }
 
@@ -227,7 +258,6 @@ public class TareaController {
         return tareaService.updateStatus(id, body.status);
     }
 
-    // TareaController.java  (método /api/tasks/productivity) — conservando tu lógica
     @GetMapping("/tasks/productivity")
     public ResponseEntity<Map<String, Object>> productivity(HttpServletRequest req) {
         String owner = requireUserEmail(req);
@@ -243,7 +273,6 @@ public class TareaController {
                 .mapToDouble(t -> t.getEstimatedHours() != null ? t.getEstimatedHours() : 0.0)
                 .sum();
 
-        // ⬇️ SOLO sumar horas reales de tareas terminadas
         double realHours = tasks.stream()
                 .filter(t -> (t.getStatus() != null && t.getStatus().equalsIgnoreCase("done")) 
                         || t.getCompletedAt() != null)
@@ -277,7 +306,7 @@ public class TareaController {
         resp.put("totalAssigned", totalAssigned);
         resp.put("totalCompleted", totalCompleted);
         resp.put("plannedHours", plannedHours);
-        resp.put("realHours", realHours); // ⬅️ ya solo de “Hecho”
+        resp.put("realHours", realHours);
         resp.put("avgProgress", avgProgress);
         resp.put("tasksRatio", avgProgress);
         resp.put("hoursRatio", hoursRatio);
@@ -302,3 +331,5 @@ public class TareaController {
         return resp;
     }
 }
+
+
