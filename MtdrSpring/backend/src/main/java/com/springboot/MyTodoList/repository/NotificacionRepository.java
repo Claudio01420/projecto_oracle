@@ -1,10 +1,13 @@
-package com.springboot.MyTodoList.repository;
+// NotificacionRepository.java  (REEMPLAZA COMPLETO)
 
-import com.springboot.MyTodoList.model.Notificacion;
-import org.springframework.data.jpa.repository.JpaRepository;
+package com.springboot.MyTodoList.repository;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.springboot.MyTodoList.model.Notificacion;
 
 public interface NotificacionRepository extends JpaRepository<Notificacion, Long> {
 
@@ -14,10 +17,14 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Long
 
     List<Notificacion> findByUsuarioIdAndLeidaOrderByFechaEnvioDesc(Long usuarioId, String leida);
 
-    // <- este era el que te faltaba para el service
     List<Notificacion> findByUsuarioIdAndLeida(Long usuarioId, String leida);
 
     long countByUsuarioIdAndLeida(Long usuarioId, String leida);
 
     Optional<Notificacion> findTopByUsuarioIdAndLeidaOrderByFechaEnvioDesc(Long usuarioId, String leida);
+
+    // ==== NUEVO: helpers para borrar ====
+    void deleteByIdAndUsuarioId(Long id, Long usuarioId);
+
+    long deleteByUsuarioId(Long usuarioId);
 }
