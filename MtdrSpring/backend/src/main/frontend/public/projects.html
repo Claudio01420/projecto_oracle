@@ -57,103 +57,30 @@
     </symbol>
   </svg>
 
-  <style>
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); display: none; justify-content: center; align-items: center; z-index: 999; }
-    .modal { background: #fff; border-radius: 18px; padding: 20px 26px; width: 480px; max-width: 95%; box-shadow: 0 8px 32px rgba(0,0,0,.25); animation: fadeIn .2s ease-in-out; }
-    @keyframes fadeIn { from{opacity:0; transform: translateY(-10px);} to{opacity:1; transform: translateY(0);} }
-    .modal-buttons { display:flex; gap:10px; margin-top:14px; justify-content:flex-end }
-    .chip.active { background: var(--brand); color:#fff; font-weight:700; box-shadow: 0 2px 8px rgba(225,38,28,.25); }
-
-    .tasks-box { margin-top:14px; border:1px solid var(--line); border-radius:12px; padding:12px; background:#fafbfc; }
-    .tasks-box h3 { margin:4px 0 10px 0; font-size:15px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
-    .task-item { border:1px solid var(--line); background:#fff; border-radius:10px; padding:8px 10px; margin:6px 0; display:flex; justify-content:space-between; gap:10px; }
-    .task-title { font-weight:700; }
-    .task-meta { font-size:12px; color:#64748b; }
-    .badge { font-size:12px; border:1px solid var(--line); padding:2px 8px; border-radius:999px; background:#fff; }
-    .badge.status.todo{ background:#fff4f3 }
-    .badge.status.doing{ background:#fff8e6 }
-    .badge.status.done{ background:#e9fff0 }
-
-    .detail-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border-radius:12px; background: linear-gradient(180deg,#ffffff 0%,#fafbfc 100%); border:1px solid var(--line); margin-bottom:10px; }
-    .detail-head .title { font-weight:900; font-size:16px; }
-    .detail-actions { display:flex; gap:8px; align-items:center }
-
-    .btn-ghost { display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border-radius:12px; background:#fff; color:var(--dark); border:1px solid var(--line-2); font-weight:800; font-size:13px; text-decoration:none; cursor:pointer; box-shadow: var(--shadow-sm); transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease, background .15s ease; }
-    .btn-ghost:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); border-color:#d9dde3; }
-    .btn-ghost[disabled] { opacity:.5; pointer-events:none }
-    .btn-ghost .ico { width:16px; height:16px; display:inline-block; }
-
-    .table tbody tr { cursor: pointer; }
-
-    /* === Validación de formulario === */
-    .field.invalid input, .field.invalid select, .field.invalid textarea { border-color:#E1261C; background:#fff6f5; }
-    .field .msg { display:none; font-size:12px; color:#E1261C; margin-top:6px; }
-    .field.invalid .msg { display:block; }
-
-    /* ===== Autocomplete ===== */
-    .search-wrap { position:relative; }
-    .ac-wrap { position:absolute; left:0; right:0; top:calc(100% + 6px); background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow: var(--shadow-md, 0 6px 24px rgba(16,24,40,.08)); display:none; z-index: 500; }
-    .ac-wrap.open { display:block; }
-    .ac-head { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--line); font-size:12px; color:#6b7280; }
-    .ac-list { max-height:260px; overflow:auto; padding:4px; margin:0; list-style:none; }
-    .ac-item { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; padding:8px 10px; border-radius:10px; cursor:pointer; }
-    .ac-item:hover { background:#f8fafc; }
-    .ac-item.active { outline:2px solid #e5e7eb; background:#f1f5f9; }
-    .ac-title { font-weight:800; margin-bottom:2px; }
-    .ac-sub  { font-size:12px; color:#6b7280; }
-    .ac-chip { font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); background:#fff; white-space:nowrap; }
-  </style>
 </head>
 
 <body>
+  <!-- TOPBAR -->
   <header class="topbar">
-    <div class="brand">
-      <h1 class="logo-text">TMDV</h1>
-    </div>
+    <div class="brand"><h1 class="logo-text">TMDV</h1></div>
     <div class="topbar-right">
       <div class="user-circle" title="Usuario">U</div>
-      <a href="/index.html" class="logout-btn">
-        <svg class="ico-sm" aria-hidden="true"><use href="#i-exit"/></svg>
-        <span>Salir</span>
-      </a>
+      <a href="/index.html" class="logout-btn">Salir</a>
     </div>
   </header>
 
   <div class="app">
+    <!-- SIDEBAR -->
     <aside class="aside">
       <nav class="menu">
-        <a class="mi" href="/dashboard.html">
-          <svg class="ico"><use href="#i-dashboard"/></svg>
-          <span>Dashboard</span>
-        </a>
-        <a class="mi" href="/Equipos.html">
-          <svg class="ico"><use href="#i-users"/></svg>
-          <span>Equipos</span>
-        </a>
-        <a class="mi active" href="#">
-          <svg class="ico"><use href="#i-folder"/></svg>
-          <span>Proyectos</span>
-        </a>
-        <a class="mi" href="/tarea.html">
-          <svg class="ico"><use href="#i-board"/></svg>
-          <span>Tareas</span>
-        </a>
-        <a class="mi" href="/KPIs.html">
-          <svg class="ico"><use href="#i-chart"/></svg>
-          <span>KPIs</span>
-        </a>
-        <a class="mi" href="/chatbot.html">
-          <svg class="ico"><use href="#i-bot"/></svg>
-          <span>Chatbot</span>
-        </a>
-        <a class="mi" href="/notifications.html">
-          <svg class="ico"><use href="#i-bell"/></svg>
-          <span>Notificaciones</span>
-        </a>
-        <a class="mi" href="/settings.html">
-          <svg class="ico"><use href="#i-gear"/></svg>
-          <span>Ajustes</span>
-        </a>
+        <a class="mi" href="/dashboard.html"><svg class="ico"><use href="#i-dashboard"/></svg><span>Dashboard</span></a>
+        <a class="mi" href="/Equipos.html"><svg class="ico"><use href="#i-users"/></svg><span>Equipos</span></a>
+        <a class="mi active" href="#"><svg class="ico"><use href="#i-folder"/></svg><span>Proyectos</span></a>
+        <a class="mi" href="/tarea.html"><svg class="ico"><use href="#i-board"/></svg><span>Tareas</span></a>
+        <a class="mi" href="/KPIs.html"><svg class="ico"><use href="#i-chart"/></svg><span>KPIs</span></a>
+        <a class="mi" href="/chatbot.html"><svg class="ico"><use href="#i-bot"/></svg><span>Chatbot</span></a>
+        <a class="mi" href="/notifications.html"><svg class="ico"><use href="#i-bell"/></svg><span>Notificaciones</span></a>
+        <a class="mi" href="/settings.html"><svg class="ico"><use href="#i-gear"/></svg><span>Ajustes</span></a>
       </nav>
     </aside>
 
@@ -272,7 +199,6 @@
         <select id="f-equipo">
           <option value="">Cargando equipos…</option>
         </select>
-        <small id="equipos-help" class="muted">Por defecto verás equipos donde eres ADMIN; si no hay, se mostrarán equipos donde participas.</small>
         <div class="msg" id="msg-equipo">Selecciona un equipo.</div>
       </div>
 
@@ -298,733 +224,658 @@
   <div id="confirm-root"></div>
 
 <script>
-  // ===== Sesión
-  const user = JSON.parse(localStorage.getItem("user") || "null");
-  const $userInitial = document.querySelector(".user-circle");
-  if ($userInitial && (user?.nombre || user?.email)) {
-    const ch = (user?.nombre?.trim()?.[0] ?? user?.email?.trim()?.[0] ?? "U").toUpperCase();
-    $userInitial.textContent = ch;
+ // ===== Sesión / Iniciales de usuario =====
+const user = JSON.parse(localStorage.getItem("user") || "null");
+const $userInitial = document.querySelector(".user-circle");
+if ($userInitial && (user?.nombre || user?.email)) {
+  const ch = (user?.nombre?.trim()?.[0] ?? user?.email?.trim()?.[0] ?? "U").toUpperCase();
+  $userInitial.textContent = ch;
+}
+
+// ===== DOM refs =====
+const $tbody = document.getElementById("projects-body");
+const $buscar = document.getElementById("buscar");
+const $filtro = document.getElementById("filtro");
+const $resumen = document.getElementById("resumen-lista");
+const $chips = document.getElementById("chips");
+const $confirmRoot = document.getElementById("confirm-root");
+
+// Detalle
+const $dNombre = document.getElementById("d-nombre");
+const $dDesc   = document.getElementById("d-descripcion");
+const $dEquipo = document.getElementById("d-equipo");
+const $dIni    = document.getElementById("d-inicio");
+const $dFin    = document.getElementById("d-fin");
+const $dEstado = document.getElementById("d-estado");
+const $dAvance = document.getElementById("d-avance");
+const $btnIrHomework = document.getElementById("btn-ir-homework");
+
+// Panel de tareas
+const $tasksBox   = document.getElementById("tasks-box");
+const $tasksList  = document.getElementById("tasks-list");
+const $tasksCount = document.getElementById("tasks-count");
+
+// Modal Proyecto
+const $modalOverlay = document.getElementById("modal-overlay");
+const $btnNuevo  = document.getElementById("btn-nuevo");
+const $btnGuardar= document.getElementById("btn-guardar");
+const $btnCancel = document.getElementById("btn-cancelar");
+
+// Form Proyecto inputs
+const $fNombre = document.getElementById("f-nombre");
+const $fDesc   = document.getElementById("f-desc");
+const $fEquipo = document.getElementById("f-equipo");
+const $fInicio = document.getElementById("f-inicio");
+const $fFin    = document.getElementById("f-fin");
+
+// Form Proyecto fields
+const $fNombreField = document.getElementById("f-nombre-field");
+const $fDescField   = document.getElementById("f-desc-field");
+const $fEquipoField = document.getElementById("f-equipo-field");
+const $fInicioField = document.getElementById("f-inicio-field");
+const $fFinField    = document.getElementById("f-fin-field");
+
+// Picker / Autocomplete DOM (si lo usas más adelante)
+const $acWrap  = document.getElementById("ac-wrap");
+const $acList  = document.getElementById("ac-list");
+const $acCount = document.getElementById("ac-count");
+
+// ===== API =====
+const currentUserId = user?.id ?? user?.usuarioId ?? null;
+const currentUserEmail = user?.email || "";
+const API_BASE    = "http://localhost:8080/proyectos";
+const TASKS_API   = "http://localhost:8080/api/tasks";
+const EQUIPOS_API = "http://localhost:8080/equipos";
+const UE_API      = "http://localhost:8080/usuarios-equipos";
+
+let proyectosCache = [];
+let selectedProjectId = null;
+const equipoNombreCache = new Map();
+
+// ===== Helpers API y UI =====
+async function fetchEquipoNombre(id){
+  if (!id) return "-";
+  if (equipoNombreCache.has(id)) return equipoNombreCache.get(id);
+  try{
+    const r = await fetch(`${EQUIPOS_API}/${encodeURIComponent(id)}`);
+    if (!r.ok) throw 0;
+    const data = await r.json();
+    const name = data?.nombreEquipo || (`Equipo #${id}`);
+    equipoNombreCache.set(id, name);
+    return name;
+  }catch{
+    const fallback = `Equipo #${id}`;
+    equipoNombreCache.set(id, fallback);
+    return fallback;
   }
+}
 
-  // ===== DOM
-  const $tbody = document.getElementById("projects-body");
-  const $buscar = document.getElementById("buscar");
-  const $filtro = document.getElementById("filtro");
-  const $resumen = document.getElementById("resumen-lista");
-  const $chips = document.getElementById("chips");
-  const $confirmRoot = document.getElementById("confirm-root");
+function goToHomework(id){
+  if (!id) return;
+  window.location.href = `/homework-proyect.html?id=${encodeURIComponent(id)}`;
+}
 
-  // Detalle
-  const $dNombre = document.getElementById("d-nombre");
-  const $dDesc   = document.getElementById("d-descripcion");
-  const $dEquipo = document.getElementById("d-equipo");
-  const $dIni    = document.getElementById("d-inicio");
-  const $dFin    = document.getElementById("d-fin");
-  const $dEstado = document.getElementById("d-estado");
-  const $dAvance = document.getElementById("d-avance");
-  const $btnIrHomework = document.getElementById("btn-ir-homework");
-
-  // Panel de tareas
-  const $tasksBox   = document.getElementById("tasks-box");
-  const $tasksList  = document.getElementById("tasks-list");
-  const $tasksCount = document.getElementById("tasks-count");
-
-  // Modal Proyecto
-  const $modalOverlay = document.getElementById("modal-overlay");
-  const $btnNuevo  = document.getElementById("btn-nuevo");
-  const $btnGuardar= document.getElementById("btn-guardar");
-  const $btnCancel = document.getElementById("btn-cancelar");
-
-  // Form Proyecto inputs
-  const $fNombre = document.getElementById("f-nombre");
-  const $fDesc   = document.getElementById("f-desc");
-  const $fEquipo = document.getElementById("f-equipo");
-  const $fInicio = document.getElementById("f-inicio");
-  const $fFin    = document.getElementById("f-fin");
-
-  // Form Proyecto fields
-  const $fNombreField = document.getElementById("f-nombre-field");
-  const $fDescField   = document.getElementById("f-desc-field");
-  const $fEquipoField = document.getElementById("f-equipo-field");
-  const $fInicioField = document.getElementById("f-inicio-field");
-  const $fFinField    = document.getElementById("f-fin-field");
-
-  // Picker / Autocomplete DOM
-  const $acWrap  = document.getElementById("ac-wrap");
-  const $acList  = document.getElementById("ac-list");
-  const $acCount = document.getElementById("ac-count");
-
-  // API
-  const currentUserId = user?.id ?? user?.usuarioId ?? null;   // <-- robusto
-  const currentUserEmail = user?.email || "";
-  const API_BASE    = "http://localhost:8080/proyectos";
-  const TASKS_API   = "http://localhost:8080/api/tasks";
-  const EQUIPOS_API = "http://localhost:8080/equipos";
-  const UE_API      = "http://localhost:8080/usuarios-equipos";
-
-  let proyectosCache = [];
-  let selectedProjectId = null;
-
-  /* === Caché de nombres de equipo === */
-  const equipoNombreCache = new Map();
-  async function fetchEquipoNombre(id){
-    if (!id) return "-";
-    if (equipoNombreCache.has(id)) return equipoNombreCache.get(id);
-    try{
-      const r = await fetch(`${EQUIPOS_API}/${encodeURIComponent(id)}`);
-      if (!r.ok) throw 0;
-      const data = await r.json();
-      const name = data?.nombreEquipo || (`Equipo #${id}`);
-      equipoNombreCache.set(id, name);
-      return name;
-    }catch{
-      const fallback = `Equipo #${id}`;
-      equipoNombreCache.set(id, fallback);
-      return fallback;
-    }
+function estadoToChipClass(estado) {
+  if (!estado) return "chip";
+  switch (estado.toLowerCase()) {
+    case "pendiente":  return "chip state-pend";
+    case "en curso":   return "chip state-run";
+    case "finalizado": return "chip state-done";
+    default:           return "chip";
   }
+}
+function estadoToAvance(estado) {
+  switch ((estado || "").toLowerCase()) {
+    case "pendiente":  return 0;
+    case "en curso":   return 50;
+    case "finalizado": return 100;
+    default:           return 0;
+  }
+}
+function formatFecha(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
+}
 
-  /* 🔁 Navegar a /homework-proyect.html */
-  function goToHomework(id){
-    if (!id) return;
-    const url = `${window.location.origin}/homework-proyect.html?id=${encodeURIComponent(id)}`;
-    window.location.href = url;
-  }
-
-  function estadoToChipClass(estado) {
-    if (!estado) return "chip";
-    switch ((estado || "").toLowerCase()) {
-      case "pendiente":  return "chip state-pend";
-      case "en curso":   return "chip state-run";
-      case "finalizado": return "chip state-done";
-      default:           return "chip";
-    }
-  }
-  function estadoToAvance(estado) {
-    switch ((estado || "").toLowerCase()) {
-      case "pendiente":  return 0;
-      case "en curso":   return 50;
-      case "finalizado": return 100;
-      default:           return 0;
-    }
-  }
-  function formatFecha(iso) {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    return isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
-  }
-
-  /* ========= PROGRESO REAL POR TAREAS ========= */
-  async function fetchTasksForProject(projectId){
-    try{
-      const res = await fetch(`${TASKS_API}?projectId=${encodeURIComponent(projectId)}`, {
-        headers: { "X-User-Id": String(currentUserId ?? "") } // lectura compartida
-      });
-      if (!res.ok) return [];
-      return await res.json();
-    }catch{ return []; }
-  }
-  function calcProgressFromTasks(tasks){
-    const total = tasks.length;
-    const done = tasks.filter(t => {
-      const st = (t.status || "").toLowerCase();
-      return st === "done" || st === "hecho" || t.completedAt != null;
-    }).length;
-    const pct = total === 0 ? 0 : Math.round((done/total)*100);
-    return { total, done, pct };
-  }
-
-  async function persistProjectEstadoFromPct(p, pct){
-    if (!p || !p.id) return;
-    const nuevo = (pct===0) ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
-    if (p.estado === nuevo) return;
-
-    const payload = {
-      id: p.id,
-      nombreProyecto: p.nombreProyecto,
-      descripcion: p.descripcion,
-      estado: nuevo,
-      equipoId: p.equipoId,
-      fechaInicio: p.fechaInicio || null,
-      fechaFin: p.fechaFin || null,
-      ultimoAcceso: p.ultimoAcceso || null
-    };
-    try{
-      const res = await fetch(`${API_BASE}/${p.id}`, {
-        method:"PUT",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok){
-        const updated = await res.json();
-        p.estado = updated.estado;
-      }
-    }catch(e){ /* no-op */ }
-  }
-
-  function updateRowProgress(projectId, pct){
-    const row = $tbody.querySelector(`tr[data-id="${projectId}"]`);
-    if (!row) return;
-    const bar = row.querySelector(".progress > span");
-    if (bar) bar.style.width = `${pct}%`;
-    const estChip = row.querySelector("td:nth-child(4) .chip");
-    if (estChip){
-      const nuevo = pct===0 ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
-      estChip.textContent = nuevo;
-      estChip.className = estadoToChipClass(nuevo);
-    }
-  }
-
-  async function refreshProgressForAllProjects(){
-    const promises = proyectosCache.map(async (p) => {
-      const tasks = await fetchTasksForProject(p.id);
-      const { pct } = calcProgressFromTasks(tasks);
-      p._progress = pct;
-      updateRowProgress(p.id, pct);
-      await persistProjectEstadoFromPct(p, pct);
+async function fetchTasksForProject(projectId){
+  try{
+    const res = await fetch(`${TASKS_API}?projectId=${encodeURIComponent(projectId)}`, {
+      headers: { "X-User-Id": String(currentUserId ?? "") }
     });
-    await Promise.all(promises);
-    aplicarFiltros();
+    if (!res.ok) return [];
+    return await res.json();
+  }catch{ return []; }
+}
+function calcProgressFromTasks(tasks){
+  const total = tasks.length;
+  const done = tasks.filter(t => (t.status || "").toLowerCase() === "done" || t.completedAt != null).length;
+  const pct = total === 0 ? 0 : Math.round((done/total)*100);
+  return { total, done, pct };
+}
+async function persistProjectEstadoFromPct(p, pct){
+  if (!p || !p.id) return;
+  const nuevo = (pct===0) ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
+  if (p.estado === nuevo) return;
+  const payload = { ...p, estado: nuevo };
+  try{ await fetch(`${API_BASE}/${p.id}`, {method:"PUT", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(payload)}); }
+  catch{}
+}
+
+// Actualiza solo la fila de la tabla
+function updateRowProgress(projectId, pct){
+  const row = $tbody.querySelector(`tr[data-id="${projectId}"]`);
+  if (!row) return;
+  const bar = row.querySelector(".progress > span");
+  if (bar) { bar.style.width = `${pct}%`; bar.classList.remove('loading'); }
+  const estChip = row.querySelector("td:nth-child(4) .chip");
+  if (estChip){
+    const nuevo = pct===0 ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
+    estChip.textContent = nuevo;
+    estChip.className = estadoToChipClass(nuevo);
   }
+}
 
-  function setDetalle(p) {
-    if (!p) return;
-    selectedProjectId = p.id || null;
-    if ($btnIrHomework) $btnIrHomework.disabled = !selectedProjectId;
+// Carga tareas y progreso del panel derecho
+async function loadProjectTasksAndProgress(projectId){
+  $tasksBox.style.display = "block";
+  $tasksList.innerHTML = `<div class="muted">Cargando tareas…</div>`;
+  $tasksCount.textContent = '';
 
-    $dNombre.textContent = p.nombreProyecto ?? "—";
-    $dDesc.textContent   = p.descripcion ?? "—";
+  const tasks = await fetchTasksForProject(projectId);
 
-    const cached = p.equipoId ? (equipoNombreCache.get(p.equipoId) || null) : null;
-    $dEquipo.textContent = cached ?? (p.equipoId ?? "—");
-    if (p.equipoId && !cached){
-      fetchEquipoNombre(p.equipoId).then(name => {
-        if (selectedProjectId === p.id) $dEquipo.textContent = name;
-      });
-    }
-
-    $dIni.textContent    = formatFecha(p.fechaInicio);
-    $dFin.textContent    = formatFecha(p.fechaFin);
-
-    $dEstado.innerHTML   = `<span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span>`;
-    $dAvance.style.width = (typeof p._progress === "number" ? p._progress : estadoToAvance(p.estado)) + "%";
-
-    loadProjectTasksAndProgress(p.id);
-  }
-
-  if ($btnIrHomework) {
-    $btnIrHomework.addEventListener("click", () => {
-      if (!selectedProjectId) return;
-      goToHomework(selectedProjectId);
-    });
-  }
-
-  async function loadProjectTasksAndProgress(projectId){
-    $tasksBox.style.display = "block";
-    $tasksList.innerHTML = `<div class="muted">Cargando tareas…</div>`;
-    $tasksCount.textContent = '';
-
-    const tasks = await fetchTasksForProject(projectId);
-
-    if (!tasks.length) {
-      $tasksList.innerHTML = `<div class="muted">Este proyecto no tiene tareas.</div>`;
-      $tasksCount.textContent = `0 tareas`;
-    } else {
-      $tasksList.innerHTML = tasks.map(t => {
-        const asig = t.assigneeName && t.assigneeName.trim()
-          ? t.assigneeName
-          : (t.assigneeId || '-'); // respaldo por email/ID
-        return `
-          <div class="task-item">
-            <div>
-              <div class="task-title">${escapeHtml(t.title || '')}</div>
-              <div class="task-meta">
-                Prio: ${escapeHtml(t.priority||'')}
-                · Est: ${t.estimatedHours??'-'}h
-                · Asig: ${escapeHtml(asig)}
-                ${t.realHours?(' · Real: '+t.realHours+'h'):''}
-                ${t.fechaLimite?(' · Vence: '+new Date(t.fechaLimite).toLocaleDateString()):''}
-              </div>
-            </div>
-            <div><span class="badge status ${escapeHtml((t.status||'todo').toLowerCase())}">${escapeHtml((t.status||'todo'))}</span></div>
-          </div>
-        `;
-      }).join('');
-      $tasksCount.textContent = `${tasks.length} tarea(s)`;
-    }
-
-    const { pct } = calcProgressFromTasks(tasks);
-    $dAvance.style.width = `${pct}%`;
-    const nuevoEstado = pct===0 ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
-    $dEstado.innerHTML = `<span class="${estadoToChipClass(nuevoEstado)}">${nuevoEstado}</span>`;
-
-    updateRowProgress(projectId, pct);
-
-    const idx = proyectosCache.findIndex(x => x.id === projectId);
-    if (idx >= 0) proyectosCache[idx]._progress = pct;
-
-    if (idx >= 0) {
-      await persistProjectEstadoFromPct(proyectosCache[idx], pct);
-      aplicarFiltros();
-    }
-  }
-
-  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
-
-  // ====== Cargar equipos (ADMIN con fallback a participante) ======
-  async function cargarEquiposAdminParaSelect() {
-    const $select = document.getElementById("f-equipo");
-    const $help   = document.getElementById("equipos-help");
-    if (!$select) return;
-
-    const renderOpciones = (equipos) => {
-      if (!equipos?.length) {
-        $select.innerHTML = `<option value="">No tienes equipos disponibles</option>`;
-        if ($btnGuardar) $btnGuardar.disabled = true;
-        if ($help) $help.textContent = "No apareces en ningún equipo.";
-        return;
-      }
-      $select.innerHTML = `<option value="">Selecciona un equipo…</option>` +
-        equipos.map(e => `<option value="${e.id}">${escapeHtml(e.nombreEquipo || ("Equipo #" + e.id))}</option>`).join("");
-      validarYActualizarEstado();
-    };
-
-    // 1) Intentar equipos donde eres ADMIN
-    try {
-      const direct = await fetch(`${EQUIPOS_API}?adminId=${encodeURIComponent(currentUserId)}`);
-      if (direct.ok) {
-        const data = await direct.json();
-        if (Array.isArray(data) && data.length) {
-          renderOpciones(data);
-          return;
-        }
-      }
-    } catch {}
-
-    // 2) Fallback correcto: equipos donde eres miembro
-    try {
-      const resp = await fetch(`${EQUIPOS_API}/member/${encodeURIComponent(currentUserId)}`);
-      if (resp.ok) {
-        const data2 = await resp.json();
-        renderOpciones(Array.isArray(data2) ? data2 : []);
-        return;
-      }
-    } catch {}
-
-    // 3) Error
-    $select.innerHTML = `<option value="">Error cargando equipos</option>`;
-    if ($btnGuardar) $btnGuardar.disabled = true;
-    if ($help) $help.textContent = "No se pudieron cargar los equipos.";
-  }
-
-  // ====== Validación de formulario (crear proyecto)
-  function setFieldState($fieldEl, isValid, show){
-    if (!$fieldEl) return;
-    if (!show){ $fieldEl.classList.remove("invalid"); return; }
-    if (isValid) $fieldEl.classList.remove("invalid"); else $fieldEl.classList.add("invalid");
-  }
-  function isNonEmpty(s){ return !!(s && s.trim().length > 0); }
-
-  function validarFormulario(show=false){
-    const nombreOK = isNonEmpty($fNombre.value) && $fNombre.value.trim().length >= 3;
-    const descOK   = isNonEmpty($fDesc.value)   && $fDesc.value.trim().length >= 5;
-    const equipoOK = isNonEmpty($fEquipo.value);
-
-    const ini = $fInicio.value ? new Date($fInicio.value) : null;
-    const fin = $fFin.value    ? new Date($fFin.value)    : null;
-
-    const inicioOK = !!(ini && !isNaN(ini.getTime()));
-    const finOK    = !!(fin && !isNaN(fin.getTime()));
-    const rangoOK  = inicioOK && finOK && (ini.getTime() <= fin.getTime());
-
-    setFieldState($fNombreField, nombreOK, show);
-    setFieldState($fDescField,   descOK,   show);
-    setFieldState($fEquipoField, equipoOK, show);
-    setFieldState($fInicioField, inicioOK, show);
-    setFieldState($fFinField,    finOK && rangoOK, show);
-
-    const errors = [];
-    if (!nombreOK) errors.push("• Nombre (mín. 3 caracteres)");
-    if (!descOK)   errors.push("• Descripción (mín. 5 caracteres)");
-    if (!equipoOK) errors.push("• Equipo (selecciona uno)");
-    if (!inicioOK) errors.push("• Fecha inicio (válida)");
-    if (!finOK)    errors.push("• Fecha fin (válida)");
-    else if (!rangoOK) errors.push("• Rango de fechas (Fin ≥ Inicio)");
-
-    return { ok: nombreOK && descOK && equipoOK && inicioOK && finOK && rangoOK, errors };
-  }
-
-  function validarYActualizarEstado(){
-    const { ok } = validarFormulario(false);
-    if ($btnGuardar) $btnGuardar.disabled = !ok;
-    return ok;
-  }
-
-  [$fNombre, $fDesc, $fEquipo, $fInicio, $fFin].forEach(el => {
-    el.addEventListener("input", validarYActualizarEstado);
-    el.addEventListener("change", validarYActualizarEstado);
-  });
-
-  function renderTabla(items) {
-    if (!items.length) {
-      $tbody.innerHTML = `<tr><td colspan="6">No hay proyectos.</td></tr>`;
-      $resumen.innerHTML = `<strong>0</strong> resultado(s)`;
-      return;
-    }
-    $resumen.innerHTML = `<strong>${items.length}</strong> resultado(s)`;
-    $tbody.innerHTML = items.map(p => {
-      const teamName = p.equipoId ? (equipoNombreCache.get(p.equipoId) ?? `Equipo #${p.equipoId}`) : "-";
+  if (!tasks.length) {
+    $tasksList.innerHTML = `<div class="muted">Este proyecto no tiene tareas.</div>`;
+    $tasksCount.textContent = `0 tareas`;
+  } else {
+    $tasksList.innerHTML = tasks.map(t => {
+      const asig = t.assigneeName && t.assigneeName.trim()
+        ? t.assigneeName
+        : (t.assigneeId || '-');
       return `
+        <div class="task-item">
+          <div>
+            <div class="task-title">${escapeHtml(t.title || '')}</div>
+            <div class="task-meta">
+              Prio: ${escapeHtml(t.priority||'')}
+              · Est: ${t.estimatedHours??'-'}h
+              · Asig: ${escapeHtml(asig)}
+              ${t.realHours?(' · Real: '+t.realHours+'h'):''}
+              ${t.fechaLimite?(' · Vence: '+new Date(t.fechaLimite).toLocaleDateString()):''}
+            </div>
+          </div>
+          <div><span class="badge status ${escapeHtml((t.status||'todo').toLowerCase())}">${escapeHtml((t.status||'todo'))}</span></div>
+        </div>
+      `;
+    }).join('');
+    $tasksCount.textContent = `${tasks.length} tarea(s)`;
+  }
+
+  const { pct } = calcProgressFromTasks(tasks);
+  $dAvance.style.width = `${pct}%`;
+  const nuevoEstado = pct===0 ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
+  $dEstado.innerHTML = `<span class="${estadoToChipClass(nuevoEstado)}">${nuevoEstado}</span>`;
+
+  updateRowProgress(projectId, pct);
+
+  const idx = proyectosCache.findIndex(x => x.id === projectId);
+  if (idx >= 0) {
+    proyectosCache[idx]._progress = pct;
+    await persistProjectEstadoFromPct(proyectosCache[idx], pct);
+  }
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
+
+function setDetalle(p) {
+  if (!p) return;
+  selectedProjectId = p.id;
+
+  const prev = $tbody.querySelector(".row-selected");
+  if (prev) prev.classList.remove("row-selected");
+  const now = $tbody.querySelector(`tr[data-id="${p.id}"]`);
+  if (now) now.classList.add("row-selected");
+
+  $dNombre.textContent = p.nombreProyecto ?? "—";
+  $dDesc.textContent   = p.descripcion ?? "—";
+
+  const cached = p.equipoId ? (equipoNombreCache.get(p.equipoId) || null) : null;
+  $dEquipo.textContent = cached ?? (p.equipoId ?? "—");
+  if (p.equipoId && !cached){
+    fetchEquipoNombre(p.equipoId).then(name => {
+      if (selectedProjectId === p.id) $dEquipo.textContent = name;
+    });
+  }
+
+  $dIni.textContent    = formatFecha(p.fechaInicio);
+  $dFin.textContent    = formatFecha(p.fechaFin);
+
+  $dEstado.innerHTML   = `<span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span>`;
+  $dAvance.style.width = (typeof p._progress === "number" ? p._progress : estadoToAvance(p.estado)) + "%";
+
+  loadProjectTasksAndProgress(p.id);
+  $btnIrHomework.disabled = false;
+}
+
+if ($btnIrHomework) {
+  $btnIrHomework.addEventListener("click", () => {
+    if (selectedProjectId) goToHomework(selectedProjectId);
+  });
+}
+
+// ===== Render tabla =====
+function renderTabla(items) {
+  if (!items.length) {
+    $tbody.innerHTML = `<tr><td colspan="6">No hay proyectos.</td></tr>`;
+    $resumen.innerHTML = `<strong>0</strong> resultado(s)`;
+    return;
+  }
+
+  $resumen.innerHTML = `<strong>${items.length}</strong> resultado(s)`;
+
+  $tbody.innerHTML = items.map(p => {
+    const teamName = p.equipoId ? (equipoNombreCache.get(p.equipoId) ?? `Equipo #${p.equipoId}`) : "-";
+    const hasReal = typeof p._progress === "number";
+    const pct = hasReal ? p._progress : 0; // inicia en 0 y se verá animación "loading"
+    const loadingClass = hasReal ? "" : "loading";
+    return `
       <tr data-id="${p.id}">
         <td>${p.id ?? "-"}</td>
         <td>${teamName}</td>
         <td>${p.nombreProyecto ?? "-"}</td>
         <td><span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span></td>
-        <td><div class="progress"><span style="width:${typeof p._progress==='number' ? p._progress : estadoToAvance(p.estado)}%"></span></div></td>
+        <td><div class="progress"><span class="${loadingClass}" style="width:${pct}%"></span></div></td>
         <td>
           <button class="btn-danger btn-xs" onclick="borrarProyecto(${p.id}, event)" title="Borrar proyecto" onkeydown="event.stopPropagation()">
             <span class="label">Borrar</span>
           </button>
         </td>
       </tr>`;
-    }).join("");
+  }).join("");
 
-    Array.from($tbody.querySelectorAll("tr")).forEach(tr => {
-      tr.addEventListener("click", (e) => {
-        if (e.target.closest('button')) return;
-        const id = Number(tr.dataset.id);
-        const p = proyectosCache.find(x => x.id === id);
-        setDetalle(p);
-      });
-
-      tr.addEventListener("dblclick", (e) => {
-        if (e.target.closest('button')) return;
-        const id = Number(tr.dataset.id);
-        if (id) goToHomework(id);
-      });
-    });
-  }
-
-  async function borrarProyecto(id, evt) {
-    if (evt) evt.stopPropagation();
-    mostrarConfirmacion("¿Seguro que deseas borrar este proyecto?", async () => {
-      await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
-      proyectosCache = proyectosCache.filter(p => p.id !== id);
-      aplicarFiltros();
-      $tasksBox.style.display = "none";
-      selectedProjectId = null;
-      if ($btnIrHomework) $btnIrHomework.disabled = true;
-    });
-  }
-  window.borrarProyecto = borrarProyecto;
-
-  // ======= Versión con manejo de errores mejorado =======
-  async function crearProyecto() {
-    if (!currentUserId) { 
-      alert("No hay usuario logueado. Inicia sesión primero."); 
-      return; 
-    }
-    const result = validarFormulario(true);
-    if (!result.ok) {
-      alert("Completa correctamente todos los campos:\n\n" + result.errors.join("\n"));
-      return;
-    }
-
-    const nuevo = {
-      nombreProyecto: $fNombre.value.trim(),
-      descripcion: $fDesc.value.trim(),
-      estado: "Pendiente",
-      equipoId: Number($fEquipo.value),
-      fechaInicio: $fInicio.value,
-      fechaFin: $fFin.value,
-      creadorId: currentUserId
-    };
-
-    const prevDisabled = $btnGuardar.disabled;
-    $btnGuardar.disabled = true;
-
-    try {
-      const res = await fetch(API_BASE, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevo)
-      });
-
-      if (!res.ok) {
-        let msg = "Error al crear el proyecto.";
-        try {
-          const ct = res.headers.get("content-type") || "";
-          if (ct.includes("application/json")) {
-            const j = await res.json();
-            msg = j?.message || j?.error || JSON.stringify(j, null, 2);
-          } else {
-            const t = await res.text();
-            msg = t || msg;
-          }
-        } catch {}
-        if (res.status === 400) msg = "Datos inválidos. Revisa el formulario.\n\n" + msg;
-        if (res.status === 409) msg = "Conflicto: puede que exista un proyecto con datos similares.\n\n" + msg;
-        alert(msg);
-        return;
-      }
-
-      const creado = await res.json();
-
-      if (creado?.equipoId && !equipoNombreCache.has(creado.equipoId)) {
-        await fetchEquipoNombre(creado.equipoId);
-      }
-
-      proyectosCache.push(creado);
-      cerrarModal();
-      aplicarFiltros();
-      updateRowProgress(creado.id, 0);
-    } catch (e) {
-      alert("No se pudo contactar al servidor.");
-    } finally {
-      $btnGuardar.disabled = prevDisabled;
-    }
-  }
-
-  function aplicarFiltros() {
-    const q = ($buscar.value || "").toLowerCase();
-    const estSel = ($filtro.value || "Todos").toLowerCase();
-    const chipActivo = (document.querySelector(".chip.active")?.dataset.est || "Todos").toLowerCase();
-
-    let items = proyectosCache.filter(p =>
-      (!q || (p.nombreProyecto || "").toLowerCase().includes(q)) &&
-      (
-        estSel === "todos" && chipActivo === "todos"
-          ? true
-          : (p.estado || "").toLowerCase() === estSel || (p.estado || "").toLowerCase() === chipActivo
-      )
-    );
-    if (chipActivo !== "todos") items = items.filter(p => (p.estado || "").toLowerCase() === chipActivo);
-    renderTabla(items);
-  }
-
-  // ===== Confirm UI
-  function mostrarConfirmacion(mensaje, onYes) {
-    const overlay = document.createElement("div");
-    overlay.className = "confirm-overlay";
-    overlay.innerHTML = `
-      <div class="confirm-box">
-        <h3>Confirmar acción</h3>
-        <p>${mensaje}</p>
-        <div class="confirm-buttons">
-          <button class="confirm-btn confirm-cancel">Cancelar</button>
-          <button class="confirm-btn confirm-yes">Sí, borrar</button>
-        </div>
-      </div>
-    `;
-    $confirmRoot.appendChild(overlay);
-    const close = () => overlay.remove();
-    overlay.querySelector(".confirm-cancel").onclick = close;
-    overlay.querySelector(".confirm-yes").onclick = () => { close(); onYes(); };
-    overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
-    document.addEventListener("keydown", function esc(e){ if(e.key === "Escape"){ close(); document.removeEventListener("keydown", esc); }});
-  }
-
-  // =======================
-  // CARGA DE PROYECTOS visibles
-  // =======================
-  async function getJsonOrNull(url){
-    try{ const r = await fetch(url); if (!r.ok) return null; return await r.json(); }
-    catch{ return null; }
-  }
-
-  async function fetchUserEquipoIds(userId){
-    const rels = await getJsonOrNull(`${UE_API}/usuario/${encodeURIComponent(userId)}`);
-    if (!Array.isArray(rels)) return [];
-    return rels
-      .map(r => (r?.equipoId ?? r?.id?.equipoId))
-      .filter(id => id != null);
-  }
-
-  async function fetchUserVisibleProjects(userId){
-    const direct = await getJsonOrNull(`${API_BASE}/visibles/${encodeURIComponent(userId)}`);
-    if (Array.isArray(direct)) return direct;
-
-    const byId = new Map();
-    const mine = await getJsonOrNull(`${API_BASE}/mios/${encodeURIComponent(userId)}`) || [];
-    for (const p of mine) if (p?.id != null) byId.set(p.id, p);
-
-    const equipoIds = await fetchUserEquipoIds(userId);
-    for (const eid of equipoIds) {
-      const arr = await getJsonOrNull(`${API_BASE}?equipoId=${encodeURIComponent(eid)}`) || [];
-      for (const p of arr) if (p?.id != null) byId.set(p.id, p);
-    }
-    return Array.from(byId.values());
-  }
-
-  async function cargarProyectos() {
-    try {
-      if (!currentUserId) {
-        $tbody.innerHTML = `<tr><td colspan="6">Inicia sesión para ver tus proyectos.</td></tr>`;
-        return;
-      }
-
-      proyectosCache = await fetchUserVisibleProjects(currentUserId);
-
-      const uniqueEquipoIds = [...new Set(proyectosCache.map(p => p.equipoId).filter(Boolean))];
-      await Promise.all(uniqueEquipoIds.map(id => fetchEquipoNombre(id)));
-
-      aplicarFiltros();
-      await refreshProgressForAllProjects();
-
-      if (proyectosCache[0]) setDetalle(proyectosCache[0]);
-
-    } catch {
-      $tbody.innerHTML = `<tr><td colspan="6">Error al cargar proyectos</td></tr>`;
-    }
-  }
-
-  // Chips
-  $chips.querySelectorAll(".chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      $chips.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-      chip.classList.add("active");
-      aplicarFiltros();
-    });
-  });
-
-  // Modal Proyecto
-  function abrirModal() {
-    $modalOverlay.style.display = "flex";
-    validarYActualizarEstado();
-    cargarEquiposAdminParaSelect();
-  }
-  function cerrarModal() {
-    $modalOverlay.style.display = "none";
-    $fNombre.value = ""; $fDesc.value = ""; $fEquipo.value = "";
-    $fInicio.value = ""; $fFin.value = "";
-    [$fNombreField,$fDescField,$fEquipoField,$fInicioField,$fFinField].forEach(f=>f.classList.remove("invalid"));
-    if ($btnGuardar) $btnGuardar.disabled = true;
-  }
-
-  $btnNuevo.addEventListener("click", e => { e.preventDefault(); abrirModal(); });
-  $btnCancel.addEventListener("click", e => { e.preventDefault(); cerrarModal(); });
-  $btnGuardar.addEventListener("click", e => { e.preventDefault(); crearProyecto(); });
-  $modalOverlay.addEventListener("click", e => { if (e.target === $modalOverlay) cerrarModal(); });
-
-  $buscar.addEventListener("input", aplicarFiltros);
-  $filtro.addEventListener("change", aplicarFiltros);
-
-  document.addEventListener("DOMContentLoaded", cargarProyectos);
-
-  /* ===========================
-     ==== Picker / Autocomplete
-     =========================== */
-  const acState = { open:false, index:-1, items:[] };
-
-  function debounce(fn, ms){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); }; }
-
-  function acOpen(){ if (!$acWrap) return; $acWrap.classList.add("open"); $acWrap.setAttribute("aria-hidden","false"); acState.open = true; }
-  function acClose(){ if (!$acWrap) return; $acWrap.classList.remove("open"); $acWrap.setAttribute("aria-hidden","true"); acState.open = false; acState.index = -1; }
-  function acRender(items){
-    acState.items = items || [];
-    $acCount.textContent = String(acState.items.length);
-    $acList.innerHTML = acState.items.map((p,idx)=>`
-      <li class="ac-item ${idx===acState.index?'active':''}" data-id="${p.id}">
-        <div>
-          <div class="ac-title">${escapeHtml(p.nombreProyecto || '')}</div>
-          <div class="ac-sub">${escapeHtml(p.descripcion || '')}</div>
-        </div>
-        <div class="ac-chip">${escapeHtml(p.estado || '')}</div>
-      </li>
-    `).join('');
-    if (!acState.items.length) {
-      $acList.innerHTML = `<li class="ac-item" style="cursor:default;opacity:.7">Sin resultados…</li>`;
-    }
-  }
-
-  function acHighlight(nextIndex){
-    const n = acState.items.length;
-    if (!n) return;
-    if (nextIndex < 0) nextIndex = n - 1;
-    if (nextIndex >= n) nextIndex = 0;
-    acState.index = nextIndex;
-    Array.from($acList.children).forEach((li,i)=>{
-      if (li.classList.contains('ac-item')) {
-        if (i===acState.index) li.classList.add('active'); else li.classList.remove('active');
-      }
-    });
-    const active = $acList.children[acState.index];
-    if (active && active.scrollIntoView) active.scrollIntoView({ block:'nearest' });
-  }
-
-  async function acFetch(q){
-    if (!q || q.trim().length < 2) { acClose(); return; }
-    const url = `${API_BASE}/buscar?q=${encodeURIComponent(q)}${currentUserId ? `&usuarioId=${encodeURIComponent(currentUserId)}`:''}`;
-    try{
-      const r = await fetch(url);
-      if (!r.ok) { acRender([]); acOpen(); return; }
-      const data = await r.json();
-      acRender(Array.isArray(data) ? data : []);
-      acOpen();
-    }catch{
-      acRender([]); acOpen();
-    }
-  }
-  const acFetchDebounced = debounce(acFetch, 180);
-
-  async function acChooseById(id){
-    if (!id) return;
-    const fromCache = proyectosCache.find(p => p.id === Number(id));
-    if (fromCache) {
-      setDetalle(fromCache);
-      return;
-    }
-    try{
-      const r = await fetch(`${API_BASE}/${encodeURIComponent(id)}`);
-      if (!r.ok) return;
-      const p = await r.json();
-      if (p?.equipoId && !equipoNombreCache.has(p.equipoId)) {
-        await fetchEquipoNombre(p.equipoId);
-      }
+  Array.from($tbody.querySelectorAll("tr")).forEach(tr => {
+    tr.addEventListener("click", (e) => {
+      if (e.target.closest('button')) return;
+      const prev = $tbody.querySelector(".row-selected");
+      if (prev) prev.classList.remove("row-selected");
+      tr.classList.add("row-selected");
+      const id = Number(tr.dataset.id);
+      const p = proyectosCache.find(x => x.id === id);
       setDetalle(p);
-    }catch{ /* no-op */ }
-  }
+    });
 
-  // Eventos del picker
-  $buscar.addEventListener('input', (e)=>{
-    const q = e.target.value || '';
-    acFetchDebounced(q);
+    tr.addEventListener("dblclick", (e) => {
+      if (e.target.closest('button')) return;
+      const id = Number(tr.dataset.id);
+      if (id) goToHomework(id);
+    });
   });
+}
 
-  $buscar.addEventListener('keydown', (e)=>{
-    if (!acState.open) return;
-    if (e.key === 'ArrowDown') { e.preventDefault(); acHighlight(acState.index + 1); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); acHighlight(acState.index - 1); }
-    else if (e.key === 'Enter') {
-      if (acState.index >= 0 && acState.index < acState.items.length) {
-        const chosen = acState.items[acState.index];
-        $buscar.value = chosen?.nombreProyecto || $buscar.value;
-        acClose();
-        acChooseById(chosen?.id);
-      }
-    } else if (e.key === 'Escape') {
-      acClose();
+// ===== Select de equipos (donde eres admin o miembro) =====
+async function buscarEquiposParaSelect() {
+  const $select = document.getElementById("f-equipo");
+  const $help   = document.getElementById("equipos-help");
+  if (!$select) return;
+
+  const renderOpciones = (equipos) => {
+    if (!equipos?.length) {
+      $select.innerHTML = `<option value="">No tienes equipos disponibles</option>`;
+      $btnGuardar.disabled = true;
+      if ($help) $help.textContent = "No apareces en ningún equipo.";
+      return;
     }
-  });
+    $select.innerHTML = `<option value="">Selecciona un equipo…</option>` +
+      equipos.map(e => `<option value="${e.id}">${escapeHtml(e.nombreEquipo || ("Equipo #" + e.id))}</option>`).join("");
+    validarYActualizarEstado();
+  };
 
-  $acList.addEventListener('click', (e)=>{
-    const li = e.target.closest('.ac-item[data-id]');
-    if (!li) return;
-    const id = Number(li.dataset.id);
-    const it = acState.items.find(x => x.id === id);
-    if (it) $buscar.value = it.nombreProyecto || $buscar.value;
-    acClose();
-    acChooseById(id);
-  });
+  try {
+    const direct = await fetch(`${EQUIPOS_API}?adminId=${encodeURIComponent(currentUserId)}`);
+    if (direct.ok) {
+      const data = await direct.json();
+      if (Array.isArray(data) && data.length) {
+        renderOpciones(data);
+        return;
+      }
+    }
+  } catch {}
 
-  document.addEventListener('click', (e)=>{
-    if (!acState.open) return;
-    if (e.target === $buscar) return;
-    if (e.target.closest('.ac-wrap')) return;
-    acClose();
+  try {
+    const resp = await fetch(`${EQUIPOS_API}/member/${encodeURIComponent(currentUserId)}`);
+    if (resp.ok) {
+      const data2 = await resp.json();
+      renderOpciones(Array.isArray(data2) ? data2 : []);
+      return;
+    }
+  } catch {}
+
+  $select.innerHTML = `<option value="">Error cargando equipos</option>`;
+  $btnGuardar.disabled = true;
+  if ($help) $help.textContent = "No se pudieron cargar los equipos.";
+}
+
+// ===== Validación formulario =====
+function setFieldState($fieldEl, isValid, show){
+  if (!$fieldEl) return;
+  if (!show){ $fieldEl.classList.remove("invalid"); return; }
+  if (isValid) $fieldEl.classList.remove("invalid"); else $fieldEl.classList.add("invalid");
+}
+function isNonEmpty(s){ return !!(s && s.trim().length > 0); }
+
+function validarFormulario(show=false){
+  const nombreOK = isNonEmpty($fNombre.value) && $fNombre.value.trim().length >= 3;
+  const descOK   = isNonEmpty($fDesc.value)   && $fDesc.value.trim().length >= 5;
+  const equipoOK = isNonEmpty($fEquipo.value);
+
+  const ini = $fInicio.value ? new Date($fInicio.value) : null;
+  const fin = $fFin.value    ? new Date($fFin.value)    : null;
+
+  const inicioOK = !!(ini && !isNaN(ini.getTime()));
+  const finOK    = !!(fin && !isNaN(fin.getTime()));
+  const rangoOK  = inicioOK && finOK && (ini.getTime() <= fin.getTime());
+
+  setFieldState($fNombreField, nombreOK, show);
+  setFieldState($fDescField,   descOK,   show);
+  setFieldState($fEquipoField, equipoOK, show);
+  setFieldState($fInicioField, inicioOK, show);
+  setFieldState($fFinField,    finOK && rangoOK, show);
+
+  return { ok: nombreOK && descOK && equipoOK && inicioOK && finOK && rangoOK };
+}
+
+function validarYActualizarEstado(){
+  const { ok } = validarFormulario(false);
+  $btnGuardar.disabled = !ok;
+  return ok;
+}
+
+// ===== Restricciones de fecha =====
+function toLocalDateInputValue(date){
+  const off = date.getTimezoneOffset();
+  const d = new Date(date.getTime() - off*60*1000);
+  return d.toISOString().slice(0,10);
+}
+const TODAY_STR = toLocalDateInputValue(new Date());
+$fInicio.setAttribute('min', TODAY_STR);
+$fFin.setAttribute('min', TODAY_STR);
+
+$fInicio.addEventListener('change', () => {
+  if ($fInicio.value && $fInicio.value < TODAY_STR) {
+    $fInicio.value = TODAY_STR;
+  }
+  $fFin.min = $fInicio.value || TODAY_STR;
+  if ($fFin.value && $fFin.value < $fFin.min) {
+    $fFin.value = $fFin.min;
+  }
+  validarYActualizarEstado();
+});
+
+const _validarFormularioOriginal = validarFormulario;
+validarFormulario = function(show=false){
+  const res = _validarFormularioOriginal(show);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const ini = $fInicio.value ? new Date($fInicio.value) : null;
+
+  if (!ini || ini.getTime() < today.getTime()) {
+    res.ok = false;
+    setFieldState($fInicioField, false, show);
+  }
+  if ($fFin.value && $fInicio.value && ($fFin.value < $fInicio.value)) {
+    res.ok = false;
+    setFieldState($fFinField, false, show);
+  }
+  $btnGuardar.disabled = !res.ok;
+  return res;
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  $fInicio.min = TODAY_STR;
+  $fFin.min = $fInicio.value || TODAY_STR;
+});
+
+// ===== Fetch helpers =====
+async function getJsonOrNull(url){
+  try{ const r = await fetch(url); if (!r.ok) return null; return await r.json(); }
+  catch{ return null; }
+}
+
+async function fetchUserEquipoIds(userId){
+  const rels = await getJsonOrNull(`${UE_API}/usuario/${encodeURIComponent(userId)}`);
+  if (!Array.isArray(rels)) return [];
+  return rels
+    .map(r => (r?.equipoId ?? r?.id?.equipoId))
+    .filter(id => id != null);
+}
+
+async function fetchUserVisibleProjects(userId){
+  const direct = await getJsonOrNull(`${API_BASE}/visibles/${encodeURIComponent(userId)}`);
+  if (Array.isArray(direct)) return direct;
+
+  const byId = new Map();
+  const mine = await getJsonOrNull(`${API_BASE}/mios/${encodeURIComponent(userId)}`) || [];
+  for (const p of mine) if (p?.id != null) byId.set(p.id, p);
+
+  const equipoIds = await fetchUserEquipoIds(userId);
+  for (const eid of equipoIds) {
+    const arr = await getJsonOrNull(`${API_BASE}?equipoId=${encodeURIComponent(eid)}`) || [];
+    for (const p of arr) if (p?.id != null) byId.set(p.id, p);
+  }
+  return Array.from(byId.values());
+}
+
+async function parseJsonSafe(res){
+  const ct = (res.headers.get('content-type') || '').toLowerCase();
+  if (ct.includes('application/json')) {
+    try { return await res.json(); } catch { return null; }
+  }
+  return null;
+}
+
+async function fetchCreatedFallback(){
+  const ult = await getJsonOrNull(`${API_BASE}/ultimo`);
+  if (ult && ult.id != null) return ult;
+  return null;
+}
+
+// ===== Crear proyecto =====
+async function crearProyecto() {
+  if (!currentUserId) { return alert("No hay usuario logueado."); }
+  const { ok } = validarFormulario(true);
+  if (!ok) return;
+
+  const nuevo = {
+    nombreProyecto: $fNombre.value.trim(),
+    descripcion: $fDesc.value.trim(),
+    estado: "Pendiente",
+    equipoId: Number($fEquipo.value),
+    fechaInicio: $fInicio.value,
+    fechaFin: $fFin.value,
+    creadorId: currentUserId
+  };
+
+  const prevDisabled = $btnGuardar.disabled;
+  $btnGuardar.disabled = true;
+
+  try {
+    const res = await fetch(API_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nuevo)
+    });
+
+    if (!res.ok) {
+      alert(`Error al crear el proyecto. Código: ${res.status}`);
+      return;
+    }
+
+    let creado = await parseJsonSafe(res);
+    if (!creado) {
+      creado = await fetchCreatedFallback();
+    }
+
+    if (!creado) {
+      proyectosCache = await fetchUserVisibleProjects(currentUserId);
+      cerrarModal();
+      applyFilters();
+      return;
+    }
+
+    if (creado?.equipoId && !equipoNombreCache.has(creado.equipoId)) {
+      await fetchEquipoNombre(creado.equipoId);
+    }
+
+    proyectosCache.push(creado);
+    cerrarModal();
+    applyFilters();
+    updateRowProgress(creado.id, 0);
+
+  } catch (e) {
+    console.error("POST /proyectos falló:", e);
+    alert("No se pudo contactar al servidor (revisa CORS/red). El proyecto probablemente sí se creó.");
+    try {
+      proyectosCache = await fetchUserVisibleProjects(currentUserId);
+      applyFilters();
+    } catch {}
+  } finally {
+    $btnGuardar.disabled = prevDisabled;
+  }
+}
+
+// ===== Filtros / búsqueda =====
+function applyFilters() {
+  const q = ($buscar.value || "").toLowerCase();
+  const estSel = ($filtro.value || "Todos").toLowerCase();
+  const chipActivo = (document.querySelector(".chip.active")?.dataset.est || "Todos").toLowerCase();
+
+  let items = proyectosCache.filter(p =>
+    (!q || (p.nombreProyecto || "").toLowerCase().includes(q)) &&
+    (
+      estSel === "todos" && chipActivo === "todos"
+        ? true
+        : (p.estado || "").toLowerCase() === estSel || (p.estado || "").toLowerCase() === chipActivo
+    )
+  );
+  if (chipActivo !== "todos") items = items.filter(p => (p.estado || "").toLowerCase() === chipActivo);
+  renderTabla(items);
+}
+
+// chips de estado
+$chips.querySelectorAll(".chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+    $chips.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    applyFilters();
   });
+});
+
+// ===== Modal =====
+function abrirModal() {
+  $modalOverlay.style.display = "flex";
+  validarYActualizarEstado();
+  buscarEquiposParaSelect();
+}
+function cerrarModal() {
+  $modalOverlay.style.display = "none";
+  $fNombre.value = ""; $fDesc.value = ""; $fEquipo.value = "";
+  $fInicio.value = ""; $fFin.value = "";
+  [$fNombreField,$fDescField,$fEquipoField,$fInicioField,$fFinField].forEach(f=>f.classList.remove("invalid"));
+  $btnGuardar.disabled = true;
+  $fInicio.min = TODAY_STR;
+  $fFin.min = $fInicio.value || TODAY_STR;
+}
+
+$btnNuevo.addEventListener("click", e => { e.preventDefault(); abrirModal(); });
+$btnCancel.addEventListener("click", e => { e.preventDefault(); cerrarModal(); });
+$btnGuardar.addEventListener("click", e => { e.preventDefault(); crearProyecto(); });
+$modalOverlay.addEventListener("click", e => { if (e.target === $modalOverlay) cerrarModal(); });
+
+$buscar.addEventListener("input", applyFilters);
+$filtro.addEventListener("change", applyFilters);
+
+// ===== Confirmación borrar =====
+function mostrarConfirmacion(mensaje, onYes) {
+  const overlay = document.createElement("div");
+  overlay.className = "confirm-overlay";
+  overlay.innerHTML = `
+    <div class="confirm-box">
+      <h3>Confirmar acción</h3>
+      <p>${mensaje}</p>
+      <div class="confirm-buttons">
+        <button class="confirm-btn confirm-cancel">Cancelar</button>
+        <button class="confirm-btn confirm-yes">Sí, borrar</button>
+      </div>
+    </div>
+  `;
+  $confirmRoot.appendChild(overlay);
+  const close = () => overlay.remove();
+  overlay.querySelector(".confirm-cancel").onclick = close;
+  overlay.querySelector(".confirm-yes").onclick = () => { close(); onYes(); };
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+}
+
+async function borrarProyecto(id, evt) {
+  if (evt) evt.stopPropagation();
+  mostrarConfirmacion("¿Seguro que deseas borrar este proyecto?", async () => {
+    await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+    proyectosCache = proyectosCache.filter(p => p.id !== id);
+    applyFilters();
+    $tasksBox.style.display = "none";
+    selectedProjectId = null;
+    $btnIrHomework.disabled = true;
+  });
+}
+window.borrarProyecto = borrarProyecto;
+
+// ===== Precarga de progreso para todas las filas =====
+async function hydrateProgressAll(concurrency = 4) {
+  const queue = [...proyectosCache];
+  const work = async () => {
+    while (queue.length) {
+      const p = queue.shift();
+      if (!p?.id) continue;
+      try {
+        const tasks = await fetchTasksForProject(p.id);
+        const { pct } = calcProgressFromTasks(tasks);
+        p._progress = pct;
+        updateRowProgress(p.id, pct);
+        await persistProjectEstadoFromPct(p, pct);
+      } catch {}
+    }
+  };
+  const workers = Array.from({ length: Math.min(concurrency, queue.length) }, work);
+  await Promise.all(workers);
+}
+
+// ===== Carga inicial =====
+async function cargarProyectos() {
+  try {
+    if (!currentUserId) {
+      $tbody.innerHTML = `<tr><td colspan="6">Inicia sesión para ver tus proyectos.</td></tr>`;
+      return;
+    }
+    proyectosCache = await fetchUserVisibleProjects(currentUserId);
+
+    const uniqueEquipoIds = [...new Set(proyectosCache.map(p => p.equipoId).filter(Boolean))];
+    await Promise.all(uniqueEquipoIds.map(id => fetchEquipoNombre(id)));
+
+    applyFilters();                 // 1) pinta la tabla (barras en modo "loading")
+    hydrateProgressAll(4);          // 2) obtiene % reales y actualiza filas
+    if (proyectosCache[0]) setDetalle(proyectosCache[0]); // opcional: autoselección
+  } catch {
+    $tbody.innerHTML = `<tr><td colspan="6">Error al cargar proyectos</td></tr>`;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", cargarProyectos);
+
+// ===== Inputs del formulario: validar al escribir/cambiar =====
+[$fNombre, $fDesc, $fEquipo, $fInicio, $fFin].forEach(el => {
+  el.addEventListener("input", validarYActualizarEstado);
+  el.addEventListener("change", validarYActualizarEstado);
+});
+
 </script>
-
 
 </body>
 </html>
