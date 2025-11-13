@@ -49,8 +49,13 @@ frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
 /MtdrSpring/backend/wallet
+/MtdrSpring/backend/src/main/resources/openai.properties
+/MtdrSpring/backend/config/openai.properties
 
 MtdrSpring/backend/buildImgContainer.bat
 /MtdrSpring/backend/target
 /MtdrSpring/backend/target
 /MtdrSpring/backend/target
+/MtdrSpring/backend/target
+MtdrSpring/backend/src/main/frontend/node_modules/regjsparser/node_modules/.bin/jsesc
+MtdrSpring/backend/src/main/frontend/node_modules/tsconfig-paths/node_modules/.bin/json5

@@ -7,9 +7,10 @@ import org.springframework.stereotype.Component;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import com.springboot.MyTodoList.config.BotProps;
+import com.springboot.MyTodoList.repository.ChatbotRepository;
+import com.springboot.MyTodoList.service.ChatGptTaskService;
 import com.springboot.MyTodoList.service.TareaService;
 import com.springboot.MyTodoList.util.BotActions;
 
@@ -21,13 +22,19 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
     private final BotProps botProps;
     private final TareaService tareaService;
     private final String telegramBotToken;
+    private final ChatGptTaskService chatGptTaskService;
+    private final ChatbotRepository chatbotRepository;
 
     public ToDoItemBotController(BotProps botProps,
                                  TareaService tareaService,
+                                 ChatGptTaskService chatGptTaskService,
+                                 ChatbotRepository chatbotRepository,
                                  @Value("${telegram.bot.token:}") String telegramBotToken) {
         this.botProps = botProps;
         this.tareaService = tareaService;
         this.telegramBotToken = telegramBotToken;
+        this.chatGptTaskService = chatGptTaskService;
+        this.chatbotRepository = chatbotRepository;
     }
 
     @Override
@@ -39,18 +46,10 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
         String messageTextFromTelegram = update.getMessage().getText();
         long chatId = update.getMessage().getChatId();
 
-        BotActions actions = new BotActions(this, tareaService);
+        BotActions actions = new BotActions(this, tareaService, chatGptTaskService, chatbotRepository);
         actions.setRequestText(messageTextFromTelegram);
         actions.setChatId(chatId);
-
-        actions.fnStart();
-        actions.fnListAll();
-        actions.fnAddTask();
-        actions.fnMarkDone();
-        actions.fnMarkPending();
-        actions.fnDeleteTask();
-        actions.fnEditTask();
-        actions.fnElse();
+        actions.handle();
     }
 
     @Override

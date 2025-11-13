@@ -1,183 +1,219 @@
 package com.springboot.MyTodoList.util;
 
-import com.springboot.MyTodoList.dto.TaskCreateDto;
-import com.springboot.MyTodoList.model.Tarea;
-import com.springboot.MyTodoList.service.TareaService;
-import com.springboot.MyTodoList.dto.UpdateTaskDto;
-
-import org.springframework.web.server.ResponseStatusException;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.List;
-import java.util.ArrayList;
+import com.springboot.MyTodoList.dto.TaskCreateDto;
+import com.springboot.MyTodoList.dto.UpdateTaskDto;
+import com.springboot.MyTodoList.model.Chatbot;
+import com.springboot.MyTodoList.model.Tarea;
+import com.springboot.MyTodoList.repository.ChatbotRepository;
+import com.springboot.MyTodoList.service.ChatGptTaskService;
+import com.springboot.MyTodoList.service.TareaService;
 
 public class BotActions {
 
     private static final Logger logger = LoggerFactory.getLogger(BotActions.class);
 
-    private String requestText;
-    private long chatId;
-    private boolean exit;
     private final TelegramLongPollingBot bot;
     private final TareaService tareaService;
+    private final ChatGptTaskService chatGptTaskService;
+    private final ChatbotRepository chatbotRepository;
 
-    public BotActions(TelegramLongPollingBot bot, TareaService tareaService) {
+    private String requestText;
+    private long chatId;
+
+    public BotActions(TelegramLongPollingBot bot,
+                      TareaService tareaService,
+                      ChatGptTaskService chatGptTaskService,
+                      ChatbotRepository chatbotRepository) {
         this.bot = bot;
         this.tareaService = tareaService;
-        this.exit = false;
+        this.chatGptTaskService = chatGptTaskService;
+        this.chatbotRepository = chatbotRepository;
     }
 
     public void setRequestText(String cmd) { this.requestText = cmd; }
     public void setChatId(long id) { this.chatId = id; }
 
-    /* ==== utilitario interno ==== */
-    private void send(String text) {
-        SendMessage msg = new SendMessage(Long.toString(chatId), text);
-        try { bot.execute(msg); } catch (TelegramApiException e) { logger.error("Error enviando mensaje", e); }
+    public void handle() {
+        BotIntent intent = chatGptTaskService.interpret(chatId, requestText);
+        String reply = processIntent(intent);
+        send(reply);
+        persistLog(reply);
     }
 
-    /* ==== comandos principales ==== */
-    public void fnStart() {
-        if (exit || !requestText.equalsIgnoreCase("/start")) return;
+    private String processIntent(BotIntent intent) {
+        if (intent == null) {
+            return "No entendí tu mensaje, ¿puedes intentarlo de nuevo?";
+        }
 
-        KeyboardRow row = new KeyboardRow();
-        row.add(new KeyboardButton("📋 Ver tareas"));
-        row.add(new KeyboardButton("i➕ Nueva tarea"));
-
-        List<KeyboardRow> keyboardRows = new ArrayList<>();
-        keyboardRows.add(row);
-
-        ReplyKeyboardMarkup keyboard = ReplyKeyboardMarkup.builder()
-            .resizeKeyboard(true)
-            .keyboard(keyboardRows)
-            .build();
-
-        SendMessage msg = new SendMessage(Long.toString(chatId),
-                "👋 ¡Hola! Soy tu asistente de tareas. Elige una opción:");
-        msg.setReplyMarkup(keyboard);
-
-        try { bot.execute(msg); } catch (TelegramApiException e) { logger.error("Error al enviar start", e); }
-        exit = true;
+        switch (intent.getAction()) {
+            case GREETING:
+            case HELP:
+                return defaultReply(intent,
+                        "Hola, puedo ayudarte a crear, listar y actualizar tus tareas. " +
+                                "Pide por ejemplo: 'crea una tarea para el proyecto 10 mañana'.");
+            case LIST_TASKS:
+                return listTasks();
+            case CREATE_TASK:
+                return createTask(intent);
+            case MARK_DONE:
+                return updateStatus(intent, "done", "Tarea marcada como completada.");
+            case MARK_PENDING:
+                return updateStatus(intent, "todo", "Actualicé la tarea a pendiente.");
+            case DELETE_TASK:
+                return deleteTask(intent);
+            case UPDATE_TITLE:
+                return updateTitle(intent);
+            case ASK_CLARIFICATION:
+                return defaultReply(intent, "Necesito un poco más de contexto para ayudarte.");
+            case UNKNOWN:
+            default:
+                return defaultReply(intent, "No estoy seguro de cómo ayudarte con eso, ¿puedes reformularlo?");
+        }
     }
 
-    public void fnListAll() {
-        if (exit || !(requestText.equalsIgnoreCase("/tareas") || requestText.equals("📋 Ver tareas"))) return;
-
+    private String listTasks() {
         List<Tarea> tareas = tareaService.listByAssignee(Long.toString(chatId));
         if (tareas.isEmpty()) {
-            send("No tienes tareas registradas.");
-            exit = true;
-            return;
+            return "No encontré tareas asignadas a este chat.";
         }
 
-        StringBuilder sb = new StringBuilder("📋 *Tus tareas actuales:*\n\n");
-        for (Tarea t : tareas) {
-            sb.append("ID: ").append(t.getId())
-              .append(" — ").append(t.getTitle())
-              .append(" [").append(t.getStatus()).append("]\n");
-        }
-
-        send(sb.toString());
-        exit = true;
+        StringBuilder sb = new StringBuilder("Estas son tus tareas:\n");
+        tareas.forEach(t -> sb.append("- #").append(t.getId())
+                .append(" ").append(t.getTitle())
+                .append(" [").append(t.getStatus()).append("]\n"));
+        return sb.toString();
     }
 
-    public void fnAddTask() {
-        if (exit || !(requestText.equalsIgnoreCase("/nueva") || requestText.equals("➕ Nueva tarea"))) return;
-        send("Escribe el título de la nueva tarea:");
-        exit = true;
-    }
+    private String createTask(BotIntent intent) {
+        StringBuilder missing = new StringBuilder();
+        if (!StringUtils.hasText(intent.getTaskTitle())) missing.append(" título,");
+        if (intent.getProjectId() == null) missing.append(" projectId,");
+        if (!StringUtils.hasText(intent.getDueDateIso())) missing.append(" fecha límite,");
 
-    public void fnMarkDone() {
-        if (exit || !requestText.startsWith("/done")) return;
-        try {
-            Long id = Long.parseLong(requestText.replace("/done", "").trim());
-            tareaService.updateStatus(id, "done");
-            send("✅ Tarea marcada como completada.");
-        } catch (ResponseStatusException e) {
-            send("No se encontró la tarea con ese ID.");
-        } catch (Exception e) {
-            send("Error al procesar el comando /done. Usa /done [id]");
-        }
-        exit = true;
-    }
-
-    public void fnMarkPending() {
-        if (exit || !requestText.startsWith("/pendiente")) return;
-        try {
-            Long id = Long.parseLong(requestText.replace("/pendiente", "").trim());
-            tareaService.updateStatus(id, "todo");
-            send("🔁 Tarea marcada como pendiente.");
-        } catch (ResponseStatusException e) {
-            send("No se encontró la tarea con ese ID.");
-        } catch (Exception e) {
-            send("Error al procesar el comando /pendiente. Usa /pendiente [id]");
-        }
-        exit = true;
-    }
-
-    public void fnDeleteTask() {
-        if (exit || !requestText.startsWith("/delete")) return;
-        try {
-            Long id = Long.parseLong(requestText.replace("/delete", "").trim());
-            tareaService.delete(id);
-            send("🗑️ Tarea eliminada correctamente.");
-        } catch (ResponseStatusException e) {
-            send("No se encontró la tarea con ese ID.");
-        } catch (Exception e) {
-            send("Error al procesar el comando /delete. Usa /delete [id]");
-        }
-        exit = true;
-    }
-      public void fnEditTask() {
-        if (exit) return;
-
-        String trimmed = requestText.trim();
-        if (!(trimmed.toLowerCase().startsWith("/editar") || trimmed.toLowerCase().startsWith("/edit"))) {
-            return;
+        if (missing.length() > 0) {
+            return "Para crear una tarea necesito:" + missing.substring(0, missing.length() - 1) +
+                    ". Inténtalo nuevamente incluyendo esos datos.";
         }
 
-        String[] parts = trimmed.split("\\s+", 3);
-        if (parts.length < 3) {
-            send("Usa /editar [id] [nuevo título]");
-            exit = true;
-            return;
+        LocalDate dueDate = parseDate(intent.getDueDateIso());
+        if (dueDate == null) {
+            return "La fecha límite debe tener formato yyyy-MM-dd. Ejemplo: 2024-12-01.";
         }
-
-        try {
-            Long id = Long.parseLong(parts[1]);
-            UpdateTaskDto dto = new UpdateTaskDto();
-            dto.title = parts[2];
-            tareaService.updateTask(id, dto);
-            send("✏️ Tarea actualizada.");
-        } catch (NumberFormatException ex) {
-            send("El ID debe ser numérico. Ejemplo: /editar 5 Nuevo título");
-        } catch (ResponseStatusException ex) {
-            send("No se encontró la tarea con ese ID.");
-        } catch (Exception ex) {
-            send("No fue posible actualizar la tarea.");
-        }
-        exit = true;
-    }
-
-    public void fnElse() {
-        if (exit) return;
-        if (requestText.startsWith("/")) return;
 
         TaskCreateDto dto = new TaskCreateDto();
-        dto.title = requestText;
-        dto.description = "Agregada desde Telegram";
-        dto.status = "todo";
+        dto.title = intent.getTaskTitle();
+        dto.description = StringUtils.hasText(intent.getDescription())
+                ? intent.getDescription()
+                : intent.getTaskTitle();
+        dto.status = intent.getStatus() != null ? intent.getStatus() : "todo";
+        dto.projectId = intent.getProjectId();
+        dto.fechaLimite = dueDate;
         dto.assigneeId = Long.toString(chatId);
+        dto.assigneeName = "Telegram user " + chatId;
+        dto.priority = intent.getPriority();
 
         tareaService.createFromDto(dto);
-        send("✅ Nueva tarea creada: " + requestText);
+        return defaultReply(intent, "Tarea creada ✅");
+    }
+
+    private String updateStatus(BotIntent intent, String status, String successMessage) {
+        if (intent.getTaskId() == null) {
+            return "Necesito el número de tarea para poder actualizarla.";
+        }
+        try {
+            tareaService.updateStatus(intent.getTaskId(), status);
+            return defaultReply(intent, successMessage);
+        } catch (Exception ex) {
+            logger.error("Error actualizando estado", ex);
+            return "No pude actualizar esa tarea, verifica que el ID exista.";
+        }
+    }
+
+    private String deleteTask(BotIntent intent) {
+        if (intent.getTaskId() == null) {
+            return "Necesito el ID de la tarea que quieres eliminar.";
+        }
+        try {
+            tareaService.delete(intent.getTaskId());
+            return defaultReply(intent, "Tarea eliminada.");
+        } catch (Exception ex) {
+            logger.error("Error eliminando tarea", ex);
+            return "No pude eliminar esa tarea, verifica que exista.";
+        }
+    }
+
+    private String updateTitle(BotIntent intent) {
+        if (intent.getTaskId() == null || !StringUtils.hasText(intent.getNewTitle())) {
+            return "Para editar necesito el ID y el nuevo título.";
+        }
+        try {
+            UpdateTaskDto dto = new UpdateTaskDto();
+            dto.title = intent.getNewTitle();
+            tareaService.updateTask(intent.getTaskId(), dto);
+            return defaultReply(intent, "Título actualizado.");
+        } catch (Exception ex) {
+            logger.error("Error actualizando título", ex);
+            return "No pude editar esa tarea, ¿puedes intentar de nuevo?";
+        }
+    }
+
+    private LocalDate parseDate(String raw) {
+        if (!StringUtils.hasText(raw)) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(raw);
+        } catch (DateTimeParseException ignored) {
+            // try dd/MM/yyyy
+        }
+        try {
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("d/M/uuuu", Locale.getDefault());
+            return LocalDate.parse(raw, fmt);
+        } catch (DateTimeParseException ex) {
+            logger.warn("Fecha inválida recibida del intent: {}", raw);
+            return null;
+        }
+    }
+
+    private void send(String text) {
+        SendMessage msg = new SendMessage(Long.toString(chatId), text);
+        try {
+            bot.execute(msg);
+        } catch (TelegramApiException e) {
+            logger.error("Error enviando mensaje", e);
+        }
+    }
+
+    private void persistLog(String reply) {
+        try {
+            Chatbot log = new Chatbot();
+            log.setUsuarioId(chatId);
+            log.setMensajeUsuario(requestText);
+            log.setRespuestaBot(reply);
+            log.setFechaHora(OffsetDateTime.now());
+            chatbotRepository.save(log);
+        } catch (Exception ex) {
+            logger.warn("No se pudo guardar el log del chatbot", ex);
+        }
+    }
+
+    private String defaultReply(BotIntent intent, String fallback) {
+        return StringUtils.hasText(intent != null ? intent.getBotReply() : null)
+                ? intent.getBotReply()
+                : fallback;
     }
 }
