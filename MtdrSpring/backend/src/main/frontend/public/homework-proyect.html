@@ -564,8 +564,11 @@
     /* ========= PROYECTO ========= */
     async function fetchEquipoNombre(equipoId){
       if (equipoId == null) return "—";
-      try{ const res = await fetch(`${EQUIPOS_API}/${equipoId}`); if(!res.ok) return `Equipo #${equipoId}`;
-        const eq = await res.json(); return eq.nombreEquipo || `Equipo #${equipoId}`;
+      try{
+        const res = await fetch(`${EQUIPOS_API}/${equipoId}`);
+        if(!res.ok) return `Equipo #${equipoId}`;
+        const eq = await res.json();
+        return eq.nombreEquipo || `Equipo #${equipoId}`;
       }catch(_){ return `Equipo #${equipoId}`; }
     }
 
@@ -583,19 +586,32 @@
       $vmBar.style.width = initialPct + "%";
     }
 
+    // 🔥 Versión optimizada: miembros y tareas en paralelo
     async function cargarProyecto(){
       const id = qs("id");
-      if(!id){ showToast({type:"error", title:"Falta el id", message:"No se encontró ?id en la URL"}); window.location.href = "projects.html"; return; }
+      if(!id){
+        showToast({type:"error", title:"Falta el id", message:"No se encontró ?id en la URL"});
+        window.location.href = "projects.html";
+        return;
+      }
       try{
         const res = await fetch(`${API_BASE}/${id}`);
         if(!res.ok) throw new Error("No encontrado");
         const p = await res.json();
         proyectoActual = p;
+
+        // Pinta info básica del proyecto
         await pintarView(p);
-        await loadTeamMembers(p.equipoId);
-        await loadTasks(p.id);
+
+        // Cargar miembros y tareas al mismo tiempo
+        await Promise.all([
+          loadTeamMembers(p.equipoId),
+          loadTasks(p.id)
+        ]);
+
         await renderMembersList();
       }catch(e){
+        console.error(e);
         showToast({type:"error", title:"No se pudo cargar", message:"Intenta de nuevo más tarde"});
         window.location.href = "projects.html";
       }
@@ -699,9 +715,11 @@
         if(!res.ok) throw new Error('No se pudo obtener miembros');
         const miembros = await res.json();
 
-        const isGlobalAdmin = ["Super Admin","Scrum Master"].includes(String(sessionUser?.rol||""));
+        const isGlobalAdmin = ["Super Admin","Scrum Master"]
+          .includes(String(sessionUser?.rol||""));
 
-        for (const m of miembros){
+        // 🔥 Pedir datos de usuario en paralelo
+        const detallePromesas = miembros.map(async (m) => {
           const uid = m.id?.usuarioId ?? m.usuarioId;
           let nombre = 'Usuario #' + uid;
           let email  = null;
@@ -715,13 +733,16 @@
             }
           }catch(_){}
 
-          teamMembersCache.push({
+          return {
             usuarioId: uid,
             rol: m.rol,
             nombre,
             email
-          });
-        }
+          };
+        });
+
+        teamMembersCache = await Promise.all(detallePromesas);
+
         const row = teamMembersCache.find(x => String(x.usuarioId) === String(sessionUser?.id));
         isTeamAdmin = isGlobalAdmin || (row && String(row.rol).toUpperCase()==="ADMIN");
 
@@ -888,6 +909,7 @@
         tareasCache = await res.json();
         renderTareas(tareasCache);
       }catch(err){
+        console.error(err);
         $tasksListEl.innerHTML = `<div class="muted" style="padding:6px 0 12px">No se pudieron cargar las tareas.</div>`;
       }
     }
@@ -926,8 +948,8 @@
       const fechaLimite = await askDueDateYMD("📅 Fecha de vencimiento (obligatoria). Formato YYYY-MM-DD");
       if (fechaLimite == null){ showToast({type:"error", title:"Creación cancelada"}); return; }
 
-      const payload = { 
-        title, description, projectId: Number(projectId), 
+      const payload = {
+        title, description, projectId: Number(projectId),
         estimatedHours, priority,
         assigneeId: assigneeEmail,
         assigneeName: assigneeName,
@@ -994,7 +1016,7 @@
     async function toggleTaskStatus(id, toDone, realHours){
       mustHaveEmail();
       const newStatus = toDone ? "done" : "todo";
-      const payload = toDone 
+      const payload = toDone
         ? { status: newStatus, realHours: Number(realHours), completedAt: new Date().toISOString() }
         : { status: newStatus, realHours: null, completedAt: null };
 
@@ -1062,9 +1084,9 @@
         else fechaLimite = v;
       }
 
-      const payload = { 
+      const payload = {
         title, description, estimatedHours, priority,
-        assigneeId: assigneeEmail || undefined, 
+        assigneeId: assigneeEmail || undefined,
         assigneeName: assigneeName || undefined,
         ...(fechaLimite ? { fechaLimite } : {})
       };
@@ -1095,3 +1117,4 @@
   </script>
 </body>
 </html>
+
