@@ -7,8 +7,9 @@
   <link rel="stylesheet" href="Css/Equipos.css"/>
   <link href="https://api.fontshare.com/v2/css?f[]=panchang@500,600,700,800,900&display=swap" rel="stylesheet">
 
-  <!-- Sprite de iconos -->
-  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <!-- SVG Icons sprite organized by category -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <!-- Navigation icons -->
     <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.6" d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/>
     </symbol>
@@ -66,70 +67,130 @@
     <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.6" d="M12 20h9"/><path stroke-width="1.6" d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
     </symbol>
+    <symbol id="i-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m16 17 5-5-5-5"/>
+      <path d="M21 12H9"/>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+    </symbol>
   </svg>
 </head>
 
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <h1 class="logo-text">TMDV</h1>
-    </div>
-    <div class="topbar-right">
-      <div class="user-circle" title="Usuario">U</div>
-      <a href="/index.html" class="logout-btn">
-        <svg class="ico-sm" aria-hidden="true"><use href="#i-exit"/></svg>
-        <span>Salir</span>
-      </a>
-    </div>
-  </header>
-
   <div class="app">
-    <aside class="aside">
-      <nav class="menu">
-        <a class="mi" href="/dashboard.html"><svg class="ico"><use href="#i-dashboard"/></svg><span>Dashboard</span></a>
-        <a class="mi active" href="/Equipos.html"><svg class="ico"><use href="#i-users"/></svg><span>Equipos</span></a>
-        <a class="mi" href="/projects.html"><svg class="ico"><use href="#i-folder"/></svg><span>Proyectos</span></a>
-        <a class="mi" href="/tarea.html"><svg class="ico"><use href="#i-board"/></svg><span>Tareas</span></a>
-        <a class="mi" href="/KPIs.html"><svg class="ico"><use href="#i-chart"/></svg><span>KPIs</span></a>
-        <a class="mi" href="/chatbot.html"><svg class="ico"><use href="#i-bot"/></svg><span>Chatbot</span></a>
-        <a class="mi" href="/notifications.html"><svg class="ico"><use href="#i-bell"/></svg><span>Notificaciones</span></a>
-        <a class="mi" href="/settings.html"><svg class="ico"><use href="#i-gear"/></svg><span>Ajustes</span></a>
+    <!-- Topbar -->
+    <header class="topbar" role="banner">
+      <div class="brand">
+        <h1 class="logo-text">TMDV</h1>
+      </div>
+      <nav class="topbar-right" aria-label="User menu">
+        <div class="user-circle" title="Usuario">U</div>
+        <a href="/index.html" class="logout-btn" aria-label="Cerrar sesión">
+          <span>Salir</span>
+        </a>
+      </nav>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="aside" role="navigation" aria-label="Menú principal">
+      <nav class="menu" aria-label="Opciones de navegación">
+        <a class="mi" href="/dashboard.html" aria-label="Dashboard">
+          <svg class="ico" aria-hidden="true"><use href="#i-dashboard"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a class="mi active" href="/Equipos.html" aria-label="Equipos" aria-current="page">
+          <svg class="ico" aria-hidden="true"><use href="#i-users"/></svg>
+          <span>Equipos</span>
+        </a>
+        <a class="mi" href="/projects.html" aria-label="Proyectos">
+          <svg class="ico" aria-hidden="true"><use href="#i-folder"/></svg>
+          <span>Proyectos</span>
+        </a>
+        <a class="mi" href="/tarea.html" aria-label="Tareas">
+          <svg class="ico" aria-hidden="true"><use href="#i-board"/></svg>
+          <span>Tareas</span>
+        </a>
+        <a class="mi" href="/KPIs.html" aria-label="KPIs">
+          <svg class="ico" aria-hidden="true"><use href="#i-chart"/></svg>
+          <span>KPIs</span>
+        </a>
+        <a class="mi" href="/chatbot.html" aria-label="Chatbot">
+          <svg class="ico" aria-hidden="true"><use href="#i-bot"/></svg>
+          <span>Chatbot</span>
+        </a>
+        <a class="mi" href="/notifications.html" aria-label="Notificaciones">
+          <svg class="ico" aria-hidden="true"><use href="#i-bell"/></svg>
+          <span>Notificaciones</span>
+        </a>
+        <a class="mi" href="/settings.html" aria-label="Ajustes">
+          <svg class="ico" aria-hidden="true"><use href="#i-gear"/></svg>
+          <span>Ajustes</span>
+        </a>
       </nav>
     </aside>
 
+    <!-- Main content -->
     <main class="main">
-      <section class="card card-soft">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-          <div>
-            <h1 class="h4">Equipos</h1>
-            <p class="muted">Crea equipos, invita miembros y gestiona roles.</p>
+      <!-- Layout de equipos SIEMPRE visible -->
+      <div id="teamsLayout">
+        <!-- Header section with title and action button -->
+        <section class="card card-soft">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <header>
+              <h1 class="h4">Equipos</h1>
+              <p class="muted">Crea equipos, invita miembros y gestiona roles.</p>
+            </header>
+            <button id="btnOpenCreate" class="btn-red with-icon" aria-label="Crear nuevo equipo">
+              <svg class="ico-sm" aria-hidden="true"><use href="#i-users"/></svg>
+              <span>Crear equipo</span>
+            </button>
           </div>
-          <button id="btnOpenCreate" class="btn-red with-icon">
-            <svg class="ico-sm" aria-hidden="true"><use href="#i-users"/></svg>
-            <span>Crear equipo</span>
-          </button>
-        </div>
-      </section>
+        </section>
 
-      <section class="card">
-        <h2 class="h4">Mis equipos</h2>
-        <div id="teamsList"></div>
-      </section>
+        <!-- Loader centrado debajo del título -->
+        <div id="pageLoader" class="page-loader">
+          <div class="spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <p class="loader-text">Cargando equipos...</p>
+        </div>
+
+        <!-- Contenido de equipos, oculto hasta que cargue -->
+        <div id="teamsContent" style="display:none;">
+          <!-- CUADRO 1: Mis equipos (donde eres ADMIN) -->
+          <section class="card">
+            <h2 class="h4">Mis equipos</h2>
+            <div id="teamsMine" role="region" aria-label="Lista de equipos que administro"></div>
+          </section>
+
+          <!-- CUADRO 2: Equipos invitados (donde eres miembro, no admin) -->
+          <section class="card">
+            <h2 class="h4">Equipos invitados</h2>
+            <div id="teamsInvited" role="region" aria-label="Lista de equipos donde estoy invitado"></div>
+          </section>
+        </div>
+      </div>
     </main>
   </div>
 
-  <!-- Modal: Crear equipo -->
-  <div id="createModal" class="modal-backdrop" style="display:none;">
+  <!-- ==================== MODALES ==================== -->
+  
+  <!-- Create team modal -->
+  <div id="createModal" class="modal-backdrop" style="display:none;" role="dialog" aria-labelledby="createModalTitle" aria-modal="true">
     <div class="card modal-card">
-      <h3 class="h4">Crear equipo</h3>
+      <h3 class="h4" id="createModalTitle">Crear equipo</h3>
       <form id="formCreateTeam" class="form-grid">
         <div>
-          <label>Nombre</label>
-          <input type="text" id="teamName" placeholder="Nombre del equipo" required />
+          <label for="teamName">Nombre</label>
+          <input type="text" id="teamName" placeholder="Nombre del equipo" required aria-required="true" />
         </div>
         <div class="full">
-          <label>Descripción</label>
-          <textarea id="teamDesc" rows="3" placeholder="Descripción (opcional)"></textarea>
+          <label for="teamDesc">Descripción</label>
+          <textarea id="teamDesc" rows="3" placeholder="Descripción (opcional)" aria-label="Descripción del equipo"></textarea>
         </div>
         <div class="modal-actions">
           <button type="button" id="btnCancelCreate" class="btn-ghost">Cancelar</button>
@@ -139,19 +200,19 @@
     </div>
   </div>
 
-  <!-- Modal: Editar equipo -->
-  <div id="editModal" class="modal-backdrop" style="display:none;">
+  <!-- Edit team modal -->
+  <div id="editModal" class="modal-backdrop" style="display:none;" role="dialog" aria-labelledby="editModalTitle" aria-modal="true">
     <div class="card modal-card">
-      <h3 class="h4">Editar equipo</h3>
+      <h3 class="h4" id="editModalTitle">Editar equipo</h3>
       <form id="formEditTeam" class="form-grid">
         <input type="hidden" id="editTeamId"/>
         <div>
-          <label>Nombre</label>
-          <input type="text" id="editTeamName" placeholder="Nombre del equipo" required />
+          <label for="editTeamName">Nombre</label>
+          <input type="text" id="editTeamName" placeholder="Nombre del equipo" required aria-required="true" />
         </div>
         <div class="full">
-          <label>Descripción</label>
-          <textarea id="editTeamDesc" rows="3" placeholder="Descripción (opcional)"></textarea>
+          <label for="editTeamDesc">Descripción</label>
+          <textarea id="editTeamDesc" rows="3" placeholder="Descripción (opcional)" aria-label="Descripción del equipo"></textarea>
         </div>
         <div class="modal-actions">
           <button type="button" id="btnCancelEdit" class="btn-ghost">Cancelar</button>
@@ -161,19 +222,19 @@
     </div>
   </div>
 
-  <!-- Modal: Invitar -->
-  <div id="inviteModal" class="modal-backdrop" style="display:none;">
+  <!-- Invite modal -->
+  <div id="inviteModal" class="modal-backdrop" style="display:none;" role="dialog" aria-labelledby="inviteModalTitle" aria-modal="true">
     <div class="card modal-card">
-      <h3 class="h4">Invitar a equipo</h3>
+      <h3 class="h4" id="inviteModalTitle">Invitar a equipo</h3>
       <p class="muted" id="inviteTeamName">&nbsp;</p>
       <form id="formInvite" class="form-grid">
         <div class="full">
-          <label>Correo</label>
-          <input type="email" id="inviteEmail" placeholder="correo@ejemplo.com" required />
+          <label for="inviteEmail">Correo</label>
+          <input type="email" id="inviteEmail" placeholder="correo@ejemplo.com" required aria-required="true" />
         </div>
         <div>
-          <label>Rol</label>
-          <select id="inviteRole">
+          <label for="inviteRole">Rol</label>
+          <select id="inviteRole" aria-label="Seleccionar rol">
             <option value="USUARIO">Usuario</option>
             <option value="USUARIO_SUPERIOR">Usuario Superior</option>
           </select>
@@ -186,11 +247,11 @@
     </div>
   </div>
 
-  <!-- Modal: Confirm -->
-  <div id="confirmModal" class="modal-backdrop" style="display:none;">
+  <!-- Confirmation modal -->
+  <div id="confirmModal" class="modal-backdrop" style="display:none;" role="alertdialog" aria-labelledby="confirmTitle" aria-modal="true">
     <div class="card modal-card confirm-card">
-      <div class="confirm-icon">
-        <svg class="ico-lg" aria-hidden="true"><use href="#i-trash"/></svg>
+      <div class="confirm-icon" aria-hidden="true">
+        <svg class="ico-lg"><use href="#i-trash"/></svg>
       </div>
       <h3 class="h4" id="confirmTitle">¿Eliminar usuario?</h3>
       <p class="muted" id="confirmMessage">Esta acción no se puede deshacer.</p>
@@ -201,7 +262,8 @@
     </div>
   </div>
 
-  <div id="toast" class="toast" style="display:none;">
+  <!-- Toast -->
+  <div id="toast" class="toast" style="display:none;" role="status" aria-live="polite" aria-atomic="true">
     <div id="toastMsg"></div>
   </div>
 
@@ -213,11 +275,22 @@ const API = {
   usuarios: 'http://localhost:8080/usuarios'
 };
 
-// Rol por defecto compatible con backend
+// Sesión demo por si no hay nada en localStorage
 const defaultSession = {"id":1,"nombre":"Usuario Demo","email":"demo@demo.com","rol":"Scrum Master"};
 const sessionUser = JSON.parse(localStorage.getItem('user') || JSON.stringify(defaultSession));
 if (!sessionUser.rol) sessionUser.rol = 'Scrum Master';
 localStorage.setItem('user', JSON.stringify(sessionUser));
+
+const userCircle = document.querySelector('.user-circle');
+if (userCircle && (sessionUser.nombre || sessionUser.email)) {
+  const inicial = String(
+    sessionUser.nombre?.[0] ||
+    sessionUser.email?.[0] ||
+    'U'
+  ).toUpperCase();
+  userCircle.textContent = inicial;
+  userCircle.title = sessionUser.nombre || sessionUser.email || 'Usuario';
+}
 
 /* ==================== UI helpers ==================== */
 function showToast(msg, type='error') {
@@ -232,7 +305,7 @@ function openModal(el){ el.style.display = 'flex'; }
 function closeModal(el){ el.style.display = 'none'; }
 
 /* ======== Confirmación ======== */
-function showConfirmUI({title='¿Estás seguro?', message='Esta acción no se puede deshacer.', onConfirm}){
+function showConfirmUI({title='¿Estás seguro?', message='Esta acción no se puede deshacer.', onConfirm}) {
   const modal = document.getElementById('confirmModal');
   document.getElementById('confirmTitle').textContent = title;
   document.getElementById('confirmMessage').textContent = message;
@@ -341,118 +414,37 @@ formEditTeam.addEventListener('submit', async (e) => {
     if (!resp.ok) throw new Error('No se pudo editar');
     closeModal(editModal);
     showToast('Equipo actualizado', 'success');
-    await loadMyTeams();
+    await refreshTeamCard(id);
   } catch (err) {
     console.error(err);
     showToast('No se pudo actualizar el equipo');
   }
 });
 
-/* ==================== Listar equipos ==================== */
-async function loadMyTeams() {
-  const list = document.getElementById('teamsList');
-  list.innerHTML = '<p class="muted">Cargando...</p>';
-  try {
-    const resp = await fetch(API.equipos);
-    const equipos = await resp.json();
-
-    const cards = [];
-    for (const eq of equipos) {
-      const r = await fetch(`${API.equipos}/${eq.id}/miembros`);
-      const miembros = await r.json();
-
-      const me = miembros.find(m => m.id && m.id.usuarioId === sessionUser.id);
-      if (!me) continue;
-      const miRol = me ? me.rol : 'USUARIO';
-      const role = miRol || 'USUARIO';
-
-      const admin = miembros.find(m => m.rol === 'ADMIN');
-      let adminName = 'Admin';
-      if (admin) {
-        try {
-          const adminUser = await getUserById(admin.id.usuarioId);
-          adminName = adminUser.nombre || adminUser.email || ('#' + admin.id.usuarioId);
-        } catch(_) {}
-      }
-
-      const actions = (role === 'ADMIN')
-        ? `<button class="btn-red" data-open-invite data-eid="${eq.id}" data-name="${(eq.nombreEquipo||'')}">Invitar</button>
-           <button class="btn-ghost" data-action="edit-team" data-eid="${eq.id}" data-name="${(eq.nombreEquipo||'')}" data-desc="${(eq.descripcion||'')}">
-             <svg class="ico-sm" aria-hidden="true"><use href="#i-edit"/></svg> Editar
-           </button>
-           <button class="btn-ghost danger" data-action="delete-team" data-eid="${eq.id}">
-             <svg class="ico-sm" aria-hidden="true"><use href="#i-trash"/></svg> Eliminar
-           </button>`
-        : '';
-
-      cards.push(`
-        <article class="card team-card" data-eid="${eq.id}">
-          <header class="team-header" data-toggle>
-            <div class="team-header-left">
-              <h3 class="team-title">
-                ${eq.nombreEquipo || '—'}
-                <span class="team-id">#${eq.id}</span>
-              </h3>
-              <p class="team-sub muted">Admin: <strong>${adminName}</strong></p>
-              <p class="muted">${eq.descripcion || ''}</p>
-            </div>
-            <div class="team-header-right">
-              ${actions}
-              <button class="btn-ghost" data-toggle>
-                <span class="chev">▼</span>
-                <span class="toggle-text">Ver miembros</span>
-              </button>
-            </div>
-          </header>
-          <div class="team-body" style="display:none;">
-            <div class="table-wrap">
-              <table class="table">
-                <thead>
-                  <tr><th>Usuario</th><th>Correo</th><th>Rol</th><th class="ta-right">Acciones</th></tr>
-                </thead>
-                <tbody data-members>
-                  ${await renderMembersRows(eq.id, miembros, role)}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </article>
-      `);
-    }
-
-    list.innerHTML = cards.length ? cards.join('') : '<p class="muted">No perteneces a ningún equipo todavía.</p>';
-  } catch (err) {
-    console.error(err);
-    list.innerHTML = '<p class="muted">Error cargando equipos.</p>';
-  }
-}
-
+/* ==================== Helpers de rol en UI ==================== */
 function roleBadge(rol){
   const r = (rol||'').toUpperCase();
   if (r === 'ADMIN') return `<span class="tag tag-admin role-dot-text">ADMIN</span>`;
   if (r === 'USUARIO_SUPERIOR') return `<span class="tag tag-super role-dot-text">USUARIO_SUPERIOR</span>`;
   return `<span class="tag tag-user role-dot-text">USUARIO</span>`;
 }
-
 function roleDot(rol){
   const r = (rol||'').toUpperCase();
   const cls = r === 'ADMIN' ? 'dot-admin' : (r === 'USUARIO_SUPERIOR' ? 'dot-super' : 'dot-user');
   return `<span class="role-dot ${cls}"></span>`;
 }
 
-async function renderMembersRows(equipoId, miembros, miRol) {
-  const rows = [];
-  for (const m of miembros) {
-    let nombre='—', correo='—', avatar='?';
-    try {
-      const u = await getUserById(m.id.usuarioId);
-      nombre = u.nombre || ('#' + u.id);
-      correo = u.email || '—';
-      avatar = (u.nombre||u.email||'?').charAt(0).toUpperCase();
-    } catch(_) {}
+/* ============ FILAS DE MIEMBROS (sin async, usa cache) ============ */
+function renderMembersRows(equipoId, miembros, miRol) {
+  const rows = miembros.map(m => {
+    const uid = m.id?.usuarioId;
+    const u = uid != null ? userCache.get(uid) || {} : {};
+    const nombre = u.nombre || (u.email ? u.email.split('@')[0] : (uid != null ? ('#'+uid) : '—'));
+    const correo = u.email || '—';
+    const avatar = (u.nombre || u.email || '?').charAt(0).toUpperCase();
 
     const isAdminRow = m.rol === 'ADMIN';
-    const canManage = miRol === 'ADMIN' && (!isAdminRow);
+    const canManage = miRol === 'ADMIN' && !isAdminRow;
 
     const isUser = (m.rol === 'USUARIO');
     const isSuper = (m.rol === 'USUARIO_SUPERIOR');
@@ -460,20 +452,20 @@ async function renderMembersRows(equipoId, miembros, miRol) {
     const actions = canManage
       ? `
         <div class="role-actions">
-          <button class="btn-role role-user ${isUser ? 'current' : ''}" data-action="make-user" data-uid="${m.id.usuarioId}" data-eid="${equipoId}">
+          <button class="btn-role role-user ${isUser ? 'current' : ''}" data-action="make-user" data-uid="${uid}" data-eid="${equipoId}">
             <svg class="ico-sm" aria-hidden="true"><use href="#i-user"/></svg> Usuario
           </button>
-          <button class="btn-role role-super ${isSuper ? 'current' : ''}" data-action="make-super" data-uid="${m.id.usuarioId}" data-eid="${equipoId}">
+          <button class="btn-role role-super ${isSuper ? 'current' : ''}" data-action="make-super" data-uid="${uid}" data-eid="${equipoId}">
             <svg class="ico-sm" aria-hidden="true"><use href="#i-star"/></svg> Super
           </button>
-          <button class="btn-ghost danger" data-action="remove" data-uid="${m.id.usuarioId}" data-eid="${equipoId}">
+          <button class="btn-ghost danger" data-action="remove" data-uid="${uid}" data-eid="${equipoId}">
             <svg class="ico-sm" aria-hidden="true"><use href="#i-trash"/></svg> Quitar
           </button>
         </div>
       `
       : '';
 
-    rows.push(`
+    return `
       <tr>
         <td>
           <div class="user-cell">
@@ -488,9 +480,158 @@ async function renderMembersRows(equipoId, miembros, miRol) {
         <td>${roleBadge(m.rol)}</td>
         <td class="ta-right">${actions}</td>
       </tr>
-    `);
-  }
+    `;
+  });
+
   return rows.join('');
+}
+
+/* ============ Construir tarjeta de equipo ============ */
+function buildTeamCard(eq, miembros, miRol) {
+  const adminMember = miembros.find(m => m.rol === 'ADMIN');
+  let adminName = 'Admin';
+  if (adminMember && adminMember.id?.usuarioId != null) {
+    const u = userCache.get(adminMember.id.usuarioId);
+    if (u) adminName = u.nombre || u.email || ('#' + adminMember.id.usuarioId);
+  }
+
+  const actions = (miRol === 'ADMIN')
+    ? `
+       <button class="btn-red" data-open-invite data-eid="${eq.id}" data-name="${(eq.nombreEquipo||'')}">Invitar</button>
+       <button class="btn-ghost" data-action="edit-team" data-eid="${eq.id}" data-name="${(eq.nombreEquipo||'')}" data-desc="${(eq.descripcion||'')}">
+         <svg class="ico-sm" aria-hidden="true"><use href="#i-edit"/></svg> Editar
+       </button>
+       <button class="btn-ghost danger" data-action="delete-team" data-eid="${eq.id}">
+         <svg class="ico-sm" aria-hidden="true"><use href="#i-trash"/></svg> Eliminar
+       </button>`
+    : '';
+
+  return `
+    <article class="card team-card" data-eid="${eq.id}">
+      <header class="team-header" data-toggle>
+        <div class="team-header-left">
+          <h3 class="team-title">
+            ${eq.nombreEquipo || '—'}
+            <span class="team-id">#${eq.id}</span>
+          </h3>
+          <p class="team-sub muted">Admin: <strong>${adminName}</strong></p>
+          <p class="muted">${eq.descripcion || ''}</p>
+        </div>
+        <div class="team-header-right">
+          ${actions}
+          <button class="btn-ghost" data-toggle>
+            <span class="chev">▼</span>
+            <span class="toggle-text">Ver miembros</span>
+          </button>
+        </div>
+      </header>
+      <div class="team-body" style="display:none;">
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr><th>Usuario</th><th>Correo</th><th>Rol</th><th class="ta-right">Acciones</th></tr>
+            </thead>
+            <tbody data-members>
+              ${renderMembersRows(eq.id, miembros, miRol)}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+/* ==================== Listar equipos (dos secciones) ==================== */
+async function loadMyTeams() {
+  const mineList = document.getElementById('teamsMine');
+  const invitedList = document.getElementById('teamsInvited');
+  if (!mineList || !invitedList) return;
+
+  mineList.innerHTML = '<p class="muted">Cargando...</p>';
+  invitedList.innerHTML = '<p class="muted">Cargando...</p>';
+
+  try {
+    const resp = await fetch(API.equipos);
+    if (!resp.ok) throw new Error('Error al obtener equipos');
+    const equipos = await resp.json();
+
+    if (!Array.isArray(equipos) || equipos.length === 0) {
+      mineList.innerHTML = '<p class="muted">No hay equipos registrados.</p>';
+      invitedList.innerHTML = '<p class="muted">No hay equipos registrados.</p>';
+      return;
+    }
+
+    // 1) Miembros de todos los equipos en paralelo
+    const miembrosPorEquipo = await Promise.all(
+      equipos.map(eq =>
+        fetch(`${API.equipos}/${eq.id}/miembros`)
+          .then(r => r.ok ? r.json() : [])
+          .catch(() => [])
+      )
+    );
+
+    // 2) Solo equipos donde yo soy miembro
+    const visibles = [];
+    for (let i = 0; i < equipos.length; i++) {
+      const eq = equipos[i];
+      const miembros = miembrosPorEquipo[i] || [];
+      const me = miembros.find(m => m.id && m.id.usuarioId === sessionUser.id);
+      if (!me) continue;
+      visibles.push({ eq, miembros, miRol: me.rol || 'USUARIO' });
+    }
+
+    if (!visibles.length) {
+      mineList.innerHTML = '<p class="muted">No administras ningún equipo todavía.</p>';
+      invitedList.innerHTML = '<p class="muted">Aún no te han invitado a equipos.</p>';
+      return;
+    }
+
+    // 3) Calentar cache de usuarios de todos los equipos
+    const ids = new Set();
+    visibles.forEach(({miembros}) => {
+      miembros.forEach(m => {
+        const uid = m.id?.usuarioId;
+        if (uid != null) ids.add(uid);
+      });
+    });
+
+    await Promise.all(
+      [...ids].map(id => getUserById(id).catch(() => null))
+    );
+
+    // 4) Separar entre "Mis equipos" (ADMIN) y "Equipos invitados" (resto)
+    const mine = [];
+    const invited = [];
+    visibles.forEach(v => {
+      const r = (v.miRol || '').toUpperCase();
+      if (r === 'ADMIN') mine.push(v);
+      else invited.push(v);
+    });
+
+    // 5) Render
+    mineList.innerHTML = mine.length
+      ? mine.map(({eq, miembros, miRol}) => buildTeamCard(eq, miembros, miRol)).join('')
+      : '<p class="muted">No administras ningún equipo todavía.</p>';
+
+    invitedList.innerHTML = invited.length
+      ? invited.map(({eq, miembros, miRol}) => buildTeamCard(eq, miembros, miRol)).join('')
+      : '<p class="muted">Aún no te han invitado a equipos.</p>';
+
+  } catch (err) {
+    console.error(err);
+    mineList.innerHTML = '<p class="muted">Error cargando equipos.</p>';
+    invitedList.innerHTML = '<p class="muted">Error cargando equipos.</p>';
+  }
+}
+
+/* ============ Refrescar solo un equipo (recarga ambas listas) ============ */
+async function refreshTeamCard(equipoId) {
+  try {
+    await loadMyTeams();
+  } catch (err) {
+    console.error('No se pudo refrescar equipos', err);
+    showToast('No se pudo refrescar los equipos');
+  }
 }
 
 /* ==================== Eventos globales ==================== */
@@ -519,7 +660,7 @@ document.addEventListener('click', async (e) => {
     if (txt) txt.textContent = isOpen ? 'Ver miembros' : 'Ocultar';
   }
 
-  // acciones de fila
+  // acciones de fila / tarjeta
   if (t.dataset && t.dataset.action) {
     const equipoId = Number(t.dataset.eid);
 
@@ -552,17 +693,17 @@ document.addEventListener('click', async (e) => {
         message: 'Este miembro perderá acceso a este equipo.',
         onConfirm: async () => {
           await fetch(`${API.equipos}/${equipoId}/miembros/${usuarioId}`, { method: 'DELETE' });
-          await loadMyTeams();
+          await refreshTeamCard(equipoId);
         }
       });
     }
     if (t.dataset.action === 'make-user') {
       await fetch(`${API.equipos}/${equipoId}/miembros/${usuarioId}/rol?rol=USUARIO`, { method: 'PUT' });
-      await loadMyTeams();
+      await refreshTeamCard(equipoId);
     }
     if (t.dataset.action === 'make-super') {
       await fetch(`${API.equipos}/${equipoId}/miembros/${usuarioId}/rol?rol=USUARIO_SUPERIOR`, { method: 'PUT' });
-      await loadMyTeams();
+      await refreshTeamCard(equipoId);
     }
   }
 });
@@ -581,7 +722,7 @@ formInvite.addEventListener('submit', async (e) => {
 
     if (resp.status === 409) {
       const text = await resp.text();
-      showToast(text || 'Esta persona ya fue invitada al equipo'); // <-- warning solicitado
+      showToast(text || 'Esta persona ya fue invitada al equipo');
       return;
     }
     if (!resp.ok) throw new Error('No se pudo invitar');
@@ -589,12 +730,26 @@ formInvite.addEventListener('submit', async (e) => {
     closeModal(inviteModal);
     formInvite.reset();
     showToast('Invitación enviada', 'success');
-    await loadMyTeams();
+    await refreshTeamCard(currentInviteEquipoId);
   } catch (err) { console.error(err); showToast('No se pudo invitar'); }
 });
 
-/* ==================== Init ==================== */
-loadMyTeams();
+/* ==================== Init con loader solo en main ==================== */
+async function initPage() {
+  const loader = document.getElementById('pageLoader');
+  const content = document.getElementById('teamsContent');
+
+  try {
+    await loadMyTeams();
+  } catch (err) {
+    console.error('Error en initPage', err);
+  } finally {
+    if (loader) loader.style.display = 'none';
+    if (content) content.style.display = 'block';
+  }
+}
+
+initPage();
 </script>
 </body>
 </html>
