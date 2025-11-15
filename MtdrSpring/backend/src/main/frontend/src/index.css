@@ -1,6 +1,9 @@
-/* Sistema de diseño TMDV con paleta oscura refinada */
+/* =========================================================
+   SISTEMA DE DISEÑO TMDV – LANDING PAGE
+   Paleta oscura + rojo de marca (botón "Comenzar ahora")
+   ========================================================= */
 :root {
-  /* Paleta oscura (adoptada de notifications.css) */
+  /* Paleta oscura base */
   --bg: #0f1216;
   --bg-secondary: #12161c;
   --panel: #0f1216;
@@ -12,30 +15,31 @@
   --muted: #8a93a3;
   --muted-2: #6b7280;
   --line: #20242c;
+
+  /* Marca TMDV */
   --brand: #e1261c;
   --brand-hover: #c41f15;
   --brand-glow: rgba(225, 38, 28, 0.25);
 
-  /* Gradientes */
+  /* Gradientes y sombras */
   --gradient-brand: linear-gradient(135deg, #e1261c 0%, #c41f15 100%);
   --gradient-overlay: linear-gradient(180deg, rgba(15, 18, 22, 0.95) 0%, rgba(15, 18, 22, 0.98) 100%);
-
-  /* Sombras con más profundidad */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
   --shadow-brand: 0 8px 24px var(--brand-glow);
-
-  /* Efectos de glow */
   --glow-brand: 0 0 20px var(--brand-glow), 0 0 40px var(--brand-glow);
 
+  /* Layout */
   --radius: 12px;
   --radius-lg: 16px;
   --container: 1280px;
   --transition: 0.2s ease-in-out;
 }
 
-/* Reset mejorado */
+/* =========================================================
+   RESET / BASE
+   ========================================================= */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -45,8 +49,6 @@
 html,
 body {
   height: 100%;
-  margin: 0;
-  padding: 0;
 }
 
 body {
@@ -60,10 +62,10 @@ body {
 
 .page {
   min-height: 100dvh;
-  padding-top: 60px;
+  padding-top: 82px; /* altura del topbar */
 }
 
-/* Layout helpers */
+/* Contenedor general centrado */
 .container {
   width: 100%;
   max-width: var(--container);
@@ -71,7 +73,9 @@ body {
   padding-inline: 20px;
 }
 
-/* Topbar */
+/* =========================================================
+   TOPBAR
+   ========================================================= */
 .topbar {
   position: fixed;
   top: 0;
@@ -103,6 +107,7 @@ body {
   gap: 10px;
 }
 
+/* (Por si luego muestras inicial de usuario) */
 .user-circle {
   width: 32px;
   height: 32px;
@@ -114,111 +119,9 @@ body {
   font-weight: 900;
 }
 
-.logout-btn {
-  background: #232831;
-  border: 1px solid var(--line);
-  color: var(--ink);
-  padding: 6px 12px;
-  border-radius: 10px;
-  text-decoration: none;
-}
-
-.logout-btn:hover {
-  background: #2a303a;
-}
-
-/* ====== HERO con efectos de luz ====== */
-/* Reducir padding vertical drásticamente */
-.hero {
-  padding-top: clamp(60px, 8vw, 80px);
-  padding-bottom: clamp(40px, 6vw, 60px);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Efecto de luz ambiente */
-.hero::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  right: -20%;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, var(--brand-glow) 0%, transparent 70%);
-  opacity: 0.3;
-  filter: blur(80px);
-  pointer-events: none;
-  animation: pulse 8s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  /* Reducir gap entre elementos */
-  gap: clamp(32px, 4vw, 48px);
-  align-items: center;
-  position: relative;
-  z-index: 1;
-}
-
-@media (min-width: 900px) {
-  .hero-grid {
-    grid-template-columns: 1fr 1.1fr;
-  }
-}
-
-.hero-text {
-  max-width: 580px;
-}
-
-.hero-title {
-  font-size: clamp(40px, 5.5vw, 56px);
-  line-height: 1.15;
-  font-weight: 900;
-  color: var(--ink);
-  /* Reducir margen inferior */
-  margin: 0 0 20px 0;
-  letter-spacing: -0.025em;
-  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-dim) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  word-spacing: 0.05em;
-}
-
-.hero-title br {
-  display: block;
-}
-
-.hero-desc {
-  font-size: clamp(16px, 1.7vw, 18px);
-  color: var(--muted);
-  line-height: 1.75;
-  /* Reducir margen inferior */
-  margin: 0 0 24px 0;
-  max-width: 540px;
-}
-
-.hero-actions {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  flex-wrap: wrap;
-  /* Reducir margen inferior drásticamente */
-  margin-bottom: 32px;
-}
-
-/* ====== BOTONES con efectos mejorados ====== */
+/* =========================================================
+   BOTONES GENERALES
+   ========================================================= */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -293,13 +196,14 @@ body {
   transform: translateX(3px);
 }
 
-/* Botón especial hero "Comenzar ahora" */
+/* =========================================================
+   BOTÓN ESPECIAL "COMENZAR AHORA"
+   ========================================================= */
 .cssbuttons-io-button {
-  background: var(--brand); /* Rojo TMDV */
+  background: var(--brand);
   color: white;
   font-family: inherit;
-  padding: 0.35em;
-  padding-left: 1.2em;
+  padding: 0.35em 3.3em 0.35em 1.2em;
   font-size: 17px;
   font-weight: 800;
   border-radius: 0.9em;
@@ -311,7 +215,6 @@ body {
   overflow: hidden;
   position: relative;
   height: 2.9em;
-  padding-right: 3.3em;
   cursor: pointer;
   transition: all 0.25s;
 }
@@ -354,85 +257,140 @@ body {
   transform: scale(0.95);
 }
 
-/* ====== STATS con cards compactas en rojo TMDV ====== */
-.stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  padding: 0;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  position: relative;
-}
-
-.stat {
-  flex: 1 1 180px;
-  max-width: 210px;
-  height: 60px;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: #fff;
-  cursor: pointer;
-  transition: 300ms;
+/* =========================================================
+   HERO PRINCIPAL (TÍTULO + KPIs + GALERÍA)
+   ========================================================= */
+.hero {
+  padding-top: clamp(60px, 8vw, 80px);
+  padding-bottom: clamp(40px, 6vw, 60px);
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(225, 38, 28, 0.5);
-  background:
-    radial-gradient(circle at top left, rgba(225, 38, 28, 0.5), transparent 65%),
-    linear-gradient(135deg, #1a1112, #221316);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5),
-              0 0 18px rgba(225, 38, 28, 0.5);
 }
 
-/* Efecto hover tipo librería, pero más suave */
-.stat:hover {
-  transform: scale(1.06);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6),
-              0 0 22px rgba(225, 38, 28, 0.6);
+/* Luz ambiente roja suave en el fondo */
+.hero::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--brand-glow) 0%, transparent 70%);
+  opacity: 0.3;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: pulse 8s ease-in-out infinite;
 }
 
-.stats:hover > .stat:not(:hover) {
-  filter: blur(4px);
-  transform: scale(0.96);
-  opacity: 0.85;
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.5; }
 }
 
-/* Valor del porcentaje */
-.stat-value {
+/* Dos columnas: izquierda texto, derecha visual */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: clamp(32px, 4vw, 56px);
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* Columna texto */
+.hero-text {
+  max-width: 580px;
+}
+
+.hero-title {
+  font-size: clamp(40px, 5.5vw, 56px);
+  line-height: 1.15;
   font-weight: 900;
-  font-size: clamp(26px, 2.6vw, 32px);
-  line-height: 1;
-  letter-spacing: -0.02em;
-  margin-bottom: 4px;
-  text-shadow: 0 0 12px rgba(0, 0, 0, 0.55);
+  margin: 0 0 20px 0;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-dim) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  word-spacing: 0.05em;
 }
 
-/* Texto descriptivo debajo del porcentaje */
-.stat-label {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 11px;
+.hero-desc {
+  font-size: clamp(16px, 1.7vw, 18px);
+  color: var(--muted);
+  line-height: 1.75;
+  margin: 0 0 24px 0;
+  max-width: 540px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* =========================================================
+   KPIs – CARDS ROJAS ESTILO TMDV
+   ========================================================= */
+
+.hero-kpis {
+  margin-top: 22px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;           /* antes 16px */
+  max-width: 540px;    /* antes 440px → más compactas */
+}
+
+.kpi-item {
+  padding: 14px 18px;  /* antes 22px 26px */
+  border-radius: 12px; /* un poco menos redondeadas */
+  background: linear-gradient(135deg, rgba(225, 38, 28, 0.75), rgba(196, 31, 21, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 6px 20px rgba(225, 38, 28, 0.35);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 2px;
+  color: #fff;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.kpi-item:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 26px rgba(225, 38, 28, 0.55);
+}
+
+/* Valor numérico */
+.kpi-qty {
+  font-size: 1.35rem;  /* antes 1.6rem */
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+/* Etiqueta */
+.kpi-text {
+  font-size: 0.72rem;  /* antes 0.78rem */
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  opacity: 0.95;
+  letter-spacing: 0.15em;
 }
 
-
-/* ====== GALERÍA HERO con animaciones ====== */
+/* =========================================================
+   GALERÍA HERO (VISTA PREVIA)
+   ========================================================= */
 .hero-gallery {
   position: relative;
   width: 100%;
   max-width: 680px;
-  margin: 0 auto;
 }
 
 .hg-badge {
   position: absolute;
-  /* Mover badge más cerca */
   top: -64px;
   left: 50%;
   transform: translateX(-50%);
@@ -501,7 +459,7 @@ body {
   }
 }
 
-/* Flechas de navegación con diseño refinado */
+/* Flechas laterales */
 .hero-gallery .hg-arrow {
   opacity: 0;
   pointer-events: none;
@@ -541,16 +499,12 @@ body {
   box-shadow: var(--glow-brand);
 }
 
-.hg-left {
-  left: -60px;
-}
+.hg-left  { left: -60px; }
+.hg-right { right: -60px; }
 
-.hg-right {
-  right: -60px;
-}
-
-/* ====== FEATURES con cards mejoradas ====== */
-/* Reducir padding vertical drásticamente */
+/* =========================================================
+   FEATURES – GRID DE CARDS
+   ========================================================= */
 .features {
   padding: clamp(50px, 8vw, 70px) 0;
   position: relative;
@@ -559,7 +513,6 @@ body {
 .section-title {
   font-size: clamp(32px, 4.5vw, 48px);
   font-weight: 900;
-  /* Reducir margen inferior */
   margin: 0 0 36px 0;
   color: var(--ink);
   text-align: center;
@@ -572,7 +525,6 @@ body {
   gap: 24px;
 }
 
-/* Cards con efectos hover mejorados */
 .card {
   height: 100%;
   background: var(--card);
@@ -642,8 +594,9 @@ body {
   line-height: 1.65;
 }
 
-/* ====== CTA con diseño impactante ====== */
-/* Reducir padding vertical drásticamente */
+/* =========================================================
+   CTA FINAL
+   ========================================================= */
 .cta {
   padding: 0 0 clamp(40px, 6vw, 60px) 0;
 }
@@ -653,7 +606,6 @@ body {
   flex-direction: column;
   align-items: flex-start;
   gap: 24px;
-  /* Reducir padding interno */
   padding: clamp(28px, 4vw, 36px);
   background: var(--card);
   border: 1px solid var(--line);
@@ -676,14 +628,6 @@ body {
   animation: pulse 6s ease-in-out infinite;
 }
 
-@media (min-width: 900px) {
-  .cta-card {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
 .cta-text {
   position: relative;
   z-index: 1;
@@ -704,12 +648,9 @@ body {
   line-height: 1.6;
 }
 
-.cta-card .btn {
-  position: relative;
-  z-index: 1;
-}
-
-/* ====== LIGHTBOX con diseño pulido ====== */
+/* =========================================================
+   LIGHTBOX GLOBAL
+   ========================================================= */
 .hg-lightbox[hidden] {
   display: none !important;
 }
@@ -783,7 +724,7 @@ body {
   font-weight: 600;
 }
 
-/* Dots de paginación con animaciones */
+/* Dots de paginación */
 .hg-dots {
   display: flex;
   gap: 10px;
@@ -814,7 +755,9 @@ body {
   box-shadow: var(--glow-brand);
 }
 
-/* ====== RESPONSIVE ====== */
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 @media (max-width: 900px) {
   .topbar {
     padding: 0 16px;
@@ -829,35 +772,21 @@ body {
     padding-top: 56px;
   }
 
-  /* Reducir padding vertical en mobile */
-  .hero {
-    padding-top: 60px;
-    padding-bottom: 40px;
-  }
-
-  .hg-arrow {
-    font-size: 1.2rem;
-    width: 38px;
-    height: 38px;
-  }
-
-  .hg-left {
-    left: -48px;
-  }
-
-  .hg-right {
-    right: -48px;
-  }
-
-  .stats {
+  /* Hero en una sola columna */
+  .hero-grid {
     grid-template-columns: 1fr;
-    gap: 24px;
-    padding: 24px;
   }
 
-  .stat {
-    text-align: left;
+  .hero-gallery {
+    margin-top: 32px;
   }
+
+  .hg-badge {
+    top: -40px;
+  }
+
+  .hg-left  { left: -48px; }
+  .hg-right { right: -48px; }
 }
 
 @media (max-width: 600px) {
@@ -866,18 +795,12 @@ body {
     pointer-events: all;
   }
 
-  .hg-left {
-    left: 8px;
-  }
-
-  .hg-right {
-    right: 8px;
-  }
+  .hg-left  { left: 8px; }
+  .hg-right { right: 8px; }
 
   .hg-badge {
     font-size: 10px;
     padding: 6px 14px;
-    /* Reducir aún más en mobile */
     top: -28px;
   }
 
@@ -890,15 +813,19 @@ body {
     font-size: 14px;
   }
 
-  .features-grid {
-    grid-template-columns: 1fr;
-  }
-
   .hero-title {
     font-size: 36px;
   }
 
-  .stats {
-    padding: 20px;
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-kpis {
+    margin-top: 20px;
+  }
+
+  .kpi-grid {
+    max-width: 100%;
   }
 }
