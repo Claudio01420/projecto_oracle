@@ -139,8 +139,8 @@
               <h1 class="h4">Equipos</h1>
               <p class="muted">Crea equipos, invita miembros y gestiona roles.</p>
             </header>
-            <button id="btnOpenCreate" class="btn-red with-icon" aria-label="Crear nuevo equipo">
-              <svg class="ico-sm" aria-hidden="true"><use href="#i-users"/></svg>
+            <button id="btnOpenCreate" class="btn-create-sweep">
+              <svg class="ico-sm"><use href="#i-users"/></svg>
               <span>Crear equipo</span>
             </button>
           </div>
@@ -449,17 +449,58 @@ function renderMembersRows(equipoId, miembros, miRol) {
     const isUser = (m.rol === 'USUARIO');
     const isSuper = (m.rol === 'USUARIO_SUPERIOR');
 
+    // nombre único para el grupo de radios por fila
+    const radioName = `role-${equipoId}-${uid}`;
+
     const actions = canManage
       ? `
         <div class="role-actions">
-          <button class="btn-role role-user ${isUser ? 'current' : ''}" data-action="make-user" data-uid="${uid}" data-eid="${equipoId}">
-            <svg class="ico-sm" aria-hidden="true"><use href="#i-user"/></svg> Usuario
-          </button>
-          <button class="btn-role role-super ${isSuper ? 'current' : ''}" data-action="make-super" data-uid="${uid}" data-eid="${equipoId}">
-            <svg class="ico-sm" aria-hidden="true"><use href="#i-star"/></svg> Super
-          </button>
-          <button class="btn-ghost danger" data-action="remove" data-uid="${uid}" data-eid="${equipoId}">
-            <svg class="ico-sm" aria-hidden="true"><use href="#i-trash"/></svg> Quitar
+          <!-- Switch de rol Usuario / Super -->
+          <div class="radio-input">
+            <label>
+              <input 
+                type="radio" 
+                name="${radioName}" 
+                value="USUARIO"
+                data-role-change
+                data-rol="USUARIO"
+                data-uid="${uid}"
+                data-eid="${equipoId}"
+                ${isUser ? 'checked' : ''}
+              />
+              <span>Usuario</span>
+            </label>
+            <label>
+              <input 
+                type="radio" 
+                name="${radioName}" 
+                value="USUARIO_SUPERIOR"
+                data-role-change
+                data-rol="USUARIO_SUPERIOR"
+                data-uid="${uid}"
+                data-eid="${equipoId}"
+                ${isSuper ? 'checked' : ''}
+              />
+              <span>Super</span>
+            </label>
+            <span class="selection"></span>
+          </div>
+
+          <!-- Botón redondo animado para eliminar usuario -->
+          <button
+            class="btn-round-anim delete-member-button"
+            data-action="remove"
+            data-uid="${uid}"
+            data-eid="${equipoId}"
+            title="Quitar usuario del equipo"
+          >
+            <svg viewBox="0 0 448 512" aria-hidden="true">
+              <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416
+                       c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8
+                       296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32
+                       L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7
+                       47.9-45L416 128z"></path>
+            </svg>
           </button>
         </div>
       `
@@ -497,18 +538,53 @@ function buildTeamCard(eq, miembros, miRol) {
 
   const actions = (miRol === 'ADMIN')
     ? `
-       <button class="btn-red" data-open-invite data-eid="${eq.id}" data-name="${(eq.nombreEquipo||'')}">Invitar</button>
-       <button class="btn-ghost" data-action="edit-team" data-eid="${eq.id}" data-name="${(eq.nombreEquipo||'')}" data-desc="${(eq.descripcion||'')}">
-         <svg class="ico-sm" aria-hidden="true"><use href="#i-edit"/></svg> Editar
-       </button>
-       <button class="btn-ghost danger" data-action="delete-team" data-eid="${eq.id}">
-         <svg class="ico-sm" aria-hidden="true"><use href="#i-trash"/></svg> Eliminar
-       </button>`
+      <!-- Botón INVITAR animado -->
+      <button 
+        class="btn-round-anim invite-button"
+        data-open-invite
+        data-eid="${eq.id}"
+        data-name="${(eq.nombreEquipo||'')}"
+        title="Invitar miembro"
+      >
+        <svg class="svgIcon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="10" cy="7" r="3"></circle>
+          <path d="M5 18v-1c0-2.2 1.8-4 4-4h2c2.2 0 4 1.8 4 4v1"></path>
+          <path d="M18 7v4"></path>
+          <path d="M16 9h4"></path>
+        </svg>
+      </button>
+
+      <!-- Botón EDITAR animado -->
+      <button 
+        class="btn-round-anim edit-button"
+        data-action="edit-team"
+        data-eid="${eq.id}"
+        data-name="${eq.nombreEquipo || ''}"
+        data-desc="${eq.descripcion || ''}"
+        title="Editar equipo"
+      >
+        <svg class="edit-svgIcon" viewBox="0 0 512 512">
+          <path d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"></path>
+        </svg>
+      </button>
+
+      <!-- Botón ELIMINAR EQUIPO animado -->
+      <button
+        class="btn-round-anim delete-team-button"
+        data-action="delete-team"
+        data-eid="${eq.id}"
+        title="Eliminar equipo"
+      >
+        <svg viewBox="0 0 448 512" aria-hidden="true">
+          <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path>
+        </svg>
+      </button>
+    `
     : '';
 
   return `
     <article class="card team-card" data-eid="${eq.id}">
-      <header class="team-header" data-toggle>
+      <header class="team-header">
         <div class="team-header-left">
           <h3 class="team-title">
             ${eq.nombreEquipo || '—'}
@@ -638,47 +714,59 @@ async function refreshTeamCard(equipoId) {
 document.addEventListener('click', async (e) => {
   const t = e.target;
 
-  // abrir modal invitación
-  if (t.matches('[data-open-invite]')) {
-    currentInviteEquipoId = Number(t.getAttribute('data-eid'));
-    const name = (t.getAttribute('data-name')||'');
-    document.getElementById('inviteTeamName').textContent = `Equipo: ${name} (#${currentInviteEquipoId})`;
+  // abrir modal invitación (soporta click en SVG / PATH dentro del botón)
+  const inviteTrigger = e.target.closest('[data-open-invite]');
+  if (inviteTrigger) {
+    currentInviteEquipoId = Number(inviteTrigger.getAttribute('data-eid'));
+    const name = (inviteTrigger.getAttribute('data-name') || '');
+    document.getElementById('inviteTeamName').textContent =
+      `Equipo: ${name} (#${currentInviteEquipoId})`;
     openModal(inviteModal);
   }
-  if (t === document.getElementById('btnCloseInvite')) closeModal(inviteModal);
 
-  // toggle ver/ocultar miembros
-  const toggleBtn = t.closest('[data-toggle]');
+  if (t === document.getElementById('btnCloseInvite')) {
+    closeModal(inviteModal);
+  }
+
+  // toggle ver/ocultar miembros (solo botón "Ver miembros")
+  const toggleBtn = e.target.closest('button[data-toggle]');
   if (toggleBtn) {
-    const card = t.closest('.team-card');
+    const card = toggleBtn.closest('.team-card');
+    if (!card) return;
     const body = card.querySelector('.team-body');
     const chev = card.querySelector('.chev');
-    const txt = card.querySelector('.toggle-text');
+    const txt  = card.querySelector('.toggle-text');
+
     const isOpen = body.style.display === 'block';
     body.style.display = isOpen ? 'none' : 'block';
     if (chev) chev.textContent = isOpen ? '▼' : '▲';
     if (txt) txt.textContent = isOpen ? 'Ver miembros' : 'Ocultar';
+    return; // importante: no seguir a acciones si fue toggle
   }
 
-  // acciones de fila / tarjeta
-  if (t.dataset && t.dataset.action) {
-    const equipoId = Number(t.dataset.eid);
+  // acciones de fila / tarjeta (edit / delete / roles / remove)
+  const actionBtn = e.target.closest('[data-action]');
+  if (actionBtn) {
+    const equipoId = Number(actionBtn.dataset.eid);
 
-    if (t.dataset.action === 'edit-team') {
-      editTeamId.value = String(equipoId);
-      editTeamName.value = t.getAttribute('data-name') || '';
-      editTeamDesc.value = t.getAttribute('data-desc') || '';
+    if (actionBtn.dataset.action === 'edit-team') {
+      editTeamId.value   = String(equipoId);
+      editTeamName.value = actionBtn.getAttribute('data-name') || '';
+      editTeamDesc.value = actionBtn.getAttribute('data-desc') || '';
       openModal(editModal);
       return;
     }
 
-    if (t.dataset.action === 'delete-team') {
+    if (actionBtn.dataset.action === 'delete-team') {
       showConfirmUI({
         title: '¿Eliminar equipo?',
         message: 'Se eliminará este equipo y sus relaciones. No podrás deshacer esta acción.',
         onConfirm: async () => {
           const resp = await fetch(`${API.equipos}/${equipoId}`, { method: 'DELETE' });
-          if (!resp.ok && resp.status !== 204) { showToast('No se pudo eliminar el equipo'); return; }
+          if (!resp.ok && resp.status !== 204) {
+            showToast('No se pudo eliminar el equipo');
+            return;
+          }
           showToast('Equipo eliminado', 'success');
           await loadMyTeams();
         }
@@ -686,8 +774,9 @@ document.addEventListener('click', async (e) => {
       return;
     }
 
-    const usuarioId = Number(t.dataset.uid);
-    if (t.dataset.action === 'remove') {
+    const usuarioId = Number(actionBtn.dataset.uid);
+
+    if (actionBtn.dataset.action === 'remove') {
       showConfirmUI({
         title: '¿Quitar usuario del equipo?',
         message: 'Este miembro perderá acceso a este equipo.',
@@ -696,15 +785,33 @@ document.addEventListener('click', async (e) => {
           await refreshTeamCard(equipoId);
         }
       });
+      return;
     }
-    if (t.dataset.action === 'make-user') {
-      await fetch(`${API.equipos}/${equipoId}/miembros/${usuarioId}/rol?rol=USUARIO`, { method: 'PUT' });
-      await refreshTeamCard(equipoId);
-    }
-    if (t.dataset.action === 'make-super') {
-      await fetch(`${API.equipos}/${equipoId}/miembros/${usuarioId}/rol?rol=USUARIO_SUPERIOR`, { method: 'PUT' });
-      await refreshTeamCard(equipoId);
-    }
+  }
+});
+
+/* ==================== Cambio de rol (switch radio) ==================== */
+document.addEventListener('change', async (e) => {
+  const input = e.target;
+  if (!input.matches('input[data-role-change]')) return;
+
+  const equipoId = Number(input.dataset.eid);
+  const usuarioId = Number(input.dataset.uid);
+  const rol = input.dataset.rol; // "USUARIO" o "USUARIO_SUPERIOR"
+
+  if (!equipoId || !usuarioId || !rol) return;
+
+  try {
+    const resp = await fetch(
+      `${API.equipos}/${equipoId}/miembros/${usuarioId}/rol?rol=${encodeURIComponent(rol)}`,
+      { method: 'PUT' }
+    );
+    if (!resp.ok) throw new Error('No se pudo actualizar el rol');
+    await refreshTeamCard(equipoId);
+    showToast('Rol actualizado', 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('Error al actualizar el rol');
   }
 });
 
