@@ -37,7 +37,7 @@
   --radius-lg:18px;
 
   /* Roles */
-  --role-user:#f59e0b;     /* naranja */
+  --role-user:#0b4df5;     /* naranja */
   --role-super:#dc2626;    /* rojo */
   --role-admin:#facc15;    /* amarillo */
 }
@@ -657,12 +657,12 @@ body {
   color:#facc15;
 }
 .tag-super{
-  background:#7f1d1d33;
+  background:#7f1d1d;
   border-color:#f8717177;
   color:#fecaca;
 }
 .tag-user{
-  background:#111827;
+  background:#284584;
   border-color:#4b5563;
   color:#e5e7eb;
 }
@@ -696,59 +696,6 @@ body {
   flex-wrap:wrap;
   gap:8px;
   justify-content:flex-end;
-}
-.btn-role{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  font-weight:800;
-  padding:8px 12px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  color:#e5e7eb;
-  background:#020617;
-  box-shadow:var(--shadow-sm);
-  /* added transitions and focus state */
-  transition: all .2s ease;
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-}
-.btn-role:focus {
-  outline-color: currentColor;
-}
-.btn-role .ico-sm{color:inherit;}
-
-.role-user{
-  background:rgba(245,158,11,.12);
-  border:1px solid rgba(245,158,11,.5);
-  color:#fbbf24;
-}
-.role-user:hover {
-  background: rgba(245, 158, 11, 0.2);
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
-}
-.role-super{
-  background:rgba(220,38,38,.16);
-  border:1px solid rgba(220,38,38,.6);
-  color:#fecaca;
-}
-.role-super:hover {
-  background: rgba(220, 38, 38, 0.24);
-  box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
-}
-.role-admin{
-  background:rgba(250,204,21,.18);
-  border:1px solid rgba(250,204,21,.7);
-  color:#facc15;
-}
-.role-admin:hover {
-  background: rgba(250, 204, 21, 0.26);
-  box-shadow: 0 0 8px rgba(250, 204, 21, 0.4);
-}
-.btn-role.current{
-  outline:2px solid currentColor;
-  outline-offset: 0;
 }
 
 /* Confirm modal (borrar usuario/equipo) */
@@ -871,4 +818,269 @@ body {
   margin-top: 14px;
   font-size: 0.9rem;
   color: var(--ink-dim);
+}
+
+/* === Botón "Crear equipo" con efecto sweep personalizado TMDV === */
+.btn-create-sweep {
+  outline: none;
+  cursor: pointer;
+  border: none;
+  padding: 0.9rem 2.2rem;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.05rem;
+
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  position: relative;
+  overflow: hidden;
+
+  border-radius: 500px;
+
+  /* Color de fondo inicial (rojo TMDV) */
+  background: var(--brand);
+  color: ghostwhite;
+
+  /* Suavidad */
+  transition: color .4s ease;
+}
+
+/* Icono hereda el color */
+.btn-create-sweep .ico-sm {
+  position: relative;
+  z-index: 10;
+  color: inherit;
+}
+
+/* Texto por encima */
+.btn-create-sweep span {
+  position: relative;
+  z-index: 10;
+  transition: color .4s ease;
+}
+
+/* Hover: texto negro para contraste */
+.btn-create-sweep:hover span,
+.btn-create-sweep:hover .ico-sm {
+  color: #000;
+}
+
+/* Capa de barrido */
+.btn-create-sweep::before,
+.btn-create-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Capa negra inclinada que hace el efecto sweep */
+.btn-create-sweep::before {
+  background: #000;
+  width: 120%;
+  left: -10%;
+  transform: skew(30deg);
+  transition: transform .4s cubic-bezier(.3, 1, .8, 1);
+}
+
+/* Movimiento del barrido */
+.btn-create-sweep:hover::before {
+  transform: translate3d(100%, 0, 0);
+}
+
+/* ============================================================
+   BOTONES ANIMADOS UNIFICADOS (EDITAR, ELIMINAR EQUIPO, ELIMINAR MIEMBRO, INVITAR)
+   ============================================================ */
+
+/* Base compartida */
+.btn-round-anim {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: #141414;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: width .35s ease, background .35s ease, border-radius .35s ease;
+  box-shadow: 0px 0px 20px rgba(0,0,0,.2);
+}
+
+/* Ícono base */
+.btn-round-anim svg {
+  width: 18px;
+  transition: all .35s ease;
+}
+
+.btn-round-anim svg path {
+  fill: white;
+  stroke: white;
+  stroke-width: 2;
+}
+
+/* Texto del botón (añadido con ::before) */
+.btn-round-anim::before {
+  content: attr(data-label);
+  position: absolute;
+  left: 16px;
+  opacity: 0;
+  font-size: 2px;
+  color: white;
+  transition: all .35s ease;
+}
+
+/* Animación hover base */
+.btn-round-anim:hover {
+  width: 70px;
+  border-radius: 50px;
+}
+
+.btn-round-anim:hover::before {
+  opacity: 1;
+  font-size: 14px;
+  transform: translateY(0);
+}
+
+/* Ícono baja y rota */
+.btn-round-anim:hover svg {
+  transform: rotate(360deg);
+  width: 20px;
+  margin-left: 6px; /* separa icono del texto */
+}
+
+/* ============================================================
+   VARIANTE — EDITAR (VERDE)
+   ============================================================ */
+
+.edit-button {
+  background: rgb(20,20,20);
+}
+
+.edit-button:hover {
+  background: rgb(72, 255, 69);
+}
+
+/* ============================================================
+   VARIANTE — ELIMINAR EQUIPO (ROJO)
+   ============================================================ */
+
+.delete-team-button {
+  background: rgb(20,20,20);
+}
+
+.delete-team-button:hover {
+  background: rgb(255, 69, 69);
+}
+
+.delete-member-button {
+  background: rgb(20,20,20); /* mismo base oscuro */
+}
+
+.delete-member-button:hover {
+  background: rgb(255, 69, 69); /* mismo rojo bonito */
+}
+
+/* ============================================================
+   VARIANTE — INVITAR (AZUL)
+   ============================================================ */
+
+.invite-button {
+  background: rgb(20, 20, 20); /* estado normal (oscuro) */
+}
+
+.invite-button:hover {
+  background: #1e90ff; /* azul bonito tipo 'DodgerBlue' */
+}
+
+.invite-button svg {
+  width: 20px;
+}
+
+.invite-button svg path,
+.invite-button svg circle {
+  fill: none;
+  stroke: white;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ============================================================
+   SWITCH DE ROL (USUARIO / SUPER) ESTILO RADIO
+   ============================================================ */
+
+.radio-input {
+  --container_width: 220px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 999px;
+  background-color: #020617;
+  color: #e5e7eb;
+  width: var(--container_width);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+  font-size: 13px;
+}
+
+.radio-input input {
+  display: none;
+}
+
+.radio-input label {
+  width: 100%;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  font-weight: 700;
+  letter-spacing: 0;
+  font-size: 13px;
+}
+
+.radio-input .selection {
+  display: none;
+  position: absolute;
+  height: 100%;
+  width: calc(var(--container_width) / 2);
+  z-index: 0;
+  left: 0;
+  top: 0;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+  border-radius: inherit;
+}
+
+/* Colores de texto cuando está seleccionado */
+.radio-input label:nth-child(1):has(input:checked) {
+  color: #a4b8ea; /* usuario (AZUL) */
+}
+.radio-input label:nth-child(2):has(input:checked) {
+  color: #fecaca; /* super (rosita) */
+}
+
+/* Fondo de la "píldora" */
+.radio-input label:nth-child(1):has(input:checked) ~ .selection {
+  background-color: #284584; /* usuario */
+  display: inline-block;
+}
+.radio-input label:nth-child(2):has(input:checked) ~ .selection {
+  background-color: #7f1d1d; /* super */
+  display: inline-block;
+}
+
+/* Posición de la selección (2 opciones) */
+.radio-input label:nth-child(1):has(input:checked) ~ .selection {
+  transform: translateX(calc(var(--container_width) * 0 / 2));
+}
+.radio-input label:nth-child(2):has(input:checked) ~ .selection {
+  transform: translateX(calc(var(--container_width) * 1 / 2));
 }
