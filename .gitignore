@@ -54,3 +54,15 @@ MtdrSpring/backend/buildImgContainer.bat
 /MtdrSpring/backend/target
 /MtdrSpring/backend/target
 /MtdrSpring/backend/target
+MtdrSpring/backend/src/main/frontend/build/asset-manifest.json
+MtdrSpring/backend/src/main/frontend/build/index.html
+MtdrSpring/backend/src/main/frontend/build/static/js/main.b66330bc.js.map
+MtdrSpring/backend/src/main/frontend/node_modules/.cache/.eslintcache
+MtdrSpring/backend/target/classes/com/springboot/MyTodoList/controller/ToDoItemBotController.class
+MtdrSpring/backend/target/classes/static/asset-manifest.json
+MtdrSpring/backend/target/classes/static/index.html
+MtdrSpring/backend/target/classes/static/static/js/main.b66330bc.js.map
+MtdrSpring/backend/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+MtdrSpring/backend/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+MtdrSpring/backend/target/MyTodoList-0.0.1-SNAPSHOT.jar
+MtdrSpring/backend/target/MyTodoList-0.0.1-SNAPSHOT.jar.original
