@@ -155,7 +155,7 @@ body{
 .aside{
   background: var(--bg-secondary);
   color:#d8dbe2;
-  padding:20px 12px;
+  padding:14px 12px 20px;
   position: sticky;
   top:52px;
   height: calc(100vh - 52px);
@@ -187,7 +187,7 @@ body{
   display:flex;
   flex-direction:column;
   gap:8px;
-  margin-top:12px;
+  margin-top:4px;
 }
 
 .mi{
@@ -499,7 +499,7 @@ body{
   margin:16px 0;
 }
 
-/* Detalles de tarea mejorados */
+/* Detalles de tarea (panel inferior) */
 .task.selected{ 
   outline:2px solid var(--brand); 
   outline-offset:2px;
@@ -508,6 +508,7 @@ body{
 
 .details{ 
   display:none;
+  margin-top:18px;
 }
 
 .details.open{ 
@@ -617,6 +618,18 @@ body{
   padding:14px;
   color:var(--ink-dim);
   line-height:1.6;
+}
+
+/* Campos internos del panel inferior por si son form-controls */
+.details input,
+.details textarea,
+.details select,
+.details .form-control,
+.details .form-control-plaintext,
+.details .bg-light{
+  background:var(--card-soft) !important;
+  border:1px solid var(--line-2) !important;
+  color:var(--ink) !important;
 }
 
 /* Toolbar & Fields - Picker de proyectos oscuro */
@@ -804,7 +817,7 @@ body{
   overflow:hidden;
 }
 
-/* Filtros y búsqueda - nuevo elemento visual */
+/* Filtros y búsqueda */
 .filters-bar{
   display:flex;
   gap:12px;
@@ -872,6 +885,55 @@ body{
   border-color:var(--brand);
 }
 
+/* BOTONES de acciones de tareas (Editar / Completar / Eliminar)
+   re-tematizados a oscuro + rojo TMDV */
+.main .btn{
+  font-size:12px;
+  font-weight:700;
+  border-radius:999px;
+  padding:4px 12px;
+  border-width:1px;
+  transition:all .2s ease;
+}
+
+/* Editar (btn-primary) */
+.main .btn-primary{
+  background:transparent;
+  border-color:var(--brand);
+  color:var(--brand);
+}
+.main .btn-primary:hover{
+  background:var(--brand);
+  color:#fff;
+  box-shadow:0 0 12px rgba(225,38,28,.5);
+}
+
+/* Completar (btn-success) */
+.main .btn-success{
+  background:transparent;
+  border-color:#22c55e;
+  color:#bbf7d0;
+}
+.main .btn-success:hover{
+  background:#22c55e;
+  color:#020617;
+  box-shadow:0 0 12px rgba(34,197,94,.5);
+}
+
+/* Eliminar (btn-danger / btn-outline-danger) */
+.main .btn-danger,
+.main .btn-outline-danger{
+  background:transparent;
+  border-color:#b91c1c;
+  color:#fecaca;
+}
+.main .btn-danger:hover,
+.main .btn-outline-danger:hover{
+  background:#dc2626;
+  color:#fff;
+  box-shadow:0 0 14px rgba(248,113,113,.7);
+}
+
 /* Responsive */
 @media (max-width: 768px){
   .app{
@@ -899,7 +961,7 @@ body{
   }
 }
 
-/* Pantalla de carga con spinner 3D basado en tu segundo código */
+/* Pantalla de carga con spinner 3D */
 .loading-screen {
   position: fixed;
   top: 0;
@@ -984,4 +1046,129 @@ body{
  100% {
   transform: rotate(45deg) rotateX(-385deg) rotateY(385deg);
  }
+}
+
+/* ===========================
+   MODAL EDITAR TAREA DARK
+   =========================== */
+
+.modal-backdrop.show{
+  background:rgba(0,0,0,.78);
+}
+
+.modal-content{
+  background:var(--card) !important;
+  color:var(--ink) !important;
+  border-radius:18px;
+  border:1px solid var(--line);
+  box-shadow:0 18px 45px rgba(0,0,0,.9);
+}
+
+.modal-header,
+.modal-footer{
+  background:var(--card-soft) !important;
+  border-color:var(--line);
+}
+
+.modal-title{
+  font-weight:900;
+  color:var(--ink);
+}
+
+.modal-body label{
+  color:var(--muted);
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  font-weight:600;
+}
+
+/* Campos dentro del modal */
+.modal-body .form-control,
+.modal-body select.form-control,
+.modal-body textarea.form-control{
+  background:var(--bg-secondary) !important;
+  border:1px solid var(--line-2) !important;
+  color:var(--ink) !important;
+  border-radius:10px;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.4);
+}
+
+.modal-body .form-control::placeholder{
+  color:#8e97a6;
+}
+
+/* Botones footer modal */
+.modal-footer .btn-secondary{
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--ink-dim);
+}
+.modal-footer .btn-secondary:hover{
+  background:var(--card-soft);
+  color:var(--ink);
+}
+
+.modal-footer .btn-primary,
+.modal-footer .btn-danger{
+  background:var(--brand);
+  border:none;
+  color:#fff;
+  box-shadow:0 0 18px rgba(225,38,28,.6);
+}
+.modal-footer .btn-primary:hover,
+.modal-footer .btn-danger:hover{
+  background:var(--brand-hover);
+  box-shadow:0 0 24px rgba(225,38,28,.8);
+  transform:translateY(-1px);
+}
+
+/* ===========================
+   BOTONES REDONDOS ANIMADOS
+   (por si los usas también en tareas)
+   =========================== */
+
+.btn-round-anim{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:none;
+  cursor:pointer;
+  background:#141414;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+  transition:width .35s ease, background .35s ease, border-radius .35s ease, box-shadow .35s ease;
+  box-shadow:0 0 20px rgba(0,0,0,.35);
+  color:#fff;
+}
+
+.btn-round-anim svg{
+  width:18px;
+  height:18px;
+  transition:transform .35s ease, opacity .35s ease;
+}
+
+/* Variante EDITAR (verde) */
+.btn-round-anim.edit-button{
+  background:radial-gradient(circle at 30% 0%, #4ade80 0, #166534 60%);
+  box-shadow:0 0 18px rgba(34,197,94,.5);
+}
+
+/* Variante ELIMINAR (rojo) */
+.btn-round-anim.delete-team-button,
+.btn-round-anim.delete-task-button{
+  background:radial-gradient(circle at 30% 0%, #fb7185 0, #7f1d1d 60%);
+  box-shadow:0 0 18px rgba(248,113,113,.6);
+}
+
+.btn-round-anim:hover{
+  width:120px;
+  border-radius:999px;
+}
+
+.btn-round-anim:hover svg{
+  transform:translateX(-8px);
 }
