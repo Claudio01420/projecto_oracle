@@ -52,7 +52,7 @@
     <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <circle cx="12" cy="12" r="3" />
       <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
-        d="M9.671 4.136a2.34 2.34 0  0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0  0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+        d="M9.671 4.136a2.34 2.34 0  0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
     </symbol>
     <symbol id="i-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="m16 17 5-5-5-5" />
@@ -62,40 +62,252 @@
   </svg>
 
   <style>
-    .filters{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-top:10px}
-    .field{display:flex;flex-direction:column;gap:6px}
-    .field label{font-size:12px;color:#6b7280}
-    .select{padding:10px 12px;border:1px solid #e5e7eb;border-radius:12px;min-width:260px;background:#fff}
-    .task-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-    .btn-xs{font-size:12px;padding:4px 8px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer}
-    .btn-xs.complete{background:#e6ffed;border-color:#b7f0c0}
-    .btn-xs.delete{background:#fff5f5;border-color:#ffd2d2}
-    .btn-xs.edit{background:#eef2ff;border-color:#c7d2fe}
-    .btn-xs:hover{filter:brightness(.97)}
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:300}
-    .modal.open{display:flex}
-    .modal-card{width:520px;max-width:92vw;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-md);padding:16px}
-    .modal-row{display:grid;grid-template-columns:140px 1fr;gap:10px;margin:8px 0}
-    .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
-    .btn{padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer}
-    .btn.primary{background:var(--brand);color:#fff;border:none}
-    .btn.primary:hover{background:var(--brand-hover)}
-    .btn.danger{background:#ef4444;color:#fff;border:none}
-    .btn.danger:hover{background:#dc2626}
-    .task.selected{outline:2px solid var(--brand);outline-offset:2px}
-    .drop-target{outline:2px dashed #cbd5e1;background:#f8fafc}
-    .details{display:none}.details.open{display:block}
-    .details-head{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px}
-    .badges{display:flex;gap:8px;flex-wrap:wrap}
-    .badge{font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid var(--line)}
-    .badge.status.todo{background:#fff4f3}
-    .badge.status.doing{background:#fff8e6}
-    .badge.status.done{background:#e9fff0}
-    .details-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-    .details-item{background:#fafbfc;border:1px solid var(--line-2);border-radius:12px;padding:12px}
-    .details-label{font-size:12px;color:var(--muted);margin-bottom:6px}
-    .details-value{font-weight:700;color:var(--muted-2)}
-    .desc-box{margin-top:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+    /* ================================
+       Filtros de cabecera (oscuro)
+       ================================ */
+    .filters {
+      display: flex;
+      gap: 14px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .select {
+      padding: 10px 12px;
+      border-radius: 10px;
+      min-width: 260px;
+      border: 1px solid var(--chip-border);
+      background: var(--card);
+      color: var(--ink);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, .4);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .select:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(225, 38, 28, .18);
+    }
+
+    .select option {
+      background: var(--card);
+      color: var(--ink);
+    }
+
+    /* ======================================
+       Botones pequeños (Editar / Completar / Eliminar)
+       ====================================== */
+    .task-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-xs {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--ink-dim);
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: .02em;
+      transition: var(--transition-base);
+    }
+
+    .btn-xs:hover {
+      border-color: var(--brand);
+      color: #fff;
+      background: var(--brand);
+      box-shadow: 0 0 10px rgba(225, 38, 28, .45);
+    }
+
+    .btn-xs.complete {
+      border-color: rgba(34, 197, 94, .6);
+      background: rgba(22, 101, 52, .35);
+      color: #bbf7d0;
+    }
+
+    .btn-xs.complete:hover {
+      background: #16a34a;
+      border-color: #22c55e;
+      color: #ecfdf5;
+      box-shadow: 0 0 12px rgba(34, 197, 94, .6);
+    }
+
+    .btn-xs.delete {
+      border-color: rgba(248, 113, 113, .7);
+      background: rgba(127, 29, 29, .5);
+      color: #fee2e2;
+    }
+
+    .btn-xs.delete:hover {
+      background: #b91c1c;
+      border-color: #fecaca;
+      color: #fff;
+      box-shadow: 0 0 14px rgba(248, 113, 113, .8);
+    }
+
+    .btn-xs.edit {
+      border-color: rgba(59, 130, 246, .6);
+      background: rgba(15, 23, 42, .7);
+      color: #e5e7eb;
+    }
+
+    .btn-xs.edit:hover {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 0 14px rgba(225, 38, 28, .6);
+    }
+
+    /* ================================
+       Modales en tema oscuro TMDV
+       ================================ */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 6, 10, .85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 520px;
+      max-width: 92vw;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow-md);
+      padding: 20px 22px 18px;
+      color: var(--ink);
+    }
+
+    .modal-card h3 {
+      margin: 4px 0 14px 0;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .modal-row {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 10px;
+      margin: 8px 0;
+      align-items: center;
+    }
+
+    .modal-row label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .modal-row input,
+    .modal-row textarea,
+    .modal-row select {
+      border-radius: 10px;
+      border: 1px solid var(--line-2);
+      padding: 8px 10px;
+      background: var(--card-soft);
+      color: var(--ink);
+      font-size: 14px;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, .45);
+    }
+
+    .modal-row textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    .modal-row input:focus,
+    .modal-row textarea:focus,
+    .modal-row select:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, .4),
+        0 0 0 2px rgba(225, 38, 28, .4);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--card-soft);
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      transition: var(--transition-base);
+    }
+
+    .btn:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+      box-shadow: 0 0 0 1px rgba(225, 38, 28, .45);
+    }
+
+    .btn.primary {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(225, 38, 28, .5);
+    }
+
+    .btn.primary:hover {
+      background: var(--brand-hover);
+      border-color: var(--brand-hover);
+      color: #fff;
+      box-shadow: 0 12px 26px rgba(225, 38, 28, .55);
+    }
+
+    .btn.danger {
+      background: #7f1d1d;
+      border-color: #b91c1c;
+      color: #fee2e2;
+    }
+
+    .btn.danger:hover {
+      background: #b91c1c;
+      border-color: #fecaca;
+      color: #fff;
+      box-shadow: 0 12px 26px rgba(185, 28, 28, .6);
+    }
+
+    .modal-card p {
+      color: var(--ink-dim);
+    }
   </style>
 
   <script src="/session.js"></script>
@@ -669,3 +881,4 @@
   </script>
 </body>
 </html>
+
