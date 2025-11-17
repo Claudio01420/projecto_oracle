@@ -1129,3 +1129,270 @@ input[type="date"] {
   padding: 8px;
 }
 
+.radio-input input {
+  display: none;
+}
+
+.radio-input {
+  --container_width: 360px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+  background-color: var(--chip-bg, #171d25);
+  color: var(--muted, #8a93a3);
+  width: var(--container_width);
+  overflow: hidden;
+  border: 1px solid var(--chip-border, #2a3240);
+  font-family: inherit;
+}
+
+.radio-input label {
+  flex: 1 1 0;
+  padding: 6px 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.radio-input label span {
+  position: relative;
+  z-index: 2;
+}
+
+.radio-input .selection {
+  position: absolute;
+  height: 100%;
+  width: calc(var(--container_width) / 4); /* 4 estados */
+  z-index: 0;
+  left: 0;
+  top: 0;
+  border-radius: inherit;
+  background-color: rgba(225, 38, 28, 0.25); /* base (Todos, rojito suave) */
+  transition: transform 0.18s ease-out, background-color 0.18s ease-out;
+}
+
+/* Color de texto normal y seleccionado */
+.radio-input label {
+  color: var(--muted, #8a93a3);
+}
+
+.radio-input label:has(input:checked) {
+  color: var(--ink, #e6e7ea);
+}
+
+/* Posiciones + color por estado
+   1: Todos      → rojo brand
+   2: Pendiente  → rojo (state-pend)
+   3: En curso   → amarillo (state-run)
+   4: Finalizado → verde (state-done)
+*/
+.radio-input label:nth-child(1):has(input:checked) ~ .selection {
+  transform: translateX(calc(var(--container_width) * 0 / 4));
+  background-color: rgba(225, 38, 28, 0.25); /* similar a var(--brand) soft */
+}
+
+.radio-input label:nth-child(2):has(input:checked) ~ .selection {
+  transform: translateX(calc(var(--container_width) * 1 / 4));
+  background-color: rgba(225, 38, 28, 0.573); /* rojo pendiente (state-pend) */
+}
+
+.radio-input label:nth-child(3):has(input:checked) ~ .selection {
+  transform: translateX(calc(var(--container_width) * 2 / 4));
+  background-color: rgba(255, 186, 48, 0.686); /* amarillo en curso (state-run) */
+}
+
+.radio-input label:nth-child(4):has(input:checked) ~ .selection {
+  transform: translateX(calc(var(--container_width) * 3 / 4));
+  background-color: rgba(17, 192, 105, 0.647); /* verde finalizado (state-done) */
+}
+/* =================== Botón Crear con efecto sweep =================== */
+.btn-create-sweep {
+  outline: none;
+  cursor: pointer;
+  border: none;
+  padding: 0.9rem 2.2rem;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.05rem;
+
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  position: relative;
+  overflow: hidden;
+
+  border-radius: 500px;
+
+  /* Color de fondo inicial (rojo TMDV) */
+  background: var(--brand);
+  color: ghostwhite;
+
+  /* Suavidad */
+  transition: color .4s ease;
+}
+
+/* Icono hereda el color */
+.btn-create-sweep .ico-sm {
+  position: relative;
+  z-index: 10;
+  color: inherit;
+}
+
+/* Texto por encima */
+.btn-create-sweep span {
+  position: relative;
+  z-index: 10;
+  transition: color .4s ease;
+}
+
+/* Hover: texto negro para contraste */
+.btn-create-sweep:hover span,
+.btn-create-sweep:hover .ico-sm {
+  color: #000;
+}
+
+/* Capa de barrido */
+.btn-create-sweep::before,
+.btn-create-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Capa negra inclinada que hace el efecto sweep */
+.btn-create-sweep::before {
+  background: #000;
+  width: 120%;
+  left: -10%;
+  transform: skew(30deg);
+  transition: transform .4s cubic-bezier(.3, 1, .8, 1);
+}
+
+/* Movimiento del barrido */
+.btn-create-sweep:hover::before {
+  transform: translate3d(100%, 0, 0);
+}
+ /* =================== Botón Crear con efecto edit =================== */
+.Btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100px;
+  height: 40px;
+  border: none;
+  padding: 0px 20px;
+  background-color: black;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 10px;
+  box-shadow: 5px 5px 0px rgb(255, 0, 0);
+  transition-duration: 0.3s;
+}
+
+.svg {
+  width: 13px;
+  position: absolute;
+  right: 0;
+  margin-right: 20px;
+  fill: white;
+  transition-duration: 0.3s;
+}
+
+.Btn:hover {
+  color: transparent;
+}
+
+.Btn:hover svg {
+  right: 43%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  transition-duration: 0.3s;
+}
+
+.Btn:active {
+  transform: translate(3px, 3px);
+  transition-duration: 0.3s;
+  box-shadow: 2px 2px 0px white;
+}
+
+/* Base compartida */
+.btn-round-anim {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: #141414;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: width .35s ease, background .35s ease, border-radius .35s ease;
+  box-shadow: 0px 0px 20px rgba(0,0,0,.25);
+}
+
+/* Ícono */
+.btn-round-anim svg {
+  width: 18px;
+  transition: all .35s ease;
+}
+
+.btn-round-anim svg path {
+  fill: white;
+  stroke: white;
+  stroke-width: 2;
+}
+
+/* Texto del botón */
+.btn-round-anim::before {
+  content: attr(data-label);
+  position: absolute;
+  left: 16px;
+  opacity: 0;
+  font-size: 2px;
+  color: white;
+  transition: all .35s ease;
+}
+
+/* Hover: despliegue */
+.btn-round-anim:hover {
+  width: 100px;
+  border-radius: 50px;
+}
+
+.btn-round-anim:hover::before {
+  opacity: 1;
+  font-size: 14px;
+}
+
+/* Ícono gira */
+.btn-round-anim:hover svg {
+  transform: rotate(360deg);
+  width: 20px;
+  margin-left: 8px;
+}
+
+/* ============================================================
+   VARIANTE — BORRAR PROYECTO (ROJO)
+   ============================================================ */
+
+.delete-team-button {
+  background: #141414;
+}
+
+.delete-team-button:hover {
+  background: rgb(255, 69, 69);
+}

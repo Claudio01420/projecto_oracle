@@ -76,6 +76,7 @@
 </head>
 
 <body>
+
   <div class="app">
     <!-- Topbar -->
     <header class="topbar" role="banner">
@@ -146,18 +147,15 @@
           </div>
         </section>
 
-        <!-- Loader centrado debajo del título -->
-        <div id="pageLoader" class="page-loader">
+                  <!-- Pantalla de carga -->
+        <div class="loading-screen" id="tasks-loading-screen">
           <div class="spinner">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
+            <div></div><div></div><div></div>
+            <div></div><div></div><div></div>
           </div>
-          <p class="loader-text">Cargando equipos...</p>
+          <div class="loading-text">Cargando Equipos...</div>
         </div>
+
 
         <!-- Contenido de equipos, oculto hasta que cargue -->
         <div id="teamsContent" style="display:none;">
@@ -843,7 +841,7 @@ formInvite.addEventListener('submit', async (e) => {
 
 /* ==================== Init con loader solo en main ==================== */
 async function initPage() {
-  const loader = document.getElementById('pageLoader');
+  const loader = document.getElementById('tasks-loading-screen'); // 👈 id correcto
   const content = document.getElementById('teamsContent');
 
   try {
@@ -851,7 +849,7 @@ async function initPage() {
   } catch (err) {
     console.error('Error en initPage', err);
   } finally {
-    if (loader) loader.style.display = 'none';
+    if (loader) loader.classList.add('hidden');   // usa .loading-screen.hidden { display:none; }
     if (content) content.style.display = 'block';
   }
 }
