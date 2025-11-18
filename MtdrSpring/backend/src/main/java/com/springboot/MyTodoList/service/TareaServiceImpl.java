@@ -23,18 +23,27 @@ public class TareaServiceImpl implements TareaService {
         this.tareaRepository = tareaRepository;
     }
 
-    /** Normaliza cualquier variante a los 3 valores canónicos que usa el front. */
+    /**
+     * Normaliza cualquier variante a los 3 valores canónicos que usa el front.
+     */
     private static String canonStatus(String s) {
-        if (s == null) return null;
+        if (s == null) {
+            return null;
+        }
         String v = s.trim().toLowerCase();
         switch (v) {
-            case "por hacer":   return "todo";
-            case "en progreso": return "doing";
-            case "hecho":       return "done";
+            case "por hacer":
+                return "todo";
+            case "en progreso":
+                return "doing";
+            case "hecho":
+                return "done";
             case "todo":
             case "doing":
-            case "done":        return v;
-            default:            return v; // deja pasar otros valores en minúscula
+            case "done":
+                return v;
+            default:
+                return v; // deja pasar otros valores en minúscula
         }
     }
 
@@ -98,23 +107,40 @@ public class TareaServiceImpl implements TareaService {
         Tarea t = tareaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Tarea no encontrada: " + id));
 
-        if (dto.title != null)           t.setTitle(dto.title);
-        if (dto.description != null)     t.setDescription(dto.description);
-        if (dto.estimatedHours != null)  t.setEstimatedHours(dto.estimatedHours);
-        if (dto.priority != null)        t.setPriority(dto.priority);
-        if (dto.sprintId != null)        t.setSprintId(dto.sprintId);
-        if (dto.projectId != null)       t.setProjectId(dto.projectId);
-        if (dto.assigneeId != null)      t.setAssigneeId(dto.assigneeId);
-        if (dto.assigneeName != null)    t.setAssigneeName(dto.assigneeName);
+        if (dto.title != null) {
+            t.setTitle(dto.title);
+        }
+        if (dto.description != null) {
+            t.setDescription(dto.description);
+        }
+        if (dto.estimatedHours != null) {
+            t.setEstimatedHours(dto.estimatedHours);
+        }
+        if (dto.priority != null) {
+            t.setPriority(dto.priority);
+        }
+        if (dto.sprintId != null) {
+            t.setSprintId(dto.sprintId);
+        }
+        if (dto.projectId != null) {
+            t.setProjectId(dto.projectId);
+        }
+        if (dto.assigneeId != null) {
+            t.setAssigneeId(dto.assigneeId);
+        }
+        if (dto.assigneeName != null) {
+            t.setAssigneeName(dto.assigneeName);
+        }
 
         // Si luego agregas fechaLimite al UpdateTaskDto, habilita:
         // if (dto.fechaLimite != null)     t.setFechaLimite(dto.fechaLimite);
-
         if (dto.status != null) {
             String s = canonStatus(dto.status);
             t.setStatus(s);
             if ("done".equals(s)) {
-                if (t.getCompletedAt() == null) t.setCompletedAt(LocalDateTime.now());
+                if (t.getCompletedAt() == null) {
+                    t.setCompletedAt(LocalDateTime.now());
+                }
                 // realHours se fija con /complete
             } else {
                 // Al descompletar, limpia marcas y horas reales
@@ -134,8 +160,9 @@ public class TareaServiceImpl implements TareaService {
         String s = canonStatus(status);
         t.setStatus(s);
         if ("done".equals(s)) {
-            if (t.getCompletedAt() == null) t.setCompletedAt(LocalDateTime.now()); // ⬅️ también aquí
-            // realHours se fija con /complete
+            if (t.getCompletedAt() == null) {
+                t.setCompletedAt(LocalDateTime.now()); // ⬅️ también aquí
+            }            // realHours se fija con /complete
         } else {
             // Si sale de 'done', resetear completado y horas reales
             t.setCompletedAt(null);
@@ -143,4 +170,20 @@ public class TareaServiceImpl implements TareaService {
         }
         return tareaRepository.save(t);
     }
+
+    @Override
+    public List<Tarea> listCompletedBySprint(String sprintId) {
+        // "done" es tu estado canónico
+        return tareaRepository.findBySprintIdAndStatusIgnoreCaseOrderByCreatedAtDesc(sprintId, "done");
+    }
+
+    @Override
+    public List<Tarea> listCompletedByUserAndSprint(String assigneeId, String sprintId) {
+        return tareaRepository.findByAssigneeIdAndSprintIdAndStatusIgnoreCaseOrderByCreatedAtDesc(
+                assigneeId,
+                sprintId,
+                "done"
+        );
+    }
+
 }
