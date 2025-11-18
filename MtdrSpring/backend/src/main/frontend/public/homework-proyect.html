@@ -33,12 +33,6 @@
       <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/>
       <path d="M4 18v3"/><path d="M8 14v7"/>
     </symbol>
-    <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-      <rect x="4" y="8" width="16" height="10" rx="4" stroke-width="1.6"/>
-      <circle cx="9" cy="13" r="1" stroke-width="1.6"/>
-      <circle cx="15" cy="13" r="1" stroke-width="1.6"/>
-      <path stroke-width="1.6" d="M12 4v2m-7 6H4m16 0h1"/>
-    </symbol>
     <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.6" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
       <path stroke-width="1.6" d="M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -90,7 +84,6 @@
         <a class="mi active" href="/projects.html"><svg class="ico"><use href="#i-folder"/></svg><span>Proyectos</span></a>
         <a class="mi" href="/tarea.html"><svg class="ico"><use href="#i-board"/></svg><span>Tareas</span></a>
         <a class="mi" href="/KPIs.html"><svg class="ico"><use href="#i-chart"/></svg><span>KPIs</span></a>
-        <a class="mi" href="/chatbot.html"><svg class="ico"><use href="#i-bot"/></svg><span>Chatbot</span></a>
         <a class="mi" href="/notifications.html"><svg class="ico"><use href="#i-bell"/></svg><span>Notificaciones</span></a>
         <a class="mi" href="/settings.html"><svg class="ico"><use href="#i-gear"/></svg><span>Ajustes</span></a>
       </nav>
@@ -136,7 +129,7 @@
                 <div class="value" id="vm-fin">—</div>
               </div>
               <div class="stat-card" style="grid-column: 1 / -1">
-                <div class="label">Avance por tareas</div>
+                <div class="label">Avance del proyecto</div>
                 <div class="progress" style="margin-top:8px"><span id="vm-bar" style="width:0%"></span></div>
                 <div class="tiny muted" id="tasks-summary" style="margin-top:6px">0/0 completadas</div>
               </div>
@@ -145,19 +138,22 @@
         </div>
       </section>
 
-      <!-- Tareas + Integrantes -->
+      <!-- Sprints + Integrantes -->
       <section class="two-col">
         <div class="col">
+          <!-- SPRINTS -->
           <section class="tasks-card">
             <div class="tasks-head">
-              <h2 class="h6">Tareas del proyecto</h2>
-              <button id="btn-open-task-modal" class="btn-fab">
-                <svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>
-                Crear tarea
-              </button>
+              <h2 class="h6">Sprints del proyecto</h2>
+              <div class="sprints-actions">
+                <button id="btn-new-sprint" class="btn btn-primary">
+                  <svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>
+                  Nuevo sprint
+                </button>
+              </div>
             </div>
-            <div id="tasks-list" class="tasks-list">
-              <div class="muted" style="padding:6px 0 12px">Cargando tareas…</div>
+            <div id="sprints-list" class="sprints-list">
+              <div class="muted" style="padding:6px 0 12px">Cargando sprints…</div>
             </div>
           </section>
         </div>
@@ -229,6 +225,79 @@
     </div>
   </div>
 
+  <!-- Modal NUEVO SPRINT (cuestionario emergente) -->
+  <div id="sprint-create-overlay" class="edit-modal-overlay task-modal" aria-hidden="true">
+    <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="sprint-create-title">
+      <div class="edit-modal-header">
+        <h2 class="h6" id="sprint-create-title">Nuevo sprint</h2>
+        <button id="btn-close-sprint-create" class="icon-btn" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="edit-modal-body">
+        <div class="grid2">
+          <div class="field field-full">
+            <label>Nombre / título del sprint <span class="tiny muted">(obligatorio)</span></label>
+            <input id="sc-name" type="text" placeholder="Ej. Sprint 1 - Diseño">
+          </div>
+          <div class="field field-full">
+            <label>Descripción</label>
+            <textarea id="sc-desc" rows="3" placeholder="Breve descripción del objetivo del sprint..."></textarea>
+          </div>
+          <div class="field">
+            <label>Fecha de inicio <span class="tiny muted">(obligatoria)</span></label>
+            <input id="sc-start" type="date">
+          </div>
+          <div class="field">
+            <label>Duración (días) <span class="tiny muted">(obligatoria)</span></label>
+            <input id="sc-duration" type="number" min="1" max="60" step="1" placeholder="Ej. 7">
+            <div class="tiny muted">Se calculará la fecha de fin automáticamente.</div>
+          </div>
+          <div class="field">
+            <label>Número de sprint <span class="tiny muted">(obligatorio)</span></label>
+            <input id="sc-number" type="number" min="1" step="1" placeholder="Ej. 1">
+          </div>
+        </div>
+      </div>
+      <div class="edit-modal-footer" style="display:flex; justify-content:flex-end; gap:10px;">
+        <button id="btn-cancel-sprint-create" class="btn btn-outline">Cancelar</button>
+        <button id="btn-save-sprint-create" class="btn btn-primary">Crear sprint</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal EDITAR SPRINT -->
+  <div id="sprint-edit-overlay" class="edit-modal-overlay task-modal" aria-hidden="true">
+    <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="sprint-edit-title">
+      <div class="edit-modal-header">
+        <h2 class="h6" id="sprint-edit-title">Editar sprint <span id="se-id">—</span></h2>
+        <button id="btn-close-sprint-edit" class="icon-btn" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="edit-modal-body">
+        <div class="grid2">
+          <div class="field field-full">
+            <label>Nombre del sprint</label>
+            <input id="se-name" type="text" placeholder="Ej. Sprint 1 - Diseño">
+          </div>
+          <div class="field field-full">
+            <label>Descripción</label>
+            <textarea id="se-desc" rows="3" placeholder="Descripción del sprint..."></textarea>
+          </div>
+          <div class="field">
+            <label>Fecha de inicio</label>
+            <input id="se-start" type="date">
+          </div>
+          <div class="field">
+            <label>Fecha de fin</label>
+            <input id="se-end" type="date">
+          </div>
+        </div>
+      </div>
+      <div class="edit-modal-footer" style="display:flex; justify-content:flex-end; gap:10px;">
+        <button id="btn-cancel-sprint-edit" class="btn btn-outline">Cancelar</button>
+        <button id="btn-save-sprint-edit" class="btn btn-primary">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Crear Tarea -->
   <div id="task-create-overlay" class="edit-modal-overlay task-modal" aria-hidden="true">
     <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="task-create-title">
@@ -258,13 +327,11 @@
             </select>
           </div>
 
-          <!-- (opcional en UI) Fecha límite -->
           <div class="field">
             <label>Fecha límite (vencimiento)</label>
             <input id="ct-due" type="date" />
           </div>
 
-          <!-- Asignado a -->
           <div class="field field-full">
             <label>Asignado a</label>
             <select id="ct-assignee">
@@ -315,7 +382,6 @@
             </select>
           </div>
 
-          <!-- (opcional en UI) Fecha límite -->
           <div class="field">
             <label>Fecha límite (vencimiento)</label>
             <input id="et-due" type="date" />
@@ -343,10 +409,11 @@
 
   <script>
     /* ================== CONFIG ================== */
-    const API_BASE     = "http://localhost:8080/proyectos";
-    const TASKS_API    = "http://localhost:8080/api/tasks";
-    const EQUIPOS_API  = "http://localhost:8080/equipos";
-    const USUARIOS_API = "http://localhost:8080/usuarios";
+    const API_BASE      = "http://localhost:8080/proyectos";
+    const TASKS_API     = "http://localhost:8080/api/tasks";
+    const EQUIPOS_API   = "http://localhost:8080/equipos";
+    const USUARIOS_API  = "http://localhost:8080/usuarios";
+    const SPRINTS_API   = "http://localhost:8080/sprints";
 
     /* ========= UTIL ========= */
     function qs(name){ return new URL(window.location.href).searchParams.get(name); }
@@ -433,11 +500,11 @@
     const $tasksSummary = document.getElementById("tasks-summary");
 
     const $btnEditar = document.getElementById("btn-editar");
-    const $tasksListEl  = document.getElementById("tasks-list");
+    const $sprintsList = document.getElementById("sprints-list");
+    const $btnNewSprint = document.getElementById("btn-new-sprint");
 
     // Crear Tarea
     const $taskCreateOverlay = document.getElementById("task-create-overlay");
-    const $btnOpenTaskModal  = document.getElementById("btn-open-task-modal");
     const $btnCloseTaskCreate= document.getElementById("btn-close-task-create");
     const $btnCancelTaskCreate= document.getElementById("btn-cancel-task-create");
     const $btnSaveTaskCreate = document.getElementById("btn-save-task-create");
@@ -446,6 +513,7 @@
     const $ctPriority  = document.getElementById("ct-priority");
     const $ctDesc      = document.getElementById("ct-desc");
     const $ctAssignee  = document.getElementById("ct-assignee");
+    const $ctDue       = document.getElementById("ct-due");
 
     // Editar Tarea
     const $taskEditOverlay = document.getElementById("task-edit-overlay");
@@ -458,23 +526,88 @@
     const $etPriority  = document.getElementById("et-priority");
     const $etDesc      = document.getElementById("et-desc");
     const $etAssignee  = document.getElementById("et-assignee");
+    const $etDue       = document.getElementById("et-due");
+
+    // Crear Sprint (modal)
+    const $sprintCreateOverlay   = document.getElementById("sprint-create-overlay");
+    const $btnCloseSprintCreate  = document.getElementById("btn-close-sprint-create");
+    const $btnCancelSprintCreate = document.getElementById("btn-cancel-sprint-create");
+    const $btnSaveSprintCreate   = document.getElementById("btn-save-sprint-create");
+    const $scName      = document.getElementById("sc-name");
+    const $scDesc      = document.getElementById("sc-desc");
+    const $scStart     = document.getElementById("sc-start");
+    const $scDuration  = document.getElementById("sc-duration");
+    const $scNumber    = document.getElementById("sc-number");
+
+    // Editar Sprint (modal)
+    const $sprintEditOverlay   = document.getElementById("sprint-edit-overlay");
+    const $btnCloseSprintEdit  = document.getElementById("btn-close-sprint-edit");
+    const $btnCancelSprintEdit = document.getElementById("btn-cancel-sprint-edit");
+    const $btnSaveSprintEdit   = document.getElementById("btn-save-sprint-edit");
+    const $seId   = document.getElementById("se-id");
+    const $seName = document.getElementById("se-name");
+    const $seDesc = document.getElementById("se-desc");
+    const $seStart= document.getElementById("se-start");
+    const $seEnd  = document.getElementById("se-end");
 
     /* ========= ESTADO ========= */
     let proyectoActual = null;
     let tareasCache = [];
-    let teamMembersCache = []; // [{usuarioId, rol, nombre, email}]
-    let isTeamAdmin = false;   // 🔑
+    let teamMembersCache = [];
+    let isTeamAdmin = false;
+    let sprintsCache = [];
+    let currentSprintIdForTaskCreate = null;
+    let pendingProjectIdForSprint = null;
 
     /* ========= MODALES ========= */
-    function openEl(ov){ ov.classList.add("open"); ov.setAttribute("aria-hidden","false"); }
-    function closeEl(ov){ ov.classList.remove("open"); ov.setAttribute("aria-hidden","true"); }
+    function openEl(ov){ ov && ov.classList.add("open"); ov && ov.setAttribute("aria-hidden","false"); }
+    function closeEl(ov){ ov && ov.classList.remove("open"); ov && ov.setAttribute("aria-hidden","true"); }
 
-    $btnOpenTaskModal?.addEventListener("click", ()=>{ populateAssigneeSelect($ctAssignee); openEl($taskCreateOverlay); });
-    $btnCloseTaskCreate?.addEventListener("click", ()=> closeEl($taskCreateOverlay));
-    $btnCancelTaskCreate?.addEventListener("click", (e)=>{ e.preventDefault(); closeEl($taskCreateOverlay); });
+    // Crear tarea
+    $btnCloseTaskCreate?.addEventListener("click", ()=>{ currentSprintIdForTaskCreate = null; closeEl($taskCreateOverlay); });
+    $btnCancelTaskCreate?.addEventListener("click", (e)=>{ e.preventDefault(); currentSprintIdForTaskCreate = null; closeEl($taskCreateOverlay); });
 
+    // Editar tarea
     $btnCloseTaskEdit?.addEventListener("click", ()=> closeEl($taskEditOverlay));
     $btnCancelTaskEdit?.addEventListener("click", (e)=>{ e.preventDefault(); closeEl($taskEditOverlay); });
+
+    // Crear sprint modal
+    function openSprintModal(projectId){
+      pendingProjectIdForSprint = projectId;
+      const today = new Date();
+      if ($scStart)    $scStart.value = fmtYMD(today);
+      if ($scDuration) $scDuration.value = 7;
+      if ($scNumber)   $scNumber.value = "";
+      if ($scName)     $scName.value = "";
+      if ($scDesc)     $scDesc.value = "";
+      openEl($sprintCreateOverlay);
+    }
+    $btnCloseSprintCreate?.addEventListener("click", ()=> closeEl($sprintCreateOverlay));
+    $btnCancelSprintCreate?.addEventListener("click", (e)=>{ e.preventDefault(); closeEl($sprintCreateOverlay); });
+    $sprintCreateOverlay?.addEventListener("click", (e)=>{ if(e.target === $sprintCreateOverlay) closeEl($sprintCreateOverlay); });
+
+    function handleSaveSprintClick(){
+      const projectId = pendingProjectIdForSprint || proyectoActual?.id;
+      if (!projectId) return;
+      createSprintFromForm(projectId);
+    }
+    $btnSaveSprintCreate?.addEventListener("click", (e)=>{ e.preventDefault(); handleSaveSprintClick(); });
+
+    // Editar sprint modal
+    function openSprintEditModal(sprint){
+      if (!sprint) return;
+      $seId.textContent = `#${sprint.id}`;
+      $seName.value = sprint.tituloSprint || "";
+      $seDesc.value = sprint.descripcionSprint || "";
+      $seStart.value = sprint.fechaInicio ? toISODateInput(sprint.fechaInicio) : "";
+      $seEnd.value   = sprint.duracion ? toISODateInput(sprint.duracion) : "";
+      openEl($sprintEditOverlay);
+      $btnSaveSprintEdit.onclick = (e)=>{ e.preventDefault(); updateSprintFromForm(sprint.id); };
+    }
+    function closeSprintEditModal(){ closeEl($sprintEditOverlay); }
+    $btnCloseSprintEdit?.addEventListener("click", closeSprintEditModal);
+    $btnCancelSprintEdit?.addEventListener("click", (e)=>{ e.preventDefault(); closeSprintEditModal(); });
+    $sprintEditOverlay?.addEventListener("click", (e)=>{ if(e.target === $sprintEditOverlay) closeSprintEditModal(); });
 
     /* ========= CONFIRM DIALOG ========= */
     const $confirm = document.getElementById('confirm-overlay');
@@ -496,7 +629,7 @@
       });
     }
 
-    /* ========= MODAL HORAS (DINÁMICO) ========= */
+    /* ========= MODAL HORAS ========= */
     function ensureHoursModal(){
       let el = document.getElementById('hours-overlay');
       if (el) return el;
@@ -586,7 +719,6 @@
       $vmBar.style.width = initialPct + "%";
     }
 
-    // 🔥 Versión optimizada: miembros y tareas en paralelo
     async function cargarProyecto(){
       const id = qs("id");
       if(!id){
@@ -600,16 +732,16 @@
         const p = await res.json();
         proyectoActual = p;
 
-        // Pinta info básica del proyecto
         await pintarView(p);
 
-        // Cargar miembros y tareas al mismo tiempo
         await Promise.all([
           loadTeamMembers(p.equipoId),
+          loadSprints(p.id),
           loadTasks(p.id)
         ]);
 
         await renderMembersList();
+        renderSprints();
       }catch(e){
         console.error(e);
         showToast({type:"error", title:"No se pudo cargar", message:"Intenta de nuevo más tarde"});
@@ -665,7 +797,7 @@
           await pintarView(proyectoActual);
           closeModal();
           showToast({type:"success", title:"Cambios guardados", message:"El proyecto se actualizó correctamente."});
-          updateProgressFromTasks();
+          recomputeProjectProgress();
           await loadTeamMembers(proyectoActual.equipoId);
           await renderMembersList();
         } else {
@@ -675,7 +807,16 @@
         showToast({type:"error", title:"Error de red", message:"No se pudo conectar con el servidor."});
       }
     });
-    document.addEventListener("keydown", (e)=>{ if(e.key==="Escape"){ closeModal(); closeEl($taskCreateOverlay); closeEl($taskEditOverlay); } });
+
+    document.addEventListener("keydown", (e)=>{
+      if(e.key==="Escape"){
+        closeModal();
+        closeEl($taskCreateOverlay);
+        closeEl($taskEditOverlay);
+        closeEl($sprintCreateOverlay);
+        closeEl($sprintEditOverlay);
+      }
+    });
 
     /* ========= ESTADO POR % ========= */
     async function persistProjectEstadoFromPct(pct){
@@ -718,7 +859,6 @@
         const isGlobalAdmin = ["Super Admin","Scrum Master"]
           .includes(String(sessionUser?.rol||""));
 
-        // 🔥 Pedir datos de usuario en paralelo
         const detallePromesas = miembros.map(async (m) => {
           const uid = m.id?.usuarioId ?? m.usuarioId;
           let nombre = 'Usuario #' + uid;
@@ -733,12 +873,7 @@
             }
           }catch(_){}
 
-          return {
-            usuarioId: uid,
-            rol: m.rol,
-            nombre,
-            email
-          };
+          return { usuarioId: uid, rol: m.rol, nombre, email };
         });
 
         teamMembersCache = await Promise.all(detallePromesas);
@@ -771,8 +906,11 @@
       }
       wrap.innerHTML = teamMembersCache.map(m => `
         <div class="member-item">
-          <div class="member-name">${escapeHtml(m.nombre)}</div>
-          ${tinyRoleBadge(m.rol)}
+          <div class="member-left">
+            <div class="member-avatar">${escapeHtml((m.nombre||'U').charAt(0).toUpperCase())}</div>
+            <div class="member-name">${escapeHtml(m.nombre)}</div>
+            ${tinyRoleBadge(m.rol)}
+          </div>
         </div>
       `).join('');
       if (counter) counter.textContent = String(teamMembersCache.length);
@@ -794,14 +932,59 @@
       return '-';
     }
 
-    /* ========= TAREAS ========= */
-    function canDeleteTask(t){
-      if (isTeamAdmin) return true;
-      return String(t.assigneeId||"").toLowerCase() === String(sessionEmail||"").toLowerCase();
+    /* ========= SPRINTS ========= */
+    async function loadSprints(projectId){
+      sprintsCache = [];
+      if (!$sprintsList) return;
+      try{
+        const res = await fetch(`${SPRINTS_API}?projectId=${encodeURIComponent(projectId)}`);
+        if (!res.ok) throw new Error("Error listando sprints");
+        sprintsCache = await res.json();
+      }catch(err){
+        console.error(err);
+        sprintsCache = [];
+        $sprintsList.innerHTML = `<div class="muted" style="padding:6px 0 12px">No se pudieron cargar los sprints.</div>`;
+      }
     }
 
-    function tareaRow(t){
-      const isDone = (t.status||"").toLowerCase()==="done" || (t.completedAt != null) || (t.status||"").toLowerCase()==="hecho";
+    function isTaskDone(t){
+      const st = (t.status||"").toLowerCase();
+      return st==="done" || st==="hecho" || t.completedAt != null;
+    }
+
+    function isSprintDone(s){
+      const sid = s.id;
+      const sprintTasks = tareasCache.filter(t => Number(t.sprintId) === Number(sid));
+      if (sprintTasks.length){
+        return sprintTasks.every(isTaskDone);
+      }
+      const est = (s.estado || s.status || "").toLowerCase();
+      return est==="finalizado" || est==="completado" || est==="done";
+    }
+
+    function recomputeProjectProgress(){
+      if (sprintsCache.length){
+        const total = sprintsCache.length;
+        let completed = 0;
+        sprintsCache.forEach(s => { if (isSprintDone(s)) completed++; });
+        const pct = total ? Math.round((completed/total)*100) : 0;
+        setRadialAnimated($vmRadial, pct, $vmPercent, 500);
+        $vmBar.style.width = pct + "%";
+        $tasksSummary.textContent = `${completed}/${total} sprints completos`;
+        persistProjectEstadoFromPct(pct);
+      } else {
+        const total = tareasCache.length;
+        const done  = tareasCache.filter(isTaskDone).length;
+        const pct = total ? Math.round((done/total)*100) : 0;
+        setRadialAnimated($vmRadial, pct, $vmPercent, 500);
+        $vmBar.style.width = pct + "%";
+        $tasksSummary.textContent = `${done}/${total} tareas completadas`;
+        persistProjectEstadoFromPct(pct);
+      }
+    }
+
+    function buildTaskHtml(t){
+      const isDone = isTaskDone(t);
       const descHtml = escapeHtml(t.description || t.longDescription || "");
       const asigName = resolveAssigneeNameFromTask(t);
       return `
@@ -833,24 +1016,114 @@
       `;
     }
 
-    function updateProgressFromTasks(){
-      const total = tareasCache.length;
-      const done  = tareasCache.filter(t => (t.status||"").toLowerCase()==="done" || t.completedAt != null || (t.status||"").toLowerCase()==="hecho").length;
-      document.getElementById("tasks-summary").textContent = `${done}/${total} completadas`;
-      const pct = total === 0 ? 0 : Math.round((done/total)*100);
-      setRadialAnimated($vmRadial, pct, $vmPercent, 500);
-      $vmBar.style.width = pct + "%";
-      persistProjectEstadoFromPct(pct);
-    }
+    function renderSprints(){
+      if (!$sprintsList) return;
 
-    function renderTareas(arr){
-      if(!arr.length){
-        $tasksListEl.innerHTML = `<div class="muted" style="padding:6px 0 12px">No hay tareas aún. ¡Crea la primera! 🚀</div>`;
+      if (!sprintsCache.length){
+        if (!tareasCache.length){
+          $sprintsList.innerHTML = `<div class="muted" style="padding:6px 0 12px">Aún no hay sprints ni tareas. Crea un sprint para comenzar. 🚀</div>`;
+        } else {
+          const tasksHtml = tareasCache.map(buildTaskHtml).join("");
+          $sprintsList.innerHTML = `
+            <div class="muted tiny" style="padding:6px 0 12px">
+              No hay sprints definidos. Mostrando tareas sueltas del proyecto.
+            </div>
+            <div class="sprint-item">
+              <div class="sprint-head">
+                <div>
+                  <h3 class="h6 sprint-title">Tareas del proyecto</h3>
+                </div>
+              </div>
+              <div class="sprint-body">
+                <div class="sprint-tasks">
+                  ${tasksHtml}
+                </div>
+              </div>
+            </div>
+          `;
+        }
       } else {
-        $tasksListEl.innerHTML = arr.map(tareaRow).join("");
+        let html = "";
+        sprintsCache.forEach(s => {
+          const sid = s.id;
+          const sprintTasks = tareasCache.filter(t => Number(t.sprintId) === Number(sid));
+          const total = sprintTasks.length;
+          const done  = sprintTasks.filter(isTaskDone).length;
+          const pct   = total ? Math.round((done/total)*100) : 0;
+
+          const titulo = s.tituloSprint || (`Sprint ${s.numero ?? ""}`.trim());
+          const inicio = fmtFecha(s.fechaInicio);
+          const fin    = fmtFecha(s.duracion);
+
+          html += `
+            <div class="sprint-item" data-sid="${sid}">
+              <div class="sprint-head">
+                <div>
+                  <h3 class="h6 sprint-title">
+                    ${escapeHtml(titulo)}
+                    <span class="tiny muted">#${sid}</span>
+                  </h3>
+                  <div class="sprint-meta tiny muted">
+                    ${inicio !== "—" || fin !== "—" ? `Del ${inicio} al ${fin} · ` : ""}
+                    ${total} tareas · ${done} completadas
+                  </div>
+                  ${s.descripcionSprint ? `<div class="sprint-desc tiny">${escapeHtml(s.descripcionSprint)}</div>` : ""}
+                </div>
+                <div class="sprint-right">
+                  <div class="sprint-progress">
+                    <div class="tiny muted">Progreso</div>
+                    <div class="progress"><span style="width:${pct}%"></span></div>
+                  </div>
+                  <div class="sprint-actions">
+                    <button class="btn-xs s-toggle" type="button" data-sid="${sid}" data-hidden="0">
+                      Ocultar tareas
+                    </button>
+                    <button class="btn-xs s-edit" type="button" data-sid="${sid}">
+                      Editar
+                    </button>
+                    <button class="btn-xs btn-danger s-del" type="button" data-sid="${sid}">
+                      Borrar
+                    </button>
+                    <button class="btn-fab btn-fab-sm" type="button" data-action="add-task" data-sid="${sid}">
+                      <svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>
+                      Nueva tarea
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="sprint-body">
+                <div class="sprint-tasks">
+                  ${total ? sprintTasks.map(buildTaskHtml).join("") : `<div class="muted tiny" style="padding:6px 0 10px">Este sprint aún no tiene tareas.</div>`}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        const orphan = tareasCache.filter(t => !t.sprintId);
+        if (orphan.length){
+          html += `
+            <div class="sprint-item">
+              <div class="sprint-head">
+                <div>
+                  <h3 class="h6 sprint-title">Tareas sin sprint</h3>
+                  <div class="sprint-meta tiny muted">${orphan.length} tarea(s) sin sprint asignado.</div>
+                </div>
+              </div>
+              <div class="sprint-body">
+                <div class="sprint-tasks">
+                  ${orphan.map(buildTaskHtml).join("")}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        $sprintsList.innerHTML = html;
       }
 
-      $tasksListEl.querySelectorAll(".t-check").forEach(chk => {
+      // Eventos tareas + botón "Nueva tarea"
+      $sprintsList.querySelectorAll(".t-check").forEach(chk => {
         chk.addEventListener("change", async (e)=>{
           const row = e.target.closest(".task-item");
           const id = Number(row.dataset.id);
@@ -868,7 +1141,7 @@
         });
       });
 
-      $tasksListEl.querySelectorAll(".t-del").forEach(btn => {
+      $sprintsList.querySelectorAll(".t-del").forEach(btn => {
         btn.addEventListener("click", async (e)=>{
           const row = e.target.closest(".task-item");
           const id = Number(row.dataset.id);
@@ -877,7 +1150,7 @@
         });
       });
 
-      $tasksListEl.querySelectorAll(".desc-btn").forEach(btn => {
+      $sprintsList.querySelectorAll(".desc-btn").forEach(btn => {
         btn.addEventListener("click", (e)=>{
           const row = e.target.closest(".task-item");
           const desc = row.querySelector(".task-desc");
@@ -887,7 +1160,7 @@
         });
       });
 
-      $tasksListEl.querySelectorAll(".t-edit").forEach(btn => {
+      $sprintsList.querySelectorAll(".t-edit").forEach(btn => {
         btn.addEventListener("click", (e)=>{
           const row = e.target.closest(".task-item");
           const id = Number(row.dataset.id);
@@ -897,7 +1170,208 @@
         });
       });
 
-      updateProgressFromTasks();
+      $sprintsList.querySelectorAll("[data-action='add-task']").forEach(btn => {
+        btn.addEventListener("click", ()=>{
+          const sid = Number(btn.dataset.sid);
+          currentSprintIdForTaskCreate = sid;
+          populateAssigneeSelect($ctAssignee);
+          openEl($taskCreateOverlay);
+        });
+      });
+
+      // Toggle mostrar/ocultar tareas del sprint
+      $sprintsList.querySelectorAll(".s-toggle").forEach(btn => {
+        btn.addEventListener("click", ()=>{
+          const item = btn.closest(".sprint-item");
+          if (!item) return;
+          const body = item.querySelector(".sprint-body");
+          if (!body) return;
+          const hidden = btn.dataset.hidden === "1";
+          if (hidden){
+            body.style.display = "";
+            btn.dataset.hidden = "0";
+            btn.textContent = "Ocultar tareas";
+          } else {
+            body.style.display = "none";
+            btn.dataset.hidden = "1";
+            btn.textContent = "Ver tareas";
+          }
+        });
+      });
+
+      // Editar sprint
+      $sprintsList.querySelectorAll(".s-edit").forEach(btn => {
+        btn.addEventListener("click", ()=>{
+          const sid = Number(btn.dataset.sid);
+          const sprint = sprintsCache.find(s => s.id === sid);
+          if (sprint) openSprintEditModal(sprint);
+        });
+      });
+
+      // Borrar sprint
+      $sprintsList.querySelectorAll(".s-del").forEach(btn => {
+        btn.addEventListener("click", async ()=>{
+          const sid = Number(btn.dataset.sid);
+          await deleteSprint(sid);
+        });
+      });
+
+      recomputeProjectProgress();
+    }
+
+    /* ========= CREAR SPRINT DESDE FORM ========= */
+    function createSprintFromForm(projectId){
+      const nombre       = ($scName?.value || "").trim();
+      const descripcion  = ($scDesc?.value || "").trim();
+      const numeroStr    = ($scNumber?.value || "").trim();
+      let   fechaInicio  = $scStart?.value || "";
+      let   diasDuracion = $scDuration?.value ? Number($scDuration.value) : 0;
+
+      if (!nombre){
+        showToast({type:"error", title:"Falta título del sprint"});
+        return;
+      }
+
+      if (!numeroStr){
+        showToast({type:"error", title:"Falta número de sprint"});
+        return;
+      }
+      const numero = Number(numeroStr);
+      if (!Number.isInteger(numero) || numero <= 0){
+        showToast({type:"error", title:"Número inválido", message:"Debe ser un entero positivo."});
+        return;
+      }
+
+      if (!fechaInicio){
+        showToast({type:"error", title:"Falta fecha de inicio"});
+        return;
+      }
+      if (!isValidYMD(fechaInicio)){
+        showToast({type:"error", title:"Fecha inválida", message:"Usa formato YYYY-MM-DD."});
+        return;
+      }
+
+      if (!diasDuracion || diasDuracion <= 0){
+        showToast({type:"error", title:"Duración inválida", message:"Debe ser mayor a 0 días."});
+        return;
+      }
+
+      const startDate = new Date(fechaInicio + "T00:00:00");
+      const endDate   = addDays(startDate, diasDuracion);
+      const fechaFin  = fmtYMD(endDate);
+
+      const payload = {
+        projectId: Number(projectId),
+        tituloSprint: nombre,
+        descripcionSprint: descripcion,
+        fechaInicio: fechaInicio,
+        duracion: fechaFin,   // fecha fin en columna DURACION
+        numero: numero
+      };
+
+      fetch(SPRINTS_API, {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(async res => {
+        if (res.status === 201 || res.ok){
+          const created = await res.json();
+          sprintsCache.push(created);
+          renderSprints();
+          closeEl($sprintCreateOverlay);
+          pendingProjectIdForSprint = null;
+          showToast({type:"success", title:"Sprint creado"});
+        }else{
+          const text = await res.text().catch(()=> "");
+          showToast({type:"error", title:"No se pudo crear el sprint", message:text || ""});
+        }
+      })
+      .catch(err=>{
+        console.error(err);
+        showToast({type:"error", title:"Error de red", message:"No se pudo crear el sprint."});
+      });
+    }
+
+    // Actualizar sprint desde modal de edición
+    function updateSprintFromForm(sprintId){
+      const s = sprintsCache.find(x => x.id === sprintId);
+      if (!s) return;
+
+      const nombre      = ($seName.value||"").trim();
+      const descripcion = ($seDesc.value||"").trim();
+      const fechaInicio = $seStart.value || null;
+      const fechaFin    = $seEnd.value || null;
+
+      if (!nombre){
+        showToast({type:"error", title:"Falta nombre del sprint"});
+        return;
+      }
+
+      const payload = {
+        tituloSprint: nombre,
+        descripcionSprint: descripcion,
+        projectId: Number(proyectoActual?.id || s.projectId || 0),
+        fechaInicio: fechaInicio,
+        duracion: fechaFin,
+        numero: s.numero
+      };
+
+      fetch(`${SPRINTS_API}/${sprintId}`, {
+        method:"PUT",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(async res=>{
+        if (res.ok){
+          const updated = await res.json();
+          const idx = sprintsCache.findIndex(x => x.id === sprintId);
+          if (idx>=0) sprintsCache[idx] = updated;
+          renderSprints();
+          closeSprintEditModal();
+          showToast({type:"success", title:"Sprint actualizado"});
+        }else{
+          const text = await res.text().catch(()=> "");
+          showToast({type:"error", title:"No se pudo actualizar el sprint", message:text});
+        }
+      })
+      .catch(err=>{
+        console.error(err);
+        showToast({type:"error", title:"Error de red", message:"No se pudo actualizar el sprint."});
+      });
+    }
+
+    // Borrar sprint
+    async function deleteSprint(id){
+      const ok = await confirmDialog("¿Seguro que deseas borrar este sprint? Las tareas asociadas seguirán existiendo, pero sin sprint.");
+      if (!ok) return;
+
+      try{
+        const res = await fetch(`${SPRINTS_API}/${id}`, { method:"DELETE" });
+        if (res.status === 204 || res.ok){
+          sprintsCache = sprintsCache.filter(s => s.id !== id);
+          renderSprints();
+          showToast({type:"success", title:"Sprint eliminado"});
+        }else{
+          const text = await res.text().catch(()=> "");
+          showToast({type:"error", title:"No se pudo borrar el sprint", message:text});
+        }
+      }catch(err){
+        console.error(err);
+        showToast({type:"error", title:"Error de red", message:"No se pudo borrar el sprint."});
+      }
+    }
+
+    // Botón "Nuevo sprint"
+    $btnNewSprint?.addEventListener("click", () => {
+      if (!proyectoActual?.id) return;
+      openSprintModal(proyectoActual.id);
+    });
+
+    /* ========= TAREAS ========= */
+    function canDeleteTask(t){
+      if (isTeamAdmin) return true;
+      return String(t.assigneeId||"").toLowerCase() === String(sessionEmail||"").toLowerCase();
     }
 
     async function loadTasks(projectId){
@@ -907,14 +1381,12 @@
         });
         if(!res.ok) throw new Error("Error listando tareas");
         tareasCache = await res.json();
-        renderTareas(tareasCache);
       }catch(err){
         console.error(err);
-        $tasksListEl.innerHTML = `<div class="muted" style="padding:6px 0 12px">No se pudieron cargar las tareas.</div>`;
+        tareasCache = [];
       }
     }
 
-    // ==== NUEVO MENSAJE: prompt de vencimiento para CREAR tarea ====
     async function askDueDateYMD(msg = "📅 Ingresa la fecha de vencimiento de la tarea (formato YYYY-MM-DD)") {
       const def = fmtYMD(addDays(new Date(), 3));
       let v = window.prompt(`${msg}\nEjemplo sugerido: ${def}`, def);
@@ -927,7 +1399,6 @@
       return v;
     }
 
-    // Crear Tarea — incluye fechaLimite requerida por backend
     async function createTask(projectId){
       mustHaveEmail();
       const title = ($ctTitle.value||"").trim();
@@ -944,17 +1415,24 @@
       if ((description||"").length > 300){ showToast({type:"error", title:"Descripción muy larga", message:"Máximo 300 caracteres."}); return; }
       if (estimatedHours != null && estimatedHours > 4){ showToast({type:"error", title:"Máximo 4 horas"}); return; }
 
-      // 🔔 mensaje personalizado SOLO para crear
-      const fechaLimite = await askDueDateYMD("📅 Fecha de vencimiento (obligatoria). Formato YYYY-MM-DD");
-      if (fechaLimite == null){ showToast({type:"error", title:"Creación cancelada"}); return; }
+      let fechaLimite = $ctDue.value || null;
+      if (!fechaLimite){
+        fechaLimite = await askDueDateYMD("📅 Fecha de vencimiento (obligatoria). Formato YYYY-MM-DD");
+        if (fechaLimite == null){ showToast({type:"error", title:"Creación cancelada"}); return; }
+      }
 
       const payload = {
-        title, description, projectId: Number(projectId),
-        estimatedHours, priority,
+        title,
+        description,
+        projectId: Number(projectId),
+        estimatedHours,
+        priority,
         assigneeId: assigneeEmail,
         assigneeName: assigneeName,
+        sprintId: currentSprintIdForTaskCreate || null,
         fechaLimite
       };
+
       try{
         const res = await fetch(TASKS_API, {
           method: "POST",
@@ -964,10 +1442,11 @@
         if (res.status === 201){
           const created = await res.json();
           tareasCache.unshift(created);
-          renderTareas(tareasCache);
-          $ctTitle.value = ""; $ctEstimated.value = ""; $ctPriority.value = ""; $ctDesc.value = ""; $ctAssignee.value = "";
+          $ctTitle.value = ""; $ctEstimated.value = ""; $ctPriority.value = ""; $ctDesc.value = ""; $ctAssignee.value = ""; $ctDue.value = "";
+          currentSprintIdForTaskCreate = null;
           closeEl($taskCreateOverlay);
           showToast({type:"success", title:"Tarea creada"});
+          renderSprints();
         } else {
           const text = await res.text();
           showToast({type:"error", title:"No se creó", message:text || "Valida los datos."});
@@ -978,12 +1457,10 @@
     }
     document.getElementById("btn-save-task-create")?.addEventListener("click", ()=>{ if (!proyectoActual?.id) return; createTask(proyectoActual.id); });
 
-    // ======== BORRAR TAREA (PARCHEADO) ========
     async function deleteTask(id){
       mustHaveEmail();
       const url = `${TASKS_API}/${Number(id)}`;
 
-      // Solo headers con valores reales:
       const headers = {};
       if (sessionEmail) headers["X-User-Email"] = sessionEmail;
       if (sessionUser?.rol) headers["X-User-Role"] = String(sessionUser.rol);
@@ -993,12 +1470,12 @@
         const res = await fetch(url, {
           method: "DELETE",
           headers,
-          credentials: "include" // necesario si hay sesión/cookies
+          credentials: "include"
         });
 
         if (res.status === 204){
           tareasCache = tareasCache.filter(t => t.id !== id);
-          renderTareas(tareasCache);
+          renderSprints();
           showToast({type:"success", title:"Tarea eliminada"});
           return;
         }
@@ -1030,31 +1507,27 @@
           const updated = await res.json();
           const idx = tareasCache.findIndex(t => t.id === id);
           if (idx >= 0) tareasCache[idx] = updated;
-          renderTareas(tareasCache);
+          renderSprints();
         } else {
           const text = await res.text().catch(()=> "");
           showToast({type:"error", title:"No se pudo actualizar estado", message:text});
-          const chk = $tasksListEl.querySelector(`.task-item[data-id="${id}"] .t-check`);
-          if (chk) chk.checked = !toDone;
         }
       }catch(err){
         showToast({type:"error", title:"Error de red", message:"No se pudo actualizar estado"});
-        const chk = $tasksListEl.querySelector(`.task-item[data-id="${id}"] .t-check`);
-        if (chk) chk.checked = !toDone;
       }
     }
 
     function openTaskEditModal(t){
-      document.getElementById("et-id").textContent = `#${t.id}`;
-      document.getElementById("et-title").value = t.title || "";
-      document.getElementById("et-estimated").value = t.estimatedHours ?? "";
-      document.getElementById("et-priority").value = t.priority || "";
-      document.getElementById("et-desc").value = t.description || t.longDescription || "";
-      populateAssigneeSelect(document.getElementById("et-assignee"));
-      const etAssignee = document.getElementById("et-assignee");
+      $etId.textContent = `#${t.id}`;
+      $etTitle.value = t.title || "";
+      $etEstimated.value = t.estimatedHours ?? "";
+      $etPriority.value = t.priority || "";
+      $etDesc.value = t.description || t.longDescription || "";
+      $etDue.value = t.fechaLimite ? toISODateInput(t.fechaLimite) : "";
+      populateAssigneeSelect($etAssignee);
       if (t.assigneeId) {
-        const opt = [...etAssignee.options].find(o => o.dataset.email && o.dataset.email.toLowerCase() === String(t.assigneeId).toLowerCase());
-        if (opt) etAssignee.value = opt.value;
+        const opt = [...$etAssignee.options].find(o => o.dataset.email && o.dataset.email.toLowerCase() === String(t.assigneeId).toLowerCase());
+        if (opt) $etAssignee.value = opt.value;
       }
       openEl($taskEditOverlay);
       $btnSaveTaskEdit.onclick = () => saveTaskEdits(t.id);
@@ -1062,12 +1535,13 @@
 
     async function saveTaskEdits(taskId){
       mustHaveEmail();
-      const title = (document.getElementById("et-title").value||"").trim();
-      const description = (document.getElementById("et-desc").value||"").trim();
-      const estimatedHours = document.getElementById("et-estimated").value ? Number(document.getElementById("et-estimated").value) : null;
-      const priority = (document.getElementById("et-priority").value||"").trim() || null;
+      const title = ($etTitle.value||"").trim();
+      const description = ($etDesc.value||"").trim();
+      const estimatedHours = $etEstimated.value ? Number($etEstimated.value) : null;
+      const priority = ($etPriority.value||"").trim() || null;
+      let fechaLimite = $etDue.value || null;
 
-      const assigneeSelect = document.getElementById("et-assignee");
+      const assigneeSelect = $etAssignee;
       const selectedOpt = assigneeSelect?.selectedOptions?.[0];
       const assigneeEmail = selectedOpt?.dataset?.email || null;
       const assigneeName  = selectedOpt?.dataset?.nombre || null;
@@ -1076,19 +1550,18 @@
       if ((description||"").length > 300){ showToast({type:"error", title:"Descripción muy larga", message:"Máximo 300 caracteres."}); return; }
       if (estimatedHours != null && estimatedHours > 4){ showToast({type:"error", title:"Máximo 4 horas"}); return; }
 
-      let fechaLimite = null;
-      const changeDue = confirm("¿Quieres actualizar la fecha límite? (Aceptar = sí)");
-      if (changeDue){
-        const v = await askDueDateYMD();
-        if (v == null){ showToast({type:"info", title:"Sin cambios de fecha"}); }
-        else fechaLimite = v;
-      }
+      const existing = tareasCache.find(t => t.id === taskId);
+      const sprintId = existing?.sprintId ?? null;
 
       const payload = {
-        title, description, estimatedHours, priority,
+        title,
+        description,
+        estimatedHours,
+        priority,
         assigneeId: assigneeEmail || undefined,
         assigneeName: assigneeName || undefined,
-        ...(fechaLimite ? { fechaLimite } : {})
+        sprintId,
+        fechaLimite
       };
       try{
         const res = await fetch(`${TASKS_API}/${taskId}`, {
@@ -1100,7 +1573,7 @@
           const updated = await res.json();
           const idx = tareasCache.findIndex(t => t.id === taskId);
           if (idx >= 0) tareasCache[idx] = updated;
-          renderTareas(tareasCache);
+          renderSprints();
           closeEl($taskEditOverlay);
           showToast({type:"success", title:"Tarea actualizada"});
         } else {
@@ -1117,4 +1590,3 @@
   </script>
 </body>
 </html>
-

@@ -36,12 +36,6 @@
       <path d="M4 18v3"/>
       <path d="M8 14v7"/>
     </symbol>
-    <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-      <rect x="4" y="8" width="16" height="10" rx="4" stroke-width="1.6"/>
-      <circle cx="9" cy="13" r="1" stroke-width="1.6"/>
-      <circle cx="15" cy="13" r="1" stroke-width="1.6"/>
-      <path stroke-width="1.6" d="M12 4v2m-7 6H4m16 0h1"/>
-    </symbol>
     <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.6" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
       <path stroke-width="1.6" d="M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -78,7 +72,6 @@
         <a class="mi active" href="#"><svg class="ico"><use href="#i-folder"/></svg><span>Proyectos</span></a>
         <a class="mi" href="/tarea.html"><svg class="ico"><use href="#i-board"/></svg><span>Tareas</span></a>
         <a class="mi" href="/KPIs.html"><svg class="ico"><use href="#i-chart"/></svg><span>KPIs</span></a>
-        <a class="mi" href="/chatbot.html"><svg class="ico"><use href="#i-bot"/></svg><span>Chatbot</span></a>
         <a class="mi" href="/notifications.html"><svg class="ico"><use href="#i-bell"/></svg><span>Notificaciones</span></a>
         <a class="mi" href="/settings.html"><svg class="ico"><use href="#i-gear"/></svg><span>Ajustes</span></a>
       </nav>
@@ -184,9 +177,25 @@
             <div class="detail-item"><div class="label">Equipo</div><div class="value" id="d-equipo">—</div></div>
             <div class="detail-item"><div class="label">Inicio</div><div class="value" id="d-inicio">—</div></div>
             <div class="detail-item"><div class="label">Fin</div><div class="value" id="d-fin">—</div></div>
-            <div class="detail-item"><div class="label">Estado</div><div class="value" id="d-estado"><span class="chip">—</span></div></div>
-            <div class="detail-item"><div class="label">Avance</div><div class="value"><div class="progress"><span id="d-avance" style="width:0%"></span></div></div></div>
+            <div class="detail-item">
+              <div class="label">Estado</div>
+              <div class="value" id="d-estado"><span class="chip">—</span></div>
+            </div>
+            <div class="detail-item">
+              <div class="label">Avance</div>
+              <div class="value">
+                <div class="progress"><span id="d-avance" style="width:0%"></span></div>
+              </div>
+            </div>
 
+            <!-- 🔹 SPRINTS DEL PROYECTO (MISMO ESTILO QUE TAREAS) -->
+            <div class="tasks-box" id="sprints-box" style="display:none">
+              <h3>Sprints de este proyecto</h3>
+              <div id="sprints-list"></div>
+              <div class="muted small" id="sprints-count"></div>
+            </div>
+
+            <!-- 🔹 TAREAS DEL PROYECTO -->
             <div class="tasks-box" id="tasks-box">
               <h3>Tareas de este proyecto</h3>
               <div id="tasks-list"></div>
@@ -276,6 +285,11 @@ const $tasksBox   = document.getElementById("tasks-box");
 const $tasksList  = document.getElementById("tasks-list");
 const $tasksCount = document.getElementById("tasks-count");
 
+// Panel de sprints (usa mismo estilo que tareas)
+const $sprintsBox   = document.getElementById("sprints-box");
+const $sprintsList  = document.getElementById("sprints-list");
+const $sprintsCount = document.getElementById("sprints-count");
+
 // Modal Proyecto
 const $modalOverlay = document.getElementById("modal-overlay");
 const $btnNuevo  = document.getElementById("btn-nuevo");
@@ -306,6 +320,7 @@ const currentUserId = user?.id ?? user?.usuarioId ?? null;
 const currentUserEmail = user?.email || "";
 const API_BASE    = "http://localhost:8080/proyectos";
 const TASKS_API   = "http://localhost:8080/api/tasks";
+const SPRINTS_API = "http://localhost:8080/sprints";   // Sprints
 const EQUIPOS_API = "http://localhost:8080/equipos";
 const UE_API      = "http://localhost:8080/usuarios-equipos";
 
@@ -368,12 +383,75 @@ async function fetchTasksForProject(projectId){
     return await res.json();
   }catch{ return []; }
 }
+
+async function fetchSprintsForProject(projectId){
+  try{
+    const res = await fetch(`${SPRINTS_API}?projectId=${encodeURIComponent(projectId)}`);
+    if (!res.ok) return [];
+    return await res.json();
+  }catch{
+    return [];
+  }
+}
+
+async function fetchTasksForSprint(sprintId){
+  try{
+    const res = await fetch(
+      `${SPRINTS_API}/${encodeURIComponent(sprintId)}/tasks`,
+      { headers: { "X-User-Id": String(currentUserId ?? "") } }
+    );
+    if (!res.ok) return [];
+    return await res.json();
+  }catch{
+    return [];
+  }
+}
+
 function calcProgressFromTasks(tasks){
   const total = tasks.length;
   const done = tasks.filter(t => (t.status || "").toLowerCase() === "done" || t.completedAt != null).length;
   const pct = total === 0 ? 0 : Math.round((done/total)*100);
   return { total, done, pct };
 }
+
+async function computeProjectProgressFromSprints(projectId){
+  const sprints = await fetchSprintsForProject(projectId);
+
+  // Si NO hay sprints: usar tareas del proyecto
+  if (!sprints.length) {
+    const tasks = await fetchTasksForProject(projectId);
+    const { pct } = calcProgressFromTasks(tasks);
+    return {
+      pct,
+      sprints: [],
+      doneSprints: 0,
+      totalSprints: 0
+    };
+  }
+
+  let doneCount = 0;
+
+  const enriched = await Promise.all(
+    sprints.map(async s => {
+      const tasks = await fetchTasksForSprint(s.id);
+      const { pct } = calcProgressFromTasks(tasks);
+      const isDone = pct === 100 || ((s.estado || "").toLowerCase() === "finalizado");
+      if (isDone) doneCount++;
+      return { ...s, _pct: pct, _done: isDone };
+    })
+  );
+
+  const total = enriched.length;
+  const pct = total === 0 ? 0 : Math.round((doneCount / total) * 100);
+
+  return {
+    pct,
+    sprints: enriched,
+    doneSprints: doneCount,
+    totalSprints: total
+  };
+}
+
 async function persistProjectEstadoFromPct(p, pct){
   if (!p || !p.id) return;
   const nuevo = (pct===0) ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
@@ -397,7 +475,7 @@ function updateRowProgress(projectId, pct){
   }
 }
 
-// Carga tareas y progreso del panel derecho
+// Carga tareas (solo listado, el avance global ya lo definen los sprints)
 async function loadProjectTasksAndProgress(projectId){
   $tasksBox.style.display = "block";
   $tasksList.innerHTML = `<div class="muted">Cargando tareas…</div>`;
@@ -408,35 +486,80 @@ async function loadProjectTasksAndProgress(projectId){
   if (!tasks.length) {
     $tasksList.innerHTML = `<div class="muted">Este proyecto no tiene tareas.</div>`;
     $tasksCount.textContent = `0 tareas`;
+    return;
+  }
+
+  $tasksList.innerHTML = tasks.map(t => {
+    const asig = t.assigneeName && t.assigneeName.trim()
+      ? t.assigneeName
+      : (t.assigneeId || '-');
+    return `
+      <div class="task-item">
+        <div>
+          <div class="task-title">${escapeHtml(t.title || '')}</div>
+          <div class="task-meta">
+            Prio: ${escapeHtml(t.priority||'')}
+            · Est: ${t.estimatedHours??'-'}h
+            · Asig: ${escapeHtml(asig)}
+            ${t.realHours?(' · Real: '+t.realHours+'h'):''}
+            ${t.fechaLimite?(' · Vence: '+new Date(t.fechaLimite).toLocaleDateString()):''}
+          </div>
+        </div>
+        <div><span class="badge status ${escapeHtml((t.status||'todo').toLowerCase())}">${escapeHtml((t.status||'todo'))}</span></div>
+      </div>
+    `;
+  }).join('');
+  $tasksCount.textContent = `${tasks.length} tarea(s)`;
+}
+
+// Sprints + barra de avance (usa MISMO CSS de la sección de tareas)
+async function loadProjectSprintsAndProgress(projectId){
+  if (!$sprintsBox) return;
+
+  $sprintsBox.style.display = "block";
+  $sprintsList.innerHTML = `<div class="muted">Cargando sprints…</div>`;
+  $sprintsCount.textContent = "";
+
+  const { pct, sprints, doneSprints, totalSprints } = await computeProjectProgressFromSprints(projectId);
+
+  if (!sprints.length){
+    $sprintsList.innerHTML = `<div class="muted">Este proyecto no tiene sprints.</div>`;
+    $sprintsCount.textContent = `0 sprints`;
   } else {
-    $tasksList.innerHTML = tasks.map(t => {
-      const asig = t.assigneeName && t.assigneeName.trim()
-        ? t.assigneeName
-        : (t.assigneeId || '-');
+    $sprintsList.innerHTML = sprints.map(s => {
+      const name = s.nombre || s.nombreSprint || ("Sprint #" + s.id);
+      const badgeStatus = s._done ? "done" : "doing";
+      const badgeText   = s._done ? "done" : "doing";
+      const fechaIni = s.fechaInicio ? formatFecha(s.fechaInicio) : "";
+      const fechaFin = s.fechaFin ? formatFecha(s.fechaFin) : "";
+      const rango = (fechaIni || fechaFin)
+        ? `Rango: ${fechaIni || "¿?"}${fechaFin ? " – " + fechaFin : ""}`
+        : "";
       return `
         <div class="task-item">
           <div>
-            <div class="task-title">${escapeHtml(t.title || '')}</div>
+            <div class="task-title">${escapeHtml(name)}</div>
             <div class="task-meta">
-              Prio: ${escapeHtml(t.priority||'')}
-              · Est: ${t.estimatedHours??'-'}h
-              · Asig: ${escapeHtml(asig)}
-              ${t.realHours?(' · Real: '+t.realHours+'h'):''}
-              ${t.fechaLimite?(' · Vence: '+new Date(t.fechaLimite).toLocaleDateString()):''}
+              ${rango ? escapeHtml(rango) + " · " : ""}
+              Avance: ${s._pct ?? 0}%
             </div>
           </div>
-          <div><span class="badge status ${escapeHtml((t.status||'todo').toLowerCase())}">${escapeHtml((t.status||'todo'))}</span></div>
+          <div>
+            <span class="badge status ${badgeStatus}">${badgeText}</span>
+          </div>
         </div>
       `;
-    }).join('');
-    $tasksCount.textContent = `${tasks.length} tarea(s)`;
+    }).join("");
+
+    $sprintsCount.textContent = `${doneSprints} de ${totalSprints} sprint(s) completado(s)`;
   }
 
-  const { pct } = calcProgressFromTasks(tasks);
+  // Actualizar barra Avance del detalle con % por sprints
   $dAvance.style.width = `${pct}%`;
-  const nuevoEstado = pct===0 ? "Pendiente" : (pct===100 ? "Finalizado" : "En curso");
+  const nuevoEstado = pct === 0 ? "Pendiente" : (pct === 100 ? "Finalizado" : "En curso");
   $dEstado.innerHTML = `<span class="${estadoToChipClass(nuevoEstado)}">${nuevoEstado}</span>`;
 
+  // Sincronizar tabla
   updateRowProgress(projectId, pct);
 
   const idx = proyectosCache.findIndex(x => x.id === projectId);
@@ -474,6 +597,8 @@ function setDetalle(p) {
   $dEstado.innerHTML   = `<span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span>`;
   $dAvance.style.width = (typeof p._progress === "number" ? p._progress : estadoToAvance(p.estado)) + "%";
 
+  // Primero sprints (definen el avance), luego tareas
+  loadProjectSprintsAndProgress(p.id);
   loadProjectTasksAndProgress(p.id);
   $btnIrHomework.disabled = false;
 }
@@ -497,7 +622,7 @@ function renderTabla(items) {
   $tbody.innerHTML = items.map(p => {
     const teamName = p.equipoId ? (equipoNombreCache.get(p.equipoId) ?? `Equipo #${p.equipoId}`) : "-";
     const hasReal = typeof p._progress === "number";
-    const pct = hasReal ? p._progress : 0; // inicia en 0 y se verá animación "loading"
+    const pct = hasReal ? p._progress : 0;
     const loadingClass = hasReal ? "" : "loading";
     return `
       <tr data-id="${p.id}">
@@ -778,8 +903,8 @@ function getEstadoDesdeToggle() {
 // ===== Filtros / búsqueda =====
 function applyFilters() {
   const q = ($buscar.value || "").toLowerCase();
-  const estSelSelect = ($filtro?.value || "Todos").toLowerCase(); // sigue usando el select
-  const estToggle = getEstadoDesdeToggle();                      // nuevo control
+  const estSelSelect = ($filtro?.value || "Todos").toLowerCase();
+  const estToggle = getEstadoDesdeToggle();
 
   let items = proyectosCache.filter(p => {
     const nombreOk = !q || (p.nombreProyecto || "").toLowerCase().includes(q);
@@ -855,28 +980,34 @@ async function borrarProyecto(id, evt) {
     proyectosCache = proyectosCache.filter(p => p.id !== id);
     applyFilters();
     $tasksBox.style.display = "none";
+    if ($sprintsBox) {
+      $sprintsBox.style.display = "none";
+      $sprintsList.innerHTML = "";
+      $sprintsCount.textContent = "";
+    }
     selectedProjectId = null;
     $btnIrHomework.disabled = true;
   });
 }
 window.borrarProyecto = borrarProyecto;
 
-// ===== Precarga de progreso para todas las filas =====
+// ===== Precarga de progreso para todas las filas usando sprints =====
 async function hydrateProgressAll(concurrency = 4) {
   const queue = [...proyectosCache];
+
   const work = async () => {
     while (queue.length) {
       const p = queue.shift();
       if (!p?.id) continue;
       try {
-        const tasks = await fetchTasksForProject(p.id);
-        const { pct } = calcProgressFromTasks(tasks);
+        const { pct } = await computeProjectProgressFromSprints(p.id);
         p._progress = pct;
         updateRowProgress(p.id, pct);
         await persistProjectEstadoFromPct(p, pct);
       } catch {}
     }
   };
+
   const workers = Array.from({ length: Math.min(concurrency, queue.length) }, work);
   await Promise.all(workers);
 }
@@ -893,9 +1024,9 @@ async function cargarProyectos() {
     const uniqueEquipoIds = [...new Set(proyectosCache.map(p => p.equipoId).filter(Boolean))];
     await Promise.all(uniqueEquipoIds.map(id => fetchEquipoNombre(id)));
 
-    applyFilters();                 // 1) pinta la tabla (barras en modo "loading")
-    hydrateProgressAll(4);          // 2) obtiene % reales y actualiza filas
-    if (proyectosCache[0]) setDetalle(proyectosCache[0]); // opcional: autoselección
+    applyFilters();                 // pinta la tabla
+    hydrateProgressAll(4);          // rellena % reales por sprints
+    if (proyectosCache[0]) setDetalle(proyectosCache[0]); // autoselección opcional
   } catch {
     $tbody.innerHTML = `<tr><td colspan="6">Error al cargar proyectos</td></tr>`;
   }
