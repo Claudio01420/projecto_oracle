@@ -155,8 +155,8 @@
             <div class="label">Individual KPI Time</div>
           </div>
           <div class="stat">
-            <div class="value">76%</div>
-            <div class="label">Uso de OCI</div>
+            <div id="avgIclValue" class="value">--</div>
+            <div class="label">ICL Promedio Equipos</div>
           </div>
         </div>
       </section>
@@ -1330,6 +1330,9 @@
           individualEl.textContent = userCount === 0 ? '0h' : formatHours(userAvg);
         }
 
+        // NUEVO: ICL Promedio de todos los equipos
+        await loadAverageICL();
+
       } catch (err) {
         console.error(err);
         const pctEl = document.getElementById('taskCompletionValue');
@@ -1338,6 +1341,93 @@
         if (avgEl) avgEl.textContent = 'N/A';
         const individualEl = document.getElementById('individualKpiValue');
         if (individualEl) individualEl.textContent = 'N/A';
+      }
+    }
+
+    // ==================== NUEVO: Cargar ICL Promedio ====================
+    
+    async function loadAverageICL() {
+      const iclEl = document.getElementById('avgIclValue');
+      
+      try {
+        // Obtener todos los equipos
+        const resEquipos = await fetch('/equipos');
+        if (!resEquipos.ok) {
+          if (iclEl) iclEl.textContent = 'N/A';
+          return;
+        }
+        
+        const equipos = await resEquipos.json();
+        
+        if (!Array.isArray(equipos) || equipos.length === 0) {
+          if (iclEl) {
+            iclEl.textContent = '0.00';
+            iclEl.classList.remove('positive', 'negative');
+            iclEl.classList.add('neutral');
+          }
+          return;
+        }
+
+        // Obtener ICL de cada equipo
+        const iclPromises = equipos.map(async (equipo) => {
+          try {
+            const equipoId = equipo.id || equipo.equipoId;
+            if (!equipoId) return null;
+            
+            const resICL = await fetch(`/equipos/${equipoId}/icl`);
+            if (!resICL.ok) return null;
+            
+            const iclData = await resICL.json();
+            return iclData.icl;
+          } catch (e) {
+            return null;
+          }
+        });
+
+        const iclValues = await Promise.all(iclPromises);
+        
+        // Filtrar valores válidos
+        const validICLs = iclValues.filter(icl => 
+          icl !== null && 
+          typeof icl === 'number' && 
+          Number.isFinite(icl)
+        );
+
+        if (validICLs.length === 0) {
+          if (iclEl) {
+            iclEl.textContent = 'N/A';
+            iclEl.classList.remove('positive', 'negative', 'neutral');
+          }
+          return;
+        }
+
+        // Calcular promedio
+        const avgICL = validICLs.reduce((sum, icl) => sum + icl, 0) / validICLs.length;
+        const roundedICL = Math.round(avgICL * 100) / 100;
+
+        if (iclEl) {
+          iclEl.textContent = roundedICL.toFixed(2);
+          
+          // Aplicar clases de color según el nivel
+          iclEl.classList.remove('positive', 'negative', 'neutral');
+          
+          if (roundedICL <= 0.9) {
+            iclEl.classList.add('positive'); // Verde - carga saludable
+          } else if (roundedICL <= 1.2) {
+            iclEl.classList.add('neutral'); // Azul - carga moderada
+          } else {
+            iclEl.classList.add('negative'); // Rojo - sobrecarga
+          }
+        }
+
+        console.log(`[KPIs] ICL Promedio calculado: ${roundedICL} (${validICLs.length} equipos)`);
+
+      } catch (err) {
+        console.error('[KPIs] Error cargando ICL promedio:', err);
+        if (iclEl) {
+          iclEl.textContent = 'Error';
+          iclEl.classList.remove('positive', 'negative', 'neutral');
+        }
       }
     }
 
