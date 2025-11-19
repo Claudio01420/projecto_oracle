@@ -1704,3 +1704,72 @@ body {
   outline: 3px solid rgba(225, 38, 28, 0.25);
   outline-offset: 2px;
 }
+
+/* ============================================================
+   FIX DARK MODE – DATE INPUT + CALENDAR + ASSIGNEE SELECT
+   ============================================================ */
+
+/* Ayuda a forzar controles nativos en modo oscuro */
+:root {
+  color-scheme: dark;
+}
+
+/* ----------- INPUT DE FECHA (Crear / Editar tarea) ---------- */
+
+#ct-due,
+#et-due {
+  background: #0f1216;
+  color: #e6e7ea;
+  border: 1px solid var(--chip-border);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* Hover */
+#ct-due:hover,
+#et-due:hover {
+  border-color: var(--brand);
+}
+
+/* Focus */
+#ct-due:focus,
+#et-due:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(225, 38, 28, 0.25);
+  outline: none;
+}
+
+/* Iconito del calendario (que no se vea negro) */
+#ct-due::-webkit-calendar-picker-indicator,
+#et-due::-webkit-calendar-picker-indicator {
+  filter: invert(0.95);
+  cursor: pointer;
+}
+
+/* ============================================================
+   FIX SELECT PRIORIDAD (Crear / Editar Tarea)
+   ============================================================ */
+
+/* Caja del select */
+#ct-priority,
+#et-priority {
+  background: linear-gradient(135deg, #0f1216 0%, #12161c 100%) !important;
+  color: #e6e7ea !important;
+  border: 1px solid var(--chip-border);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* Opciones de la lista */
+#ct-priority option,
+#et-priority option {
+  background: #12161c !important;
+  color: #e6e7ea !important;
+}
+
+/* Opción seleccionada */
+#ct-priority option:checked,
+#et-priority option:checked {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-hover) 100%) !important;
+  color: #fff !important;
+}
