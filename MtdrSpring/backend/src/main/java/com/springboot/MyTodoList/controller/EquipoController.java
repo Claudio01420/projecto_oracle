@@ -162,6 +162,16 @@ public class EquipoController {
      */
     @GetMapping("/{id}/icl")
     public ResponseEntity<Map<String,Object>> getEquipoIcl(@PathVariable Long id) {
+        // Verificar que el equipo existe
+        Optional<Equipo> equipoOpt = repo.findById(id);
+        if (!equipoOpt.isPresent()) {
+            Map<String,Object> notFound = new HashMap<>();
+            notFound.put("icl", 0.0);
+            notFound.put("risk", "N/A");
+            notFound.put("message", "Equipo no encontrado");
+            return ResponseEntity.status(404).body(notFound);
+        }
+
         List<Proyecto> proyectos = proyectoRepo.findByEquipoId(id);
         if (proyectos == null || proyectos.isEmpty()) {
             Map<String,Object> empty = new HashMap<>();
@@ -174,7 +184,11 @@ public class EquipoController {
             empty.put("completedTasks", 0);
             return ResponseEntity.ok(empty);
         }
-        List<Long> projectIds = proyectos.stream().map(Proyecto::getId).collect(Collectors.toList());
+        
+        List<Long> projectIds = proyectos.stream()
+            .map(Proyecto::getId)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
 
         Double estimatedHours = tareaRepo.sumEstimatedHoursByProjectIdIn(projectIds);
         if (estimatedHours == null) estimatedHours = 0.0;
@@ -207,13 +221,14 @@ public class EquipoController {
         }
 
         Map<String,Object> resp = new HashMap<>();
-        resp.put("icl", icl);
+        resp.put("icl", Math.round(icl * 100.0) / 100.0);
         resp.put("risk", risk);
         resp.put("message", message);
         resp.put("estimatedHours", estimatedHours);
         resp.put("realHours", realHours);
         resp.put("activeTasks", activeTasks);
         resp.put("completedTasks", completedTasks);
+        resp.put("equipoId", id);
         return ResponseEntity.ok(resp);
     }
 }

@@ -289,62 +289,76 @@
     if (!email) {
       const pname = document.getElementById('project-name');
       const pdays = document.getElementById('project-days');
+      const levelEl = document.getElementById('burnout-risk-level');
+      const iclEl = document.getElementById('burnout-icl');
+      const msgEl = document.getElementById('burnout-msg');
       if (pname) pname.textContent = '-';
       if (pdays) pdays.textContent = '-';
+      if (levelEl) levelEl.textContent = '-';
+      if (iclEl) iclEl.textContent = '-';
+      if (msgEl) msgEl.textContent = 'Email no proporcionado';
       return;
     }
     localStorage.setItem('userEmail', email);
 
     try {
+      console.log('[Dashboard] Obteniendo usuario por email:', email);
       const resUser = await fetch('/usuarios/by-email?email=' + encodeURIComponent(email));
       if (!resUser.ok) {
-        console.error('Usuario no encontrado:', await resUser.text());
-        const pname = document.getElementById('project-name');
-        const pdays = document.getElementById('project-days');
-        if (pname) pname.textContent = '-';
-        if (pdays) pdays.textContent = '-';
+        console.error('[Dashboard] Usuario no encontrado:', resUser.status);
+        const msgEl = document.getElementById('burnout-msg');
+        if (msgEl) msgEl.textContent = 'Usuario no encontrado';
         return;
       }
       const user = await resUser.json();
+      console.log('[Dashboard] Usuario obtenido:', user);
+      
       const userId = user.id || user.usuarioId || user.usuario_id;
       if (!userId) {
-        console.error('Usuario sin id válido');
-        const pname = document.getElementById('project-name');
-        const pdays = document.getElementById('project-days');
-        if (pname) pname.textContent = '-';
-        if (pdays) pdays.textContent = '-';
+        console.error('[Dashboard] Usuario sin id válido:', user);
+        const msgEl = document.getElementById('burnout-msg');
+        if (msgEl) msgEl.textContent = 'ID de usuario inválido';
         return;
       }
 
+      console.log('[Dashboard] Obteniendo proyectos del usuario:', userId);
       const res = await fetch('/proyectos/mios/' + encodeURIComponent(userId) + '/stats');
       if (!res.ok) {
-        console.error('Error al cargar proyectos del usuario:', await res.text());
-        const pname = document.getElementById('project-name');
-        const pdays = document.getElementById('project-days');
-        if (pname) pname.textContent = '-';
-        if (pdays) pdays.textContent = '-';
+        console.error('[Dashboard] Error al cargar proyectos:', res.status);
+        const msgEl = document.getElementById('burnout-msg');
+        if (msgEl) msgEl.textContent = 'Error cargando proyectos';
         return;
       }
+      
       const projects = await res.json();
+      console.log('[Dashboard] Proyectos obtenidos (cantidad):', projects.length);
+      console.log('[Dashboard] Primer proyecto completo:', projects[0]);
+      
       if (!Array.isArray(projects) || projects.length === 0) {
+        console.warn('[Dashboard] Sin proyectos disponibles');
         const pname = document.getElementById('project-name');
         const pdays = document.getElementById('project-days');
-        if (pname) pname.textContent = '-';
+        const msgEl = document.getElementById('burnout-msg');
+        if (pname) pname.textContent = 'Sin proyectos';
         if (pdays) pdays.textContent = '-';
+        if (msgEl) msgEl.textContent = 'Sin proyectos asignados';
         return;
       }
 
       const latest = projects.reduce((a, b) => ((a && a.id ? a.id : 0) > (b && b.id ? b.id : 0) ? a : b), projects[0]);
+      console.log('[Dashboard] Último proyecto seleccionado:', latest);
+      console.log('[Dashboard] Todas las propiedades del proyecto:', Object.keys(latest));
 
       const pnameEl = document.getElementById('project-name');
       const pdaysEl = document.getElementById('project-days');
-      if (pnameEl) pnameEl.textContent = latest.projectName ?? latest.nombreProyecto ?? latest.name ?? '-';
+      if (pnameEl) pnameEl.textContent = latest.projectName ?? latest.nombreProyecto ?? latest.name ?? 'Proyecto';
 
       function parseDateSafe(s) {
         if (!s) return null;
         const d = new Date(s);
         return isNaN(d.getTime()) ? null : d;
       }
+      
       const endDate = parseDateSafe(latest.fechaFin || latest.fecha_fin || latest.endDate);
       if (pdaysEl) {
         if (!endDate) {
@@ -356,36 +370,115 @@
         }
       }
 
-      if (latest.equipoId) {
+      // Burnout Risk - buscar equipoId en TODAS las propiedades posibles
+      const equipoId = latest.equipoId || 
+                       latest.equipo_id || 
+                       latest.teamId || 
+                       latest.team_id ||
+                       latest.idEquipo ||
+                       latest.id_equipo ||
+                       (latest.equipo && latest.equipo.id) ||
+                       (latest.team && latest.team.id);
+      
+      console.log('[Dashboard] Búsqueda de equipo ID:');
+      console.log('  - equipoId:', latest.equipoId);
+      console.log('  - equipo_id:', latest.equipo_id);
+      console.log('  - teamId:', latest.teamId);
+      console.log('  - team_id:', latest.team_id);
+      console.log('  - idEquipo:', latest.idEquipo);
+      console.log('  - id_equipo:', latest.id_equipo);
+      console.log('  - equipo objeto:', latest.equipo);
+      console.log('  - team objeto:', latest.team);
+      console.log('  - Equipo ID final seleccionado:', equipoId);
+      
+      if (!equipoId) {
+        console.warn('[Dashboard] Proyecto sin equipo asignado. Intentando con equipos del usuario...');
+        
+        // Fallback: obtener el primer equipo del usuario
         try {
-          const res2 = await fetch('/equipos/' + encodeURIComponent(latest.equipoId) + '/icl');
-          if (res2.ok) {
-            const iclData = await res2.json();
-            const levelEl = document.getElementById('burnout-risk-level');
-            const iclEl = document.getElementById('burnout-icl');
-            const msgEl = document.getElementById('burnout-msg');
-            if (levelEl) levelEl.textContent = iclData.risk ?? '-';
-            if (iclEl) iclEl.textContent = (typeof iclData.icl === 'number') ? iclData.icl.toFixed(2) : '-';
-            if (msgEl) msgEl.textContent = iclData.message ?? '';
-          } else {
-            console.error('Error al cargar ICL del equipo:', await res2.text());
-            const msgEl = document.getElementById('burnout-msg');
-            if (msgEl) msgEl.textContent = 'Error al cargar ICL';
+          const teamsRes = await fetch('/equipos/member/' + userId);
+          if (teamsRes.ok) {
+            const teams = await teamsRes.json();
+            console.log('[Dashboard] Equipos del usuario:', teams);
+            if (teams && teams.length > 0) {
+              const fallbackTeamId = teams[0].id;
+              console.log('[Dashboard] Usando equipo fallback:', fallbackTeamId);
+              await loadICL(fallbackTeamId);
+              return;
+            }
           }
-        } catch (err) {
-          console.error('Excepción al recuperar ICL del equipo:', err);
-          const msgEl = document.getElementById('burnout-msg');
-          if (msgEl) msgEl.textContent = 'Excepción al cargar ICL';
+        } catch (e) {
+          console.error('[Dashboard] Error obteniendo equipos del usuario:', e);
         }
-      } else {
+        
+        const levelEl = document.getElementById('burnout-risk-level');
+        const iclEl = document.getElementById('burnout-icl');
         const msgEl = document.getElementById('burnout-msg');
-        if (msgEl) msgEl.textContent = 'Equipo no definido';
+        if (levelEl) levelEl.textContent = 'N/A';
+        if (iclEl) iclEl.textContent = '0.00';
+        if (msgEl) msgEl.textContent = 'Sin equipo asignado';
+        return;
       }
 
+      await loadICL(equipoId);
+
     } catch (err) {
-      console.error('Excepción al recuperar último proyecto del usuario:', err);
+      console.error('[Dashboard] Excepción general:', err);
+      const msgEl = document.getElementById('burnout-msg');
+      if (msgEl) msgEl.textContent = 'Error: ' + err.message;
     }
   })();
+
+  async function loadICL(equipoId) {
+    try {
+      console.log('[Dashboard] Obteniendo ICL del equipo:', equipoId);
+      const res2 = await fetch('/equipos/' + encodeURIComponent(equipoId) + '/icl');
+      
+      console.log('[Dashboard] Respuesta ICL status:', res2.status);
+      
+      if (!res2.ok) {
+        const errorText = await res2.text();
+        console.error('[Dashboard] Error HTTP al cargar ICL:', res2.status, errorText);
+        const levelEl = document.getElementById('burnout-risk-level');
+        const iclEl = document.getElementById('burnout-icl');
+        const msgEl = document.getElementById('burnout-msg');
+        if (levelEl) levelEl.textContent = 'Error';
+        if (iclEl) iclEl.textContent = '0.00';
+        if (msgEl) msgEl.textContent = 'Error HTTP ' + res2.status;
+        return;
+      }
+      
+      const iclData = await res2.json();
+      console.log('[Dashboard] ICL obtenido exitosamente:', iclData);
+      
+      const levelEl = document.getElementById('burnout-risk-level');
+      const iclEl = document.getElementById('burnout-icl');
+      const msgEl = document.getElementById('burnout-msg');
+      
+      if (levelEl) {
+        levelEl.textContent = iclData.risk ?? 'N/A';
+        console.log('[Dashboard] Risk level mostrado:', iclData.risk);
+      }
+      if (iclEl) {
+        const iclValue = (typeof iclData.icl === 'number') ? iclData.icl.toFixed(2) : '0.00';
+        iclEl.textContent = iclValue;
+        console.log('[Dashboard] ICL value mostrado:', iclValue);
+      }
+      if (msgEl) {
+        msgEl.textContent = iclData.message ?? 'Sin datos';
+        console.log('[Dashboard] Message mostrado:', iclData.message);
+      }
+      
+    } catch (err) {
+      console.error('[Dashboard] Excepción al recuperar ICL:', err);
+      const levelEl = document.getElementById('burnout-risk-level');
+      const iclEl = document.getElementById('burnout-icl');
+      const msgEl = document.getElementById('burnout-msg');
+      if (levelEl) levelEl.textContent = 'Error';
+      if (iclEl) iclEl.textContent = '0.00';
+      if (msgEl) msgEl.textContent = 'Error de conexión';
+    }
+  }
   </script>
 
   <!-- KPI Productividad -->
@@ -1026,20 +1119,19 @@
       return d.toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short' });
     }
 
-    function formatTime(d){
-      if (!d) return '';
-      return d.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
-    }
-
     function getTimeUntilDue(dueDate) {
       if (!dueDate) return null;
       const now = new Date();
-      const diffMs = dueDate - now;
-      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const dueDateOnly = new Date(dueDate);
+      dueDateOnly.setHours(0, 0, 0, 0);
+      const nowDateOnly = new Date(now);
+      nowDateOnly.setHours(0, 0, 0, 0);
+      
+      const diffMs = dueDateOnly - nowDateOnly;
       const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
       
-      if (diffMs < 0) return 'Vencida';
-      if (diffHours < 24) return `${diffHours}h`;
+      if (diffDays === 0) return 'Hoy';
+      if (diffDays === 1) return 'Mañana';
       if (diffDays < 7) return `${diffDays}d`;
       return formatShortDate(dueDate);
     }
@@ -1080,15 +1172,7 @@
       right.className = 'mini-right';
       const muted = document.createElement('span');
       muted.className = 'muted small';
-      
-      // Mostrar tiempo hasta vencimiento
-      if (timeUntil === 'Vencida') {
-        muted.style.color = 'var(--brand)';
-        muted.style.fontWeight = '800';
-        muted.textContent = '⚠️ Vencida';
-      } else {
-        muted.textContent = timeUntil || 'Sin fecha';
-      }
+      muted.textContent = timeUntil || 'Sin fecha';
       
       right.appendChild(muted);
 
@@ -1122,15 +1206,22 @@
         }
 
         const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
         
-        // Filtrar tareas no completadas con fecha de vencimiento
+        // Filtrar tareas no completadas, con fecha de vencimiento >= hoy (desde las 00:00)
         const pendingTasks = tasks
           .filter(t => !isCompleted(t))
           .map(t => ({ task: t, dueDate: findTaskDate(t) }))
-          .filter(x => x.dueDate !== null);
+          .filter(x => {
+            if (!x.dueDate) return false;
+            // Comparar solo fechas, ignorando horas
+            const taskDateOnly = new Date(x.dueDate);
+            taskDateOnly.setHours(0, 0, 0, 0);
+            return taskDateOnly >= todayStart;
+          });
 
         if (pendingTasks.length === 0) {
-          container.innerHTML = '<div class="muted small">No hay tareas pendientes con fecha de vencimiento.</div>';
+          container.innerHTML = '<div class="muted small">No hay tareas pendientes próximas a vencer.</div>';
           return;
         }
 
