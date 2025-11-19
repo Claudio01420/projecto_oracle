@@ -1,5 +1,24 @@
 package com.springboot.MyTodoList.controller;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.springboot.MyTodoList.dto.SprintCreateDto;
 import com.springboot.MyTodoList.dto.SprintUpdateDto;
 import com.springboot.MyTodoList.model.Proyecto;
@@ -8,14 +27,7 @@ import com.springboot.MyTodoList.model.Tarea;
 import com.springboot.MyTodoList.repository.ProyectoRepository;
 import com.springboot.MyTodoList.repository.SprintRepository;
 import com.springboot.MyTodoList.repository.TareaRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
+import com.springboot.MyTodoList.service.NotificacionService;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*", exposedHeaders = "*")
 @RestController
@@ -25,15 +37,18 @@ public class SprintController {
     private final SprintRepository sprintRepository;
     private final ProyectoRepository proyectoRepository;
     private final TareaRepository tareaRepository;
+    private final NotificacionService notificacionService;
 
     public SprintController(
             SprintRepository sprintRepository,
             ProyectoRepository proyectoRepository,
-            TareaRepository tareaRepository
+            TareaRepository tareaRepository,
+            NotificacionService notificacionService
     ) {
         this.sprintRepository = sprintRepository;
         this.proyectoRepository = proyectoRepository;
         this.tareaRepository = tareaRepository;
+        this.notificacionService = notificacionService;
     }
 
     // ==================== CRUD BÁSICO DE SPRINT ====================
@@ -53,20 +68,11 @@ public class SprintController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * POST /sprints
-     * Body: SprintCreateDto
-     *
-     * JSON esperado:
-     * - projectId       (Long, obligatorio)
-     * - tituloSprint    (String, obligatorio)
-     * - descripcionSprint (String, opcional)
-     * - duracion        (LocalDate, opcional) -> FECHA FIN
-     * - numero          (Integer, opcional, si null se calcula)
-     * - fechaInicio     (LocalDate, opcional, si null se usa hoy)
-     */
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody SprintCreateDto dto) {
+    public ResponseEntity<?> create(
+            @RequestBody SprintCreateDto dto,
+            @RequestHeader(value = "X-User-Id", required = false) Long userIdHeader
+    ) {
         if (dto.projectId == null) {
             return ResponseEntity.badRequest()
                     .body("El campo projectId es obligatorio para crear un sprint.");
@@ -76,29 +82,24 @@ public class SprintController {
                     .body("El título del sprint es obligatorio.");
         }
 
-        // Validar proyecto
         Proyecto p = proyectoRepository.findById(dto.projectId).orElse(null);
         if (p == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("No existe el proyecto con id=" + dto.projectId);
         }
 
-        // Número correlativo si viene null
         Integer numero = dto.numero;
         if (numero == null) {
             List<Sprint> existentes = sprintRepository.findByProjectId(dto.projectId);
             numero = existentes.size() + 1;
         }
 
-        // Fecha de inicio
         LocalDate fechaInicio = dto.fechaInicio != null
                 ? dto.fechaInicio
                 : LocalDate.now();
 
-        // Fecha fin (columna DURACION)
         LocalDate fechaFin = dto.duracion;
         if (fechaFin == null) {
-            // Por defecto +7 días
             fechaFin = fechaInicio.plusDays(7);
         }
 
@@ -111,15 +112,20 @@ public class SprintController {
         sprint.setDuracion(fechaFin);
 
         Sprint saved = sprintRepository.save(sprint);
+
+        try {
+            notificacionService.notificarSprintCreado(saved, p, userIdHeader);
+        } catch (Exception ignored) {}
+
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
-    /**
-     * PUT /sprints/{id}
-     * Body: SprintUpdateDto (actualización parcial)
-     */
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody SprintUpdateDto body) {
+    public ResponseEntity<?> update(
+            @PathVariable Long id,
+            @RequestBody SprintUpdateDto body,
+            @RequestHeader(value = "X-User-Id", required = false) Long userIdHeader
+    ) {
         return sprintRepository.findById(id)
                 .map(actual -> {
 
@@ -143,18 +149,35 @@ public class SprintController {
                     }
 
                     Sprint saved = sprintRepository.save(actual);
+
+                    Proyecto p = (saved.getProjectId() != null)
+                            ? proyectoRepository.findById(saved.getProjectId()).orElse(null)
+                            : null;
+                    try {
+                        notificacionService.notificarSprintActualizado(saved, p, userIdHeader);
+                    } catch (Exception ignored) {}
+
                     return ResponseEntity.ok(saved);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        if (!sprintRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        sprintRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> delete(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", required = false) Long userIdHeader
+    ) {
+        return sprintRepository.findById(id).map(s -> {
+            Proyecto p = (s.getProjectId() != null)
+                    ? proyectoRepository.findById(s.getProjectId()).orElse(null)
+                    : null;
+            try {
+                notificacionService.notificarSprintEliminado(s, p, userIdHeader);
+            } catch (Exception ignored) {}
+
+            sprintRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // ==================== RELACIÓN SPRINT <-> TAREAS ====================

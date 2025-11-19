@@ -32,6 +32,7 @@ import com.springboot.MyTodoList.model.UsuarioEquipo;
 import com.springboot.MyTodoList.repository.ProyectoRepository;
 import com.springboot.MyTodoList.repository.TareaRepository;
 import com.springboot.MyTodoList.repository.UsuarioEquipoRepository;
+import com.springboot.MyTodoList.service.NotificacionService;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -41,13 +42,16 @@ public class ProyectoController {
     private final ProyectoRepository repo;
     private final TareaRepository tareaRepo;
     private final UsuarioEquipoRepository ueRepo; // para calcular proyectos visibles
+    private final NotificacionService notificacionService;
 
     public ProyectoController(ProyectoRepository repo,
                               TareaRepository tareaRepo,
-                              UsuarioEquipoRepository ueRepo) {
+                              UsuarioEquipoRepository ueRepo,
+                              NotificacionService notificacionService) {
         this.repo = repo;
         this.tareaRepo = tareaRepo;
         this.ueRepo = ueRepo;
+        this.notificacionService = notificacionService;
     }
 
     // LISTA general con soporte a ?equipoId=...
@@ -77,7 +81,6 @@ public class ProyectoController {
     }
 
     // NUEVO: PROYECTOS VISIBLES para un usuario:
-    // Unión de: creados por mí + de equipos donde soy miembro (cualquier rol)
     @GetMapping("/visibles/{usuarioId}")
     public List<Proyecto> visibles(@PathVariable Long usuarioId) {
         Map<Long, Proyecto> byId = new LinkedHashMap<>();
@@ -104,9 +107,7 @@ public class ProyectoController {
         return new ArrayList<>(byId.values());
     }
 
-    // ✅✅ NUEVO: AUTOCOMPLETE /picker
-    // Soporta /proyectos/buscar y /proyectos/search
-    // Si llega usuarioId, se limita a proyectos "visibles" para ese usuario.
+    // AUTOCOMPLETE /picker
     @GetMapping({"/buscar", "/search"})
     public List<Proyecto> buscar(
             @RequestParam("q") String q,
@@ -115,7 +116,6 @@ public class ProyectoController {
         if (q == null || q.trim().length() < 2) return Collections.emptyList();
         final String needle = q.trim().toLowerCase();
 
-        // Si tenemos usuarioId, usamos "visibles(usuarioId)" y filtramos por nombre
         if (usuarioId != null) {
             return visibles(usuarioId).stream()
                     .filter(Objects::nonNull)
@@ -131,10 +131,8 @@ public class ProyectoController {
                     .collect(Collectors.toList());
         }
 
-        // Sin usuarioId: intenta usar Top10 por nombre (si no, fallback a all + filtro)
         List<Proyecto> top = repo.findTop10ByNombreProyectoContainingIgnoreCase(q.trim());
         if (top != null && !top.isEmpty()) {
-            // Asegura orden estable por nombre
             return top.stream()
                     .sorted(Comparator.comparing(
                             p -> Optional.ofNullable(p.getNombreProyecto()).orElse(""),
@@ -143,7 +141,6 @@ public class ProyectoController {
                     .collect(Collectors.toList());
         }
 
-        // Fallback (no debería ser necesario, pero es inofensivo)
         return repo.findAll().stream()
                 .filter(Objects::nonNull)
                 .filter(p -> {
@@ -165,18 +162,27 @@ public class ProyectoController {
 
     @PostMapping
     public Proyecto create(@RequestBody Proyecto p,
-                           @RequestHeader(value = "X-User-Id", required = false) Long userIdHeader) {
+                           @RequestHeader(value = "X-User-Id", required = false) Long userIdHeader,
+                           @RequestHeader(value = "X-User-Email", required = false) String userEmail) {
         if (p.getEstado() == null || p.getEstado().trim().isEmpty()) {
             p.setEstado("Pendiente");
         }
         if (p.getCreadorId() == null && userIdHeader != null) {
             p.setCreadorId(userIdHeader);
         }
-        return repo.save(p);
+        Proyecto saved = repo.save(p);
+
+        try {
+            notificacionService.notificarProyectoCreado(saved, userIdHeader);
+        } catch (Exception ignored) {}
+
+        return saved;
     }
 
     @PutMapping("/{id}")
-    public Proyecto update(@PathVariable Long id, @RequestBody Proyecto p) {
+    public Proyecto update(@PathVariable Long id,
+                           @RequestBody Proyecto p,
+                           @RequestHeader(value = "X-User-Id", required = false) Long userIdHeader) {
         return repo.findById(id).map(actual -> {
             actual.setNombreProyecto(p.getNombreProyecto());
             actual.setDescripcion(p.getDescripcion());
@@ -185,15 +191,31 @@ public class ProyectoController {
             actual.setFechaInicio(p.getFechaInicio());
             actual.setFechaFin(p.getFechaFin());
             actual.setUltimoAcceso(p.getUltimoAcceso());
-            return repo.save(actual);
+            Proyecto saved = repo.save(actual);
+
+            try {
+                notificacionService.notificarProyectoActualizado(saved, userIdHeader);
+            } catch (Exception ignored) {}
+
+            return saved;
         }).orElseGet(() -> {
             p.setId(id);
-            return repo.save(p);
+            Proyecto saved = repo.save(p);
+            try {
+                notificacionService.notificarProyectoActualizado(saved, userIdHeader);
+            } catch (Exception ignored) {}
+            return saved;
         });
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable Long id,
+                       @RequestHeader(value = "X-User-Id", required = false) Long userIdHeader) {
+        repo.findById(id).ifPresent(p -> {
+            try {
+                notificacionService.notificarProyectoEliminado(p, userIdHeader);
+            } catch (Exception ignored) {}
+        });
         repo.deleteById(id);
     }
 
@@ -223,10 +245,8 @@ public class ProyectoController {
         return resp;
     }
 
-    // Reemplaza el método existente @GetMapping("/mios/{usuarioId}/stats")
     @GetMapping("/mios/{usuarioId}/stats")
     public List<Map<String, Object>> myProjectsWithStats(@PathVariable Long usuarioId) {
-        // Obtiene los proyectos "visibles" para el usuario: creados por él + de equipos donde es miembro
         List<Proyecto> proyectos = visibles(usuarioId);
 
         return proyectos.stream().map(p -> {
@@ -247,7 +267,6 @@ public class ProyectoController {
             return m;
         }).collect(Collectors.toList());
     }
-
 
     @GetMapping("/horas")
     public List<Map<String, Object>> horasPorProyecto() {
