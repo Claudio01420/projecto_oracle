@@ -223,7 +223,7 @@
         <aside id="calendar-panel" class="panel card-soft">
           <div class="panel-title">
             <span class="dot"></span>
-            <h3>Semana en una mirada</h3>
+            <h3>Calendario de Tareas</h3>
           </div>
 
           <div class="calendar-controls">
@@ -803,11 +803,9 @@
       if (!isNaN(d2.getTime())) return d2;
       return null;
     }
-    function startOfWeek(date){
+    function startOfDay(date){
       const d = new Date(date);
-      const day = (d.getDay() + 6) % 7;
       d.setHours(0,0,0,0);
-      d.setDate(d.getDate() - day);
       return d;
     }
     function addDays(d, n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
@@ -825,31 +823,52 @@
       return task.title || task.name || task.titulo || task.summary || task.subject || 'Tarea sin título';
     }
 
+    function showTaskModal(task) {
+      const dt = findTaskDate(task);
+      const title = findTaskTitle(task);
+      const desc = task.description || task.descripcion || task.detail || task.details || '';
+      const status = task.status || task.estado || 'Sin estado';
+      const priority = task.priority || task.prioridad || 'Sin prioridad';
+      const assignee = task.assignee || task.asignado || task.assigned_to || 'Sin asignar';
+      
+      window.openTaskModal({
+        title: title,
+        date: dt ? dt.toLocaleString() : 'Sin fecha',
+        description: desc,
+        status: status,
+        priority: priority,
+        assignee: assignee
+      });
+    }
+
     const email = localStorage.getItem('userEmail');
     const calendarEl = document.getElementById('week-calendar');
     const weekLabel = document.getElementById('week-label');
     const loading = document.getElementById('calendar-loading');
 
-    let curMonday = startOfWeek(new Date());
+    let curStartDay = startOfDay(new Date());
 
-    function renderWeekLabel(monday){
-      const end = addDays(monday,6);
+    function renderWeekLabel(startDay){
+      const endDay = addDays(startDay, 2);
       const opts = { day: 'numeric', month: 'short' };
-      weekLabel.textContent = `${monday.toLocaleDateString(undefined,opts)} – ${end.toLocaleDateString(undefined,opts)}`;
+      weekLabel.textContent = `${startDay.toLocaleDateString(undefined,opts)} – ${endDay.toLocaleDateString(undefined,opts)}`;
     }
 
-    function renderCalendar(tasks, monday){
+    function renderCalendar(tasks, startDay){
       if (!calendarEl) return;
       calendarEl.innerHTML = '';
       const today = new Date();
-      for (let i=0;i<7;i++){
-        const dayDate = addDays(monday, i);
+      today.setHours(0,0,0,0);
+      
+      for (let i=0; i<3; i++){
+        const dayDate = addDays(startDay, i);
         const dayBox = document.createElement('div');
-        dayBox.className = 'week-day' + (dayDate.toDateString() === today.toDateString() ? ' today' : '');
+        dayBox.className = 'week-day' + (dayDate.getTime() === today.getTime() ? ' today' : '');
+        
         const header = document.createElement('div');
         header.className = 'day-header';
         const dayName = document.createElement('div');
-        dayName.textContent = dayDate.toLocaleDateString(undefined,{ weekday:'short' }).replace('.', '');
+        dayName.textContent = dayDate.toLocaleDateString(undefined, { weekday:'long' }).replace('.', '');
         const dayNum = document.createElement('div');
         dayNum.className = 'date-num';
         dayNum.textContent = dayDate.getDate();
@@ -859,8 +878,11 @@
         const tasksList = document.createElement('div');
         tasksList.className = 'tasks-list';
 
-        const dayStart = new Date(dayDate); dayStart.setHours(0,0,0,0);
-        const dayEnd = new Date(dayDate); dayEnd.setHours(23,59,59,999);
+        const dayStart = new Date(dayDate);
+        dayStart.setHours(0,0,0,0);
+        const dayEnd = new Date(dayDate);
+        dayEnd.setHours(23,59,59,999);
+        
         const tasksForDay = tasks.filter(t => {
           const dt = findTaskDate(t);
           if (!dt) return false;
@@ -879,24 +901,16 @@
             return da - db;
           });
           tasksForDay.forEach(t=>{
-            const dt = findTaskDate(t);
             const pill = document.createElement('div');
             pill.className = 'task-pill small';
             const titleWrap = document.createElement('div');
             titleWrap.className = 'task-title';
             const title = document.createElement('div');
             title.textContent = findTaskTitle(t);
-            const time = document.createElement('div');
-            time.className = 'task-time';
-            time.textContent = dt ? dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
             titleWrap.appendChild(title);
-            titleWrap.appendChild(time);
             pill.appendChild(titleWrap);
 
-            pill.addEventListener('click', ()=> {
-              const desc = t.description || t.descripcion || t.detail || t.details || '';
-              alert(`${findTaskTitle(t)}\n\nFecha: ${dt ? dt.toLocaleString() : 'N/A'}\n\n${desc}`);
-            });
+            pill.addEventListener('click', () => showTaskModal(t));
 
             tasksList.appendChild(pill);
           });
@@ -937,8 +951,8 @@
           return;
         }
 
-        renderWeekLabel(curMonday);
-        renderCalendar(tasks, curMonday);
+        renderWeekLabel(curStartDay);
+        renderCalendar(tasks, curStartDay);
 
         const blocked = computeBlocked(tasks);
         const blockedEl = document.getElementById('blocked-count');
@@ -953,8 +967,8 @@
 
     const prevBtn = document.getElementById('prev-week');
     const nextBtn = document.getElementById('next-week');
-    if (prevBtn) prevBtn.addEventListener('click', ()=>{ curMonday = addDays(curMonday, -7); refreshCalendar(); });
-    if (nextBtn) nextBtn.addEventListener('click', ()=>{ curMonday = addDays(curMonday, 7); refreshCalendar(); });
+    if (prevBtn) prevBtn.addEventListener('click', ()=>{ curStartDay = addDays(curStartDay, -3); refreshCalendar(); });
+    if (nextBtn) nextBtn.addEventListener('click', ()=>{ curStartDay = addDays(curStartDay, 3); refreshCalendar(); });
 
     await refreshCalendar();
     setInterval(refreshCalendar, 30000);
@@ -963,7 +977,14 @@
 
   <!-- Próximas tareas -->
   <script>
-  (async function(){
+  (function(){
+    const container = document.getElementById('upcoming-tasks');
+    const loading = document.getElementById('upcoming-loading');
+    if (!container) return;
+
+    const POLL_INTERVAL_MS = 30000;
+    let pollingHandle = null;
+
     function parseDateAny(value){
       if (!value) return null;
       if (value instanceof Date) return value;
@@ -975,8 +996,10 @@
       if (!isNaN(d2.getTime())) return d2;
       return null;
     }
+
     function findTaskDate(task){
-      const keys = ['dueDate','fechaVencimiento','due_date','due','due_at','endDate','fechaFin','end_date','startDate','fechaInicio','start','fecha','date','scheduledAt','completedAt'];
+      // Priorizar fechas de vencimiento sobre otras fechas
+      const keys = ['dueDate','fechaVencimiento','due_date','due','due_at','endDate','fechaFin','end_date','startDate','fechaInicio','start','fecha','date','scheduledAt'];
       for (const k of keys){
         if (task[k]) return parseDateAny(task[k]);
         if (task.meta && task.meta[k]) return parseDateAny(task.meta[k]);
@@ -984,31 +1007,66 @@
       if (task.createdAt) return parseDateAny(task.createdAt);
       return null;
     }
+
     function findTaskTitle(task){
       return task.title || task.name || task.titulo || task.summary || task.subject || 'Tarea sin título';
     }
+
+    function isCompleted(task) {
+      try {
+        const s = (task.status ?? task.estado ?? '').toString().toLowerCase();
+        if (s.includes('hecho') || s.includes('done') || s.includes('completed') || s.includes('completado')) return true;
+        if (task.completedAt || task.completed_at || task.completed) return true;
+        return false;
+      } catch (e) { return false; }
+    }
+
     function formatShortDate(d){
       if (!d) return '';
       return d.toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short' });
     }
+
     function formatTime(d){
       if (!d) return '';
       return d.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
     }
 
-    const container = document.getElementById('upcoming-tasks');
-    const loading = document.getElementById('upcoming-loading');
-    if (!container) return;
+    function getTimeUntilDue(dueDate) {
+      if (!dueDate) return null;
+      const now = new Date();
+      const diffMs = dueDate - now;
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      
+      if (diffMs < 0) return 'Vencida';
+      if (diffHours < 24) return `${diffHours}h`;
+      if (diffDays < 7) return `${diffDays}d`;
+      return formatShortDate(dueDate);
+    }
 
-    const email = localStorage.getItem('userEmail');
-    if (!email) {
-      container.innerHTML = '<div class="muted small">Inicia sesión (email) para ver tus próximas tareas.</div>';
-      return;
+    function showTaskModal(task) {
+      const dt = findTaskDate(task);
+      const title = findTaskTitle(task);
+      const desc = task.description || task.descripcion || task.detail || task.notes || '';
+      const status = task.status || task.estado || 'Sin estado';
+      const priority = task.priority || task.prioridad || 'Sin prioridad';
+      const assignee = task.assignee || task.asignado || task.assigned_to || 'Sin asignar';
+      
+      window.openTaskModal({
+        title: title,
+        date: dt ? dt.toLocaleString() : 'Sin fecha',
+        description: desc,
+        status: status,
+        priority: priority,
+        assignee: assignee
+      });
     }
 
     function renderMiniCard(task){
       const date = findTaskDate(task);
       const title = findTaskTitle(task);
+      const timeUntil = getTimeUntilDue(date);
+      
       const wrapper = document.createElement('div');
       wrapper.className = 'mini-card';
 
@@ -1022,74 +1080,190 @@
       right.className = 'mini-right';
       const muted = document.createElement('span');
       muted.className = 'muted small';
-      muted.textContent = date ? `${formatShortDate(date)} ${formatTime(date)}` : 'Sin fecha';
+      
+      // Mostrar tiempo hasta vencimiento
+      if (timeUntil === 'Vencida') {
+        muted.style.color = 'var(--brand)';
+        muted.style.fontWeight = '800';
+        muted.textContent = '⚠️ Vencida';
+      } else {
+        muted.textContent = timeUntil || 'Sin fecha';
+      }
+      
       right.appendChild(muted);
 
       wrapper.appendChild(left);
       wrapper.appendChild(right);
 
-      wrapper.addEventListener('click', () => {
-        const desc = task.description || task.descripcion || task.detail || task.notes || '';
-        const dText = date ? date.toLocaleString() : 'N/A';
-        const extra = desc ? `\n\n${desc}` : '';
-        alert(`${title}\n\nFecha: ${dText}${extra}`);
-      });
+      wrapper.addEventListener('click', () => showTaskModal(task));
 
       return wrapper;
     }
 
-    try {
-      const res = await fetch('/api/tasks?email=' + encodeURIComponent(email));
-      if (!res.ok) {
-        console.error('Error cargando tareas:', await res.text());
-        container.innerHTML = '<div class="muted small">Error cargando tareas.</div>';
-        return;
-      }
-      const tasks = await res.json();
-      if (!Array.isArray(tasks) || tasks.length === 0) {
-        container.innerHTML = '<div class="muted small">No tienes tareas asignadas.</div>';
+    async function updateUpcomingTasks() {
+      const email = localStorage.getItem('userEmail');
+      if (!email) {
+        container.innerHTML = '<div class="muted small">Inicia sesión (email) para ver tus próximas tareas.</div>';
         return;
       }
 
-      const now = new Date();
-      const withDates = tasks.map(t => ({ t, dt: findTaskDate(t) })).filter(x => x.dt && x.dt >= new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0,0,0));
-      withDates.sort((a,b) => a.dt - b.dt);
+      try {
+        const res = await fetch('/api/tasks?email=' + encodeURIComponent(email));
+        if (!res.ok) {
+          console.error('Error cargando tareas:', await res.text());
+          container.innerHTML = '<div class="muted small">Error cargando tareas.</div>';
+          return;
+        }
+        
+        const tasks = await res.json();
+        if (!Array.isArray(tasks) || tasks.length === 0) {
+          container.innerHTML = '<div class="muted small">No tienes tareas asignadas.</div>';
+          return;
+        }
 
-      let selection = withDates.slice(0,3).map(x => x.t);
-      if (selection.length < 3) {
-        const others = tasks
-          .filter(t => !selection.includes(t))
-          .map(t => ({ t, dt: findTaskDate(t) }))
-          .sort((a,b) => {
-            if (a.dt && b.dt) return a.dt - b.dt;
-            if (a.dt && !b.dt) return -1;
-            if (!a.dt && b.dt) return 1;
-            return 0;
-          })
-          .slice(0, 3 - selection.length)
-          .map(x => x.t);
-        selection = selection.concat(others);
-      }
+        const now = new Date();
+        
+        // Filtrar tareas no completadas con fecha de vencimiento
+        const pendingTasks = tasks
+          .filter(t => !isCompleted(t))
+          .map(t => ({ task: t, dueDate: findTaskDate(t) }))
+          .filter(x => x.dueDate !== null);
 
-      container.innerHTML = '';
-      if (selection.length === 0) {
-        container.innerHTML = '<div class="muted small">No hay próximas tareas detectadas.</div>';
-      } else {
-        selection.forEach(t => {
-          container.appendChild(renderMiniCard(t));
+        if (pendingTasks.length === 0) {
+          container.innerHTML = '<div class="muted small">No hay tareas pendientes con fecha de vencimiento.</div>';
+          return;
+        }
+
+        // Ordenar por fecha de vencimiento (más cercana primero)
+        pendingTasks.sort((a, b) => a.dueDate - b.dueDate);
+
+        // Tomar las 3 más próximas a vencer
+        const upcomingThree = pendingTasks.slice(0, 3);
+
+        container.innerHTML = '';
+        upcomingThree.forEach(({ task }) => {
+          container.appendChild(renderMiniCard(task));
         });
-      }
 
-    } catch (err) {
-      console.error('Excepción al cargar próximas tareas:', err);
-      container.innerHTML = '<div class="muted small">Excepción al cargar próximas tareas.</div>';
-    } finally {
-      if (loading) loading.style.display = 'none';
+      } catch (err) {
+        console.error('Excepción al cargar próximas tareas:', err);
+        container.innerHTML = '<div class="muted small">Excepción al cargar próximas tareas.</div>';
+      } finally {
+        if (loading) loading.style.display = 'none';
+      }
     }
+
+    function startPolling() {
+      if (pollingHandle) return;
+      updateUpcomingTasks();
+      pollingHandle = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+          updateUpcomingTasks();
+        }
+      }, POLL_INTERVAL_MS);
+    }
+
+    function stopPolling() {
+      if (pollingHandle) {
+        clearInterval(pollingHandle);
+        pollingHandle = null;
+      }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') startPolling();
+      else stopPolling();
+    });
+
+    startPolling();
+    window.addEventListener('beforeunload', stopPolling);
+  })();
+  </script>
+
+  <!-- Modal para vista de tarea -->
+  <div class="modal-overlay" id="task-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-task-title">Tarea</h2>
+        <button class="modal-close" id="modal-close" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <div class="modal-label">Fecha</div>
+          <div class="modal-value" id="modal-task-date">-</div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-label">Estado</div>
+          <div class="modal-value" id="modal-task-status">-</div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-label">Prioridad</div>
+          <div class="modal-value" id="modal-task-priority">-</div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-label">Asignado a</div>
+          <div class="modal-value" id="modal-task-assignee">-</div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-label">Descripción</div>
+          <div class="modal-value" id="modal-task-description">Sin descripción</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="modal-close-btn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script del modal -->
+  <script>
+  (function() {
+    const modal = document.getElementById('task-modal');
+    const closeBtn = document.getElementById('modal-close');
+    const closeFooterBtn = document.getElementById('modal-close-btn');
+
+    function closeModal() {
+      modal.classList.remove('active');
+    }
+
+    function openModal(taskData) {
+      document.getElementById('modal-task-title').textContent = taskData.title || 'Tarea';
+      document.getElementById('modal-task-date').textContent = taskData.date || 'Sin fecha';
+      document.getElementById('modal-task-status').textContent = taskData.status || 'Sin estado';
+      document.getElementById('modal-task-priority').textContent = taskData.priority || 'Sin prioridad';
+      document.getElementById('modal-task-assignee').textContent = taskData.assignee || 'Sin asignar';
+      
+      const descEl = document.getElementById('modal-task-description');
+      if (taskData.description && taskData.description.trim()) {
+        descEl.textContent = taskData.description;
+        descEl.classList.remove('empty');
+      } else {
+        descEl.textContent = 'Sin descripción';
+        descEl.classList.add('empty');
+      }
+      
+      modal.classList.add('active');
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    closeFooterBtn.addEventListener('click', closeModal);
+    
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeModal();
+      }
+    });
+
+    window.openTaskModal = openModal;
   })();
   </script>
 
 </body>
 </html>
 
-  
