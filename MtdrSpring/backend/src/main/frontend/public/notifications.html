@@ -9,6 +9,18 @@
   <script src="/session.js"></script>
 </head>
 <body class="theme-dark">
+
+  <!-- ============================
+       PANTALLA DE CARGA - CUBO ROJO
+       ============================ -->
+  <div class="loading-screen" id="notifications-loading-screen">
+    <div class="spinner">
+      <div></div><div></div><div></div>
+      <div></div><div></div><div></div>
+    </div>
+    <div class="loading-text">Cargando notificaciones...</div>
+  </div>
+
   <!-- ICON SPRITE -->
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
     <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -88,6 +100,16 @@
     </main>
   </div>
 
+  <!-- LOADER GLOBAL (el que ya tenías, lo conservamos) -->
+  <div class="page-loader" data-page-loader>
+    <div class="loader-card">
+      <div class="loader-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <p>Cargando notificaciones...</p>
+    </div>
+  </div>
+
   <div id="toast" class="toast ok">Hecho</div>
 
 <script>
@@ -97,6 +119,9 @@ const EQUIPOS_API = `${API_BASE}/equipos`;
 
 const user = JSON.parse(localStorage.getItem('user') || 'null');
 const USER_ID = Number(user?.usuarioId ?? user?.id ?? NaN);
+
+const loaderEl = document.querySelector('[data-page-loader]');
+const loadingScreenEl = document.getElementById('notifications-loading-screen');
 
 const escapeHtml = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const fmt = iso => { try{ const d=new Date(iso); return isNaN(d)?'—':d.toLocaleString(); }catch{ return '—'; } };
@@ -111,6 +136,12 @@ const authHeaders = () => {
   const h = {};
   if (!Number.isNaN(USER_ID)) h['X-User-Id'] = String(USER_ID);
   return h;
+};
+
+// 👉 Ahora showLoader controla tanto el loader antiguo como la pantalla del cubo rojo
+const showLoader = (show) => {
+  if (loaderEl) loaderEl.style.display = show ? 'flex' : 'none';
+  if (loadingScreenEl) loadingScreenEl.classList.toggle('hidden', !show);
 };
 
 let FULL = [];
@@ -144,11 +175,17 @@ function render(){
   $list.innerHTML = list.map(n=>{
     const isInvite = String(n.tipo || '').toUpperCase() === 'INVITACION_EQUIPO';
     const token = isInvite ? extractToken(n.mensaje) : '';
-    const displayText = isInvite
-      ? `Has sido invitado al equipo #${n.equipoId}.`
-      : escapeHtml(n.mensaje || '');
 
-    // Acciones a la derecha, mismas que el estilo de la foto (pill buttons)
+    const baseText = isInvite
+      ? `Has sido invitado al equipo #${n.equipoId}.`
+      : (n.mensaje || '');
+
+    const raw = (baseText || '').trim();
+    const short = raw.length > 120 ? raw.slice(0, 120) + '…' : raw;
+
+    const previewHtml = escapeHtml(short);
+    const fullHtml = escapeHtml(raw || short);
+
     const right = isInvite
       ? `<div class="row-actions">
            <button class="chip primary" data-accept="${token}" data-team-id="${n.equipoId || ''}" ${!token ? 'disabled' : ''}>Aceptar</button>
@@ -171,7 +208,9 @@ function render(){
             </div>
             <div class="meta small">${fmt(n.fechaEnvio)}
               ${n.prioridad ? (' · '+escapeHtml(n.prioridad)) : ''} ${n.tipo ? (' · '+escapeHtml(n.tipo)) : ''}</div>
-            <p class="text">${displayText}</p>
+            <p class="text text-preview">${previewHtml}</p>
+            <p class="text text-full">${fullHtml}</p>
+            <div class="expand-hint">Haz clic para ver más detalles</div>
           </div>
         </div>
       </article>`;
@@ -179,7 +218,8 @@ function render(){
 
   // Handlers
   document.querySelectorAll('[data-read]').forEach(b=>{
-    b.onclick = async () => {
+    b.onclick = async (e) => {
+      e.stopPropagation();
       const id = b.getAttribute('data-read');
       try{
         const r = await fetch(`${NOTIF_API}/${id}/leer`, { method:'PATCH', headers: { 'Content-Type':'application/json', ...authHeaders() } });
@@ -189,7 +229,8 @@ function render(){
   });
 
   document.querySelectorAll('[data-del]').forEach(b=>{
-    b.onclick = async () => {
+    b.onclick = async (e) => {
+      e.stopPropagation();
       const id = b.getAttribute('data-del');
       if (!confirm('¿Eliminar notificación?')) return;
       try{
@@ -201,7 +242,8 @@ function render(){
   });
 
   document.querySelectorAll('[data-accept]').forEach(b=>{
-    b.onclick = async () => {
+    b.onclick = async (e) => {
+      e.stopPropagation();
       const tk = b.getAttribute('data-accept');
       const teamId = b.getAttribute('data-team-id');
       if (!tk) return;
@@ -222,7 +264,8 @@ function render(){
   });
 
   document.querySelectorAll('[data-decline]').forEach(b=>{
-    b.onclick = async () => {
+    b.onclick = async (e) => {
+      e.stopPropagation();
       const tk = b.getAttribute('data-decline');
       if (!tk) return;
       b.disabled = true;
@@ -233,9 +276,17 @@ function render(){
       }catch{ toast('Error de red','err'); b.disabled=false; }
     };
   });
+
+  // Expand / collapse detalle al hacer clic en la tarjeta
+  document.querySelectorAll('.card-item').forEach(card=>{
+    card.addEventListener('click', () => {
+      card.classList.toggle('expanded');
+    });
+  });
 }
 
 async function load(){
+  showLoader(true);
   try{
     if (!Number.isNaN(USER_ID)) {
       const r = await fetch(`${NOTIF_API}?usuarioId=${USER_ID}`, { headers: { ...authHeaders() } });
@@ -243,9 +294,12 @@ async function load(){
     }
     const r2 = await fetch(`${NOTIF_API}`, { headers: { ...authHeaders() } });
     if (r2.ok){ FULL = await r2.json(); render(); return; }
-  }catch{}
-  document.getElementById('list').innerHTML = `<div class="meta">Error cargando notificaciones.</div>`;
-  document.getElementById('counter').textContent = '—';
+  }catch{
+    document.getElementById('list').innerHTML = `<div class="meta">Error cargando notificaciones.</div>`;
+    document.getElementById('counter').textContent = '—';
+  } finally {
+    showLoader(false);
+  }
 }
 
 document.getElementById('btnMarkAll').onclick = async () => {
