@@ -51,12 +51,6 @@
     <circle cx="12" cy="12" r="3" />
     <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
   </symbol>
-  <!-- Exit -->
-  <symbol id="i-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="m16 17 5-5-5-5"/>
-    <path d="M21 12H9"/>
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-  </symbol>
   </svg>
 </head>
 
@@ -72,7 +66,6 @@
     <div class="topbar-right">
       <div class="user-circle" title="Usuario">U</div>
       <a href="/index.html" class="logout-btn">
-        <svg class="ico-sm" aria-hidden="true"><use href="#i-exit"/></svg>
         <span>Salir</span>
       </a>
     </div>
@@ -124,16 +117,17 @@
           <button class="tab">Preferencias</button>
         </div>
 
-        <div class="grid">
-          <!-- Perfil -->
+        <!-- single-column profile (panel derecho eliminado) -->
+        <div class="grid grid--single">
           <div class="col">
             <h3 class="h6">Perfil</h3>
             <div class="profile">
               <!-- Avatar: preview + upload -->
-              <img id="avatarImg" src="/avatar.png" alt="Avatar" class="avatar"/>
+              <img id="avatarImg" src="/image/avatar.png" alt="Avatar" class="avatar"/>
               <div class="avatar-controls">
-                <input id="avatarFile" type="file" accept="image/*"/>
+                <input id="avatarFile" type="file" accept="image/*" style="display:none"/>
                 <button id="avatarUploadBtn" class="btn-outline" type="button">Subir avatar</button>
+                <button id="avatarRemoveBtn" class="btn-outline" type="button">Restablecer</button>
               </div>
 
               <label>Nombre
@@ -148,19 +142,6 @@
               <button id="saveProfileBtn" class="btn-primary">Guardar</button>
             </div>
           </div>
-
-          <!-- Equipo -->
-          <div class="col">
-            <h3 class="h6">Equipo / Usuarios</h3>
-            <button class="btn-outline">Invitar miembro</button>
-            <ul class="team">
-              <li draggable="true"><span class="circle">C</span> Claudio Cantú <span class="role">Dev</span></li>
-              <li draggable="true"><span class="circle">P</span> Paulo Ibarra <span class="role">Dev</span></li>
-              <li draggable="true"><span class="circle">D</span> Diego Roca <span class="role">Dev</span></li>
-              <li draggable="true"><span class="circle">F</span> Francisco Pérez <span class="role">Dev</span></li>
-              <li draggable="true"><span class="circle">A</span> Adrian Gomez <span class="role">Dev</span></li>
-            </ul>
-          </div>
         </div>
 
         <!-- Se eliminó la sección de Preferencias según solicitud -->
@@ -170,6 +151,50 @@
 
   <!-- incluir helper de sesión + script de la página -->
   <script src="/Js/session.js"></script>
+
+  <!-- Preview / default avatar logic -->
+  <script>
+  (function(){
+    const DEFAULT = '/image/avatar.png';
+    const avatarImg = document.getElementById('avatarImg');
+    const avatarFile = document.getElementById('avatarFile');
+    const uploadBtn = document.getElementById('avatarUploadBtn');
+    const removeBtn = document.getElementById('avatarRemoveBtn');
+
+    // Cargar avatar guardado en localStorage (si existe), si no usar imagen por defecto
+    try {
+      const saved = localStorage.getItem('userAvatar');
+      if (saved) avatarImg.src = saved;
+      else avatarImg.src = DEFAULT;
+    } catch (e) {
+      avatarImg.src = DEFAULT;
+    }
+
+    // Abrir selector al pulsar "Subir avatar"
+    uploadBtn?.addEventListener('click', () => avatarFile?.click());
+
+    // Cuando el usuario selecciona archivo, mostrar preview y almacenar en localStorage
+    avatarFile?.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        avatarImg.src = ev.target.result;
+        try { localStorage.setItem('userAvatar', ev.target.result); } catch (_) {}
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Botón "Restablecer" para volver a la imagen por defecto
+    removeBtn?.addEventListener('click', () => {
+      avatarImg.src = DEFAULT;
+      try { localStorage.removeItem('userAvatar'); } catch (_) {}
+      // también limpiar input
+      if (avatarFile) avatarFile.value = '';
+    });
+  })();
+  </script>
+
   <script>
     document.addEventListener('DOMContentLoaded', async function () {
       // Asegura sesión y obtiene email
