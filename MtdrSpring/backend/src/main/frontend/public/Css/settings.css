@@ -90,6 +90,10 @@ body{
   align-items: center;
   justify-content: center;
   font-weight: 900;
+  font-size: 18px;
+  line-height: 32px;
+  padding: 0;
+  margin: 0;
   color:#fff;
   cursor:pointer;
   box-shadow: 0 4px 12px rgba(225, 38, 28, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -99,6 +103,13 @@ body{
   background:var(--brand-hover);
   transform:scale(1.05);
   box-shadow:0 6px 16px rgba(225,38,28,.4);
+}
+
+.user-circle > * {
+  line-height:1;
+  display:inline-block;
+  margin:0;
+  padding:0;
 }
 
 /* Logout button */
