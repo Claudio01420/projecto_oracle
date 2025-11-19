@@ -598,9 +598,9 @@
   let currentSprintIdForTaskCreate = null;
   let pendingProjectIdForSprint = null;
 
-  // Roles dentro del equipo / sistema
+  // Roles dentro del equipo / sistema (usando valores del backend: SUPER_ADMIN, SCRUM_MASTER, DEVELOPER)
   let currentTeamRole = null;   // "ADMIN" | "USUARIO_SUPERIOR" | "USUARIO" | null
-  let isGlobalAdmin = false;    // Super Admin / Scrum Master
+  let isGlobalAdmin = false;    // SUPER_ADMIN / SCRUM_MASTER
 
   function isAdminRole() {
     return String(currentTeamRole || "").toUpperCase() === "ADMIN";
@@ -645,10 +645,7 @@
 
   // ¿Puede borrar una tarea?
   function canDeleteTask(task) {
-    // Admin / superior / global → todas
     if (isGlobalAdmin || isAdminRole() || isSuperiorRole()) return true;
-
-    // Usuario: solo sus tareas
     const assignee = String(task.assigneeId || "").toLowerCase();
     const me = (sessionEmail || "").toLowerCase();
     return assignee && assignee === me;
@@ -656,18 +653,14 @@
 
   // ¿Puede completar / reabrir una tarea?
   function canToggleTask(task) {
-    // Igual que editar
     return canEditTask(task);
   }
 
   // Ajustar visibilidad de botones globales
   function applyRoleUIVisibility() {
-    // Botón "Editar proyecto"
     if ($btnEditar) {
       $btnEditar.style.display = canEditProject() ? "" : "none";
     }
-
-    // Botón "Nuevo sprint"
     if ($btnNewSprint) {
       $btnNewSprint.style.display = canManageSprints() ? "" : "none";
     }
@@ -1029,8 +1022,9 @@
       if(!res.ok) throw new Error('No se pudo obtener miembros');
       const miembros = await res.json();
 
-      isGlobalAdmin = ["Super Admin","Scrum Master"]
-        .includes(String(sessionUser?.rol||""));
+      // AHORA: roles globales según backend (SUPER_ADMIN, SCRUM_MASTER)
+      const backendRol = String(sessionUser?.rol || "").toUpperCase();
+      isGlobalAdmin = (backendRol === "SUPER_ADMIN" || backendRol === "SCRUM_MASTER");
 
       const detallePromesas = miembros.map(async (m) => {
         const uid = m.id?.usuarioId ?? m.usuarioId;
@@ -1038,6 +1032,7 @@
         let email  = null;
 
         try{
+          // Nuevo endpoint PÚBLICO del UsuarioController
           const ru = await fetch(`${USUARIOS_API}/public/${uid}`);
           if(ru.ok){
             const u = await ru.json();
@@ -1063,7 +1058,6 @@
       populateAssigneeSelect($ctAssignee);
       populateAssigneeSelect($etAssignee);
 
-      // Oculta/muestra botones globales según rol
       applyRoleUIVisibility();
     }catch(_){
       teamMembersCache = [];
@@ -1806,7 +1800,6 @@
     $etDue.value = t.fechaLimite ? toISODateInput(t.fechaLimite) : "";
     populateAssigneeSelect($etAssignee);
 
-    // Seleccionar el asignado actual en el select (si aplica)
     if (t.assigneeId) {
       const opt = [...$etAssignee.options].find(o => o.dataset.email && o.dataset.email.toLowerCase() === String(t.assigneeId).toLowerCase());
       if (opt) $etAssignee.value = opt.value;
@@ -1837,7 +1830,6 @@
     let assigneeEmail = selectedOpt?.dataset?.email || existing.assigneeId || null;
     let assigneeName  = selectedOpt?.dataset?.nombre || existing.assigneeName || null;
 
-    // Usuario normal no puede reasignar a otros
     if (!(isGlobalAdmin || isAdminRole() || isSuperiorRole())) {
       assigneeEmail = existing.assigneeId || sessionEmail;
       assigneeName  = existing.assigneeName || sessionUser?.nombre || sessionEmail;
@@ -1893,6 +1885,7 @@
   /* ========= INICIO ========= */
   document.addEventListener("DOMContentLoaded", cargarProyecto);
 </script>
+
 
 </body>
 </html>
