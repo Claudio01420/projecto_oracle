@@ -47,13 +47,6 @@
       <path d="M4 18v3" />
       <path d="M8 14v7" />
     </symbol>
-    <!-- Chatbot -->
-    <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-      <rect x="4" y="8" width="16" height="10" rx="4" stroke-width="1.6" />
-      <circle cx="9" cy="13" r="1" stroke-width="1.6" />
-      <circle cx="15" cy="13" r="1" stroke-width="1.6" />
-      <path stroke-width="1.6" d="M12 4v2m-7 6H4m16 0h1" />
-    </symbol>
     <!-- Notificaciones -->
     <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor">
       <path stroke-width="1.6" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7" />
@@ -64,13 +57,6 @@
       <circle cx="12" cy="12" r="3" />
       <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
         d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
-    </symbol>
-    <!-- Exit -->
-    <symbol id="i-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-      stroke-linejoin="round">
-      <path d="m16 17 5-5-5-5" />
-      <path d="M21 12H9" />
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
     </symbol>
   </svg>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -86,12 +72,7 @@
     </div>
     <div class="topbar-right">
       <div class="user-circle" title="Usuario">U</div>
-      <a href="/index.html" class="logout-btn">
-        <svg class="ico-sm" aria-hidden="true">
-          <use href="#i-exit" />
-        </svg>
-        <span>Salir</span>
-      </a>
+      <a href="/index.html" class="logout-btn">Salir</a>
     </div>
   </header>
 
@@ -128,12 +109,6 @@
             <use href="#i-chart" />
           </svg>
           <span>KPIs</span>
-        </a>
-        <a class="mi" href="/chatbot.html">
-          <svg class="ico">
-            <use href="#i-bot" />
-          </svg>
-          <span>Chatbot</span>
         </a>
         <a class="mi" href="/notifications.html">
           <svg class="ico">
