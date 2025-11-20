@@ -5,6 +5,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>KPIs</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
   <link rel="stylesheet" href="Css/KPIs.css" />
   <link href="https://api.fontshare.com/v2/css?f[]=panchang@500,600,700,800,900&display=swap" rel="stylesheet">
 
@@ -273,6 +275,24 @@
         sprintId: null
       }
     };
+
+    // ======== Usar el mismo usuario que en Equipos ========
+      const defaultSession = {"id":1,"nombre":"Usuario Demo","email":"demo@demo.com","rol":"Scrum Master"};
+      const sessionUser = JSON.parse(localStorage.getItem('user') || JSON.stringify(defaultSession));
+      if (!sessionUser.rol) sessionUser.rol = 'Scrum Master';
+      localStorage.setItem('user', JSON.stringify(sessionUser));
+
+      const userCircle = document.querySelector('.user-circle');
+      if (userCircle && (sessionUser.nombre || sessionUser.email)) {
+        const inicial = String(
+          sessionUser.nombre?.[0] ||
+          sessionUser.email?.[0] ||
+          'U'
+        ).toUpperCase();
+        userCircle.textContent = inicial;
+        userCircle.title = sessionUser.nombre || sessionUser.email || 'Usuario';
+      }
+
 
     // ==================== INICIALIZACIÓN ====================
     
