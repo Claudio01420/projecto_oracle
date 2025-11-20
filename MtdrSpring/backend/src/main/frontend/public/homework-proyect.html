@@ -417,6 +417,7 @@
 
   /* ========= UTIL ========= */
   function qs(name){ return new URL(window.location.href).searchParams.get(name); }
+
   function estadoToChipClass(estado){
     switch((estado||"").toLowerCase()){
       case "pendiente": return "chip state-pend";
@@ -425,11 +426,13 @@
       default: return "chip";
     }
   }
+
   function fmtFecha(iso){
     if(!iso) return "—";
     const d = new Date(iso);
     return isNaN(d.getTime()) ? iso : d.toLocaleDateString();
   }
+
   function toISODateInput(iso){
     if(!iso) return "";
     const d = new Date(iso);
@@ -437,15 +440,19 @@
     const yy=d.getFullYear(),mm=String(d.getMonth()+1).padStart(2,"0"),dd=String(d.getDate()).padStart(2,"0");
     return `${yy}-${mm}-${dd}`;
   }
+
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]) );
   }
+
   function easeInOut(t){ return t<.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2; }
+
   function getRadialPercent(el){
     const v = getComputedStyle(el).getPropertyValue('--p').trim();
     const n = parseFloat(v||'0');
     return isNaN(n)?0:n;
   }
+
   function setRadialAnimated(el, toPercent, labelEl, duration=600){
     const from = getRadialPercent(el);
     const to = Math.max(0, Math.min(100, toPercent|0));
@@ -465,16 +472,43 @@
     }
     requestAnimationFrame(step);
   }
+
   function addDays(d, n){ const c = new Date(d); c.setDate(c.getDate()+n); return c; }
+
   function fmtYMD(d){
     const yy=d.getFullYear(),mm=String(d.getMonth()+1).padStart(2,"0"),dd=String(d.getDate()).padStart(2,"0");
     return `${yy}-${mm}-${dd}`;
   }
+
   function isValidYMD(s){
     if(!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
     const [y,m,dd] = s.split("-").map(Number);
     const d = new Date(s+"T00:00:00");
     return d.getFullYear()===y && (d.getMonth()+1)===m && d.getDate()===dd;
+  }
+
+  // Convierte YYYY-MM-DD o ISO a Date seguro
+  function parseDateSafe(value){
+    if (!value) return null;
+    const d1 = new Date(value);
+    if (!isNaN(d1.getTime())) return d1;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const [y,m,dd] = value.split("-").map(Number);
+      const d2 = new Date(y, m - 1, dd, 0, 0, 0, 0);
+      if (!isNaN(d2.getTime())) return d2;
+    }
+    return null;
+  }
+
+  // Aplicar min = hoy a todos los calendarios de la vista
+  function applyMinTodayToCalendars(){
+    const today = new Date();
+    const ymd = fmtYMD(today);
+    document.querySelectorAll('input[type="date"]').forEach(inp => {
+      if (!inp.dataset.allowPast) {
+        inp.min = ymd;
+      }
+    });
   }
 
   /* ========= SESIÓN ========= */
@@ -691,14 +725,32 @@
   // Crear sprint modal
   function openSprintModal(projectId){
     pendingProjectIdForSprint = projectId;
+
     const today = new Date();
     if ($scStart)    $scStart.value = fmtYMD(today);
     if ($scDuration) $scDuration.value = 7;
-    if ($scNumber)   $scNumber.value = "";
+
+    // Número de sprint automático
+    let nextNumber = 1;
+    if (Array.isArray(sprintsCache) && sprintsCache.length){
+      const nums = sprintsCache
+        .filter(s => Number(s.projectId || proyectoActual?.id || projectId) === Number(projectId))
+        .map(s => Number(s.numero || 0))
+        .filter(n => Number.isFinite(n));
+      if (nums.length){
+        nextNumber = Math.max(...nums) + 1;
+      }
+    }
+    if ($scNumber){
+      $scNumber.value = String(nextNumber);
+      $scNumber.readOnly = true;  // para que no lo cambien
+    }
+
     if ($scName)     $scName.value = "";
     if ($scDesc)     $scDesc.value = "";
     openEl($sprintCreateOverlay);
   }
+
   $btnCloseSprintCreate?.addEventListener("click", ()=> closeEl($sprintCreateOverlay));
   $btnCancelSprintCreate?.addEventListener("click", (e)=>{
     e.preventDefault();
@@ -886,6 +938,9 @@
         loadTasks(p.id)
       ]);
 
+      // Mover tareas atrasadas al sprint activo antes de pintar
+      await autoReassignOverdueTasks();
+
       await renderMembersList();
       renderSprints();
     }catch(e){
@@ -1022,7 +1077,7 @@
       if(!res.ok) throw new Error('No se pudo obtener miembros');
       const miembros = await res.json();
 
-      // AHORA: roles globales según backend (SUPER_ADMIN, SCRUM_MASTER)
+      // Roles globales según backend (SUPER_ADMIN, SCRUM_MASTER)
       const backendRol = String(sessionUser?.rol || "").toUpperCase();
       isGlobalAdmin = (backendRol === "SUPER_ADMIN" || backendRol === "SCRUM_MASTER");
 
@@ -1032,7 +1087,7 @@
         let email  = null;
 
         try{
-          // Nuevo endpoint PÚBLICO del UsuarioController
+          // Endpoint público del UsuarioController
           const ru = await fetch(`${USUARIOS_API}/public/${uid}`);
           if(ru.ok){
             const u = await ru.json();
@@ -1179,6 +1234,167 @@
     }
   }
 
+  // === Sprint activo + reasignación de tareas atrasadas ===
+  function getActiveSprint(){
+    if (!Array.isArray(sprintsCache) || !sprintsCache.length) return null;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const sorted = [...sprintsCache].sort((a, b) => {
+      const na = Number(a.numero || a.numeroSprint || 0);
+      const nb = Number(b.numero || b.numeroSprint || 0);
+      if (!Number.isNaN(na) && !Number.isNaN(nb) && na !== nb) return na - nb;
+      return (a.id || 0) - (b.id || 0);
+    });
+
+    // 1) Sprint cuyo rango incluye hoy
+    for (const s of sorted){
+      const start = parseDateSafe(s.fechaInicio);
+      const end   = parseDateSafe(s.duracion);
+      if (!start || !end) continue;
+      const s0 = new Date(start); s0.setHours(0,0,0,0);
+      const e0 = new Date(end);   e0.setHours(0,0,0,0);
+      if (s0 <= today && today <= e0) return s;
+    }
+
+    // 2) Próximo sprint que aún no empieza
+    const upcoming = sorted.find(s => {
+      const start = parseDateSafe(s.fechaInicio);
+      if (!start) return false;
+      const s0 = new Date(start); s0.setHours(0,0,0,0);
+      return s0 >= today;
+    });
+    if (upcoming) return upcoming;
+
+    // 3) Último sprint como fallback
+    return sorted[sorted.length - 1];
+  }
+
+  async function moveTaskToSprint(task, newSprintId){
+    if (!task?.id) return task;
+
+    const payload = {
+      title: task.title,
+      description: task.description || task.longDescription || "",
+      estimatedHours: task.estimatedHours,
+      priority: task.priority,
+      assigneeId: task.assigneeId,
+      assigneeName: task.assigneeName,
+      sprintId: newSprintId,
+      fechaLimite: task.fechaLimite
+    };
+
+    try{
+      const res = await fetch(`${TASKS_API}/${task.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-User-Email": sessionEmail || ""
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok){
+        const updated = await res.json();
+        const idx = tareasCache.findIndex(t => t.id === task.id);
+        if (idx >= 0) tareasCache[idx] = updated;
+        return updated;
+      } else {
+        const text = await res.text().catch(() => "");
+        console.warn("No se pudo mover tarea", task.id, text);
+        return task;
+      }
+    }catch(err){
+      console.error("Error moviendo tarea", task.id, err);
+      return task;
+    }
+  }
+
+  async function autoReassignOverdueTasks(){
+    if (!sessionEmail) return; // si no hay sesión, no tocamos nada
+    if (!Array.isArray(tareasCache) || !tareasCache.length) return;
+    if (!Array.isArray(sprintsCache) || !sprintsCache.length) return;
+
+    const active = getActiveSprint();
+    if (!active || !active.id) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const sprintById = new Map(sprintsCache.map(s => [s.id, s]));
+
+    const toMove = tareasCache.filter(t => {
+      if (isTaskDone(t)) return false; // solo pendientes
+      if (Number(t.sprintId) === Number(active.id)) return false; // ya en sprint activo
+
+      // 1) Vencida por fecha límite
+      let overdueByDueDate = false;
+      const dLim = parseDateSafe(t.fechaLimite);
+      if (dLim){
+        const dl = new Date(dLim); dl.setHours(0,0,0,0);
+        if (dl < today) overdueByDueDate = true;
+      }
+
+      // 2) Sprint de la tarea ya terminó
+      let expiredSprint = false;
+      if (t.sprintId != null){
+        const s = sprintById.get(t.sprintId);
+        if (s && s.duracion){
+          const end = parseDateSafe(s.duracion);
+          if (end){
+            const e0 = new Date(end); e0.setHours(0,0,0,0);
+            if (e0 < today) expiredSprint = true;
+          }
+        }
+      }
+
+      return overdueByDueDate || expiredSprint;
+    });
+
+    if (!toMove.length) return;
+
+    try{
+      await Promise.all(toMove.map(task => moveTaskToSprint(task, active.id)));
+    }catch(err){
+      console.error("autoReassignOverdueTasks error", err);
+    }
+  }
+
+  /* ========= ORDEN DE TAREAS ========= */
+  function getPriorityRank(prio){
+    const p = (prio || "").toLowerCase();
+    if (p === "alta")  return 1;
+    if (p === "media") return 2;
+    if (p === "baja")  return 3;
+    return 4;
+  }
+
+  function sortTasksForView(tasks){
+    return [...tasks].sort((a, b) => {
+      const da = parseDateSafe(a.fechaLimite);
+      const db = parseDateSafe(b.fechaLimite);
+
+      const hasA = !!da;
+      const hasB = !!db;
+      if (hasA && hasB){
+        const diff = da.getTime() - db.getTime();
+        if (diff !== 0) return diff;
+      } else if (hasA && !hasB){
+        return -1;
+      } else if (!hasA && hasB){
+        return 1;
+      }
+
+      const ra = getPriorityRank(a.priority);
+      const rb = getPriorityRank(b.priority);
+      if (ra !== rb) return ra - rb;
+
+      return (a.id || 0) - (b.id || 0);
+    });
+  }
+
+  /* ========= HTML DE TAREAS ========= */
   function buildTaskHtml(t){
     const isDone   = isTaskDone(t);
     const descHtml = escapeHtml(t.description || t.longDescription || "");
@@ -1189,7 +1405,7 @@
     const canTog    = canToggleTask(t);
 
     return `
-      <div class="task-item" data-id="${t.id}">
+      <div class="task-item ${isDone ? 'task-done' : ''}" data-id="${t.id}">
         <input
           type="checkbox"
           class="t-check"
@@ -1224,14 +1440,23 @@
     `;
   }
 
+  /* ========= RENDER SPRINTS ========= */
   function renderSprints(){
     if (!$sprintsList) return;
 
-    if (!sprintsCache.length){
+    // Sprints ordenados por número
+    const sprintsSorted = [...sprintsCache].sort((a, b) => {
+      const na = Number(a.numero || a.numeroSprint || 0);
+      const nb = Number(b.numero || b.numeroSprint || 0);
+      if (!Number.isNaN(na) && !Number.isNaN(nb) && na !== nb) return na - nb;
+      return (a.id || 0) - (b.id || 0);
+    });
+
+    if (!sprintsSorted.length){
       if (!tareasCache.length){
         $sprintsList.innerHTML = `<div class="muted" style="padding:6px 0 12px">Aún no hay sprints ni tareas. Crea un sprint para comenzar. 🚀</div>`;
       } else {
-        const tasksHtml = tareasCache.map(buildTaskHtml).join("");
+        const tasksHtml = sortTasksForView(tareasCache).map(buildTaskHtml).join("");
         $sprintsList.innerHTML = `
           <div class="muted tiny" style="padding:6px 0 12px">
             No hay sprints definidos. Mostrando tareas sueltas del proyecto.
@@ -1252,9 +1477,11 @@
       }
     } else {
       let html = "";
-      sprintsCache.forEach(s => {
+      sprintsSorted.forEach(s => {
         const sid = s.id;
-        const sprintTasks = tareasCache.filter(t => Number(t.sprintId) === Number(sid));
+        const sprintTasksRaw = tareasCache.filter(t => Number(t.sprintId) === Number(sid));
+        const sprintTasks = sortTasksForView(sprintTasksRaw);
+
         const total = sprintTasks.length;
         const done  = sprintTasks.filter(isTaskDone).length;
         const pct   = total ? Math.round((done/total)*100) : 0;
@@ -1318,7 +1545,8 @@
     `;
       });
 
-      const orphan = tareasCache.filter(t => !t.sprintId);
+      const orphanRaw = tareasCache.filter(t => !t.sprintId);
+      const orphan = sortTasksForView(orphanRaw);
       if (orphan.length){
         html += `
           <div class="sprint-item">
@@ -1447,22 +1675,27 @@
   function createSprintFromForm(projectId){
     const nombre       = ($scName?.value || "").trim();
     const descripcion  = ($scDesc?.value || "").trim();
-    const numeroStr    = ($scNumber?.value || "").trim();
     let   fechaInicio  = $scStart?.value || "";
     let   diasDuracion = $scDuration?.value ? Number($scDuration.value) : 0;
 
-    if (!nombre){
-      showToast({type:"error", title:"Falta título del sprint"});
-      return;
+    // número automático (usamos el valor calculado en openSprintModal, y si no, lo recomputamos)
+    let numero = $scNumber?.value ? Number($scNumber.value) : NaN;
+    if (!Number.isInteger(numero) || numero <= 0){
+      let nextNumber = 1;
+      if (Array.isArray(sprintsCache) && sprintsCache.length){
+        const nums = sprintsCache
+          .filter(s => Number(s.projectId || proyectoActual?.id || projectId) === Number(projectId))
+          .map(s => Number(s.numero || 0))
+          .filter(n => Number.isFinite(n));
+        if (nums.length){
+          nextNumber = Math.max(...nums) + 1;
+        }
+      }
+      numero = nextNumber;
     }
 
-    if (!numeroStr){
-      showToast({type:"error", title:"Falta número de sprint"});
-      return;
-    }
-    const numero = Number(numeroStr);
-    if (!Number.isInteger(numero) || numero <= 0){
-      showToast({type:"error", title:"Número inválido", message:"Debe ser un entero positivo."});
+    if (!nombre){
+      showToast({type:"error", title:"Falta título del sprint"});
       return;
     }
 
@@ -1883,8 +2116,12 @@
   }
 
   /* ========= INICIO ========= */
-  document.addEventListener("DOMContentLoaded", cargarProyecto);
+  document.addEventListener("DOMContentLoaded", ()=>{
+    applyMinTodayToCalendars();
+    cargarProyecto();
+  });
 </script>
+
 
 
 </body>

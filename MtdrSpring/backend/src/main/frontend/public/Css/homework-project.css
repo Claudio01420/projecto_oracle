@@ -40,34 +40,16 @@
   --transition-smooth: all .3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Reset */
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background:var(--bg);
+  color:var(--ink);
 }
 
-/* Agregado smooth scroll */
-html {
-  scroll-behavior: smooth;
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-body {
-  font-family: system-ui, ui-sans-serif, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  background: linear-gradient(135deg, #0a0d10 0%, #0f1216 50%, #13161d 100%);
-  /* Agregado background attachment para efecto parallax sutil */
-  background-attachment: fixed;
-}
-
-/* Topbar */
-.topbar {
+/* Topbar igual que KPIs/dashboard */
+.topbar{
   position: fixed;
   top: 0;
   left: 0;
@@ -81,118 +63,131 @@ body {
   z-index: 30;
   border-bottom: 1px solid var(--line);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  transition: var(--transition-smooth);
-  /* Agregado backdrop blur para efecto glassmorphism */
-  backdrop-filter: blur(10px);
+  transition: box-shadow .2s ease;
+}
+.topbar:hover{
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
 
-.topbar:hover {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(225, 38, 28, 0.1);
-}
 
-.logo-text {
-  font-family: "Panchang", system-ui;
-  font-weight: 800;
-  font-size: 32px;
-  letter-spacing: .08em;
-  color: var(--brand);
-  text-transform: uppercase;
-  transform: scaleX(1.15);
-  text-shadow: 0 2px 8px rgba(225, 38, 28, 0.2);
-  transition: var(--transition-smooth);
-  cursor: pointer;
-}
-
-.logo-text:hover {
-  text-shadow: 0 2px 12px rgba(225, 38, 28, 0.35), 0 0 20px rgba(225, 38, 28, 0.2);
-  transform: scaleX(1.18) translateY(-1px);
-}
-
+/* Alineación del área derecha (usuario + salir) */
 .topbar-right {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: center; /* crucial para que .user-circle y .logout-btn estén alineados */
+  gap: 12px;
+  height: 100%;
 }
 
-.user-circle {
+/* User circle */
+.user-circle{
   width: 32px;
   height: 32px;
   border-radius: 50%;
   background: var(--brand);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 900;
+  font-size: 18px;
+  line-height: 32px;
+  padding: 0;
+  margin: 0;
+  color:#fff;
+  cursor:pointer;
   box-shadow: 0 4px 12px rgba(225, 38, 28, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transition: var(--transition-smooth);
-  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.user-circle:hover{
+  background:var(--brand-hover);
+  transform:scale(1.05);
+  box-shadow:0 6px 16px rgba(225,38,28,.4);
 }
 
-.user-circle:hover {
-  transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 6px 16px rgba(225, 38, 28, 0.5), var(--shadow-glow);
+.user-circle > * {
+  line-height:1;
+  display:inline-block;
+  margin:0;
+  padding:0;
 }
 
-.logout-btn {
-  background: #232831;
-  border: 1px solid var(--line);
-  color: var(--ink);
-  padding: 6px 12px;
-  border-radius: 10px;
-  text-decoration: none;
-  transition: var(--transition-smooth);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
+.logo-text{
+  font-family: "Panchang", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 800;
+  font-size: 32px;
+  letter-spacing: 0.08em;
+  color:var(--brand);
+  text-transform: uppercase;
+  line-height: 1;
+  display: inline-block;
+  transform: scaleX(1.15);
+  user-select: none;
+  margin: 0;
+  text-shadow: 0 2px 8px rgba(225, 38, 28, 0.2);
+  transition: text-shadow .3s ease;
+}
+.logo-text:hover{
+  text-shadow: 0 2px 12px rgba(225, 38, 28, 0.35);
 }
 
-.logout-btn:hover {
-  background: #2a303a;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transform: translateY(-2px);
-  border-color: var(--brand);
+/* Mantener botón salir del mismo alto y centrado */
+.logout-btn{
+  background:#232831;
+  border:1px solid var(--line);
+  color:var(--ink);
+  font-weight:700;
+  padding:7px 14px;
+  border-radius:10px;
+  text-decoration:none;
+  transition:all .2s ease;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.logout-btn:hover{
+  background:#2a303a;
+  border-color:var(--brand);
+  color:var(--brand);
 }
 
-/* Layout */
+/* =================== Layout con Sidebar (mejorado) =================== */
 .app {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100dvh;
+  background:var(--bg);
   padding-top: 52px;
 }
 
-.aside {
-  background: var(--bg-secondary);
-  color: #d8dbe2;
-  border-right: 1px solid var(--line);
+/* Sidebar */
+.aside{
+  background:var(--bg-secondary);
+  color:#d8dbe2;
+  padding:20px 12px;
   position: sticky;
-  top: 52px;
+  top:52px;
   height: calc(100vh - 52px);
-  padding: 20px 12px;
-  overflow-y: auto;
-  box-shadow: inset -2px 0 6px rgba(0, 0, 0, 0.2);
+  border-right:1px solid var(--line);
+  box-shadow: inset -2px 0 8px rgba(0,0,0,.3);
 }
 
-.aside::-webkit-scrollbar {
-  width: 6px;
+.aside .brand{
+  font-family: "Panchang", system-ui;
+  font-weight: 800;
+  font-size: 28px;
+  letter-spacing: 0.08em;
+  color:var(--brand);
+  text-transform: uppercase;
+  transform: scaleX(1.15);
+  margin:8px 8px 24px;
+  display:block;
+  text-align:center;
 }
 
-.aside::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.aside::-webkit-scrollbar-thumb {
-  background: rgba(225, 38, 28, 0.3);
-  border-radius: 3px;
-}
-
-.aside::-webkit-scrollbar-thumb:hover {
-  background: rgba(225, 38, 28, 0.5);
-}
-
-.menu {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.menu{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:12px;
 }
 
 .mi {
@@ -203,32 +198,28 @@ body {
   text-decoration: none;
   border-radius: 10px;
   padding: 12px 12px;
-  transition: var(--transition-smooth);
+  transition: var(--transition-base);
   position: relative;
-  overflow: hidden;
-}
-
-/* Efecto de brillo en hover */
-.mi::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(225, 38, 28, 0.1), transparent);
-  transition: left 0.5s ease;
-}
-
-.mi:hover::before {
-  left: 100%;
 }
 
 .mi:hover {
   background: var(--card-hover);
   color: #e0e3eb;
-  transform: translateX(4px);
-  box-shadow: 0 2px 8px rgba(225, 38, 28, 0.15);
+  transform: translateX(2px);
+}
+
+/* Iconos menú */
+.aside .menu .mi .ico{
+  width: var(--ico-size);
+  height: var(--ico-size);
+  color: #8e97a6;
+  display:inline-block;
+  transition:var(--transition-base);
+}
+
+.aside .menu .mi.active .ico{
+  color:#ffffff !important;
+  filter:none !important;
 }
 
 .mi.active {
@@ -247,27 +238,27 @@ body {
   height: 24px;
   background: var(--brand);
   border-radius: 0 2px 2px 0;
-  box-shadow: 0 0 8px rgba(225, 38, 28, 0.4);
+  box-shadow: 0 0 8px rgba(225, 38, 28, 0.5);
 }
 
-.ico {
-  width: var(--ico-size);
-  height: var(--ico-size);
-  color: #8e97a6;
+.ico{ 
+  width: var(--ico-size); 
+  height: var(--ico-size); 
+  color: var(--ico-color); 
   display: inline-block;
-  transition: var(--transition-smooth);
+  transition:all .2s ease;
 }
 
-.mi:hover .ico {
-  color: var(--brand);
-  transform: scale(1.1) rotate(5deg);
+/* Hover rojo y activo */
+.mi:hover .ico{
+  color:var(--brand);
+  filter:drop-shadow(0 0 4px rgba(225,38,28,.4));
 }
 
 .main {
   padding: 18px 22px;
   background: var(--bg);
 }
-
 
 /* Botones base (dark) */
 .btn {
@@ -2063,4 +2054,167 @@ body {
   background: linear-gradient(135deg, rgba(255, 187, 102, 0.2) 0%, rgba(255, 150, 50, 0.15) 100%);
   color: #ffd699;
   border: 1px solid rgba(255, 187, 102, 0.25);
+}
+
+/* ================== DATE PICKERS (HOMEWORK-PROJECT) ================== */
+
+/* Fondo negro y texto claro para todos los calendarios de esta vista */
+body input[type="date"] {
+  background: #050708; /* negro/ultra dark */
+  color: var(--ink, #e6e7ea);
+  border: 1px solid var(--line, #20242c);
+  border-radius: 10px;
+  padding: 0 10px;
+  height: 38px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+/* Efecto focus bonito */
+body input[type="date"]:focus {
+  border-color: var(--brand, #cc0e04);
+  box-shadow: 0 0 0 3px rgba(255, 18, 5, 0.2);
+  background: #050608;
+}
+
+/* Icono del calendario en ROJO (Chrome / Edge / Brave) */
+body input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: 
+    invert(29%)    /* base más oscura */
+    sepia(96%)
+    saturate(3568%)
+    hue-rotate(-5deg)
+    brightness(96%)
+    contrast(105%);
+  cursor: pointer;
+  transition: filter .2s ease;
+}
+
+/* Al pasar el mouse, se ilumina más el rojo */
+body input[type="date"]:hover::-webkit-calendar-picker-indicator {
+  filter: 
+    invert(18%)
+    sepia(99%)
+    saturate(4500%)
+    hue-rotate(-5deg)
+    brightness(105%)
+    contrast(110%);
+}
+
+/* Para que respete modo oscuro en algunos navegadores */
+body input[type="date"] {
+  color-scheme: dark;
+}
+
+.task-item.task-done .task-title {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* ===================== SPRINT HEADER LAYOUT ===================== */
+.sprint-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  flex-wrap: wrap;            /* permite que se baje la parte derecha si no cabe */
+}
+
+/* Contenedor de progreso + botones */
+.sprint-right {
+  display: flex;
+  flex-direction: column;      /* progreso arriba, botones abajo */
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 220px;
+}
+
+/* Bloque de progreso */
+.sprint-progress {
+  min-width: 180px;
+}
+
+/* Botones de acciones del sprint */
+.sprint-actions {
+  display: flex;
+  flex-wrap: wrap;             /* si no caben, hacen salto de línea */
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Botones compactos */
+.sprint-actions .btn-xs,
+.sprint-actions .btn-danger,
+.sprint-actions .btn-fab.btn-fab-sm {
+  font-size: 0.8rem;
+  padding: 6px 10px;
+}
+
+/* Responsive: en pantallas pequeñas, todo en columna */
+@media (max-width: 900px) {
+  .sprint-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sprint-right {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .sprint-actions {
+    justify-content: flex-start;
+  }
+}
+/* ===================== PROGRESO DEL SPRINT (AMPLIADO) ===================== */
+
+/* Contenedor del lado derecho */
+.sprint-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;     /* 🔥 ahora queda pegado a la izquierda */
+  gap: 12px;
+  width: 100%;                 /* permite que la barra crezca */
+  max-width: 480px;            /* límite ideal para no romper diseño */
+}
+
+/* Progreso */
+.sprint-progress {
+  width: 100%;                 /* 🔥 ahora ocupa todo lo disponible */
+}
+
+/* Etiqueta “Progreso” */
+.sprint-progress .tiny {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Barra de progreso */
+.sprint-progress .progress {
+  width: 100%;                 /* 🔥 full width */
+  height: 10px;                /* 🔥 más gruesa */
+  background: var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Barra interna */
+.sprint-progress .progress span {
+  display: block;
+  height: 100%;
+  border-radius: 10px;
+  background: var(--brand);    /* rojo TMDV */
+  transition: width 0.35s ease;
+}
+
+/* Botones alineados debajo */
+.sprint-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
 }
