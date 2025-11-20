@@ -76,7 +76,7 @@ body{
 /* Alineación del área derecha (usuario + salir) */
 .topbar-right {
   display: flex;
-  align-items: center; /* crucial para que .user-circle y .logout-btn estén alineados */
+  align-items: center;
   gap: 12px;
   height: 100%;
 }

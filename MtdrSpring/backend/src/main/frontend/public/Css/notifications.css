@@ -1,15 +1,27 @@
 :root{
-  /* Dark palette (como en la foto) */
+  /* Dark palette (alineada con projects/settings) */
   --bg:#0f1216;
-  --panel:#0f1216;           /* fondo del contenedor top */
+  --panel:#0f1216;
   --card:#12161c;
   --card-soft:#161b22;
+
+  /* Sidebar background igual que en projects/settings */
+  --bg-secondary:#090b10;
+
+  /* Hover / card tokens igual que projects */
+  --card-hover:#151a21;
+
+  /* Tipografía / colores */
   --ink:#e6e7ea;
   --ink-dim:#c8cbd2;
   --muted:#8a93a3;
   --line:#20242c;
   --brand:#E1261C;
   --brand-hover:#c41f15;
+
+  /* Sombras (coincidentes) */
+  --shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 10px 24px rgba(0, 0, 0, 0.45);
 
   --pill-bg:#151a21;
   --pill-on:#f44336;
@@ -20,131 +32,120 @@
   --ok:#16a34a;
   --danger:#ef4444;
 
-  --ico-size:18px;
+  --ico-size:20px;
   --ico-size-sm:14px;
   --ico-color:#9aa3af;
-
-  --bg-secondary:#090b10;
-  --card-hover:#171d25;
-  --transition-base:all .18s ease-out;
+  --transition-base:.2s ease;
 }
 
-/* Reset */
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
+*{box-sizing:border-box}
 body{
-  font-family:system-ui, ui-sans-serif, -apple-system, Segoe UI, Roboto, Arial;
-  background:var(--bg); color:var(--ink)
+  margin:0;
+  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background:var(--bg);
+  color:var(--ink);
 }
 
-/* ==================================
-   PANTALLA DE CARGA - CUBO ROJO
-   ================================== */
-
-.loading-screen{
-  position:fixed;
-  top:0;left:0;
-  width:100vw;
-  height:100vh;
-  background:rgba(15,18,22,0.95);
-  backdrop-filter:blur(8px);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:24px;
-  z-index:9999;
-}
-
-.loading-screen.hidden{
-  display:none;
-}
-
-.loading-text{
-  font-family:"Panchang",system-ui;
-  font-weight:800;
-  font-size:26px;
-  letter-spacing:0.04em;
-  color:#ffffff;
-  text-transform:uppercase;
-}
-
-/* Cubo 3D rojo */
-.spinner {
-  width: 44px;
-  height: 44px;
-  animation: spinner-3d 2s infinite ease;
-  transform-style: preserve-3d;
-}
-
-.spinner > div {
-  background-color: rgba(225,38,28,0.23); /* rojo suave */
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  border: 3px solid #E1261C;
-}
-
-.spinner div:nth-of-type(1) {
-  transform: translateZ(-22px) rotateY(180deg);
-}
-
-.spinner div:nth-of-type(2) {
-  transform: rotateY(-270deg) translateX(50%);
-  transform-origin: top right;
-}
-
-.spinner div:nth-of-type(3) {
-  transform: rotateY(270deg) translateX(-50%);
-  transform-origin: center left;
-}
-
-.spinner div:nth-of-type(4) {
-  transform: rotateX(90deg) translateY(-50%);
-  transform-origin: top center;
-}
-
-.spinner div:nth-of-type(5) {
-  transform: rotateX(-90deg) translateY(50%);
-  transform-origin: bottom center;
-}
-
-.spinner div:nth-of-type(6) {
-  transform: translateZ(22px);
-}
-
-@keyframes spinner-3d {
-  0% {
-    transform: rotate(45deg) rotateX(-25deg) rotateY(25deg);
-  }
-  50% {
-    transform: rotate(45deg) rotateX(-385deg) rotateY(25deg);
-  }
-  100% {
-    transform: rotate(45deg) rotateX(-385deg) rotateY(385deg);
-  }
-}
-
-/* Topbar */
+/* Topbar igual que KPIs/dashboard */
 .topbar{
-  position:fixed;top:0;left:0;right:0;height:52px;background:#0c0f12;
-  display:flex;align-items:center;justify-content:space-between;padding:0 18px;z-index:30;
-  border-bottom:1px solid var(--line)
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background: linear-gradient(180deg, #0c0f12 0%, #09070f 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  z-index: 30;
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: box-shadow .2s ease;
 }
-.logo-text{
-  font-family:"Panchang",system-ui; font-weight:800; font-size:32px; letter-spacing:.08em;
-  color:var(--brand); text-transform:uppercase; transform:scaleX(1.15)
+.topbar:hover{
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
-.topbar-right{display:flex;align-items:center;gap:10px}
+
+
+/* Alineación del área derecha (usuario + salir) */
+.topbar-right {
+  display: flex;
+  align-items: center; /* crucial para que .user-circle y .logout-btn estén alineados */
+  gap: 12px;
+  height: 100%;
+}
+
+/* User circle */
 .user-circle{
-  width:32px;height:32px;border-radius:50%;background:var(--brand);display:flex;
-  align-items:center;justify-content:center;font-weight:900
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 18px;
+  line-height: 32px;
+  padding: 0;
+  margin: 0;
+  color:#fff;
+  cursor:pointer;
+  box-shadow: 0 4px 12px rgba(225, 38, 28, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: transform .2s ease, box-shadow .2s ease;
 }
+.user-circle:hover{
+  background:var(--brand-hover);
+  transform:scale(1.05);
+  box-shadow:0 6px 16px rgba(225,38,28,.4);
+}
+
+.user-circle > * {
+  line-height:1;
+  display:inline-block;
+  margin:0;
+  padding:0;
+}
+
+.logo-text{
+  font-family: "Panchang", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 800;
+  font-size: 32px;
+  letter-spacing: 0.08em;
+  color:var(--brand);
+  text-transform: uppercase;
+  line-height: 1;
+  display: inline-block;
+  transform: scaleX(1.15);
+  user-select: none;
+  margin: 0;
+  text-shadow: 0 2px 8px rgba(225, 38, 28, 0.2);
+  transition: text-shadow .3s ease;
+}
+.logo-text:hover{
+  text-shadow: 0 2px 12px rgba(225, 38, 28, 0.35);
+}
+
+/* Mantener botón salir del mismo alto y centrado */
 .logout-btn{
-  background:#232831;border:1px solid var(--line);color:var(--ink);
-  padding:6px 12px;border-radius:10px;text-decoration:none
+  background:#232831;
+  border:1px solid var(--line);
+  color:var(--ink);
+  font-weight:700;
+  padding:7px 14px;
+  border-radius:10px;
+  text-decoration:none;
+  transition:all .2s ease;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
 }
-.logout-btn:hover{background:#2a303a}
+.logout-btn:hover{
+  background:#2a303a;
+  border-color:var(--brand);
+  color:var(--brand);
+}
 
 /* Layout */
 .app {
@@ -154,22 +155,41 @@ body{
   padding-top: 52px;
 }
 
-.aside {
-  background: var(--bg-secondary);
-  color: #d8dbe2;
-  border-right: 1px solid var(--line);
+/* Sidebar */
+.aside{
+  background:var(--bg-secondary);
+  color:#d8dbe2;
+  padding:20px 12px;
   position: sticky;
-  top: 52px;
+  top:52px;
   height: calc(100vh - 52px);
-  padding: 20px 12px;
-  overflow-y: auto;
-  box-shadow: inset -2px 0 6px rgba(0, 0, 0, 0.2);
+  border-right:1px solid var(--line);
+  box-shadow: inset -2px 0 8px rgba(0,0,0,.3);
+}
+
+.aside .brand{
+  font-family: "Panchang", system-ui;
+  font-weight: 800;
+  font-size: 28px;
+  letter-spacing: 0.08em;
+  color:var(--brand);
+  text-transform: uppercase;
+  transform: scaleX(1.15);
+  margin:8px 8px 24px;
+  display:block;
+  text-align:center;
+}
+
+.aside .menu .mi.active .ico{
+  color:#ffffff !important;
+  filter:none !important;
 }
 
 .menu {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:12px;
 }
 
 .mi {
@@ -206,19 +226,20 @@ body{
   height: 24px;
   background: var(--brand);
   border-radius: 0 2px 2px 0;
-  box-shadow: 0 0 8px rgba(225, 38, 28, 0.4);
+  box-shadow: 0 0 8px rgba(225, 38, 28, 0.5);
 }
 
 .ico {
   width: var(--ico-size);
   height: var(--ico-size);
-  color: #8e97a6;
+  color: var(--ico-color);
   display: inline-block;
-  transition: var(--transition-base);
+  transition:all .2s ease;
 }
 
 .mi:hover .ico {
   color: var(--brand);
+  filter:drop-shadow(0 0 4px rgba(225,38,28,.4))
 }
 
 .main {
@@ -234,24 +255,100 @@ body{
 .head-actions{display:flex;gap:10px;align-items:center}
 .pills{display:flex;gap:8px}
 .pill{
-  background:var(--pill-bg); color:#dbe0e8; border:1px solid var(--line);
-  padding:8px 12px; border-radius:999px; font-weight:800; cursor:pointer
+  background:var(--pill-bg);
+  color:#dbe0e8;
+  border:1px solid var(--line);
+  padding:8px 12px;
+  border-radius:999px;
+  font-weight:800;
+  cursor:pointer;
+  transition: box-shadow .20s ease, transform .18s ease, border-color .18s ease, background .18s ease;
+  will-change: transform, box-shadow, border-color, background;
+  position: relative;
+  animation: fadeInUp .45s ease backwards;
 }
-.pill.active{background:#1c222b; color:#fff; outline:1px solid #2f3745}
-.pill:hover{background:#171c24}
-.actions-end{display:flex;gap:8px}
+.pill:hover{
+  background:#171c24;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(225,38,28,0.30);
+}
+.pill::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  border-radius:999px;
+  box-shadow: inset 0 0 0 1px rgba(225,38,28,0.06);
+  opacity:0;
+  transition: opacity .18s ease;
+}
+.pill:hover::after{ opacity:1; }
+
+/* Variante roja por defecto - usar las mismas variables/tintes que los botones pequeños de eliminar */
+.pill.danger,
+.pill.delete {
+  color: #ff8888;
+  border-color: rgba(239,68,68,.35);
+  background: #1a1214;
+}
+.pill.danger:hover,
+.pill.delete:hover {
+  background: #231316;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  color: #fff;
+}
+.pill.danger::after,
+.pill.delete::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(225,38,28,0.06);
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+.pill.danger:hover::after,
+.pill.delete:hover::after { opacity: 1; }
 
 /* Buttons */
-.btn{
-  border-radius:10px;border:1px solid var(--line);background:#171c24;color:var(--ink);
-  padding:8px 12px;font-weight:800;cursor:pointer
+.btn{border-radius:10px;border:1px solid var(--line);background:#171c24;color:var(--ink);
+  padding:8px 12px;font-weight:800;cursor:pointer;
+  transition: box-shadow .20s ease, transform .18s ease, border-color .18s ease, background .18s ease;
+  will-change: transform, box-shadow, border-color, background;
+  position: relative;
 }
-.btn.ghost{background:#151a21}
-.btn.ghost:hover{background:#171d25}
-.btn.danger{
-  border-color:rgba(239,68,68,.3);color:#ff6b6b;background:#151417
+.btn:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(225,38,28,0.30);
 }
-.btn.danger:hover{background:#1a1618}
+.btn::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  border-radius:10px;
+  box-shadow: inset 0 0 0 1px rgba(225,38,28,0.06);
+  opacity:0;
+  transition: opacity .18s ease;
+}
+.btn:hover::after{ opacity:1; }
+
+/* variantes pequeñas/ghost para acciones en listas */
+.row-actions .btn,
+.actions-end .btn {
+  padding:6px 10px;
+  border-radius:999px;
+}
+.row-actions .btn:hover,
+.actions-end .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(225,38,28,0.30);
+}
 
 /* List */
 .list{display:grid;gap:12px;margin-top:8px}
@@ -353,3 +450,105 @@ body{
 .toast.show{display:block}
 .toast.ok{background:var(--ok)}
 .toast.err{background:var(--danger)}
+
+/* Reemplazo puntual: usar la misma animación / borde rojo / micro-movimiento que en projects
+   (mismos tonos y nitidez — no pálido) */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+
+  transition: box-shadow .20s ease, transform .18s ease, border-color .18s ease, background .18s ease;
+  will-change: transform, box-shadow, border-color, background;
+  animation: fadeInUp .45s ease backwards;
+  position: relative;
+}
+.card:hover{
+  border-color: rgba(225,38,28,0.30); /* mismo rojo que projects */
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* card-soft mantiene gradiente pero con mismas transiciones/animación */
+.card-soft{
+  background: linear-gradient(135deg, var(--card) 0%, var(--card-soft) 100%);
+  border-radius: 16px;
+  padding: 20px;
+  transition: box-shadow .20s ease, transform .18s ease, border-color .18s ease;
+  position: relative;
+  animation: fadeInUp .45s ease backwards;
+}
+.card-soft:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(225,38,28,0.18);
+}
+
+/* task-item (pequeños recuadros dentro de tasks-box) */
+.task-item {
+  border: 1px solid rgba(225, 38, 28, 0.2);
+  background: rgba(15, 17, 21, 0.6);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 10px;
+  margin: 6px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+
+  /* animación y transición coherentes */
+  transition: box-shadow .20s ease, transform .18s ease, border-color .18s ease, background .18s ease;
+  will-change: transform, box-shadow, border-color, background;
+  position: relative;
+  animation: fadeInUp .45s ease backwards;
+}
+.task-item:hover {
+  border-color: rgba(225, 38, 28, 0.30);
+  background: rgba(18, 22, 28, 0.8);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* card-item (lista tipo notificaciones) */
+.card-item {
+  border:1px solid var(--line);
+  background: var(--card);
+  border-radius:12px;
+  padding:12px 14px;
+  transition: box-shadow .20s ease, transform .18s ease, border-color .18s ease;
+  position: relative;
+  animation: fadeInUp .45s ease backwards;
+}
+.card-item:hover {
+  border-color: rgba(225,38,28,0.30);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* overlay interno sutil rojo al hover (igual que settings/projects) */
+.card:hover::after,
+.card-soft:hover::after,
+.task-item:hover::after,
+.card-item:hover::after,
+.pill:hover::after,
+.btn:hover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(225,38,28,0.06);
+}
+
+/* Asegurar que elementos usan position:relative para el overlay */
+.card, .card-soft, .task-item, .card-item { position: relative; }
+
+/* Reutilizar keyframes (si ya existe no afecta) */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

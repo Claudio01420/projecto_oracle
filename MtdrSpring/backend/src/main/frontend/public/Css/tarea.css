@@ -27,9 +27,9 @@
   --shadow-md:0 8px 24px rgba(0,0,0,.4);
   --radius:14px;
 
-  --ico-size: 18px;
+  --ico-size: 20px;
   --ico-size-sm: 14px;
-  --ico-color: #9aa3af;
+  --ico-color: #8a93a3;
   --ico-accent: var(--brand);
 
   --bg-secondary:#090b10;
@@ -65,14 +65,6 @@ body{
 .topbar:hover {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
-.topbar > .brand{
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  height:100%;
-  margin:0 !important;
-  padding:0;
-}
 
 /* Logo igual que dashboard (con glow rojo) */
 .logo-text{
@@ -95,51 +87,63 @@ body{
   text-shadow: 0 2px 12px rgba(225, 38, 28, 0.35);
 }
 
-.topbar-right{
-  display:flex;
-  align-items:center;
-  gap:10px;
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
 }
 
-/* User circle igual que dashboard */
+/* User circle */
 .user-circle{
   width: 32px;
   height: 32px;
   border-radius: 50%;
   background: var(--brand);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 900;
+  font-size: 18px;
+  line-height: 32px;
+  padding: 0;
+  margin: 0;
   color:#fff;
+  cursor:pointer;
   box-shadow: 0 4px 12px rgba(225, 38, 28, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: transform .2s ease, box-shadow .2s ease;
-  cursor:pointer;
 }
-.user-circle:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(225, 38, 28, 0.4);
+.user-circle:hover{
+  background:var(--brand-hover);
+  transform:scale(1.05);
+  box-shadow:0 6px 16px rgba(225,38,28,.4);
+}
+
+.user-circle > * {
+  line-height:1;
+  display:inline-block;
+  margin:0;
+  padding:0;
 }
 
 /* Logout igual que dashboard */
 .logout-btn{
-  background: #232831;
-  border: 1px solid var(--line);
-  color: var(--ink);
-  padding: 6px 12px;
-  border-radius: 10px;
-  text-decoration: none;
-  transition: all .2s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  background:#232831;
+  border:1px solid var(--line);
+  color:var(--ink);
+  font-weight:700;
+  padding:7px 14px;
+  border-radius:10px;
+  text-decoration:none;
+  transition:all .2s ease;
   display:inline-flex;
   align-items:center;
   gap:6px;
-  font-weight:700;
 }
-.logout-btn:hover {
-  background: #2a303a;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transform: translateY(-1px);
+.logout-btn:hover{
+  background:#2a303a;
+  border-color:var(--brand);
+  color:var(--brand);
 }
 
 /* LAYOUT PRINCIPAL igual que dashboard */
@@ -151,43 +155,36 @@ body{
   padding-top: 52px;
 }
 
-/* Sidebar igual que dashboard */
+/* Sidebar */
 .aside{
-  background: var(--bg-secondary);
+  background:var(--bg-secondary);
   color:#d8dbe2;
-  padding:14px 12px 20px;
+  padding:20px 12px;
   position: sticky;
   top:52px;
   height: calc(100vh - 52px);
   border-right:1px solid var(--line);
-  box-shadow: inset -2px 0 6px rgba(0,0,0,.2);
-  overflow-y:auto;
+  box-shadow: inset -2px 0 8px rgba(0,0,0,.3);
 }
 
 .aside .brand{
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  padding-left: 6px;
-  height:56px;
-  margin:8px 0 14px !important;
-  line-height:0;
-  font-size:inherit;
-  letter-spacing:normal;
-}
-
-.aside .topbar-left{ 
-  display:none; 
-  height:0; 
-  margin:0; 
-  padding:0; 
+  font-family: "Panchang", system-ui;
+  font-weight: 800;
+  font-size: 28px;
+  letter-spacing: 0.08em;
+  color:var(--brand);
+  text-transform: uppercase;
+  transform: scaleX(1.15);
+  margin:8px 8px 24px;
+  display:block;
+  text-align:center;
 }
 
 .menu{
   display:flex;
   flex-direction:column;
-  gap:8px;
-  margin-top:4px;
+  gap:12px;
+  margin-top:12px;
 }
 
 .mi{
@@ -211,12 +208,38 @@ body{
 
 /* Iconos sidebar igual que dashboard */
 .aside .menu .mi .ico{
-  width:18px;
-  height:18px;
-  display:block;
-  flex:0 0 18px;
-  color:#8e97a6;
-  transition:var(--transition-base);
+  width: var(--ico-size);
+  height: var(--ico-size);
+  display: inline-block;
+  flex: 0 0 var(--ico-size);
+  color: var(--ico-color);
+  transition: var(--transition-base);
+  box-sizing: content-box;
+}
+
+/* Reglas generales de iconos (alineadas con projects) */
+.ico {
+  width: var(--ico-size);
+  height: var(--ico-size);
+  color: var(--ico-color);
+  display: inline-block;
+  transition: all .2s ease;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.ico-sm {
+  width: var(--ico-size-sm);
+  height: var(--ico-size-sm);
+  color: var(--ico-color);
+  display: inline-block;
+}
+
+/* Alineación inline consistente */
+.icon-inline {
+  display: inline-flex;
+  vertical-align: -2px;
+  margin-right: .35rem;
 }
 
 /* Hover rojo icono igual que dashboard */
@@ -252,26 +275,100 @@ body{
 
 /* Cards mejoradas con estilo oscuro */
 .card{
-  background:var(--card); 
-  border:1px solid var(--line); 
-  border-radius:18px; 
-  padding:18px; 
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:18px;
   box-shadow:var(--shadow-sm);
   margin-bottom:16px;
-  transition:all .3s ease;
-}
 
+  /* Reutiliza transiciones existentes y añade la animación consistente */
+  transition: box-shadow .20s ease, transform .18s ease, border-color .18s ease, background .18s ease;
+  will-change: transform, box-shadow, border-color, background;
+  animation: fadeInUp .45s ease backwards;
+  position: relative; /* necesario para el overlay pseudo-element */
+}
 .card:hover{
-  border-color:#2a3240;
-  box-shadow:0 6px 16px rgba(0,0,0,.4);
-  transform:translateY(-2px);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(225,38,28,0.30); /* ligero borde rojo al pasar */
 }
 
+/* card-soft mantiene fondo pero con mismas transiciones/animación */
 .card-soft{
   background:var(--card-soft);
-  border:1px solid var(--line); 
-  border-radius:22px; 
-  box-shadow:var(--shadow-md);
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:18px;
+  box-shadow:var(--shadow-sm);
+  transition: box-shadow .20s ease, transform .18s ease, border-color .18s ease;
+  position: relative;
+  animation: fadeInUp .45s ease backwards;
+}
+.card-soft:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(225,38,28,0.18);
+}
+
+/* stat-card (KPIs pequeños) - aplicar misma micro-interacción */
+.stat-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:16px;
+  box-shadow:var(--shadow-sm);
+  transition: box-shadow .20s ease, transform .18s ease, border-color .18s ease;
+  position: relative;
+  animation: fadeInUp .45s ease backwards;
+}
+.stat-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(225, 38, 28, 0.2);
+  border-color: rgba(225,38,28,0.18);
+}
+
+/* columnas / contenedores que antes no tenían la animación */
+.col{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px;
+  box-shadow:var(--shadow-sm);
+  transition: box-shadow .20s ease, transform .18s ease, border-color .18s ease;
+  position: relative;
+  animation: fadeInUp .45s ease backwards;
+}
+.col:hover{
+  transform: translateY(-2px);
+  border-color: rgba(225,38,28,0.18);
+  box-shadow: var(--shadow-md);
+}
+
+/* sutil overlay interno rojo al hover (como en settings) */
+.card:hover::after,
+.card-soft:hover::after,
+.stat-card:hover::after,
+.col:hover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(225,38,28,0.06);
+}
+
+/* Mantener excepciones para KPIs que usan su propia animación si aplica */
+.kpi-alert::after,
+.kpi-alert:hover::after {
+  display: none;
+  content: none;
+}
+
+/* Reusar keyframes (definir si no existe) */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* Typography */
@@ -391,16 +488,18 @@ body{
 
 .col{
   background:var(--card);
-  border:1px solid var(--line); 
+  border:1px solid var(--line);
   border-radius:14px; 
   padding:12px;
   box-shadow:var(--shadow-sm);
-  transition:all .3s ease;
+  transition: box-shadow .20s ease, transform .18s ease, border-color .18s ease;
+  position: relative;
+  animation: fadeInUp .45s ease backwards;
 }
-
 .col:hover{
-  border-color:#2a3240;
-  box-shadow:0 6px 16px rgba(0,0,0,.4);
+  transform: translateY(-2px);
+  border-color: rgba(225,38,28,0.18);
+  box-shadow: var(--shadow-md);
 }
 
 .col-head{
@@ -425,20 +524,36 @@ body{
 
 /* Tarjetas de tareas mejoradas */
 .task{
-  background:var(--card-soft);
-  border:1px solid var(--line-2); 
-  border-radius:12px; 
-  padding:12px; 
-  margin-bottom:10px;
-  transition:all .25s ease;
-  cursor:pointer;
+  background: var(--card-soft);
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+
+  /* reusar transiciones existentes y añadir animación coherente */
+  transition: box-shadow .20s ease, transform .18s ease, border-color .18s ease, background .18s ease;
+  will-change: transform, box-shadow, border-color, background;
+  position: relative;
+  animation: fadeInUp .45s ease backwards;
+  cursor: pointer;
 }
 
 .task:hover{
-  background:#1a1f27;
-  border-color:#343d4e;
-  transform:translateY(-2px);
-  box-shadow:0 4px 12px rgba(0,0,0,.5);
+  background: #1a1f27;
+  /* ligero tinte rojo en el borde al pasar (como en settings) */
+  border-color: rgba(225,38,28,0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.45);
+}
+
+/* sutil overlay interno rojo al hover (igual que en otras vistas) */
+.task:hover::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(225,38,28,0.06);
 }
 
 .task-title{ 
@@ -712,13 +827,15 @@ body{
   border-radius:14px;
   padding:16px;
   box-shadow:var(--shadow-sm);
-  transition:all .3s ease;
+  transition: box-shadow .20s ease, transform .18s ease, border-color .18s ease;
+  position: relative;
+  animation: fadeInUp .45s ease backwards;
 }
 
 .stat-card:hover{
-  border-color:var(--brand);
-  box-shadow:0 6px 16px rgba(225, 38, 28, 0.2);
-  transform:translateY(-2px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(225, 38, 28, 0.2);
+  border-color: rgba(225,38,28,0.18);
 }
 
 .stat-label{
@@ -774,7 +891,7 @@ body{
 
 /* Helpers de color */
 .ico-muted{ 
-  color:#c0c7d2;
+  color:#9aa3af;
 }
 
 .ico-accent{ 
@@ -797,12 +914,6 @@ body{
   display:inline-flex; 
   align-items:center; 
   gap:.5rem;
-}
-
-.logout-btn .ico,
-.logout-btn .ico-sm{ 
-  color:var(--ink); 
-  opacity:.9;
 }
 
 .chat-input button .ico,
