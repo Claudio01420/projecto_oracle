@@ -1,5 +1,4 @@
 // TareaController.java
-
 package com.springboot.MyTodoList.controller;
 
 import java.util.Collections;
@@ -133,7 +132,8 @@ public class TareaController {
         // Notificar solo al asignado
         try {
             notificacionService.notificarNuevaTareaAAsignado(dto.projectId, created, ownerEmail);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
@@ -223,10 +223,10 @@ public class TareaController {
 
         // 3) Permitir si es el asignado o el creador
         String assignee = t.getAssigneeId() == null ? "" : t.getAssigneeId();
-        String creator  = t.getUserEmail()  == null ? "" : t.getUserEmail();
+        String creator = t.getUserEmail() == null ? "" : t.getUserEmail();
 
         boolean isAssignee = requester.equalsIgnoreCase(assignee);
-        boolean isCreator  = requester.equalsIgnoreCase(creator);
+        boolean isCreator = requester.equalsIgnoreCase(creator);
 
         if (!isAssignee && !isCreator) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -247,7 +247,15 @@ public class TareaController {
         if (dto != null && dto.projectId != null && dto.projectId < 1) {
             throw new IllegalArgumentException("projectId debe ser > 0");
         }
-        return tareaService.updateTask(id, dto);
+
+        Tarea updated = tareaService.updateTask(id, dto);
+
+        try {
+            notificacionService.notificarTareaActualizada(updated, owner);
+        } catch (Exception ignored) {
+        }
+
+        return updated;
     }
 
     @PatchMapping("/tasks/{id}/status")
@@ -265,8 +273,8 @@ public class TareaController {
 
         long totalAssigned = tasks.size();
         long totalCompleted = tasks.stream()
-                .filter(t -> (t.getStatus() != null && t.getStatus().equalsIgnoreCase("done")) 
-                        || t.getCompletedAt() != null)
+                .filter(t -> (t.getStatus() != null && t.getStatus().equalsIgnoreCase("done"))
+                || t.getCompletedAt() != null)
                 .count();
 
         double plannedHours = tasks.stream()
@@ -274,14 +282,14 @@ public class TareaController {
                 .sum();
 
         double realHours = tasks.stream()
-                .filter(t -> (t.getStatus() != null && t.getStatus().equalsIgnoreCase("done")) 
-                        || t.getCompletedAt() != null)
+                .filter(t -> (t.getStatus() != null && t.getStatus().equalsIgnoreCase("done"))
+                || t.getCompletedAt() != null)
                 .mapToDouble(t -> t.getRealHours() != null ? t.getRealHours() : 0.0)
                 .sum();
 
         double totalProgressSum = tasks.stream().mapToDouble(t -> {
-            boolean done = (t.getStatus() != null && t.getStatus().equalsIgnoreCase("done")) 
-                        || t.getCompletedAt() != null;
+            boolean done = (t.getStatus() != null && t.getStatus().equalsIgnoreCase("done"))
+                    || t.getCompletedAt() != null;
             if (done) {
                 return 1.0;
             }
@@ -294,10 +302,10 @@ public class TareaController {
         }).sum();
 
         double avgProgress = totalAssigned == 0 ? 0.0 : (totalProgressSum / totalAssigned);
-        double hoursRatio =
-                (plannedHours == 0 && realHours == 0) ? 1.0
-                : (plannedHours == 0) ? 0.0
-                : (realHours == 0) ? 1.0 : plannedHours / realHours;
+        double hoursRatio
+                = (plannedHours == 0 && realHours == 0) ? 1.0
+                        : (plannedHours == 0) ? 0.0
+                                : (realHours == 0) ? 1.0 : plannedHours / realHours;
 
         double productivity = Math.max(0.0, Math.min(avgProgress * hoursRatio * 100.0, 100.0));
 
@@ -331,5 +339,3 @@ public class TareaController {
         return resp;
     }
 }
-
-

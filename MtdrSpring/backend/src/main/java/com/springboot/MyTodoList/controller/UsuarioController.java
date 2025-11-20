@@ -113,6 +113,34 @@ public class UsuarioController {
     }
 
     /**
+     * Registro público (sin autenticación): recibe { nombre, email, contrasenia, telefono? }
+     * Siempre asigna el rol "Desarrollador"
+     */
+    @PostMapping("/register")
+    public ResponseEntity<Usuario> register(@RequestBody Usuario u) {
+        if (u == null ||
+            u.getEmail() == null || u.getEmail().trim().isEmpty() ||
+            u.getContrasenia() == null || u.getContrasenia().isEmpty() ||
+            u.getNombre() == null || u.getNombre().trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        String email = u.getEmail().trim();
+        // verificar si ya existe usuario con el mismo email
+        if (repo.findByEmailIgnoreCase(email).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        // forzar rol de Desarrollador para registros públicos
+        u.setRol(Usuario.ROLE_DEVELOPER);
+
+        Usuario saved = repo.save(u);
+        // no devolver la contraseña
+        saved.setContrasenia(null);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+
+    /**
      * Login: recibe { "email": "...", "contrasenia": "..." }
      * - Email case-insensitive
      * - No devuelve la contraseña en la respuesta

@@ -143,104 +143,1114 @@
             <div class="label">Individual KPI Time</div>
           </div>
           <div class="stat">
-            <div class="value">76%</div>
-            <div class="label">Uso de OCI</div>
+            <div id="avgIclValue" class="value">--</div>
+            <div class="label">ICL Promedio Equipos</div>
           </div>
         </div>
       </section>
 
-      <section class="charts">
-        <article class="card">
-          <h3 class="h6">% tareas completadas por sprint</h3>
-          <canvas id="barChart"></canvas>
-        </article>
-        <article class="card">
-          <h3 class="h6">Horas reales vs planificadas</h3>
-          <canvas id="lineChart"></canvas>
-        </article>
+      <!-- NUEVO: Filtros Globales -->
+      <section class="card">
+        <h3 class="h6">
+          <svg class="ico" style="width:24px;height:24px">
+            <use href="#i-gear" />
+          </svg>
+          Filtros de Visualización
+        </h3>
+        <div class="filters-container">
+          <div class="filter-group">
+            <label class="filter-label" for="projectFilter">Proyecto</label>
+            <select id="projectFilter" class="filter-select">
+              <option value="">Todos los proyectos</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label" for="sprintFilter">Sprint</label>
+            <select id="sprintFilter" class="filter-select">
+              <option value="">Todos los sprints</option>
+            </select>
+          </div>
+          <button id="applyFilters" class="filter-button">
+            <svg class="ico-sm" style="width:16px;height:16px">
+              <use href="#i-chart" />
+            </svg>
+            Aplicar Filtros
+          </button>
+          <button id="clearFilters" class="clear-filters">Limpiar</button>
+        </div>
+        <div id="activeFilters" style="margin-top:12px;display:none;"></div>
+      </section>
+
+      <!-- Horas por Sprint -->
+      <section class="card">
+        <h3 class="h6">
+          <svg class="ico" style="width:24px;height:24px">
+            <use href="#i-chart" />
+          </svg>
+          Horas Trabajadas por Sprint
+        </h3>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:20px">
+          Análisis global del tiempo invertido durante el desarrollo del proyecto
+        </p>
+        <canvas id="sprintHoursChart"></canvas>
+      </section>
+
+      <!-- Horas por Developer -->
+      <section class="card">
+        <h3 class="h6">
+          <svg class="ico" style="width:24px;height:24px">
+            <use href="#i-users" />
+          </svg>
+          Horas Trabajadas por Developer por Sprint
+        </h3>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:20px">
+          Desempeño individual por sprint - Comparación entre miembros del equipo
+        </p>
+        <canvas id="developerSprintChart"></canvas>
+      </section>
+
+      <!-- Tareas Terminadas -->
+      <section class="card">
+        <h3 class="h6">
+          <svg class="ico" style="width:24px;height:24px">
+            <use href="#i-board" />
+          </svg>
+          Tareas Terminadas por Developer por Sprint
+        </h3>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:20px">
+          Cantidad de tareas completadas por desarrollador - Comparación de productividad entre miembros del equipo
+        </p>
+        <canvas id="tasksCompletedChart"></canvas>
+      </section>
+
+      <!-- Reporte Detallado -->
+      <section class="card">
+        <h3 class="h6">
+          <svg class="ico" style="width:24px;height:24px">
+            <use href="#i-board" />
+          </svg>
+          Reporte: Tareas Completadas por Sprint
+        </h3>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:16px">
+          Detalle de tareas finalizadas ordenadas por desarrollador
+        </p>
+        
+        <div id="sprintInfoContainer"></div>
+        
+        <div class="report-table-wrapper">
+          <table class="report-table" id="reportTable">
+            <thead>
+              <tr>
+                <th>Tarea</th>
+                <th>Estado</th>
+                <th>Prioridad</th>
+                <th>Horas Estimadas</th>
+                <th>Horas Reales</th>
+                <th>Completada</th>
+              </tr>
+            </thead>
+            <tbody id="reportTableBody">
+              <tr>
+                <td colspan="6" class="no-data-message">Use los filtros globales arriba para ver el reporte</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </section>
     </main>
   </div>
 
   <script>
-    // Datos iniciales para los gráficos (se actualizan opcionalmente después)
-    // bar chart: inicialmente 3 categorías (To Do, In Progress, Done)
-    const statusLabels = ["To Do", "In Progress", "Done"];
-    const statusInitial = [0, 0, 0];
+    // ==================== ESTADO GLOBAL DE FILTROS ====================
+    
+    const appState = {
+      userId: null,
+      userEmail: null,
+      projects: [],
+      allSprints: [],
+      filters: {
+        projectId: null,
+        sprintId: null
+      }
+    };
 
-    // hours per project will be loaded from backend
+    // ==================== INICIALIZACIÓN ====================
+    
+    async function initializeApp() {
+      try {
+        // Obtener usuario
+        let userEmail = localStorage.getItem('userEmail');
+        if (!userEmail) {
+          const qEmail = new URLSearchParams(location.search).get('email');
+          if (qEmail) userEmail = qEmail;
+        }
+        
+        if (!userEmail) {
+          console.warn('No hay email de usuario disponible');
+          return;
+        }
+        
+        appState.userEmail = userEmail;
 
-    // Crear charts y exponer instancias para poder actualizarlos después
-    window.barChartInstance = new Chart(document.getElementById("barChart"), {
-      type: "bar",
-      data: {
-        labels: statusLabels,
-        datasets: [{
-          label: "Cantidad de tareas",
-          data: statusInitial,
-          backgroundColor: ["#F59E0B", "#3B82F6", "#10B981"]
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-            min: 0,
-            max: 20,
-            ticks: {
-              stepSize: 1
-            }
+        // Obtener userId
+        const rUser = await fetch('/usuarios/by-email?email=' + encodeURIComponent(userEmail));
+        if (!rUser.ok) throw new Error('Usuario no encontrado');
+        const userObj = await rUser.json();
+        appState.userId = userObj.id || userObj.usuarioId || userObj.usuario_id;
+        
+        if (!appState.userId) {
+          console.warn('Usuario sin ID válido');
+          return;
+        }
+
+        // Cargar proyectos visibles
+        const rProjects = await fetch('/proyectos/visibles/' + encodeURIComponent(appState.userId));
+        if (!rProjects.ok) throw new Error('Error cargando proyectos');
+        appState.projects = await rProjects.json();
+
+        // Cargar todos los sprints de los proyectos
+        await loadAllSprints();
+
+        // Poblar filtros globales
+        populateFilters();
+
+        // Cargar datos iniciales
+        loadAllCharts();
+        loadTaskCompletion();
+        loadFilteredSprintReport();
+
+      } catch (err) {
+        console.error('Error inicializando app:', err);
+      }
+    }
+
+    async function loadAllSprints() {
+      const sprints = [];
+      for (const proj of appState.projects) {
+        const projectId = proj.id || proj.projectId || proj.proyectoId;
+        if (!projectId) continue;
+        
+        try {
+          const rSprints = await fetch('/sprints?projectId=' + encodeURIComponent(projectId));
+          if (!rSprints.ok) continue;
+          const projSprints = await rSprints.json();
+          
+          if (Array.isArray(projSprints)) {
+            projSprints.forEach(s => {
+              s.projectId = projectId;
+              s.projectName = proj.nombreProyecto || 'Proyecto';
+              sprints.push(s);
+            });
           }
+        } catch (err) {
+          console.debug('Error cargando sprints del proyecto', projectId, err);
         }
       }
-    });
+      appState.allSprints = sprints;
+    }
 
-    // lineChart inicial vacío; se rellenará con proyectos en loadProjectHours()
-    window.lineChartInstance = new Chart(document.getElementById("lineChart"), {
-      type: "line",
+    function populateFilters() {
+      const projectSelect = document.getElementById('projectFilter');
+      const sprintSelect = document.getElementById('sprintFilter');
+
+      // Poblar proyectos
+      projectSelect.innerHTML = '<option value="">Todos los proyectos</option>';
+      appState.projects.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id || p.projectId || p.proyectoId;
+        opt.textContent = p.nombreProyecto || 'Sin nombre';
+        projectSelect.appendChild(opt);
+      });
+
+      // Poblar sprints (inicial: todos)
+      updateSprintFilter();
+
+      // Event listeners
+      projectSelect.addEventListener('change', () => {
+        updateSprintFilter();
+      });
+
+      document.getElementById('applyFilters').addEventListener('click', applyFilters);
+      document.getElementById('clearFilters').addEventListener('click', clearFilters);
+    }
+
+    function updateSprintFilter() {
+      const projectSelect = document.getElementById('projectFilter');
+      const sprintSelect = document.getElementById('sprintFilter');
+      const selectedProjectId = projectSelect.value;
+
+      sprintSelect.innerHTML = '<option value="">Todos los sprints</option>';
+
+      const filteredSprints = selectedProjectId
+        ? appState.allSprints.filter(s => String(s.projectId) === selectedProjectId)
+        : appState.allSprints;
+
+      filteredSprints.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id || s.sprintId;
+        const sprintName = s.tituloSprint || `Sprint ${s.numero || s.id}`;
+        opt.textContent = selectedProjectId 
+          ? sprintName 
+          : `${s.projectName} - ${sprintName}`;
+        sprintSelect.appendChild(opt);
+      });
+    }
+
+    function applyFilters() {
+      const projectId = document.getElementById('projectFilter').value;
+      const sprintId = document.getElementById('sprintFilter').value;
+
+      appState.filters.projectId = projectId || null;
+      appState.filters.sprintId = sprintId || null;
+
+      showActiveFilters();
+      loadAllCharts();
+      loadFilteredSprintReport(); // ACTUALIZADO: usa filtros globales
+    }
+
+    function clearFilters() {
+      document.getElementById('projectFilter').value = '';
+      document.getElementById('sprintFilter').value = '';
+      appState.filters.projectId = null;
+      appState.filters.sprintId = null;
+      updateSprintFilter();
+      hideActiveFilters();
+      loadAllCharts();
+      showNoData('Use los filtros globales para ver el reporte');
+    }
+
+    function showActiveFilters() {
+      const container = document.getElementById('activeFilters');
+      const { projectId, sprintId } = appState.filters;
+      
+      if (!projectId && !sprintId) {
+        hideActiveFilters();
+        return;
+      }
+
+      let html = '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+      
+      if (projectId) {
+        const proj = appState.projects.find(p => String(p.id || p.projectId) === projectId);
+        if (proj) {
+          html += `<span class="filter-badge">📁 ${proj.nombreProyecto || 'Proyecto'}</span>`;
+        }
+      }
+      
+      if (sprintId) {
+        const sprint = appState.allSprints.find(s => String(s.id || s.sprintId) === sprintId);
+        if (sprint) {
+          const name = sprint.tituloSprint || `Sprint ${sprint.numero || sprint.id}`;
+          html += `<span class="filter-badge">🏃 ${name}</span>`;
+        }
+      }
+      
+      html += '</div>';
+      container.innerHTML = html;
+      container.style.display = 'block';
+    }
+
+    function hideActiveFilters() {
+      document.getElementById('activeFilters').style.display = 'none';
+    }
+
+    // ==================== CARGAR TODAS LAS GRÁFICAS ====================
+    
+    function loadAllCharts() {
+      loadSprintHours();
+      loadDeveloperSprintHours();
+      loadTasksCompletedByDeveloper();
+    }
+
+    // ==================== GRÁFICOS (actualizados con filtros) ====================
+    
+    // ==================== NUEVO: Gráfico de Horas por Sprint ====================
+    
+    window.sprintHoursChart = new Chart(document.getElementById("sprintHoursChart"), {
+      type: "bar",
       data: {
         labels: [],
         datasets: [
           {
-            label: "Reales",
+            label: "Horas Planificadas",
             data: [],
-            borderColor: "#E1261C",
-            backgroundColor: "#E1261C",
-            fill: false,
-            tension: 0.2
+            backgroundColor: "#374151",
+            borderColor: "#4B5563",
+            borderWidth: 1
           },
           {
-            label: "Planificadas",
+            label: "Horas Reales",
             data: [],
-            borderColor: "#374151",
-            backgroundColor: "#374151",
-            borderDash: [5, 5],
-            fill: false,
-            tension: 0.2
+            backgroundColor: "#E1261C",
+            borderColor: "#c41f15",
+            borderWidth: 1
           }
         ]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              color: '#e6e7ea',
+              font: { size: 12, weight: '600' }
+            }
+          },
+          tooltip: {
+            backgroundColor: '#12161c',
+            titleColor: '#e6e7ea',
+            bodyColor: '#c8cbd2',
+            borderColor: '#20242c',
+            borderWidth: 1,
+            padding: 12,
+            displayColors: true
+          }
+        },
         scales: {
+          x: {
+            grid: { color: '#20242c' },
+            ticks: { color: '#8a93a3', font: { size: 11 } }
+          },
           y: {
             beginAtZero: true,
-            min: 0,
-            max: 20,
-            ticks: {
-              stepSize: 1
+            grid: { color: '#20242c' },
+            ticks: { color: '#8a93a3', font: { size: 11 } }
+          }
+        }
+      }
+    });
+
+    // ==================== NUEVO: Gráfico por Developer y Sprint ====================
+    
+    window.developerSprintChart = new Chart(document.getElementById("developerSprintChart"), {
+      type: "bar",
+      data: {
+        labels: [], // Nombres de sprints
+        datasets: [] // Un dataset por developer
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              color: '#e6e7ea',
+              font: { size: 12, weight: '600' }
+            }
+          },
+          tooltip: {
+            backgroundColor: '#12161c',
+            titleColor: '#e6e7ea',
+            bodyColor: '#c8cbd2',
+            borderColor: '#20242c',
+            borderWidth: 1,
+            padding: 12,
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                const dev = context.dataset.label;
+                const hours = context.parsed.y;
+                return `${dev}: ${hours}h`;
+              }
+            }
+          },
+        scales: {
+          x: {
+            grid: { color: '#20242c' },
+            ticks: { color: '#8a93a3', font: { size: 11 } }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: '#20242c' },
+            ticks: { 
+              color: '#8a93a3', 
+              font: { size: 11 },
+              callback: function(value) {
+                return value + 'h';
+              }
+            }
+          }
+        }
+      }
+    }
+    });
+
+    // ==================== NUEVO: Gráfico de Tareas Terminadas por Developer y Sprint ====================
+    
+    window.tasksCompletedChart = new Chart(document.getElementById("tasksCompletedChart"), {
+      type: "bar",
+      data: {
+        labels: [], // Nombres de sprints
+        datasets: [] // Un dataset por developer
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              color: '#e6e7ea',
+              font: { size: 12, weight: '600' }
+            }
+          },
+          tooltip: {
+            backgroundColor: '#12161c',
+            titleColor: '#e6e7ea',
+            bodyColor: '#c8cbd2',
+            borderColor: '#20242c',
+            borderWidth: 1,
+            padding: 12,
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                const dev = context.dataset.label;
+                const count = context.parsed.y;
+                return `${dev}: ${count} tarea${count !== 1 ? 's' : ''}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#20242c' },
+            ticks: { color: '#8a93a3', font: { size: 11 } }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: '#20242c' },
+            ticks: { 
+              color: '#8a93a3', 
+              font: { size: 11 },
+              stepSize: 1,
+              callback: function(value) {
+                if (Number.isInteger(value)) {
+                  return value;
+                }
+              }
             }
           }
         }
       }
     });
 
-    // Cálculo dinámico del % de tareas completadas desde /api/tasks
+    // ==================== NUEVO: Reporte de Último Sprint ====================
+    
+    async function loadLastSprintReport() {
+      try {
+        // 1) Obtener usuario y userId
+        let userEmail = localStorage.getItem('userEmail');
+        if (!userEmail) {
+          const qEmail = new URLSearchParams(location.search).get('email');
+          if (qEmail) userEmail = qEmail;
+        }
+        
+        if (!userEmail) {
+          console.warn('No hay email de usuario disponible');
+          showNoData('No se pudo identificar el usuario');
+          return;
+        }
+
+        const rUser = await fetch('/usuarios/by-email?email=' + encodeURIComponent(userEmail));
+        if (!rUser.ok) throw new Error('Usuario no encontrado');
+        const userObj = await rUser.json();
+        const userId = userObj.id || userObj.usuarioId || userObj.usuario_id;
+        
+        if (!userId) {
+          showNoData('Usuario sin ID válido');
+          return;
+        }
+
+        // 2) Obtener proyectos visibles
+        const rProjects = await fetch('/proyectos/visibles/' + encodeURIComponent(userId));
+        if (!rProjects.ok) throw new Error('Error cargando proyectos');
+        const projects = await rProjects.json();
+        
+        if (!Array.isArray(projects) || projects.length === 0) {
+          showNoData('No hay proyectos disponibles');
+          return;
+        }
+
+        // 3) Buscar el último sprint activo o más reciente
+        let lastSprint = null;
+        let lastSprintProject = null;
+        let mostRecentDate = null;
+
+        for (const proj of projects) {
+          const projectId = proj.id || proj.projectId || proj.proyectoId;
+          if (!projectId) continue;
+          
+          try {
+            const rSprints = await fetch('/sprints?projectId=' + encodeURIComponent(projectId));
+            if (!rSprints.ok) continue;
+            const sprints = await rSprints.json();
+            
+            if (Array.isArray(sprints) && sprints.length > 0) {
+              // Ordenar por fecha de inicio desc
+              sprints.sort((a, b) => {
+                const dateA = a.fechaInicio ? new Date(a.fechaInicio) : new Date(0);
+                const dateB = b.fechaInicio ? new Date(b.fechaInicio) : new Date(0);
+                return dateB - dateA;
+              });
+              
+              const candidate = sprints[0];
+              const candidateDate = candidate.fechaInicio ? new Date(candidate.fechaInicio) : new Date(0);
+              
+              if (!mostRecentDate || candidateDate > mostRecentDate) {
+                mostRecentDate = candidateDate;
+                lastSprint = candidate;
+                lastSprintProject = proj;
+              }
+            }
+          } catch (err) {
+            console.debug('Error procesando sprints del proyecto', projectId, err);
+          }
+        }
+
+        if (!lastSprint) {
+          showNoData('No se encontraron sprints en los proyectos');
+          return;
+        }
+
+        // 4) Obtener tareas del sprint
+        const sprintId = lastSprint.id || lastSprint.sprintId;
+        const rTasks = await fetch(`/sprints/${sprintId}/tasks`);
+        if (!rTasks.ok) throw new Error('Error cargando tareas del sprint');
+        const allTasks = await rTasks.json();
+
+        // Filtrar solo completadas
+        const completedStatuses = ['done', 'completed', 'finalizado', 'completado', 'terminado', 'closed', 'hecho'];
+        const completedTasks = allTasks.filter(t => {
+          const status = (t.status || '').toString().toLowerCase();
+          return completedStatuses.some(cs => status.includes(cs)) || (t.completedAt != null);
+        });
+
+        if (completedTasks.length === 0) {
+          showNoData('No hay tareas completadas en el último sprint');
+          return;
+        }
+
+        // 5) Agrupar por developer
+        const tasksByDev = new Map();
+        completedTasks.forEach(task => {
+          const devName = task.assigneeName || task.assigneeId || 'Sin asignar';
+          if (!tasksByDev.has(devName)) {
+            tasksByDev.set(devName, []);
+          }
+          tasksByDev.get(devName).push(task);
+        });
+
+        // 6) Renderizar tabla
+        renderSprintReport(lastSprint, lastSprintProject, tasksByDev);
+
+      } catch (err) {
+        console.error('Error en loadLastSprintReport:', err);
+        showNoData('Error cargando el reporte: ' + err.message);
+      }
+    }
+
+    // ==================== NUEVO: Cargar Reporte con Filtros Globales ====================
+
+    async function loadFilteredSprintReport() {
+      try {
+        const { projectId, sprintId } = appState.filters;
+
+        // Si no hay filtros aplicados, mostrar mensaje
+        if (!projectId && !sprintId) {
+          showNoData('Seleccione un proyecto o sprint en los filtros globales para ver el reporte');
+          return;
+        }
+
+        // Caso 1: Solo proyecto seleccionado -> Mostrar último sprint del proyecto
+        if (projectId && !sprintId) {
+          const project = appState.projects.find(p => 
+            String(p.id || p.projectId || p.proyectoId) === projectId
+          );
+
+          if (!project) {
+            showNoData('Proyecto no encontrado');
+            return;
+          }
+
+          // Obtener sprints del proyecto
+          const rSprints = await fetch('/sprints?projectId=' + encodeURIComponent(projectId));
+          if (!rSprints.ok) {
+            showNoData('Error cargando sprints del proyecto');
+            return;
+          }
+          const sprints = await rSprints.json();
+
+          if (!Array.isArray(sprints) || sprints.length === 0) {
+            showNoData('No hay sprints en este proyecto');
+            return;
+          }
+
+          // Ordenar por fecha de inicio desc para obtener el más reciente
+          sprints.sort((a, b) => {
+            const dateA = a.fechaInicio ? new Date(a.fechaInicio) : new Date(0);
+            const dateB = b.fechaInicio ? new Date(b.fechaInicio) : new Date(0);
+            return dateB - dateA;
+          });
+
+          const lastSprint = sprints[0];
+          await loadSprintTasksReport(lastSprint, project);
+          return;
+        }
+
+        // Caso 2: Sprint específico seleccionado
+        if (sprintId) {
+          const sprint = appState.allSprints.find(s => 
+            String(s.id || s.sprintId) === sprintId
+          );
+
+          if (!sprint) {
+            showNoData('Sprint no encontrado');
+            return;
+          }
+
+          const project = appState.projects.find(p => 
+            String(p.id || p.projectId || p.proyectoId) === String(sprint.projectId)
+          );
+
+          if (!project) {
+            showNoData('Proyecto del sprint no encontrado');
+            return;
+          }
+
+          await loadSprintTasksReport(sprint, project);
+          return;
+        }
+
+      } catch (err) {
+        console.error('Error en loadFilteredSprintReport:', err);
+        showNoData('Error cargando el reporte: ' + err.message);
+      }
+    }
+
+    async function loadSprintTasksReport(sprint, project) {
+      try {
+        const sprintId = sprint.id || sprint.sprintId;
+
+        // Obtener tareas del sprint
+        const rTasks = await fetch(`/sprints/${sprintId}/tasks`);
+        if (!rTasks.ok) throw new Error('Error cargando tareas del sprint');
+        const allTasks = await rTasks.json();
+
+        // Filtrar solo completadas
+        const completedStatuses = ['done', 'completed', 'finalizado', 'completado', 'terminado', 'closed', 'hecho'];
+        const completedTasks = allTasks.filter(t => {
+          const status = (t.status || '').toString().toLowerCase();
+          return completedStatuses.some(cs => status.includes(cs)) || (t.completedAt != null);
+        });
+
+        if (completedTasks.length === 0) {
+          showNoData('No hay tareas completadas en este sprint');
+          return;
+        }
+
+        // Agrupar por developer
+        const tasksByDev = new Map();
+        completedTasks.forEach(task => {
+          const devName = task.assigneeName || task.assigneeId || 'Sin asignar';
+          if (!tasksByDev.has(devName)) {
+            tasksByDev.set(devName, []);
+          }
+          tasksByDev.get(devName).push(task);
+        });
+
+        // Renderizar tabla
+        renderSprintReport(sprint, project, tasksByDev);
+
+      } catch (err) {
+        console.error('Error en loadSprintTasksReport:', err);
+        showNoData('Error cargando tareas: ' + err.message);
+      }
+    }
+
+    function renderSprintReport(sprint, project, tasksByDev) {
+      // Info del sprint
+      const sprintName = sprint.tituloSprint || `Sprint ${sprint.numero || sprint.id}`;
+      const projectName = project.nombreProyecto || 'Proyecto';
+      const infoHtml = `
+        <div class="sprint-info">
+          <svg class="ico" style="width:16px;height:16px">
+            <use href="#i-chart" />
+          </svg>
+          <span><strong>${projectName}</strong> - ${sprintName}</span>
+        </div>
+      `;
+      document.getElementById('sprintInfoContainer').innerHTML = infoHtml;
+
+      // Tabla
+      const tbody = document.getElementById('reportTableBody');
+      tbody.innerHTML = '';
+
+      const sortedDevs = Array.from(tasksByDev.keys()).sort();
+      let rowIndex = 0;
+
+      sortedDevs.forEach(devName => {
+        const tasks = tasksByDev.get(devName);
+        const totalTasks = tasks.length;
+        const totalHours = tasks.reduce((sum, t) => sum + (Number(t.realHours) || 0), 0);
+        
+        // Header del developer (expandible)
+        const headerRow = document.createElement('tr');
+        headerRow.className = 'dev-group-header';
+        headerRow.dataset.devGroup = devName;
+        headerRow.innerHTML = `
+          <td colspan="6">
+            <span class="expand-icon">▼</span>
+            <strong>${devName}</strong> - ${totalTasks} tarea${totalTasks !== 1 ? 's' : ''} completada${totalTasks !== 1 ? 's' : ''} 
+            (${Math.round(totalHours * 10) / 10}h totales)
+          </td>
+        `;
+        tbody.appendChild(headerRow);
+
+        // Filas de tareas
+        tasks.forEach(task => {
+          const taskRow = document.createElement('tr');
+          taskRow.className = `task-row task-group-${devName.replace(/\s+/g, '-')}`;
+          
+          const status = task.status || 'Completado';
+          const priority = task.priority || 'medium';
+          const estHours = Number(task.estimatedHours) || 0;
+          const realHours = Number(task.realHours) || 0;
+          const completedAt = task.completedAt 
+            ? new Date(task.completedAt).toLocaleDateString('es-ES')
+            : 'N/A';
+
+          taskRow.innerHTML = `
+            <td><strong>${task.title || 'Sin título'}</strong></td>
+            <td><span class="task-status completed">${status}</span></td>
+            <td><span class="task-priority ${priority.toLowerCase()}">${priority}</span></td>
+            <td>${estHours.toFixed(1)}h</td>
+            <td><span class="task-hours">${realHours.toFixed(1)}h</span></td>
+            <td>${completedAt}</td>
+          `;
+          tbody.appendChild(taskRow);
+          rowIndex++;
+        });
+
+        // Toggle para expandir/colapsar
+        headerRow.addEventListener('click', () => {
+          const groupClass = `task-group-${devName.replace(/\s+/g, '-')}`;
+          const taskRows = tbody.querySelectorAll(`.${groupClass}`);
+          const isCollapsed = headerRow.classList.toggle('collapsed');
+          
+          taskRows.forEach(row => {
+            if (isCollapsed) {
+              row.classList.add('hidden');
+            } else {
+              row.classList.remove('hidden');
+            }
+          });
+        });
+      });
+    }
+
+    function showNoData(message) {
+      const tbody = document.getElementById('reportTableBody');
+      tbody.innerHTML = `<tr><td colspan="6" class="no-data-message">${message}</td></tr>`;
+      document.getElementById('sprintInfoContainer').innerHTML = '';
+    }
+
+    // ==================== Cargar Horas por Sprint ====================
+    
+    async function loadSprintHours() {
+      try {
+        if (!appState.projects || appState.projects.length === 0) return;
+
+        const allSprints = [];
+        const projectsToProcess = appState.filters.projectId
+          ? appState.projects.filter(p => String(p.id || p.projectId) === appState.filters.projectId)
+          : appState.projects;
+
+        for (const proj of projectsToProcess) {
+          const projectId = proj.id || proj.projectId || proj.proyectoId;
+          if (!projectId) continue;
+          
+          try {
+            const rSprints = await fetch('/sprints?projectId=' + encodeURIComponent(projectId));
+            if (!rSprints.ok) continue;
+            const sprints = await rSprints.json();
+            
+            if (Array.isArray(sprints)) {
+              for (const sprint of sprints) {
+                const sprintId = sprint.id || sprint.sprintId;
+                
+                // Filtro por sprint específico
+                if (appState.filters.sprintId && String(sprintId) !== appState.filters.sprintId) {
+                  continue;
+                }
+                
+                const sprintName = sprint.tituloSprint || `Sprint ${sprint.numero || sprintId}`;
+                
+                let plannedHours = 0;
+                let realHours = 0;
+                
+                try {
+                  const rTasks = await fetch(`/sprints/${sprintId}/tasks`);
+                  if (rTasks.ok) {
+                    const tasks = await rTasks.json();
+                    if (Array.isArray(tasks)) {
+                      plannedHours = tasks.reduce((sum, t) => sum + (Number(t.estimatedHours || 0) || 0), 0);
+                      realHours = tasks.reduce((sum, t) => sum + (Number(t.realHours || 0) || 0), 0);
+                    }
+                  }
+                } catch (err) {
+                  console.debug('Error cargando tareas del sprint', sprintId, err);
+                }
+                
+                allSprints.push({
+                  name: `${proj.nombreProyecto || 'Proyecto'} - ${sprintName}`,
+                  planned: Math.round(plannedHours * 10) / 10,
+                  real: Math.round(realHours * 10) / 10,
+                  numero: sprint.numero || 0,
+                  projectName: proj.nombreProyecto || 'Proyecto'
+                });
+              }
+            }
+          } catch (err) {
+            console.debug('Error procesando sprints del proyecto', projectId, err);
+          }
+        }
+
+        allSprints.sort((a, b) => {
+          const projCompare = a.projectName.localeCompare(b.projectName);
+          if (projCompare !== 0) return projCompare;
+          return a.numero - b.numero;
+        });
+
+        if (allSprints.length === 0) {
+          window.sprintHoursChart.data.labels = [];
+          window.sprintHoursChart.data.datasets[0].data = [];
+          window.sprintHoursChart.data.datasets[1].data = [];
+          window.sprintHoursChart.update();
+          return;
+        }
+
+        window.sprintHoursChart.data.labels = allSprints.map(s => s.name);
+        window.sprintHoursChart.data.datasets[0].data = allSprints.map(s => s.planned);
+        window.sprintHoursChart.data.datasets[1].data = allSprints.map(s => s.real);
+        window.sprintHoursChart.update();
+
+      } catch (err) {
+        console.error('Error en loadSprintHours:', err);
+      }
+    }
+    
+
+    async function loadDeveloperSprintHours() {
+      try {
+        if (!appState.projects || appState.projects.length === 0) return;
+
+        const sprintDeveloperHours = new Map();
+        const allDevelopers = new Set();
+        const sprintNames = new Map();
+
+        const projectsToProcess = appState.filters.projectId
+          ? appState.projects.filter(p => String(p.id || p.projectId) === appState.filters.projectId)
+          : appState.projects;
+
+        for (const proj of projectsToProcess) {
+          const projectId = proj.id || proj.projectId || proj.proyectoId;
+          if (!projectId) continue;
+          
+          try {
+            const rSprints = await fetch('/sprints?projectId=' + encodeURIComponent(projectId));
+            if (!rSprints.ok) continue;
+            const sprints = await rSprints.json();
+            
+            if (Array.isArray(sprints)) {
+              for (const sprint of sprints) {
+                const sprintId = sprint.id || sprint.sprintId;
+                
+                if (appState.filters.sprintId && String(sprintId) !== appState.filters.sprintId) {
+                  continue;
+                }
+                
+                const sprintName = sprint.tituloSprint || `Sprint ${sprint.numero || sprintId}`;
+                const sprintKey = `${proj.nombreProyecto || 'Proyecto'} - ${sprintName}`;
+                
+                sprintNames.set(sprintKey, sprintKey);
+                if (!sprintDeveloperHours.has(sprintKey)) {
+                  sprintDeveloperHours.set(sprintKey, {});
+                }
+                
+                try {
+                  const rTasks = await fetch(`/sprints/${sprintId}/tasks`);
+                  if (rTasks.ok) {
+                    const tasks = await rTasks.json();
+                    if (Array.isArray(tasks)) {
+                      tasks.forEach(t => {
+                        const devName = t.assigneeName || t.assigneeId || 'Sin asignar';
+                        allDevelopers.add(devName);
+                        const real = Number(t.realHours || 0);
+                        if (Number.isFinite(real)) {
+                          const current = sprintDeveloperHours.get(sprintKey)[devName] || 0;
+                          sprintDeveloperHours.get(sprintKey)[devName] = current + real;
+                        }
+                      });
+                    }
+                  }
+                } catch (err) {
+                  console.debug('Error cargando tareas del sprint', sprintId, err);
+                }
+              }
+            }
+          } catch (err) {
+            console.debug('Error procesando sprints del proyecto', projectId, err);
+          }
+        }
+
+        if (sprintDeveloperHours.size === 0 || allDevelopers.size === 0) {
+          window.developerSprintChart.data.labels = [];
+          window.developerSprintChart.data.datasets = [];
+          window.developerSprintChart.update();
+          return;
+        }
+
+        const sortedSprints = Array.from(sprintNames.keys()).sort();
+        const colors = ['#E1261C', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1'];
+        const sortedDevelopers = Array.from(allDevelopers).sort();
+        
+        const datasets = sortedDevelopers.map((dev, idx) => {
+          const color = colors[idx % colors.length];
+          const data = sortedSprints.map(sprintKey => {
+            const hours = sprintDeveloperHours.get(sprintKey)[dev] || 0;
+            return Math.round(hours * 10) / 10;
+          });
+          
+          return {
+            label: dev,
+            data: data,
+            backgroundColor: color,
+            borderColor: color,
+            borderWidth: 1
+          };
+        });
+
+        window.developerSprintChart.data.labels = sortedSprints;
+        window.developerSprintChart.data.datasets = datasets;
+        window.developerSprintChart.update();
+
+      } catch (err) {
+        console.error('Error en loadDeveloperSprintHours:', err);
+      }
+    }
+
+    async function loadTasksCompletedByDeveloper() {
+      try {
+        if (!appState.projects || appState.projects.length === 0) return;
+
+        const sprintDeveloperTasks = new Map();
+        const allDevelopers = new Set();
+        const sprintNames = new Map();
+        const completedStatuses = ['done', 'completed', 'finalizado', 'completado', 'terminado', 'closed', 'hecho'];
+
+        const projectsToProcess = appState.filters.projectId
+          ? appState.projects.filter(p => String(p.id || p.projectId) === appState.filters.projectId)
+          : appState.projects;
+
+        for (const proj of projectsToProcess) {
+          const projectId = proj.id || proj.projectId || proj.proyectoId;
+          if (!projectId) continue;
+          
+          try {
+            const rSprints = await fetch('/sprints?projectId=' + encodeURIComponent(projectId));
+            if (!rSprints.ok) continue;
+            const sprints = await rSprints.json();
+            
+            if (Array.isArray(sprints)) {
+              for (const sprint of sprints) {
+                const sprintId = sprint.id || sprint.sprintId;
+                
+                if (appState.filters.sprintId && String(sprintId) !== appState.filters.sprintId) {
+                  continue;
+                }
+                
+                const sprintName = sprint.tituloSprint || `Sprint ${sprint.numero || sprintId}`;
+                const sprintKey = `${proj.nombreProyecto || 'Proyecto'} - ${sprintName}`;
+                
+                sprintNames.set(sprintKey, sprintKey);
+                if (!sprintDeveloperTasks.has(sprintKey)) {
+                  sprintDeveloperTasks.set(sprintKey, {});
+                }
+                
+                try {
+                  const rTasks = await fetch(`/sprints/${sprintId}/tasks`);
+                  if (rTasks.ok) {
+                    const tasks = await rTasks.json();
+                    if (Array.isArray(tasks)) {
+                      tasks.forEach(t => {
+                        const devName = t.assigneeName || t.assigneeId || 'Sin asignar';
+                        allDevelopers.add(devName);
+                        const status = (t.status || '').toString().toLowerCase();
+                        const isCompleted = completedStatuses.some(cs => status.includes(cs)) || (t.completedAt != null);
+                        if (isCompleted) {
+                          const current = sprintDeveloperTasks.get(sprintKey)[devName] || 0;
+                          sprintDeveloperTasks.get(sprintKey)[devName] = current + 1;
+                        }
+                      });
+                    }
+                  }
+                } catch (err) {
+                  console.debug('Error cargando tareas del sprint', sprintId, err);
+                }
+              }
+            }
+          } catch (err) {
+            console.debug('Error procesando sprints del proyecto', projectId, err);
+          }
+        }
+
+        if (sprintDeveloperTasks.size === 0 || allDevelopers.size === 0) {
+          window.tasksCompletedChart.data.labels = [];
+          window.tasksCompletedChart.data.datasets = [];
+          window.tasksCompletedChart.update();
+          return;
+        }
+
+        const sortedSprints = Array.from(sprintNames.keys()).sort();
+        const colors = ['#10B981', '#3B82F6', '#F59E0B', '#E1261C', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1'];
+        const sortedDevelopers = Array.from(allDevelopers).sort();
+        
+        const datasets = sortedDevelopers.map((dev, idx) => {
+          const color = colors[idx % colors.length];
+          const data = sortedSprints.map(sprintKey => sprintDeveloperTasks.get(sprintKey)[dev] || 0);
+          return {
+            label: dev,
+            data: data,
+            backgroundColor: color,
+            borderColor: color,
+            borderWidth: 1
+          };
+        });
+
+        window.tasksCompletedChart.data.labels = sortedSprints;
+        window.tasksCompletedChart.data.datasets = datasets;
+        window.tasksCompletedChart.update();
+
+      } catch (err) {
+        console.error('Error en loadTasksCompletedByDeveloper:', err);
+      }
+    }
+
+    // ==================== Mantener KPIs existentes ====================
+    
     async function loadTaskCompletion() {
       try {
         const userEmail = localStorage.getItem('userEmail');
         const headers = {};
         let url = '/api/tasks';
         let currentUser = null;
+        
         if (userEmail) {
           headers['X-User-Email'] = userEmail;
           currentUser = userEmail;
@@ -263,40 +1273,40 @@
           return completedStatuses.some(cs => s.includes(cs));
         });
 
-        // Task Completion %
         const completed = completedTasks.length;
         const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
         const pctEl = document.getElementById('taskCompletionValue');
         if (pctEl) pctEl.textContent = pct + '%';
 
-        // Tiempo promedio de resolución (sobre tareas finalizadas retornadas)
-        const sumRealHours = completedTasks.reduce((acc, t) => {
-          const v = parseFloat(t.realHours);
-          return acc + (Number.isFinite(v) ? v : 0);
-        }, 0);
-        const avg = completed === 0 ? 0 : (sumRealHours / completed);
         function formatHours(h) {
           if (!Number.isFinite(h)) return 'N/A';
           return (Math.round(h * 10) / 10) + 'h';
         }
-        const avgEl = document.getElementById('avgResolutionValue');
-        if (avgEl) avgEl.textContent = completed === 0 ? '0h' : formatHours(avg);
 
-        // Individual KPI Time:
-        // Determinar usuario para el KPI (preferir currentUser, si no intentar inferir)
-        let userKey = null;
-        if (currentUser) {
-          userKey = currentUser.toString().toLowerCase();
-        } else if (Array.isArray(tasks) && tasks.length === 1) {
-          userKey = (tasks[0].assigneeId || tasks[0].userEmail || '').toString().toLowerCase();
+        // Tiempo promedio global
+        try {
+          const resGlobal = await fetch('/api/tasks/avg-resolution/all-tasks');
+          if (resGlobal.ok) {
+            const g = await resGlobal.json();
+            const globalAvg = parseFloat(g.avgResolutionHoursAllTasks);
+            const avgEl = document.getElementById('avgResolutionValue');
+            if (avgEl) {
+              avgEl.textContent = Number.isFinite(globalAvg) ? formatHours(globalAvg) : 'N/A';
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to load global avg resolution:', e);
         }
-        // Filtrar tareas finalizadas asignadas al usuario
+
+        // Individual KPI
+        let userKey = currentUser ? currentUser.toString().toLowerCase() : null;
         const completedForUser = userKey
           ? completedTasks.filter(t => {
-            const a = (t.assigneeId || t.userEmail || '').toString().toLowerCase();
-            return a === userKey;
-          })
-          : []; // si no hay userKey, no podemos calcular individual
+              const a = (t.assigneeId || t.userEmail || '').toString().toLowerCase();
+              return a === userKey;
+            })
+          : [];
+        
         const userCount = completedForUser.length;
         const userSum = completedForUser.reduce((acc, t) => {
           const v = parseFloat(t.realHours);
@@ -308,50 +1318,9 @@
           individualEl.textContent = userCount === 0 ? '0h' : formatHours(userAvg);
         }
 
-        // Mostrar tiempo promedio global de todas las tareas (todos los proyectos, todas las tareas con realHours)
-        try {
-          const resGlobal = await fetch('/api/tasks/avg-resolution/all-tasks');
-          if (resGlobal.ok) {
-            const g = await resGlobal.json();
-            const globalAvg = parseFloat(g.avgResolutionHoursAllTasks);
-            const avgEl = document.getElementById('avgResolutionValue');
-            if (avgEl) {
-              function formatHours(h) {
-                if (!Number.isFinite(h)) return 'N/A';
-                return (Math.round(h * 10) / 10) + 'h';
-              }
-              avgEl.textContent = Number.isFinite(globalAvg) ? formatHours(globalAvg) : 'N/A';
-            }
-          }
-        } catch (e) {
-          console.warn('Failed to load global avg resolution (all tasks):', e);
-        }
+        // NUEVO: ICL Promedio de todos los equipos
+        await loadAverageICL();
 
-        // Calcular conteos por estado y actualizar barChart (To Do / In Progress / Done)
-        if (window.barChartInstance && Array.isArray(tasks)) {
-          const doneStatuses = ['done', 'completed', 'finalizado', 'completado', 'terminado', 'closed', 'hecho'];
-          const inProgressStatuses = ['in progress', 'doing', 'en proceso', 'progreso', 'doing', 'inprogress'];
-          // contar
-          let todoCount = 0, inProgressCount = 0, doneCount = 0;
-          tasks.forEach(t => {
-            const s = (t.status || '').toString().toLowerCase();
-            const isDone = doneStatuses.some(ds => s.includes(ds)) || (t.completedAt != null);
-            if (isDone) {
-              doneCount++;
-            } else if (inProgressStatuses.some(ip => s.includes(ip))) {
-              inProgressCount++;
-            } else {
-              todoCount++;
-            }
-          });
-          window.barChartInstance.data.labels = ["To Do", "In Progress", "Done"];
-          window.barChartInstance.data.datasets = [{
-            label: "Cantidad de tareas",
-            data: [todoCount, inProgressCount, doneCount],
-            backgroundColor: ["#F59E0B", "#3B82F6", "#10B981"]
-          }];
-          window.barChartInstance.update();
-        }
       } catch (err) {
         console.error(err);
         const pctEl = document.getElementById('taskCompletionValue');
@@ -363,211 +1332,95 @@
       }
     }
 
-    // Cargar horas por proyecto y actualizar lineChart (eje X = proyectos, eje Y = horas)
-    // Reemplaza la función loadProjectHours actual por esta versión más robusta:
-    async function loadProjectHours() {
+    // ==================== NUEVO: Cargar ICL Promedio ====================
+    
+    async function loadAverageICL() {
+      const iclEl = document.getElementById('avgIclValue');
+      
       try {
-        // 1) Determinar usuario (email -> userId)
-        let userEmail = localStorage.getItem('userEmail');
-        if (!userEmail) {
-          const qEmail = new URLSearchParams(location.search).get('email');
-          if (qEmail) userEmail = qEmail;
-        }
-        if (!userEmail) {
-          console.warn('No hay email de usuario en localStorage ni en querystring. No se cargan proyectos por usuario.');
+        // Obtener todos los equipos
+        const resEquipos = await fetch('/equipos');
+        if (!resEquipos.ok) {
+          if (iclEl) iclEl.textContent = 'N/A';
           return;
         }
-
-        // Obtener userId desde backend
-        let userId = null;
-        try {
-          const rUser = await fetch('/usuarios/by-email?email=' + encodeURIComponent(userEmail));
-          if (!rUser.ok) throw new Error('User not found: ' + rUser.status);
-          const userObj = await rUser.json();
-          userId = userObj.id || userObj.usuarioId || userObj.usuario_id || null;
-        } catch (err) {
-          console.warn('No se pudo obtener userId por email:', err);
-          return;
-        }
-        if (!userId) {
-          console.warn('Usuario no tiene id válido:', userId);
-          return;
-        }
-
-        // 2) Obtener proyectos del usuario
-        const rProjects = await fetch('/proyectos/mios/' + encodeURIComponent(userId) + '/stats');
-        if (!rProjects.ok) throw new Error('Error cargando proyectos del usuario: ' + rProjects.status);
-        const userProjects = await rProjects.json();
-        if (!Array.isArray(userProjects) || userProjects.length === 0) {
-          console.info('Usuario no tiene proyectos.');
-          // limpiar gráfico
-          window.lineChartInstance.data.labels = [];
-          window.lineChartInstance.data.datasets[0].data = [];
-          window.lineChartInstance.data.datasets[1].data = [];
-          window.lineChartInstance.update();
-          return;
-        }
-
-        const projectIds = userProjects.map(p => p.id || p.projectId || p.proyectoId).filter(Boolean);
-
-        // 3) Intentar obtener horas con endpoints convenientes
-        let projectHoursData = null; // array [{ projectId, projectName, estimatedHours, realHours }, ...]
-
-        // Helper: convierte/normaliza un objeto devuelto por backend a la forma que necesitamos
-        function normalizeEntry(raw) {
-          if (!raw) return null;
-          const id = raw.projectId ?? raw.id ?? raw.proyectoId ?? null;
-          const name = raw.projectName ?? raw.nombreProyecto ?? raw.name ?? raw.project_name ?? ('P' + id);
-          // posibles campos que contienen horas planificadas/estimadas
-          const estimated = Number(raw.estimatedHours ?? raw.plannedHours ?? raw.planned_hours ?? raw.estimated_hours ?? raw.estimated ?? raw.planned ?? 0) || 0;
-          // posibles campos que contienen horas reales/registradas
-          const real = Number(raw.realHours ?? raw.actualHours ?? raw.real_hours ?? raw.actual_hours ?? raw.real ?? raw.loggedHours ?? 0) || 0;
-          return { projectId: id, projectName: name, estimatedHours: estimated, realHours: real, raw };
-        }
-
-        // 3.a) Intentar batch: /proyectos/horas?ids=1,2,3
-        try {
-          const q = projectIds.join(',');
-          const r = await fetch('/proyectos/horas?ids=' + encodeURIComponent(q));
-          if (r.ok) {
-            const all = await r.json();
-            if (Array.isArray(all)) {
-              projectHoursData = all.map(normalizeEntry).filter(Boolean);
-            }
+        
+        const equipos = await resEquipos.json();
+        
+        if (!Array.isArray(equipos) || equipos.length === 0) {
+          if (iclEl) {
+            iclEl.textContent = '0.00';
+            iclEl.classList.remove('positive', 'negative');
+            iclEl.classList.add('neutral');
           }
-        } catch (err) {
-          console.debug('Batch /proyectos/horas?ids=... falló:', err);
+          return;
         }
 
-        // 3.b) Si no, intentar traer /proyectos/horas (todo) y filtrar
-        if (!projectHoursData) {
+        // Obtener ICL de cada equipo
+        const iclPromises = equipos.map(async (equipo) => {
           try {
-            const rAll = await fetch('/proyectos/horas');
-            if (rAll.ok) {
-              const all = await rAll.json();
-              if (Array.isArray(all)) {
-                // normalizar y filtrar por projectIds
-                const normalized = all.map(normalizeEntry).filter(Boolean);
-                const setIds = new Set(projectIds.map(String));
-                projectHoursData = normalized.filter(x => x.projectId && setIds.has(String(x.projectId)));
-              }
-            }
-          } catch (err) {
-            console.debug('/proyectos/horas (full) falló:', err);
-          }
-        }
-
-        // 3.c) Si aún no hay datos, intentar por proyecto individual: /proyectos/{id}/horas
-        if (!projectHoursData) {
-          const arr = [];
-          await Promise.all(projectIds.map(async (pid) => {
-            try {
-              const r = await fetch('/proyectos/' + encodeURIComponent(pid) + '/horas');
-              if (r.ok) {
-                const raw = await r.json();
-                const n = normalizeEntry(raw);
-                if (n) arr.push(n);
-              } else {
-                // puede que devuelva 404 o similar; ignorar
-                console.debug('No data for project hours endpoint for', pid, r.status);
-              }
-            } catch (err) {
-              console.debug('Error fetching /proyectos/{id}/horas for', pid, err);
-            }
-          }));
-          if (arr.length) projectHoursData = arr;
-        }
-
-        // 4) Fallback: si aún faltan valores 'estimated' o 'real', obtener tareas por proyecto y sumar campos
-        // También usamos este paso si algún proyecto tiene estimatedHours===0 y realHours===0 (posible falta de datos)
-        async function fetchTasksAndAggregate(pid) {
-          try {
-            // Intentar endpoint con projectId
-            const r = await fetch('/api/tasks?projectId=' + encodeURIComponent(pid));
-            if (!r.ok) return null;
-            const tasks = await r.json();
-            if (!Array.isArray(tasks)) return null;
-
-            // Sumar posibles campos
-            let sumPlanned = 0;
-            let sumEstimated = 0;
-            let sumReal = 0;
-            tasks.forEach(t => {
-              // varios nombres posibles
-              const p = Number(t.plannedHours ?? t.planned_hours ?? t.estimatedHours ?? t.estimated_hours ?? t.estimated ?? t.planned ?? 0) || 0;
-              const rH = Number(t.realHours ?? t.real_hours ?? t.actualHours ?? t.actual_hours ?? t.loggedHours ?? 0) || 0;
-              sumPlanned += p;
-              sumEstimated += p; // si no hay diferencia entre planned/estimated usamos p
-              sumReal += rH;
-            });
-            return { estimatedHours: sumEstimated, realHours: sumReal };
-          } catch (err) {
-            console.debug('Error agregando tareas para proyecto', pid, err);
+            const equipoId = equipo.id || equipo.equipoId;
+            if (!equipoId) return null;
+            
+            const resICL = await fetch(`/equipos/${equipoId}/icl`);
+            if (!resICL.ok) return null;
+            
+            const iclData = await resICL.json();
+            return iclData.icl;
+          } catch (e) {
             return null;
           }
+        });
+
+        const iclValues = await Promise.all(iclPromises);
+        
+        // Filtrar valores válidos
+        const validICLs = iclValues.filter(icl => 
+          icl !== null && 
+          typeof icl === 'number' && 
+          Number.isFinite(icl)
+        );
+
+        if (validICLs.length === 0) {
+          if (iclEl) {
+            iclEl.textContent = 'N/A';
+            iclEl.classList.remove('positive', 'negative', 'neutral');
+          }
+          return;
         }
 
-        // Asegurarnos que projectHoursData contenga una entrada por cada proyecto del usuario
-        const mapById = new Map();
-        if (projectHoursData && projectHoursData.length) {
-          projectHoursData.forEach(e => { if (e && e.projectId) mapById.set(String(e.projectId), e); });
-        }
-        // Añadir entradas faltantes (si el endpoint no devolvió uno por cada proyecto)
-        for (const p of userProjects) {
-          const pid = String(p.id || p.projectId || p.proyectoId || '');
-          if (!pid) continue;
-          if (!mapById.has(pid)) {
-            // construir objeto básico desde metadata del proyecto
-            const name = p.projectName || p.nombreProyecto || p.name || ('P' + pid);
-            mapById.set(pid, { projectId: pid, projectName: name, estimatedHours: 0, realHours: 0, raw: p });
+        // Calcular promedio
+        const avgICL = validICLs.reduce((sum, icl) => sum + icl, 0) / validICLs.length;
+        const roundedICL = Math.round(avgICL * 100) / 100;
+
+        if (iclEl) {
+          iclEl.textContent = roundedICL.toFixed(2);
+          
+          // Aplicar clases de color según el nivel
+          iclEl.classList.remove('positive', 'negative', 'neutral');
+          
+          if (roundedICL <= 0.9) {
+            iclEl.classList.add('positive'); // Verde - carga saludable
+          } else if (roundedICL <= 1.2) {
+            iclEl.classList.add('neutral'); // Azul - carga moderada
+          } else {
+            iclEl.classList.add('negative'); // Rojo - sobrecarga
           }
         }
 
-        // Para cada proyecto, si valores son 0 o faltantes, intentar agregar por tareas
-        const finalData = [];
-        for (const [pid, ent] of mapById.entries()) {
-          let normalized = Object.assign({}, ent); // copia
-          // si both are 0, intentar calcular
-          if ((!normalized.estimatedHours || normalized.estimatedHours === 0) || (!normalized.realHours || normalized.realHours === 0)) {
-            const agg = await fetchTasksAndAggregate(pid);
-            if (agg) {
-              // preferimos datos existentes, pero si están en 0 los reemplazamos
-              normalized.estimatedHours = (normalized.estimatedHours && normalized.estimatedHours > 0) ? normalized.estimatedHours : (agg.estimatedHours || 0);
-              normalized.realHours = (normalized.realHours && normalized.realHours > 0) ? normalized.realHours : (agg.realHours || 0);
-            }
-          }
-          // Como usuario pidió "lo que va del proyecto" usamos realHours acumuladas y estimated como total planificado
-          finalData.push({
-            projectId: normalized.projectId,
-            projectName: normalized.projectName,
-            estimatedHours: Number.isFinite(Number(normalized.estimatedHours)) ? Number(normalized.estimatedHours) : 0,
-            realHours: Number.isFinite(Number(normalized.realHours)) ? Number(normalized.realHours) : 0
-          });
-        }
-
-        // Ordenar por nombre o por id (puedes cambiar)
-        finalData.sort((a, b) => (a.projectName || '').localeCompare(b.projectName || ''));
-
-        // 5) Actualizar chart con SOLO estos proyectos
-        const labels = finalData.map(d => d.projectName);
-        const estimated = finalData.map(d => d.estimatedHours);
-        const real = finalData.map(d => d.realHours);
-
-        window.lineChartInstance.data.labels = labels;
-        window.lineChartInstance.data.datasets[0].data = real;       // Reales
-        window.lineChartInstance.data.datasets[1].data = estimated;  // Planificadas
-        window.lineChartInstance.update();
+        console.log(`[KPIs] ICL Promedio calculado: ${roundedICL} (${validICLs.length} equipos)`);
 
       } catch (err) {
-        console.error('loadProjectHours error:', err);
+        console.error('[KPIs] Error cargando ICL promedio:', err);
+        if (iclEl) {
+          iclEl.textContent = 'Error';
+          iclEl.classList.remove('positive', 'negative', 'neutral');
+        }
       }
     }
 
-
-    // Ejecutar al cargar la página: métricas de tareas y horas por proyecto
-    loadTaskCompletion();
-    loadProjectHours();
+    // ==================== Ejecutar al cargar ====================
+    initializeApp();
   </script>
 </body>
-
 </html>

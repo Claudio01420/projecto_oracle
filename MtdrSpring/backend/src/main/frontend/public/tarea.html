@@ -55,10 +55,8 @@
     </symbol>
   </svg>
 
+  <!-- Estilos locales de filtros / modales (resto en tarea.css) -->
   <style>
-    /* ================================
-       Filtros de cabecera (oscuro)
-       ================================ */
     .filters {
       display: flex;
       gap: 14px;
@@ -82,7 +80,7 @@
     .select {
       padding: 10px 12px;
       border-radius: 10px;
-      min-width: 260px;
+      min-width: 220px;
       border: 1px solid var(--chip-border);
       background: var(--card);
       color: var(--ink);
@@ -102,9 +100,6 @@
       color: var(--ink);
     }
 
-    /* ======================================
-       Botones pequeños (Editar / Completar / Eliminar)
-       ====================================== */
     .task-actions {
       display: flex;
       gap: 6px;
@@ -171,9 +166,6 @@
       box-shadow: 0 0 14px rgba(225, 38, 28, .6);
     }
 
-    /* ================================
-       Modales en tema oscuro TMDV
-       ================================ */
     .modal {
       position: fixed;
       inset: 0;
@@ -347,12 +339,18 @@
           <h1 class="h4" style="margin:0">Tareas</h1>
         </div>
 
-        <!-- Filtro SOLO por nombre de proyecto -->
+        <!-- Filtros de proyecto y sprint -->
         <div class="filters">
           <div class="field">
             <label for="filterProject">Proyecto (por nombre)</label>
             <select id="filterProject" class="select">
               <option value="">Todos los proyectos</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filterSprint">Sprint</label>
+            <select id="filterSprint" class="select">
+              <option value="">Todos los sprints</option>
             </select>
           </div>
         </div>
@@ -361,6 +359,37 @@
           <div class="label">Avance general</div>
           <div class="progress"><span id="progressBar" style="width:0%"></span></div>
           <div class="percent" id="progressPct">0%</div>
+        </div>
+      </section>
+
+      <!-- ESTADO VACÍO (sin tareas) -->
+      <section id="emptyState" class="empty-state" style="display:none">
+        <div class="empty-inner">
+          <h2 class="empty-title">No hay tareas por hacer, ¡Bien hecho!</h2>
+          <p class="empty-subtitle">
+            Cuando alguien te asigne tareas en un proyecto o sprint, el tablero volverá a aparecer aquí.
+          </p>
+
+          <!-- Cafetera -->
+          <div class="loader">
+            <div class="container">
+              <div class="coffee-header">
+                <div class="coffee-header__buttons"></div>
+                <div class="coffee-header__display"></div>
+                <div class="coffee-header__details"></div>
+              </div>
+              <div class="coffee-medium">
+                <div class="coffe-medium__exit"></div>
+                <div class="coffee-medium__arm"></div>
+                <div class="coffee-medium__liquid"></div>
+                <div class="smoke one"></div>
+                <div class="smoke two"></div>
+                <div class="smoke three"></div>
+                <div class="smoke four"></div>
+                <div class="coffee-medium__cup"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -488,6 +517,7 @@
     // ======= CONFIG =======
     const API = '/api';
     const PROJECTS_API = '/proyectos';
+    const SPRINTS_API = '/sprints';
     const user = JSON.parse(localStorage.getItem('user') || 'null');
     const USER_EMAIL = user?.email || '';
     const USER_ID = user?.id || null;
@@ -508,8 +538,13 @@
     const progressBar = document.getElementById('progressBar');
     const progressPct = document.getElementById('progressPct');
 
-    // filtro
+    // secciones tablero / estado vacío
+    const boardSection = document.querySelector('.board');
+    const emptyState = document.getElementById('emptyState');
+
+    // filtros
     const filterProject = document.getElementById('filterProject');
+    const filterSprint = document.getElementById('filterSprint');
 
     // editar
     const e_id = document.getElementById('e_id');
@@ -561,6 +596,8 @@
     let selectedId = null;
     let draggingId = null; // única
     const PROJECTS_BY_ID = new Map(); // id -> nombre
+    const SPRINTS_BY_ID = new Map();       // sprintId -> sprint
+    const SPRINTS_BY_PROJECT = new Map();  // projectId -> [sprints]
     let editingOriginal = { priority: null, sprintId: null, statusPrev: 'todo' };
 
     // ======= HELPERS =======
@@ -569,59 +606,146 @@
       if (USER_ID != null) h['X-User-Id'] = String(USER_ID);
       return h;
     };
-    function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-    const fmt = (iso)=>!iso?'—':(isNaN(new Date(iso).getTime())?'—':new Date(iso).toLocaleString());
-    const getProjectName = (id)=> id==null?'—':(PROJECTS_BY_ID.get(String(id))||`Proyecto #${id}`);
+    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])) }
+    const fmt = (iso) => !iso ? '—' : (isNaN(new Date(iso).getTime()) ? '—' : new Date(iso).toLocaleString());
+    const getProjectName = (id) => id == null ? '—' : (PROJECTS_BY_ID.get(String(id)) || `Proyecto #${id}`);
+
+    function sprintLabel(s) {
+      if (!s) return '';
+      const num = s.numero != null ? s.numero : s.id;
+      const base = `Sprint ${num}`;
+      const title = s.tituloSprint ? String(s.tituloSprint) : '';
+      return title ? `${base} – ${title}` : base;
+    }
+
+    function registerSprint(s) {
+      if (!s || s.id == null) return;
+      const idStr = String(s.id);
+      SPRINTS_BY_ID.set(idStr, s);
+      if (s.projectId != null) {
+        const pidStr = String(s.projectId);
+        if (!SPRINTS_BY_PROJECT.has(pidStr)) {
+          SPRINTS_BY_PROJECT.set(pidStr, []);
+        }
+        const arr = SPRINTS_BY_PROJECT.get(pidStr);
+        if (!arr.some(x => x.id === s.id)) {
+          arr.push(s);
+        }
+      }
+    }
+
+    function getSprintNiceLabel(id) {
+      if (!id) return '—';
+      const s = SPRINTS_BY_ID.get(String(id));
+      if (!s) return `Sprint ${id}`;
+      return sprintLabel(s);
+    }
+
+    async function loadSprints() {
+      try {
+        const res = await fetch(SPRINTS_API);
+        if (!res.ok) return;
+        const arr = await res.json();
+        SPRINTS_BY_ID.clear();
+        SPRINTS_BY_PROJECT.clear();
+        (arr || []).forEach(registerSprint);
+        buildSprintFilterOptions();
+      } catch (e) {
+        console.error('Error cargando sprints', e);
+      }
+    }
 
     // ==== Nombres de proyectos visibles ====
-    async function loadVisibleProjects(){
-      if(!USER_ID) return;
-      try{
-        const r = await fetch(`${PROJECTS_API}/visibles/${encodeURIComponent(USER_ID)}`,{headers:authHeaders()});
-        if(!r.ok) return;
+    async function loadVisibleProjects() {
+      if (!USER_ID) return;
+      try {
+        const r = await fetch(`${PROJECTS_API}/visibles/${encodeURIComponent(USER_ID)}`, { headers: authHeaders() });
+        if (!r.ok) return;
         const arr = await r.json();
-        let changed=false;
-        (arr||[]).forEach(p=>{
-          if(p?.id!=null){
-            const k=String(p.id);
-            const name=String(p.nombreProyecto||`Proyecto #${p.id}`);
-            if(PROJECTS_BY_ID.get(k)!==name){PROJECTS_BY_ID.set(k,name);changed=true;}
+        let changed = false;
+        (arr || []).forEach(p => {
+          if (p?.id != null) {
+            const k = String(p.id);
+            const name = String(p.nombreProyecto || `Proyecto #${p.id}`);
+            if (PROJECTS_BY_ID.get(k) !== name) { PROJECTS_BY_ID.set(k, name); changed = true; }
           }
         });
-        if(changed){ buildProjectFilterOptions(); renderBoard(allTasks); if(selectedId){const sel=allTasks.find(x=>x.id===selectedId); if(sel) showDetails(sel);} }
-      }catch{}
-    }
-    async function ensureProjectName(id){
-      const k=String(id);
-      if(!id || PROJECTS_BY_ID.has(k)) return;
-      try{
-        const r=await fetch(`${PROJECTS_API}/${encodeURIComponent(id)}`,{headers:authHeaders()});
-        if(!r.ok) return;
-        const p=await r.json();
-        if(p && p.id!=null){
-          PROJECTS_BY_ID.set(String(p.id), String(p.nombreProyecto||`Proyecto #${p.id}`));
-          buildProjectFilterOptions(); renderBoard(allTasks);
-          if(selectedId){const sel=allTasks.find(x=>x.id===selectedId); if(sel) showDetails(sel);}
+        if (changed) {
+          buildProjectFilterOptions();
+          renderBoard(allTasks);
+          if (selectedId) {
+            const sel = allTasks.find(x => x.id === selectedId);
+            if (sel) showDetails(sel);
+          }
         }
-      }catch{}
+      } catch { }
+    }
+    async function ensureProjectName(id) {
+      const k = String(id);
+      if (!id || PROJECTS_BY_ID.has(k)) return;
+      try {
+        const r = await fetch(`${PROJECTS_API}/${encodeURIComponent(id)}`, { headers: authHeaders() });
+        if (!r.ok) return;
+        const p = await r.json();
+        if (p && p.id != null) {
+          PROJECTS_BY_ID.set(String(p.id), String(p.nombreProyecto || `Proyecto #${p.id}`));
+          buildProjectFilterOptions(); renderBoard(allTasks);
+          if (selectedId) {
+            const sel = allTasks.find(x => x.id === selectedId);
+            if (sel) showDetails(sel);
+          }
+        }
+      } catch { }
     }
 
-    // ======= FILTRO =======
-    function buildProjectFilterOptions(){
-      const current=filterProject.value;
-      const entries=[...PROJECTS_BY_ID.entries()].sort((a,b)=>String(a[1]).localeCompare(String(b[1])));
+    // ======= FILTROS =======
+    function buildProjectFilterOptions() {
+      const current = filterProject.value;
+      const entries = [...PROJECTS_BY_ID.entries()].sort((a, b) => String(a[1]).localeCompare(String(b[1])));
       filterProject.innerHTML = `<option value="">Todos los proyectos</option>` +
-        entries.map(([id,name])=>`<option value="${id}">${escapeHtml(name)}</option>`).join('');
-      // también llenar el select del modal de edición
-      e_project.innerHTML = entries.map(([id,name])=>`<option value="${id}">${escapeHtml(name)}</option>`).join('');
-      if([...filterProject.options].some(o=>o.value===current)) filterProject.value=current;
+        entries.map(([id, name]) => `<option value="${id}">${escapeHtml(name)}</option>`).join('');
+      e_project.innerHTML = entries.map(([id, name]) => `<option value="${id}">${escapeHtml(name)}</option>`).join('');
+      if ([...filterProject.options].some(o => o.value === current)) filterProject.value = current;
     }
-    function applyFilters(){
-      const pid=filterProject.value;
-      allTasks = pid ? masterTasks.filter(t=>String(t.projectId)===pid) : masterTasks.slice();
+
+    function buildSprintFilterOptions() {
+      if (!filterSprint) return;
+      const current = filterSprint.value;
+      const pid = filterProject ? filterProject.value : '';
+      let items = [];
+      if (pid) {
+        const arr = SPRINTS_BY_PROJECT.get(pid) || [];
+        items = arr.map(s => ({ id: String(s.id), label: sprintLabel(s) }));
+      } else {
+        SPRINTS_BY_ID.forEach((s, id) => {
+          items.push({ id, label: sprintLabel(s) });
+        });
+      }
+      items.sort((a, b) => a.label.localeCompare(b.label));
+      filterSprint.innerHTML =
+        '<option value="">Todos los sprints</option>' +
+        items.map(o => `<option value="${o.id}">${escapeHtml(o.label)}</option>`).join('');
+      if (items.some(o => o.id === current)) filterSprint.value = current;
+    }
+
+    function applyFilters() {
+      const pid = filterProject ? filterProject.value : '';
+      const sid = filterSprint ? filterSprint.value : '';
+      allTasks = masterTasks.filter(t => {
+        if (pid && String(t.projectId) !== pid) return false;
+        if (sid && String(t.sprintId || '') !== sid) return false;
+        return true;
+      });
       renderBoard(allTasks);
     }
-    filterProject.onchange = applyFilters;
+
+    filterProject.onchange = () => {
+      buildSprintFilterOptions();
+      applyFilters();
+    };
+    if (filterSprint) {
+      filterSprint.onchange = applyFilters;
+    }
 
     // ======= MODALES =======
     const openEdit = (t) => {
@@ -633,10 +757,9 @@
       e_project.value = t.projectId != null ? String(t.projectId) : (filterProject.value || '');
       e_assignee.value = t.assigneeId || '';
       e_assignee_name.value = t.assigneeName || '';
-      // guarda los valores originales para no perderlos
-      editingOriginal.priority  = t.priority ?? null;
-      editingOriginal.sprintId  = t.sprintId ?? null;
-      editingOriginal.statusPrev= (t.status || 'todo').toLowerCase();
+      editingOriginal.priority = t.priority ?? null;
+      editingOriginal.sprintId = t.sprintId ?? null;
+      editingOriginal.statusPrev = (t.status || 'todo').toLowerCase();
       modalEdit.classList.add('open');
     };
     const closeEdit = () => { modalEdit.classList.remove('open'); };
@@ -662,7 +785,6 @@
         projectId: e_project.value ? Number(e_project.value) : null,
         assigneeId: e_assignee.value.trim(),
         assigneeName: e_assignee_name.value.trim(),
-        // preserva valores existentes (no se editan en UI)
         priority: editingOriginal.priority,
         sprintId: editingOriginal.sprintId
       };
@@ -670,140 +792,150 @@
       if (payload.projectId != null && payload.projectId < 1) return alert('projectId debe ser > 0');
 
       btnDoEdit.disabled = true;
-      try{
+      try {
         const res = await fetch(`${API}/tasks/${id}`, {
-          method:'PUT',
-          headers:{ 'Content-Type':'application/json', ...authHeaders() },
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify(payload)
         });
-        if(!res.ok){ alert('No se pudo editar'); btnDoEdit.disabled=false; return; }
-        closeEdit(); btnDoEdit.disabled=false;
+        if (!res.ok) { alert('No se pudo editar'); btnDoEdit.disabled = false; return; }
+        closeEdit(); btnDoEdit.disabled = false;
 
-        // si cambió de != done a done, pedimos horas
         const nowIsDone = (e_status.value || '').toLowerCase() === 'done';
-        if (editingOriginal.statusPrev !== 'done' && nowIsDone){
+        if (editingOriginal.statusPrev !== 'done' && nowIsDone) {
           openComplete(id);
         } else {
           await loadBoard();
           if (selectedId == id) showDetails(allTasks.find(t => t.id == id));
         }
-      }catch{ btnDoEdit.disabled=false; alert('Error de red'); }
+      } catch { btnDoEdit.disabled = false; alert('Error de red'); }
     };
 
-    btnCancelComplete.onclick = () => {
-      closeComplete();
-      // Si venía de DnD, no se había cambiado estado aún.
-      // Si venía de Editar y lo puso en done, la tarea queda en done (puede completar más tarde).
-    };
+    btnCancelComplete.onclick = () => { closeComplete(); };
 
     btnDoComplete.onclick = async () => {
       const id = c_id.value;
       const hours = Number(c_hours.value || 0);
       if (hours < 0) return alert('Horas inválidas');
       btnDoComplete.disabled = true;
-      try{
+      try {
         const res = await fetch(`${API}/tasks/${id}/complete`, {
-          method:'PATCH',
-          headers:{ 'Content-Type':'application/json', ...authHeaders() },
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify({ realHours: hours, status: 'done' })
         });
-        if(!res.ok){ alert('No se pudo completar la tarea'); btnDoComplete.disabled=false; return; }
-        closeComplete(); btnDoComplete.disabled=false;
+        if (!res.ok) { alert('No se pudo completar la tarea'); btnDoComplete.disabled = false; return; }
+        closeComplete(); btnDoComplete.disabled = false;
         await loadBoard();
         if (selectedId == id) showDetails(allTasks.find(t => t.id == id));
-      }catch{ btnDoComplete.disabled=false; alert('Error de red'); }
+      } catch { btnDoComplete.disabled = false; alert('Error de red'); }
     };
 
     btnCancelDelete.onclick = closeDelete;
     btnDoDelete.onclick = async () => {
       const id = del_id.value;
       btnDoDelete.disabled = true;
-      try{
-        const res = await fetch(`${API}/tasks/${id}`, { method:'DELETE', headers: authHeaders() });
-        if(!res.ok){ alert('No se pudo eliminar'); btnDoDelete.disabled=false; return; }
-        closeDelete(); btnDoDelete.disabled=false;
+      try {
+        const res = await fetch(`${API}/tasks/${id}`, { method: 'DELETE', headers: authHeaders() });
+        if (!res.ok) { alert('No se pudo eliminar'); btnDoDelete.disabled = false; return; }
+        closeDelete(); btnDoDelete.disabled = false;
         if (selectedId == id) { selectedId = null; detailsCard.classList.remove('open'); }
         await loadBoard();
-      }catch{ btnDoDelete.disabled=false; alert('Error de red'); }
+      } catch { btnDoDelete.disabled = false; alert('Error de red'); }
     };
 
     // ======= DRAG & DROP =======
-    function enableColumnDnD(colEl){
-      colEl.addEventListener('dragover', (ev)=>{ ev.preventDefault(); colEl.classList.add('drop-target'); });
-      colEl.addEventListener('dragleave', ()=> colEl.classList.remove('drop-target'));
-      colEl.addEventListener('drop', async (ev)=>{
+    function enableColumnDnD(colEl) {
+      colEl.addEventListener('dragover', (ev) => { ev.preventDefault(); colEl.classList.add('drop-target'); });
+      colEl.addEventListener('dragleave', () => colEl.classList.remove('drop-target'));
+      colEl.addEventListener('drop', async (ev) => {
         ev.preventDefault(); colEl.classList.remove('drop-target');
         const toStatus = colEl.dataset.status;
         const id = draggingId; draggingId = null;
-        if(!id || !toStatus) return;
+        if (!id || !toStatus) return;
 
-        try{
-          // si destino es 'done', abrimos modal de horas y usamos /complete después
+        try {
           if ((toStatus || '').toLowerCase() === 'done') {
             openComplete(id);
             return;
           }
-          // caso normal: actualizar estado directo
           const res = await fetch(`${API}/tasks/${id}/status`, {
-            method:'PATCH',
-            headers:{ 'Content-Type':'application/json', ...authHeaders() },
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
             body: JSON.stringify({ status: toStatus })
           });
-          if(!res.ok){ alert('No se pudo mover la tarea'); return; }
+          if (!res.ok) { alert('No se pudo mover la tarea'); return; }
           await loadBoard();
           if (selectedId == id) showDetails(allTasks.find(t => t.id == id));
-        }catch{ alert('Error de red'); }
+        } catch { alert('Error de red'); }
       });
     }
     enableColumnDnD(dropTodo);
     enableColumnDnD(dropDoing);
     enableColumnDnD(dropDone);
 
+    // ======= ESTADO VACÍO =======
+    function updateEmptyStateVisibility() {
+      if (!emptyState || !boardSection) return;
+      const hasTasks = masterTasks && masterTasks.length > 0;
+      if (hasTasks) {
+        emptyState.style.display = 'none';
+        boardSection.style.display = '';
+      } else {
+        emptyState.style.display = 'flex';
+        boardSection.style.display = 'none';
+        selectedId = null;
+        detailsCard.classList.remove('open');
+      }
+    }
+
     // ======= RENDER =======
-    function taskCard(t){
+    function taskCard(t) {
       const div = document.createElement('div');
       div.className = 'task';
       if (t.id === selectedId) div.classList.add('selected');
 
-      div.setAttribute('draggable','true');
-      div.addEventListener('dragstart', (ev)=>{ draggingId = t.id; ev.dataTransfer.setData('text/plain', String(t.id)); });
+      div.setAttribute('draggable', 'true');
+      div.addEventListener('dragstart', (ev) => { draggingId = t.id; ev.dataTransfer.setData('text/plain', String(t.id)); });
 
       const pname = getProjectName(t.projectId);
+      const sprintNice = t.sprintId ? getSprintNiceLabel(t.sprintId) : '—';
+
       div.innerHTML = `
         <div class="task-title">${escapeHtml(t.title || '')}</div>
         <div class="task-meta">Prio: ${escapeHtml(t.priority || '')} · Est: ${t.estimatedHours ?? '-'}h ${t.realHours ? (' · Real: ' + t.realHours + 'h') : ''}</div>
-        <div class="task-meta">Sprint: ${escapeHtml(t.sprintId || '—')} · Proy: ${escapeHtml(pname)}</div>
+        <div class="task-meta">Sprint: ${escapeHtml(sprintNice)} · Proy: ${escapeHtml(pname)}</div>
         <div class="task-meta">${escapeHtml(t.assigneeName || '')} (${escapeHtml(t.assigneeId || '')})</div>
       `;
 
-      div.onclick = ()=>{ selectedId = t.id; renderBoard(allTasks); showDetails(t); };
+      div.onclick = () => { selectedId = t.id; renderBoard(allTasks); showDetails(t); };
 
       const actions = document.createElement('div');
       actions.className = 'task-actions';
 
       const bEdit = document.createElement('button');
       bEdit.className = 'btn-xs edit'; bEdit.textContent = 'Editar…';
-      bEdit.onclick = (ev)=>{ ev.stopPropagation(); openEdit(t); };
+      bEdit.onclick = (ev) => { ev.stopPropagation(); openEdit(t); };
       actions.appendChild(bEdit);
 
-      if ((t.status || '').toLowerCase() !== 'done'){
+      if ((t.status || '').toLowerCase() !== 'done') {
         const bComplete = document.createElement('button');
         bComplete.className = 'btn-xs complete'; bComplete.textContent = 'Completar…';
-        bComplete.onclick = (ev)=>{ ev.stopPropagation(); openComplete(t.id); };
+        bComplete.onclick = (ev) => { ev.stopPropagation(); openComplete(t.id); };
         actions.appendChild(bComplete);
       }
 
       const bDelete = document.createElement('button');
       bDelete.className = 'btn-xs delete'; bDelete.textContent = 'Eliminar…';
-      bDelete.onclick = (ev)=>{ ev.stopPropagation(); openDelete(t.id, t.title); };
+      bDelete.onclick = (ev) => { ev.stopPropagation(); openDelete(t.id, t.title); };
       actions.appendChild(bDelete);
 
       div.appendChild(actions);
       return div;
     }
 
-    function showDetails(t){
-      if(!t){ detailsCard.classList.remove('open'); return; }
+    function showDetails(t) {
+      if (!t) { detailsCard.classList.remove('open'); return; }
       detailsCard.classList.add('open');
 
       d_title.textContent = t.title || '—';
@@ -813,7 +945,9 @@
       const pr = (t.priority || '').toLowerCase();
       d_priority.textContent = `prioridad: ${pr || '—'}`; d_priority.className = `badge prio ${pr || ''}`;
 
-      d_sprint.textContent = t.sprintId ? `Sprint: ${t.sprintId}` : 'Sprint: —';
+      const sprintNice = t.sprintId ? getSprintNiceLabel(t.sprintId) : '—';
+      d_sprint.textContent = `Sprint: ${sprintNice}`;
+
       d_project.textContent = getProjectName(t.projectId);
 
       d_assignee.textContent = `${t.assigneeName || '—'} ${t.assigneeId ? '(' + t.assigneeId + ')' : ''}`;
@@ -823,50 +957,66 @@
       d_completed.textContent = fmt(t.completedAt);
       d_desc.textContent = t.description || '—';
 
-      d_edit_btn.onclick = ()=> openEdit(t);
-      if (st === 'done'){ d_complete_btn.style.display = 'none'; }
-      else { d_complete_btn.style.display = 'inline-block'; d_complete_btn.onclick = ()=> openComplete(t.id); }
-      d_delete_btn.onclick = ()=> openDelete(t.id, t.title);
+      d_edit_btn.onclick = () => openEdit(t);
+      if (st === 'done') { d_complete_btn.style.display = 'none'; }
+      else { d_complete_btn.style.display = 'inline-block'; d_complete_btn.onclick = () => openComplete(t.id); }
+      d_delete_btn.onclick = () => openDelete(t.id, t.title);
     }
 
-    function renderBoard(list){
+    function renderBoard(list) {
+      updateEmptyStateVisibility();
+
+      // Si no hay ninguna tarea en absoluto, dejamos tablero vacío y progreso en 0
+      if (!masterTasks || masterTasks.length === 0) {
+        colTodo.innerHTML = '';
+        colDoing.innerHTML = '';
+        colDone.innerHTML = '';
+        progressBar.style.width = '0%';
+        progressPct.textContent = '0%';
+        return;
+      }
+
       colTodo.innerHTML = ''; colDoing.innerHTML = ''; colDone.innerHTML = '';
       let doneCount = 0;
-      list.forEach(t=>{
-        const s=(t.status||'todo').toLowerCase();
-        if(s==='done') doneCount++;
+      list.forEach(t => {
+        const s = (t.status || 'todo').toLowerCase();
+        if (s === 'done') doneCount++;
         const card = taskCard(t);
-        if(s==='doing') colDoing.appendChild(card);
-        else if(s==='done') colDone.appendChild(card);
+        if (s === 'doing') colDoing.appendChild(card);
+        else if (s === 'done') colDone.appendChild(card);
         else colTodo.appendChild(card);
       });
-      const pct = list.length ? Math.round((doneCount/list.length)*100) : 0;
-      progressBar.style.width = pct+'%'; progressPct.textContent = pct+'%';
-      if(selectedId){
-        const sel = list.find(x=>x.id===selectedId);
-        if(sel) showDetails(sel); else { selectedId=null; detailsCard.classList.remove('open'); }
+      const pct = list.length ? Math.round((doneCount / list.length) * 100) : 0;
+      progressBar.style.width = pct + '%'; progressPct.textContent = pct + '%';
+      if (selectedId) {
+        const sel = list.find(x => x.id === selectedId);
+        if (sel) showDetails(sel); else { selectedId = null; detailsCard.classList.remove('open'); }
       }
     }
 
-    async function loadBoard(){
+    async function loadBoard() {
+      await loadSprints();
+
       const res = await fetch(`${API}/tasks`, { headers: authHeaders() });
       masterTasks = await res.json();
 
       const idsNeeded = new Set();
-      masterTasks.forEach(t=>{
-        if(t.projectId!=null){
-          const k=String(t.projectId);
+      masterTasks.forEach(t => {
+        if (t.projectId != null) {
+          const k = String(t.projectId);
           idsNeeded.add(k);
-          if(!PROJECTS_BY_ID.has(k)) PROJECTS_BY_ID.set(k, `Proyecto #${t.projectId}`);
+          if (!PROJECTS_BY_ID.has(k)) PROJECTS_BY_ID.set(k, `Proyecto #${t.projectId}`);
         }
       });
       buildProjectFilterOptions();
+      buildSprintFilterOptions();
       applyFilters();
 
       await loadVisibleProjects();
-      await Promise.all([...idsNeeded].map(id=>ensureProjectName(id)));
+      await Promise.all([...idsNeeded].map(id => ensureProjectName(id)));
 
-      // ocultar overlay al terminar de cargar
+      updateEmptyStateVisibility();
+
       if (loadingOverlay) loadingOverlay.classList.add('hidden');
     }
 
@@ -874,4 +1024,3 @@
   </script>
 </body>
 </html>
-

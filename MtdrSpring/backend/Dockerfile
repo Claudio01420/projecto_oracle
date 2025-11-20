@@ -4,5 +4,5 @@ FROM eclipse-temurin:22-jdk
 WORKDIR /tmp/
 EXPOSE 8080
 COPY target/MyTodoList-0.0.1-SNAPSHOT.jar MyTodoList.jar
-
+ENV bot.enabled=false
 ENTRYPOINT ["java","-jar","MyTodoList.jar"]
