@@ -1457,3 +1457,382 @@ input[type="date"] {
 .delete-team-button:hover {
   background: rgb(255, 69, 69);
 }
+
+/* ============================================================
+   BOTÓN GUARDAR — ESTILO NARANJA CON GLOW
+   ============================================================ */
+
+#btn-guardar.btn-primary {
+  background: linear-gradient(135deg, #ff0400 0%, #ff0000 100%);
+  border: 1px solid rgba(255, 50, 50, 0.6);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4);
+  font-weight: 900;
+  transition: all .25s ease;
+}
+
+#btn-guardar.btn-primary:hover:not([disabled]) {
+  background: linear-gradient(135deg, #ff3d33 0%, #ff1e1e 100%);
+  border-color: rgba(255, 80, 80, 0.9);
+  box-shadow: 0 0 18px rgba(255, 50, 50, 0.75);
+  transform: translateY(-2px);
+}
+
+#btn-guardar.btn-primary:active:not([disabled]) {
+  transform: translateY(0);
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+/* Botón deshabilitado */
+#btn-guardar.btn-primary[disabled] {
+  opacity: .45;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #5a2d2d 0%, #4a2222 100%);
+  box-shadow: none;
+}
+
+/* ===================== TOAST SUPERIOR ===================== */
+#toast {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  right: auto;
+  bottom: auto;
+
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: var(--ok);
+  color: #fff;
+  font-weight: 900;
+  z-index: 3000;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease, transform .3s ease;
+}
+
+/* Cuando aparece */
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(8px);
+}
+
+/* Toast error rojo */
+#toast.err {
+  background: var(--danger);
+}
+
+/* Empty state Proyectos + Cafetera */
+.empty-state {
+  width: 100%;
+  min-height: 260px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.empty-state p {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* Cafetera centrada dentro del empty-state
+   (namespaced para no chocar con otros loaders) */
+
+.empty-state .loader {
+  width: 100%;
+  height: 260px;
+  position: relative;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  scale: 0.8;
+}
+
+.empty-state .loader .container {
+  width: 300px;
+  height: fit-content;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state .loader .container .coffee-header {
+  padding: 10px;
+  width: 100%;
+  height: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ddcfcc;
+  border-radius: 10px;
+}
+
+.empty-state .loader .container .coffee-header__buttons {
+  width: 25px;
+  height: 25px;
+  background-color: #282323;
+  border-radius: 50%;
+  box-shadow: 40px 0 0 0 #282323;
+}
+
+.empty-state .loader .container .coffee-header__buttons::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  display: block;
+  transform: translate(100%, 25px);
+  background-color: #615e5e;
+  box-shadow: 40px 0 0 0 #615e5e;
+}
+
+.empty-state .loader .container .coffee-header__display {
+  width: 50px;
+  height: 50px;
+  display: block;
+  border-radius: 50%;
+  background-color: #9acfc5;
+  border: 5px solid #43beae;
+  box-sizing: border-box;
+}
+
+.empty-state .loader .container .coffee-header__details {
+  width: 8px;
+  margin-left: 16px;
+  height: 20px;
+  align-self: flex-start;
+  background-color: #9b9091;
+  box-shadow:
+    -12px 0 0 #9b9091,
+    -24px 0 0 #9b9091;
+}
+
+.empty-state .loader .container .coffee-medium {
+  width: 90%;
+  height: 160px;
+  position: relative;
+  background-color: #bcb0af;
+}
+
+.empty-state .loader .container .coffee-medium:before {
+  content: "";
+  width: 90%;
+  height: 100px;
+  background-color: #776f6e;
+  position: absolute;
+  bottom: 0;
+  left: 5%;
+  border-radius: 20px 20px 0 0;
+}
+
+.empty-state .loader .container .coffe-medium__exit {
+  width: 60px;
+  height: 20px;
+  position: absolute;
+  top: 0;
+  left: calc(50% - 30px);
+  background-color: #231f20;
+}
+
+.empty-state .loader .container .coffe-medium__exit::before {
+  content: "";
+  width: 50px;
+  height: 20px;
+  border-radius: 0 0 50% 50%;
+  position: absolute;
+  bottom: -20px;
+  left: calc(50% - 25px);
+  background-color: #231f20;
+}
+
+.empty-state .loader .container .coffe-medium__exit::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  bottom: -30px;
+  left: calc(50% - 5px);
+  background-color: #231f20;
+}
+
+.empty-state .loader .container .coffee-medium__arm {
+  width: 70px;
+  height: 20px;
+  position: absolute;
+  top: 15px;
+  right: 25px;
+  background-color: #231f20;
+}
+
+.empty-state .loader .container .coffee-medium__arm::before {
+  content: "";
+  width: 15px;
+  height: 5px;
+  position: absolute;
+  top: 7px;
+  left: -15px;
+  background-color: #9e9495;
+}
+
+.empty-state .loader .container .coffee-medium__cup {
+  width: 80px;
+  height: 47px;
+  position: absolute;
+  bottom: 0;
+  left: calc(50% - 40px);
+  background-color: #fff;
+  border-radius: 0 0 70px 70px/0 0 110px 110px;
+}
+
+.empty-state .loader .container .coffee-medium__cup::after {
+  content: "";
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 6px;
+  right: -13px;
+  border: 5px solid #fff;
+  border-radius: 50%;
+}
+
+.empty-state .loader .container .coffee-medium__liquid {
+  width: 6px;
+  height: 63px;
+  position: absolute;
+  top: 50px;
+  left: calc(50% - 3px);
+  background-color: transparent;
+  overflow: hidden;
+}
+
+.empty-state .loader .container .coffee-medium__liquid::before {
+  transform: translateY(-100%);
+  content: "";
+  width: 100%;
+  height: 100%;
+  display: block;
+  background-color: #74372b;
+  animation: liquid 5000ms linear 3500ms infinite normal both;
+}
+
+.empty-state .loader .container .smoke {
+  opacity: 0;
+  width: 8px;
+  height: 20px;
+  position: absolute;
+  border-radius: 5px;
+  background-color: #b3aeae;
+}
+
+.empty-state .loader .container .smoke.one {
+  bottom: 30px;
+  left: 102px;
+  animation: smoke 3s 5s linear infinite;
+}
+
+.empty-state .loader .container .smoke.two {
+  bottom: 40px;
+  left: 118px;
+  animation: smoke 3s 4s linear infinite;
+}
+
+.empty-state .loader .container .smoke.three {
+  bottom: 40px;
+  right: 118px;
+  animation: smoke 3s 7s linear infinite;
+}
+
+.empty-state .loader .container .smoke.four {
+  bottom: 30px;
+  right: 102px;
+  animation: smoke 3s 6s linear infinite;
+}
+
+.empty-state .loader .container::after {
+  content: "";
+  width: 95%;
+  height: 15px;
+  background-color: #41bdad;
+  box-shadow: 0 15px 0 5px #000;
+  border-radius: 10px;
+}
+
+@keyframes smoke {
+  0% {
+    transform: translateY(0px);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 0.3;
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+}
+
+@keyframes liquid {
+  10% {
+    transform: translateY(0);
+  }
+  90% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.empty-state {
+  width: 100%;
+  padding: 40px 16px 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.empty-inner {
+  text-align: center;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.empty-title {
+  font-family: "Panchang", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.9rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 800;
+  color: var(--ink, #f5f5f5);
+  margin-bottom: 8px;
+}
+
+.empty-subtitle {
+  font-size: .95rem;
+  color: var(--muted, #9ca3af);
+  margin-bottom: 32px;
+}
+

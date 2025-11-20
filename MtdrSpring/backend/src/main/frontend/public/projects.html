@@ -253,6 +253,7 @@
   </div>
 
   <div id="confirm-root"></div>
+  <div id="toast" class="toast"></div>
 
 <script>
  // ===== Sesión / Iniciales de usuario =====
@@ -345,6 +346,18 @@ async function fetchEquipoNombre(id){
     return fallback;
   }
 }
+
+  function showToast(msg, type = "ok") {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+
+    toast.className = "toast " + type + " show";
+
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 2500);
+  }
+
 
 function goToHomework(id){
   if (!id) return;
@@ -609,45 +622,90 @@ if ($btnIrHomework) {
   });
 }
 
-// ===== Render tabla =====
+
 function renderTabla(items) {
   if (!items.length) {
-    $tbody.innerHTML = `<tr><td colspan="6">No hay proyectos.</td></tr>`;
+    $tbody.innerHTML = `
+      <tr>
+        <td colspan="6">
+          <div class="empty-state">
+            <div class="empty-inner">
+              <h2 class="empty-title">No hay proyectos por hacer, ¡bien hecho!</h2>
+              <p class="empty-subtitle">
+                Cuando crees o te asignen proyectos para tu equipo, el tablero volverá a aparecer aquí.
+              </p>
+
+              <!-- Cafetera -->
+              <div class="loader">
+                <div class="container">
+                  <div class="coffee-header">
+                    <div class="coffee-header__buttons"></div>
+                    <div class="coffee-header__display"></div>
+                    <div class="coffee-header__details"></div>
+                  </div>
+                  <div class="coffee-medium">
+                    <div class="coffe-medium__exit"></div>
+                    <div class="coffee-medium__arm"></div>
+                    <div class="coffee-medium__liquid"></div>
+                    <div class="smoke one"></div>
+                    <div class="smoke two"></div>
+                    <div class="smoke three"></div>
+                    <div class="smoke four"></div>
+                    <div class="coffee-medium__cup"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    `;
     $resumen.innerHTML = `<strong>0</strong> resultado(s)`;
     return;
   }
 
+  // ... resto de renderTabla (tu código actual para cuando SÍ hay proyectos)
+
+
   $resumen.innerHTML = `<strong>${items.length}</strong> resultado(s)`;
 
   $tbody.innerHTML = items.map(p => {
-    const teamName = p.equipoId ? (equipoNombreCache.get(p.equipoId) ?? `Equipo #${p.equipoId}`) : "-";
+    const teamName = p.equipoId
+      ? (equipoNombreCache.get(p.equipoId) ?? `Equipo #${p.equipoId}`)
+      : "-";
     const hasReal = typeof p._progress === "number";
     const pct = hasReal ? p._progress : 0;
     const loadingClass = hasReal ? "" : "loading";
+
     return `
       <tr data-id="${p.id}">
         <td>${p.id ?? "-"}</td>
         <td>${teamName}</td>
         <td>${p.nombreProyecto ?? "-"}</td>
         <td><span class="${estadoToChipClass(p.estado)}">${p.estado ?? "—"}</span></td>
-        <td><div class="progress"><span class="${loadingClass}" style="width:${pct}%"></span></div></td>
         <td>
-            <button
-              class="btn-round-anim delete-team-button"
-              onclick="borrarProyecto(${p.id}, event)"
-              title="Eliminar proyecto"
-            >
-              <svg viewBox="0 0 448 512" aria-hidden="true">
-                <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path>
-              </svg>
-            </button>
+          <div class="progress">
+            <span class="${loadingClass}" style="width:${pct}%"></span>
+          </div>
         </td>
-      </tr>`;
+        <td>
+          <button
+            class="btn-round-anim delete-team-button"
+            onclick="borrarProyecto(${p.id}, event)"
+            title="Eliminar proyecto"
+          >
+            <svg viewBox="0 0 448 512" aria-hidden="true">
+              <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path>
+            </svg>
+          </button>
+        </td>
+      </tr>
+    `;
   }).join("");
 
   Array.from($tbody.querySelectorAll("tr")).forEach(tr => {
     tr.addEventListener("click", (e) => {
-      if (e.target.closest('button')) return;
+      if (e.target.closest("button")) return;
       const prev = $tbody.querySelector(".row-selected");
       if (prev) prev.classList.remove("row-selected");
       tr.classList.add("row-selected");
@@ -657,12 +715,13 @@ function renderTabla(items) {
     });
 
     tr.addEventListener("dblclick", (e) => {
-      if (e.target.closest('button')) return;
+      if (e.target.closest("button")) return;
       const id = Number(tr.dataset.id);
       if (id) goToHomework(id);
     });
   });
 }
+
 
 // ===== Select de equipos (donde eres admin o miembro) =====
 async function buscarEquiposParaSelect() {
@@ -706,6 +765,7 @@ async function buscarEquiposParaSelect() {
   $btnGuardar.disabled = true;
   if ($help) $help.textContent = "No se pudieron cargar los equipos.";
 }
+
 
 // ===== Validación formulario =====
 function setFieldState($fieldEl, isValid, show){
@@ -764,22 +824,32 @@ $fInicio.addEventListener('change', () => {
 });
 
 const _validarFormularioOriginal = validarFormulario;
-validarFormulario = function(show=false){
+validarFormulario = function (show = false) {
   const res = _validarFormularioOriginal(show);
-  const today = new Date(); today.setHours(0,0,0,0);
-  const ini = $fInicio.value ? new Date($fInicio.value) : null;
 
-  if (!ini || ini.getTime() < today.getTime()) {
-    res.ok = false;
+  const todayStr = TODAY_STR;       // "YYYY-MM-DD" ya calculado arriba
+  const iniStr   = $fInicio.value;  // valor del input date
+  const finStr   = $fFin.value;
+
+  let ok = res.ok;
+
+  // Inicio: obligatorio y no puede ser antes de hoy
+  if (!iniStr || iniStr < todayStr) {
+    ok = false;
     setFieldState($fInicioField, false, show);
   }
-  if ($fFin.value && $fInicio.value && ($fFin.value < $fInicio.value)) {
-    res.ok = false;
+
+  // Fin: si existe, debe ser >= inicio
+  if (finStr && iniStr && finStr < iniStr) {
+    ok = false;
     setFieldState($fFinField, false, show);
   }
+
+  res.ok = ok;
   $btnGuardar.disabled = !res.ok;
   return res;
 };
+
 
 document.addEventListener('DOMContentLoaded', () => {
   $fInicio.min = TODAY_STR;
@@ -881,6 +951,7 @@ async function crearProyecto() {
     cerrarModal();
     applyFilters();
     updateRowProgress(creado.id, 0);
+    showToast("Proyecto creado exitosamente", "ok");
 
   } catch (e) {
     console.error("POST /proyectos falló:", e);
