@@ -9,7 +9,7 @@ COPY target/MyTodoList-0.0.1-SNAPSHOT.jar MyTodoList.jar
 
 ENV ui_username="amin"
 ENV ui_password="none0001"
-
+ENV bot.enabled=false
 ENV db_user="TMDV"
 ENV dbpassword="None00010001"
 ENV db_url="jdbc:oracle:thin:@reacttodosozzj_tp?TNS_ADMIN=/mtdrworkshop/creds"
