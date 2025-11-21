@@ -321,11 +321,11 @@ const $acCount = document.getElementById("ac-count");
 // ===== API =====
 const currentUserId = user?.id ?? user?.usuarioId ?? null;
 const currentUserEmail = user?.email || "";
-const API_BASE    = "http://localhost:8080/proyectos";
-const TASKS_API   = "http://localhost:8080/api/tasks";
-const SPRINTS_API = "http://localhost:8080/sprints";   // Sprints
-const EQUIPOS_API = "http://localhost:8080/equipos";
-const UE_API      = "http://localhost:8080/usuarios-equipos";
+const API_BASE    = "/proyectos";
+const TASKS_API   = "/api/tasks";
+const SPRINTS_API = "/sprints";   // Sprints
+const EQUIPOS_API = "/equipos";
+const UE_API      = "/usuarios-equipos";
 
 let proyectosCache = [];
 let selectedProjectId = null;
