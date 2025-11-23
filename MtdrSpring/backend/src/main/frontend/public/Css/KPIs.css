@@ -825,3 +825,29 @@ y con !important por si hay otros CSS.
     justify-content:center;
   }
 }
+
+/* ==================== NUEVO: Estilos para leyenda colorida del gráfico de dona ====================*/
+
+#tasksCompletedChart {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  max-width: 800px;
+  max-height: 500px;
+  margin: 0 auto;
+}
+
+/* Contenedor del canvas para centrarlo */
+#tasksCompletedChart-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Estilo personalizado para las leyendas de Chart.js */
+.chartjs-legend-item {
+  transition: opacity .2s ease;
+}
+
+.chartjs-legend-item:hover {
+  opacity: 0.8;
+}

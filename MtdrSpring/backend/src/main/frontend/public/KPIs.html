@@ -222,7 +222,9 @@
         <p style="color:var(--muted);font-size:14px;margin-bottom:20px">
           Cantidad de tareas completadas por desarrollador - Comparación de productividad entre miembros del equipo
         </p>
-        <canvas id="tasksCompletedChart"></canvas>
+        <div style="max-width:700px;margin:0 auto;">
+          <canvas id="tasksCompletedChart" style="max-height:350px;"></canvas>
+        </div>
       </section>
 
       <!-- Reporte Detallado -->
@@ -487,36 +489,56 @@
     // ==================== NUEVO: Gráfico de Horas por Sprint ====================
     
     window.sprintHoursChart = new Chart(document.getElementById("sprintHoursChart"), {
-      type: "bar",
+      type: "line",
       data: {
         labels: [],
         datasets: [
           {
             label: "Horas Planificadas",
             data: [],
-            backgroundColor: "#374151",
+            backgroundColor: "rgba(55, 65, 81, 0.2)",
             borderColor: "#4B5563",
-            borderWidth: 1
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointBackgroundColor: "#4B5563",
+            pointBorderColor: "#fff",
+            pointBorderWidth: 2
           },
           {
             label: "Horas Reales",
             data: [],
-            backgroundColor: "#E1261C",
-            borderColor: "#c41f15",
-            borderWidth: 1
+            backgroundColor: "rgba(225, 38, 28, 0.2)",
+            borderColor: "#E1261C",
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: "#E1261C",
+            pointBorderColor: "#fff",
+            pointBorderWidth: 2
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: true,
+        interaction: {
+          intersect: false,
+          mode: 'index'
+        },
         plugins: {
           legend: {
             display: true,
             position: 'top',
             labels: {
               color: '#e6e7ea',
-              font: { size: 12, weight: '600' }
+              font: { size: 12, weight: '600' },
+              usePointStyle: true,
+              padding: 15
             }
           },
           tooltip: {
@@ -526,18 +548,29 @@
             borderColor: '#20242c',
             borderWidth: 1,
             padding: 12,
-            displayColors: true
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': ' + context.parsed.y + 'h';
+              }
+            }
           }
         },
         scales: {
           x: {
-            grid: { color: '#20242c' },
+            grid: { color: '#20242c', drawBorder: false },
             ticks: { color: '#8a93a3', font: { size: 11 } }
           },
           y: {
             beginAtZero: true,
-            grid: { color: '#20242c' },
-            ticks: { color: '#8a93a3', font: { size: 11 } }
+            grid: { color: '#20242c', drawBorder: false },
+            ticks: { 
+              color: '#8a93a3', 
+              font: { size: 11 },
+              callback: function(value) {
+                return value + 'h';
+              }
+            }
           }
         }
       }
@@ -548,8 +581,8 @@
     window.developerSprintChart = new Chart(document.getElementById("developerSprintChart"), {
       type: "bar",
       data: {
-        labels: [], // Nombres de sprints
-        datasets: [] // Un dataset por developer
+        labels: [],
+        datasets: []
       },
       options: {
         responsive: true,
@@ -560,7 +593,8 @@
             position: 'top',
             labels: {
               color: '#e6e7ea',
-              font: { size: 12, weight: '600' }
+              font: { size: 12, weight: '600' },
+              padding: 15
             }
           },
           tooltip: {
@@ -578,15 +612,18 @@
                 return `${dev}: ${hours}h`;
               }
             }
-          },
+          }
+        },
         scales: {
           x: {
-            grid: { color: '#20242c' },
+            stacked: false,
+            grid: { color: '#20242c', drawBorder: false },
             ticks: { color: '#8a93a3', font: { size: 11 } }
           },
           y: {
             beginAtZero: true,
-            grid: { color: '#20242c' },
+            stacked: false,
+            grid: { color: '#20242c', drawBorder: false },
             ticks: { 
               color: '#8a93a3', 
               font: { size: 11 },
@@ -597,64 +634,91 @@
           }
         }
       }
-    }
     });
 
     // ==================== NUEVO: Gráfico de Tareas Terminadas por Developer y Sprint ====================
     
     window.tasksCompletedChart = new Chart(document.getElementById("tasksCompletedChart"), {
-      type: "bar",
+      type: "doughnut",
       data: {
-        labels: [], // Nombres de sprints
-        datasets: [] // Un dataset por developer
+        labels: [],
+        datasets: [{
+          data: [],
+          backgroundColor: [],
+          borderColor: '#0f1216',
+          borderWidth: 3,
+          hoverOffset: 15,
+          hoverBorderWidth: 4,
+          hoverBorderColor: '#1a1f28'
+        }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: true,
+        aspectRatio: 1.5,
         plugins: {
           legend: {
             display: true,
-            position: 'top',
+            position: 'right',
             labels: {
               color: '#e6e7ea',
-              font: { size: 12, weight: '600' }
+              font: { size: 12, weight: '600', family: 'system-ui, -apple-system, sans-serif' },
+              padding: 12,
+              usePointStyle: true,
+              pointStyle: 'circle',
+              boxWidth: 12,
+              boxHeight: 12,
+              generateLabels: function(chart) {
+                const data = chart.data;
+                if (data.labels.length && data.datasets.length) {
+                  return data.labels.map((label, i) => {
+                    const value = data.datasets[0].data[i];
+                    const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return {
+                      text: `${label}: ${value} (${percentage}%)`,
+                      fillStyle: data.datasets[0].backgroundColor[i],
+                      strokeStyle: data.datasets[0].backgroundColor[i],
+                      lineWidth: 0,
+                      hidden: false,
+                      index: i,
+                      fontColor: '#e6e7ea'
+                    };
+                  });
+                }
+                return [];
+              }
             }
           },
           tooltip: {
             backgroundColor: '#12161c',
             titleColor: '#e6e7ea',
             bodyColor: '#c8cbd2',
-            borderColor: '#20242c',
-            borderWidth: 1,
-            padding: 12,
+            borderColor: '#2a3240',
+            borderWidth: 2,
+            padding: 14,
             displayColors: true,
+            titleFont: { size: 13, weight: '700' },
+            bodyFont: { size: 12 },
             callbacks: {
               label: function(context) {
-                const dev = context.dataset.label;
-                const count = context.parsed.y;
-                return `${dev}: ${count} tarea${count !== 1 ? 's' : ''}`;
+                const label = context.label || '';
+                const value = context.parsed;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((value / total) * 100).toFixed(1);
+                return `${label}: ${value} tareas (${percentage}%)`;
               }
             }
           }
         },
-        scales: {
-          x: {
-            grid: { color: '#20242c' },
-            ticks: { color: '#8a93a3', font: { size: 11 } }
-          },
-          y: {
-            beginAtZero: true,
-            grid: { color: '#20242c' },
-            ticks: { 
-              color: '#8a93a3', 
-              font: { size: 11 },
-              stepSize: 1,
-              callback: function(value) {
-                if (Number.isInteger(value)) {
-                  return value;
-                }
-              }
-            }
+        cutout: '60%',
+        radius: '85%',
+        layout: {
+          padding: {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right: 10
           }
         }
       }
@@ -1169,9 +1233,7 @@
       try {
         if (!appState.projects || appState.projects.length === 0) return;
 
-        const sprintDeveloperTasks = new Map();
-        const allDevelopers = new Set();
-        const sprintNames = new Map();
+        const developerTasks = new Map();
         const completedStatuses = ['done', 'completed', 'finalizado', 'completado', 'terminado', 'closed', 'hecho'];
 
         const projectsToProcess = appState.filters.projectId
@@ -1195,14 +1257,6 @@
                   continue;
                 }
                 
-                const sprintName = sprint.tituloSprint || `Sprint ${sprint.numero || sprintId}`;
-                const sprintKey = `${proj.nombreProyecto || 'Proyecto'} - ${sprintName}`;
-                
-                sprintNames.set(sprintKey, sprintKey);
-                if (!sprintDeveloperTasks.has(sprintKey)) {
-                  sprintDeveloperTasks.set(sprintKey, {});
-                }
-                
                 try {
                   const rTasks = await fetch(`/sprints/${sprintId}/tasks`);
                   if (rTasks.ok) {
@@ -1210,12 +1264,11 @@
                     if (Array.isArray(tasks)) {
                       tasks.forEach(t => {
                         const devName = t.assigneeName || t.assigneeId || 'Sin asignar';
-                        allDevelopers.add(devName);
                         const status = (t.status || '').toString().toLowerCase();
                         const isCompleted = completedStatuses.some(cs => status.includes(cs)) || (t.completedAt != null);
                         if (isCompleted) {
-                          const current = sprintDeveloperTasks.get(sprintKey)[devName] || 0;
-                          sprintDeveloperTasks.get(sprintKey)[devName] = current + 1;
+                          const current = developerTasks.get(devName) || 0;
+                          developerTasks.set(devName, current + 1);
                         }
                       });
                     }
@@ -1230,31 +1283,30 @@
           }
         }
 
-        if (sprintDeveloperTasks.size === 0 || allDevelopers.size === 0) {
+        if (developerTasks.size === 0) {
           window.tasksCompletedChart.data.labels = [];
-          window.tasksCompletedChart.data.datasets = [];
+          window.tasksCompletedChart.data.datasets[0].data = [];
+          window.tasksCompletedChart.data.datasets[0].backgroundColor = [];
           window.tasksCompletedChart.update();
           return;
         }
 
-        const sortedSprints = Array.from(sprintNames.keys()).sort();
-        const colors = ['#10B981', '#3B82F6', '#F59E0B', '#E1261C', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1'];
-        const sortedDevelopers = Array.from(allDevelopers).sort();
+        const sortedDevelopers = Array.from(developerTasks.entries())
+          .sort((a, b) => b[1] - a[1]);
         
-        const datasets = sortedDevelopers.map((dev, idx) => {
-          const color = colors[idx % colors.length];
-          const data = sortedSprints.map(sprintKey => sprintDeveloperTasks.get(sprintKey)[dev] || 0);
-          return {
-            label: dev,
-            data: data,
-            backgroundColor: color,
-            borderColor: color,
-            borderWidth: 1
-          };
-        });
+        const colors = [
+          '#10B981', '#3B82F6', '#F59E0B', '#E1261C', '#8B5CF6', 
+          '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
+          '#14B8A6', '#F43F5E', '#A855F7', '#EAB308', '#22D3EE'
+        ];
+        
+        const labels = sortedDevelopers.map(([dev]) => dev);
+        const data = sortedDevelopers.map(([, count]) => count);
+        const backgroundColors = sortedDevelopers.map((_, idx) => colors[idx % colors.length]);
 
-        window.tasksCompletedChart.data.labels = sortedSprints;
-        window.tasksCompletedChart.data.datasets = datasets;
+        window.tasksCompletedChart.data.labels = labels;
+        window.tasksCompletedChart.data.datasets[0].data = data;
+        window.tasksCompletedChart.data.datasets[0].backgroundColor = backgroundColors;
         window.tasksCompletedChart.update();
 
       } catch (err) {
