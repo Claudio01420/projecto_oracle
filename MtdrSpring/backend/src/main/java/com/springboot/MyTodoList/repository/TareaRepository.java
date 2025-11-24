@@ -62,4 +62,60 @@ public interface TareaRepository extends JpaRepository<Tarea, Long> {
 
     @Query("SELECT COALESCE(AVG(t.realHours),0) FROM Tarea t WHERE t.realHours IS NOT NULL")
     Double avgRealHoursAllTasks();
+
+    // ==================== MÉTODOS PARA KPIs ====================
+
+    // Tareas por sprint
+    List<Tarea> findBySprintId(String sprintId);
+
+    long countBySprintId(String sprintId);
+
+    @Query("SELECT COUNT(t) FROM Tarea t WHERE t.sprintId = :sprintId AND (LOWER(t.status) = 'hecho' OR t.completedAt IS NOT NULL)")
+    long countCompletedBySprintId(@Param("sprintId") String sprintId);
+
+    @Query("SELECT COUNT(t) FROM Tarea t WHERE t.sprintId = :sprintId AND LOWER(t.status) = 'en progreso'")
+    long countInProgressBySprintId(@Param("sprintId") String sprintId);
+
+    // Horas por sprint
+    @Query("SELECT COALESCE(SUM(t.estimatedHours),0) FROM Tarea t WHERE t.sprintId = :sprintId")
+    Double sumEstimatedHoursBySprintId(@Param("sprintId") String sprintId);
+
+    @Query("SELECT COALESCE(SUM(t.realHours),0) FROM Tarea t WHERE t.sprintId = :sprintId")
+    Double sumRealHoursBySprintId(@Param("sprintId") String sprintId);
+
+    @Query("SELECT COALESCE(SUM(t.realHours),0) FROM Tarea t WHERE t.sprintId = :sprintId AND (LOWER(t.status) = 'hecho' OR t.completedAt IS NOT NULL)")
+    Double sumRealHoursCompletedBySprintId(@Param("sprintId") String sprintId);
+
+    // Horas por proyecto (individual)
+    @Query("SELECT COALESCE(SUM(t.estimatedHours),0) FROM Tarea t WHERE t.projectId = :projectId")
+    Double sumEstimatedHoursByProjectId(@Param("projectId") Long projectId);
+
+    @Query("SELECT COALESCE(SUM(t.realHours),0) FROM Tarea t WHERE t.projectId = :projectId")
+    Double sumRealHoursByProjectId(@Param("projectId") Long projectId);
+
+    // Tareas por miembro
+    long countByAssigneeId(String assigneeId);
+
+    @Query("SELECT COUNT(t) FROM Tarea t WHERE t.assigneeId = :assigneeId AND (LOWER(t.status) = 'hecho' OR t.completedAt IS NOT NULL)")
+    long countCompletedByAssigneeId(@Param("assigneeId") String assigneeId);
+
+    @Query("SELECT COALESCE(SUM(t.estimatedHours),0) FROM Tarea t WHERE t.assigneeId = :assigneeId")
+    Double sumEstimatedHoursByAssigneeId(@Param("assigneeId") String assigneeId);
+
+    @Query("SELECT COALESCE(SUM(t.realHours),0) FROM Tarea t WHERE t.assigneeId = :assigneeId")
+    Double sumRealHoursByAssigneeId(@Param("assigneeId") String assigneeId);
+
+    // Tareas por miembro y proyecto
+    long countByAssigneeIdAndProjectId(String assigneeId, Long projectId);
+
+    @Query("SELECT COUNT(t) FROM Tarea t WHERE t.assigneeId = :assigneeId AND t.projectId = :projectId AND (LOWER(t.status) = 'hecho' OR t.completedAt IS NOT NULL)")
+    long countCompletedByAssigneeIdAndProjectId(@Param("assigneeId") String assigneeId, @Param("projectId") Long projectId);
+
+    // Obtener assignees únicos de un proyecto
+    @Query("SELECT DISTINCT t.assigneeId FROM Tarea t WHERE t.projectId = :projectId AND t.assigneeId IS NOT NULL")
+    List<String> findDistinctAssigneeIdsByProjectId(@Param("projectId") Long projectId);
+
+    // Tareas completadas con fecha (para burndown)
+    @Query("SELECT t FROM Tarea t WHERE t.sprintId = :sprintId AND t.completedAt IS NOT NULL ORDER BY t.completedAt ASC")
+    List<Tarea> findCompletedTasksBySprintIdOrderByCompletedAt(@Param("sprintId") String sprintId);
 }
