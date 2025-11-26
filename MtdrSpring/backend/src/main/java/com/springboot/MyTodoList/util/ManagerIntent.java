@@ -71,8 +71,16 @@ public class ManagerIntent {
         // KPI
         GET_KPI_SUMMARY,
         GET_PROJECT_KPI,
+        GET_SPRINT_KPI,
         GET_PRODUCTIVITY,
-        GET_TASK_STATS
+        GET_TASK_STATS,
+        GET_BURNDOWN,           // Burndown chart del sprint
+        GET_VELOCITY,           // Velocidad histórica del proyecto
+        GET_TEAM_ICL,           // Índice de Carga Laboral (burnout del equipo)
+        GET_TEAM_KPI,           // KPIs de todos los miembros del equipo
+        GET_BURNOUT_USERS,      // Usuarios en riesgo de burnout
+        GET_DASHBOARD,          // Dashboard completo del proyecto
+        GET_SPRINT_HEALTH       // Estado de salud del sprint
     }
 
     // === Campos principales ===
