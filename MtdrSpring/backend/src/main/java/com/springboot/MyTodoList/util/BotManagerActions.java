@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1010,10 +1011,26 @@ public class BotManagerActions {
                 return getKpiSummary(intent);
             case GET_PROJECT_KPI:
                 return getProjectKpi(intent);
+            case GET_SPRINT_KPI:
+                return getSprintKpi(intent);
             case GET_PRODUCTIVITY:
                 return getProductivity(intent);
             case GET_TASK_STATS:
                 return getTaskStats(intent);
+            case GET_BURNDOWN:
+                return getBurndown(intent);
+            case GET_VELOCITY:
+                return getVelocity(intent);
+            case GET_TEAM_ICL:
+                return getTeamIcl(intent);
+            case GET_TEAM_KPI:
+                return getTeamKpi(intent);
+            case GET_BURNOUT_USERS:
+                return getBurnoutUsers(intent);
+            case GET_DASHBOARD:
+                return getDashboard(intent);
+            case GET_SPRINT_HEALTH:
+                return getSprintHealth(intent);
             default:
                 return defaultReply(intent, "Acción de KPI no reconocida.");
         }
@@ -1144,6 +1161,560 @@ public class BotManagerActions {
             total, completed,
             total > 0 ? (completed * 100.0 / total) : 0,
             inProgress, pending, highPriority
+        );
+    }
+
+    private String getSprintKpi(ManagerIntent intent) {
+        if (intent.getSprintId() == null) {
+            return "Necesito el ID del sprint para ver sus KPIs.";
+        }
+
+        Optional<Sprint> optSprint = sprintRepository.findById(intent.getSprintId());
+        if (optSprint.isEmpty()) {
+            return "No encontré el sprint #" + intent.getSprintId();
+        }
+
+        Sprint sprint = optSprint.get();
+        String sprintIdStr = sprint.getId().toString();
+
+        long totalTasks = tareaRepository.countBySprintId(sprintIdStr);
+        long completedTasks = tareaRepository.countCompletedBySprintId(sprintIdStr);
+        long inProgressTasks = tareaRepository.countInProgressBySprintId(sprintIdStr);
+        long pendingTasks = totalTasks - completedTasks - inProgressTasks;
+
+        Double estimatedHours = tareaRepository.sumEstimatedHoursBySprintId(sprintIdStr);
+        Double realHours = tareaRepository.sumRealHoursBySprintId(sprintIdStr);
+
+        double completionRate = totalTasks > 0 ? (completedTasks * 100.0 / totalTasks) : 0;
+        double efficiency = (estimatedHours != null && realHours != null && realHours > 0)
+                ? (estimatedHours / realHours * 100) : 0;
+
+        return String.format(
+            "🏃 *KPIs del Sprint: %s*\n\n" +
+            "📅 Número: %d\n" +
+            "📁 Proyecto: #%d\n" +
+            "📋 Tareas totales: %d\n" +
+            "✅ Completadas: %d\n" +
+            "🔄 En progreso: %d\n" +
+            "⏳ Pendientes: %d\n" +
+            "📈 Completado: %.1f%%\n" +
+            "⏱️ Horas estimadas: %.1f\n" +
+            "⏱️ Horas reales: %.1f\n" +
+            "📊 Eficiencia: %.1f%%",
+            sprint.getTituloSprint(),
+            sprint.getNumero() != null ? sprint.getNumero() : 0,
+            sprint.getProjectId(),
+            totalTasks, completedTasks, inProgressTasks, pendingTasks,
+            completionRate,
+            estimatedHours != null ? estimatedHours : 0.0,
+            realHours != null ? realHours : 0.0,
+            efficiency
+        );
+    }
+
+    private String getBurndown(ManagerIntent intent) {
+        if (intent.getSprintId() == null) {
+            return "Necesito el ID del sprint para mostrar el burndown.";
+        }
+
+        Optional<Sprint> optSprint = sprintRepository.findById(intent.getSprintId());
+        if (optSprint.isEmpty()) {
+            return "No encontré el sprint #" + intent.getSprintId();
+        }
+
+        Sprint sprint = optSprint.get();
+        String sprintIdStr = sprint.getId().toString();
+
+        long totalTasks = tareaRepository.countBySprintId(sprintIdStr);
+        long completedTasks = tareaRepository.countCompletedBySprintId(sprintIdStr);
+        long remainingTasks = totalTasks - completedTasks;
+
+        LocalDate today = LocalDate.now();
+        LocalDate fechaInicio = sprint.getFechaInicio();
+        LocalDate fechaFin = sprint.getDuracion(); // duracion es fecha fin
+
+        if (fechaInicio == null || fechaFin == null) {
+            return "El sprint #" + intent.getSprintId() + " no tiene fechas configuradas.";
+        }
+
+        long totalDays = java.time.temporal.ChronoUnit.DAYS.between(fechaInicio, fechaFin);
+        long daysElapsed = java.time.temporal.ChronoUnit.DAYS.between(fechaInicio, today);
+        long daysRemaining = java.time.temporal.ChronoUnit.DAYS.between(today, fechaFin);
+
+        double idealRemaining = totalTasks - ((double) totalTasks / totalDays * daysElapsed);
+        double burndownGap = remainingTasks - idealRemaining;
+
+        String status = today.isBefore(fechaInicio) ? "No iniciado" :
+                       today.isAfter(fechaFin) ? "Finalizado" : "Activo";
+
+        return String.format(
+            "📉 *Burndown - Sprint: %s*\n\n" +
+            "📊 Estado: %s\n" +
+            "📋 Tareas restantes: %d\n" +
+            "✅ Tareas completadas: %d\n" +
+            "📈 Línea ideal restante: %.1f\n" +
+            "⚠️ Gap: %.1f %s\n" +
+            "📅 Días transcurridos: %d/%d\n" +
+            "📅 Días restantes: %d\n\n" +
+            "%s",
+            sprint.getTituloSprint(),
+            status,
+            remainingTasks,
+            completedTasks,
+            idealRemaining,
+            Math.abs(burndownGap),
+            burndownGap > 0 ? "tareas por encima" : "tareas por debajo",
+            daysElapsed, totalDays,
+            daysRemaining > 0 ? daysRemaining : 0,
+            burndownGap > 5 ? "⚠️ El sprint va retrasado" :
+            burndownGap < -5 ? "✅ El sprint va adelantado" :
+            "✓ El sprint va según lo planeado"
+        );
+    }
+
+    private String getVelocity(ManagerIntent intent) {
+        if (intent.getProjectId() == null) {
+            return "Necesito el ID del proyecto para calcular la velocidad.";
+        }
+
+        Optional<Proyecto> optProyecto = proyectoRepository.findById(intent.getProjectId());
+        if (optProyecto.isEmpty()) {
+            return "No encontré el proyecto #" + intent.getProjectId();
+        }
+
+        Proyecto proyecto = optProyecto.get();
+        List<Sprint> sprints = sprintRepository.findByProjectIdOrderByNumeroAsc(intent.getProjectId());
+
+        if (sprints.isEmpty()) {
+            return "El proyecto '" + proyecto.getNombreProyecto() + "' no tiene sprints registrados.";
+        }
+
+        StringBuilder sb = new StringBuilder(String.format(
+            "🚀 *Velocidad - Proyecto: %s*\n\n", proyecto.getNombreProyecto()
+        ));
+
+        double totalVelocity = 0;
+        int completedSprints = 0;
+
+        for (Sprint sprint : sprints) {
+            String sprintIdStr = sprint.getId().toString();
+            long completed = tareaRepository.countCompletedBySprintId(sprintIdStr);
+
+            LocalDate fechaFin = sprint.getDuracion();
+            boolean isCompleted = fechaFin != null && LocalDate.now().isAfter(fechaFin);
+
+            sb.append(String.format("Sprint %d: %d tareas %s\n",
+                sprint.getNumero() != null ? sprint.getNumero() : 0,
+                completed,
+                isCompleted ? "✅" : "🔄"
+            ));
+
+            if (isCompleted) {
+                totalVelocity += completed;
+                completedSprints++;
+            }
+        }
+
+        double avgVelocity = completedSprints > 0 ? totalVelocity / completedSprints : 0;
+
+        sb.append(String.format(
+            "\n📊 Total sprints: %d\n" +
+            "✅ Sprints completados: %d\n" +
+            "📈 Velocidad promedio: %.1f tareas/sprint",
+            sprints.size(),
+            completedSprints,
+            avgVelocity
+        ));
+
+        return sb.toString();
+    }
+
+    private String getTeamIcl(ManagerIntent intent) {
+        if (intent.getTeamId() == null) {
+            return "Necesito el ID del equipo para calcular el ICL (Índice de Carga Laboral).";
+        }
+
+        Optional<Equipo> optEquipo = equipoRepository.findById(intent.getTeamId());
+        if (optEquipo.isEmpty()) {
+            return "No encontré el equipo #" + intent.getTeamId();
+        }
+
+        Equipo equipo = optEquipo.get();
+
+        // Obtener todos los proyectos del equipo
+        List<Proyecto> proyectos = proyectoRepository.findByEquipoId(intent.getTeamId());
+
+        if (proyectos.isEmpty()) {
+            return "El equipo '" + equipo.getNombreEquipo() + "' no tiene proyectos asignados.";
+        }
+
+        List<Long> projectIds = proyectos.stream().map(Proyecto::getId).collect(Collectors.toList());
+
+        // Sumar horas estimadas y reales de todos los proyectos
+        Double estimatedHours = tareaRepository.sumEstimatedHoursByProjectIdIn(projectIds);
+        Double realHours = tareaRepository.sumRealHoursByProjectIdIn(projectIds);
+
+        // Contar tareas activas y completadas
+        long activeTasks = 0;
+        long completedTasks = 0;
+        for (Long projectId : projectIds) {
+            long total = tareaRepository.countByProjectId(projectId);
+            long completed = tareaRepository.countCompletedByProjectId(projectId);
+            activeTasks += (total - completed);
+            completedTasks += completed;
+        }
+
+        // Calcular ICL
+        double hoursRatio = (estimatedHours != null && realHours != null && estimatedHours > 0)
+                ? (realHours / estimatedHours) : 1.0;
+        double tasksFactor = activeTasks / (double) (completedTasks + 1);
+        double icl = hoursRatio * tasksFactor;
+
+        String riskLevel;
+        String message;
+        if (icl <= 0.9) {
+            riskLevel = "Bajo ✅";
+            message = "Carga laboral saludable";
+        } else if (icl <= 1.2) {
+            riskLevel = "Medio ⚠️";
+            message = "Carga sostenida cercana al límite";
+        } else {
+            riskLevel = "Alto 🔴";
+            message = "Posible sobrecarga / riesgo de burnout";
+        }
+
+        return String.format(
+            "📊 *ICL (Índice de Carga Laboral)*\n" +
+            "👥 Equipo: %s\n\n" +
+            "🎯 ICL: %.2f\n" +
+            "⚠️ Nivel de riesgo: %s\n" +
+            "📝 %s\n\n" +
+            "📈 Métricas:\n" +
+            "⏱️ Horas estimadas: %.1f\n" +
+            "⏱️ Horas reales: %.1f\n" +
+            "📋 Tareas activas: %d\n" +
+            "✅ Tareas completadas: %d\n" +
+            "📁 Proyectos: %d",
+            equipo.getNombreEquipo(),
+            icl,
+            riskLevel,
+            message,
+            estimatedHours != null ? estimatedHours : 0.0,
+            realHours != null ? realHours : 0.0,
+            activeTasks,
+            completedTasks,
+            proyectos.size()
+        );
+    }
+
+    private String getTeamKpi(ManagerIntent intent) {
+        if (intent.getProjectId() == null) {
+            return "Necesito el ID del proyecto para ver los KPIs del equipo.";
+        }
+
+        Optional<Proyecto> optProyecto = proyectoRepository.findById(intent.getProjectId());
+        if (optProyecto.isEmpty()) {
+            return "No encontré el proyecto #" + intent.getProjectId();
+        }
+
+        Proyecto proyecto = optProyecto.get();
+
+        // Obtener todos los assignees únicos del proyecto
+        List<String> assignees = tareaRepository.findDistinctAssigneeIdsByProjectId(intent.getProjectId());
+
+        if (assignees.isEmpty()) {
+            return "El proyecto '" + proyecto.getNombreProyecto() + "' no tiene tareas asignadas.";
+        }
+
+        StringBuilder sb = new StringBuilder(String.format(
+            "👥 *KPIs del Equipo - Proyecto: %s*\n\n", proyecto.getNombreProyecto()
+        ));
+
+        for (String assigneeId : assignees) {
+            long totalTasks = tareaRepository.countByAssigneeIdAndProjectId(assigneeId, intent.getProjectId());
+            long completedTasks = tareaRepository.countCompletedByAssigneeIdAndProjectId(assigneeId, intent.getProjectId());
+            long pendingTasks = totalTasks - completedTasks;
+
+            double completionRate = totalTasks > 0 ? (completedTasks * 100.0 / totalTasks) : 0;
+
+            // Intentar obtener nombre del usuario
+            String userName = assigneeId;
+            try {
+                Long userId = Long.parseLong(assigneeId);
+                Optional<Usuario> optUser = usuarioRepository.findById(userId);
+                if (optUser.isPresent()) {
+                    userName = optUser.get().getNombre();
+                }
+            } catch (NumberFormatException e) {
+                // assigneeId es email, buscar por email
+                Optional<Usuario> optUser = usuarioRepository.findByEmailIgnoreCase(assigneeId);
+                if (optUser.isPresent()) {
+                    userName = optUser.get().getNombre();
+                }
+            }
+
+            sb.append(String.format(
+                "👤 %s\n" +
+                "   📋 Total: %d | ✅ %d | ⏳ %d (%.1f%%)\n\n",
+                userName,
+                totalTasks, completedTasks, pendingTasks, completionRate
+            ));
+        }
+
+        return sb.toString();
+    }
+
+    private String getBurnoutUsers(ManagerIntent intent) {
+        if (intent.getProjectId() == null) {
+            return "Necesito el ID del proyecto para identificar usuarios en riesgo.";
+        }
+
+        Optional<Proyecto> optProyecto = proyectoRepository.findById(intent.getProjectId());
+        if (optProyecto.isEmpty()) {
+            return "No encontré el proyecto #" + intent.getProjectId();
+        }
+
+        Proyecto proyecto = optProyecto.get();
+
+        // Obtener todos los assignees del proyecto
+        List<String> assignees = tareaRepository.findDistinctAssigneeIdsByProjectId(intent.getProjectId());
+
+        if (assignees.isEmpty()) {
+            return "El proyecto '" + proyecto.getNombreProyecto() + "' no tiene tareas asignadas.";
+        }
+
+        StringBuilder sb = new StringBuilder(String.format(
+            "⚠️ *Análisis de Burnout - Proyecto: %s*\n\n", proyecto.getNombreProyecto()
+        ));
+
+        int burnoutCount = 0;
+        final int BURNOUT_THRESHOLD = 3; // 3 o más tareas pendientes = riesgo
+
+        for (String assigneeId : assignees) {
+            List<Tarea> tasks = tareaRepository.findByAssigneeIdAndProjectIdOrderByCreatedAtDesc(
+                assigneeId, intent.getProjectId()
+            );
+
+            long pending = tasks.stream()
+                .filter(t -> !"done".equalsIgnoreCase(t.getStatus()))
+                .count();
+
+            Double realHours = tareaRepository.sumRealHoursByAssigneeId(assigneeId);
+            Double estimatedHours = tareaRepository.sumEstimatedHoursByAssigneeId(assigneeId);
+
+            double efficiency = (estimatedHours != null && realHours != null && estimatedHours > 0)
+                    ? (estimatedHours / realHours * 100) : 100;
+
+            // Determinar riesgo de burnout
+            boolean hasRisk = pending >= BURNOUT_THRESHOLD || efficiency < 70;
+
+            if (hasRisk) {
+                // Obtener nombre del usuario
+                String userName = assigneeId;
+                try {
+                    Long userId = Long.parseLong(assigneeId);
+                    Optional<Usuario> optUser = usuarioRepository.findById(userId);
+                    if (optUser.isPresent()) {
+                        userName = optUser.get().getNombre();
+                    }
+                } catch (NumberFormatException e) {
+                    Optional<Usuario> optUser = usuarioRepository.findByEmailIgnoreCase(assigneeId);
+                    if (optUser.isPresent()) {
+                        userName = optUser.get().getNombre();
+                    }
+                }
+
+                String riskLevel = pending >= 5 ? "🔴 Alto" :
+                                  pending >= BURNOUT_THRESHOLD ? "⚠️ Medio" : "⚠️ Bajo";
+
+                sb.append(String.format(
+                    "👤 %s - %s\n" +
+                    "   📋 Tareas pendientes: %d\n" +
+                    "   📊 Eficiencia: %.1f%%\n" +
+                    "   %s\n\n",
+                    userName,
+                    riskLevel,
+                    pending,
+                    efficiency,
+                    pending >= 5 ? "Sobrecarga crítica" :
+                    pending >= BURNOUT_THRESHOLD ? "Carga elevada" :
+                    "Eficiencia baja"
+                ));
+
+                burnoutCount++;
+            }
+        }
+
+        if (burnoutCount == 0) {
+            sb.append("✅ No se detectaron usuarios en riesgo de burnout.\n");
+            sb.append("El equipo tiene una carga de trabajo saludable.");
+        } else {
+            sb.append(String.format(
+                "📊 Resumen: %d de %d usuarios en riesgo",
+                burnoutCount, assignees.size()
+            ));
+        }
+
+        return sb.toString();
+    }
+
+    private String getDashboard(ManagerIntent intent) {
+        if (intent.getProjectId() == null) {
+            return "Necesito el ID del proyecto para mostrar el dashboard completo.";
+        }
+
+        Optional<Proyecto> optProyecto = proyectoRepository.findById(intent.getProjectId());
+        if (optProyecto.isEmpty()) {
+            return "No encontré el proyecto #" + intent.getProjectId();
+        }
+
+        Proyecto proyecto = optProyecto.get();
+
+        // KPIs del proyecto
+        long totalTasks = tareaRepository.countByProjectId(intent.getProjectId());
+        long completedTasks = tareaRepository.countCompletedByProjectId(intent.getProjectId());
+        double completionRate = totalTasks > 0 ? (completedTasks * 100.0 / totalTasks) : 0;
+
+        // Sprints
+        List<Sprint> sprints = sprintRepository.findByProjectIdOrderByNumeroDesc(intent.getProjectId());
+        int totalSprints = sprints.size();
+        int activeSprints = 0;
+
+        LocalDate today = LocalDate.now();
+        for (Sprint sprint : sprints) {
+            LocalDate inicio = sprint.getFechaInicio();
+            LocalDate fin = sprint.getDuracion();
+            if (inicio != null && fin != null &&
+                !today.isBefore(inicio) && !today.isAfter(fin)) {
+                activeSprints++;
+            }
+        }
+
+        // Equipo
+        List<String> assignees = tareaRepository.findDistinctAssigneeIdsByProjectId(intent.getProjectId());
+        int teamSize = assignees.size();
+
+        // Horas
+        Double estimatedHours = tareaRepository.sumEstimatedHoursByProjectId(intent.getProjectId());
+        Double realHours = tareaRepository.sumRealHoursByProjectId(intent.getProjectId());
+        double efficiency = (estimatedHours != null && realHours != null && estimatedHours > 0)
+                ? (estimatedHours / realHours * 100) : 0;
+
+        return String.format(
+            "📊 *Dashboard Completo*\n" +
+            "📁 Proyecto: %s\n\n" +
+            "=== TAREAS ===\n" +
+            "📋 Total: %d\n" +
+            "✅ Completadas: %d (%.1f%%)\n" +
+            "⏳ Pendientes: %d\n\n" +
+            "=== SPRINTS ===\n" +
+            "🏃 Total: %d\n" +
+            "🔄 Activos: %d\n\n" +
+            "=== EQUIPO ===\n" +
+            "👥 Miembros: %d\n\n" +
+            "=== HORAS ===\n" +
+            "⏱️ Estimadas: %.1f\n" +
+            "⏱️ Reales: %.1f\n" +
+            "📊 Eficiencia: %.1f%%\n\n" +
+            "Usa comandos específicos para más detalles:\n" +
+            "• 'burndown del sprint X'\n" +
+            "• 'usuarios sobrecargados'\n" +
+            "• 'velocidad del proyecto'\n" +
+            "• 'KPIs del equipo'",
+            proyecto.getNombreProyecto(),
+            totalTasks, completedTasks, completionRate, totalTasks - completedTasks,
+            totalSprints, activeSprints,
+            teamSize,
+            estimatedHours != null ? estimatedHours : 0.0,
+            realHours != null ? realHours : 0.0,
+            efficiency
+        );
+    }
+
+    private String getSprintHealth(ManagerIntent intent) {
+        if (intent.getSprintId() == null) {
+            return "Necesito el ID del sprint para analizar su salud.";
+        }
+
+        Optional<Sprint> optSprint = sprintRepository.findById(intent.getSprintId());
+        if (optSprint.isEmpty()) {
+            return "No encontré el sprint #" + intent.getSprintId();
+        }
+
+        Sprint sprint = optSprint.get();
+        String sprintIdStr = sprint.getId().toString();
+
+        // Métricas básicas
+        long totalTasks = tareaRepository.countBySprintId(sprintIdStr);
+        long completedTasks = tareaRepository.countCompletedBySprintId(sprintIdStr);
+        long inProgressTasks = tareaRepository.countInProgressBySprintId(sprintIdStr);
+
+        double completionRate = totalTasks > 0 ? (completedTasks * 100.0 / totalTasks) : 0;
+
+        // Análisis temporal
+        LocalDate today = LocalDate.now();
+        LocalDate fechaInicio = sprint.getFechaInicio();
+        LocalDate fechaFin = sprint.getDuracion();
+
+        if (fechaInicio == null || fechaFin == null) {
+            return "El sprint #" + intent.getSprintId() + " no tiene fechas configuradas.";
+        }
+
+        long totalDays = java.time.temporal.ChronoUnit.DAYS.between(fechaInicio, fechaFin);
+        long daysElapsed = Math.max(0, java.time.temporal.ChronoUnit.DAYS.between(fechaInicio, today));
+        long daysRemaining = Math.max(0, java.time.temporal.ChronoUnit.DAYS.between(today, fechaFin));
+
+        double timeProgress = totalDays > 0 ? (daysElapsed * 100.0 / totalDays) : 0;
+        double gap = completionRate - timeProgress;
+
+        // Determinar estado de salud
+        String healthStatus;
+        String healthIcon;
+        String recommendation;
+
+        if (gap >= 10) {
+            healthStatus = "Excelente";
+            healthIcon = "🟢";
+            recommendation = "El sprint va adelantado. Buen ritmo de trabajo.";
+        } else if (gap >= -5) {
+            healthStatus = "Saludable";
+            healthIcon = "🟢";
+            recommendation = "El sprint va según lo planeado.";
+        } else if (gap >= -15) {
+            healthStatus = "En riesgo";
+            healthIcon = "🟡";
+            recommendation = "Considerar redistribuir tareas o extender plazos.";
+        } else {
+            healthStatus = "Crítico";
+            healthIcon = "🔴";
+            recommendation = "Requiere atención inmediata. Sprint en riesgo de no completarse.";
+        }
+
+        return String.format(
+            "🏥 *Estado de Salud del Sprint*\n" +
+            "🏃 Sprint: %s\n\n" +
+            "%s Estado: %s\n\n" +
+            "=== PROGRESO ===\n" +
+            "📈 Tareas: %.1f%%\n" +
+            "📅 Tiempo: %.1f%%\n" +
+            "📊 Gap: %.1f%% %s\n\n" +
+            "=== MÉTRICAS ===\n" +
+            "📋 Total: %d tareas\n" +
+            "✅ Completadas: %d\n" +
+            "🔄 En progreso: %d\n" +
+            "⏳ Pendientes: %d\n\n" +
+            "=== TIEMPO ===\n" +
+            "📅 Días transcurridos: %d/%d\n" +
+            "📅 Días restantes: %d\n\n" +
+            "💡 Recomendación: %s",
+            sprint.getTituloSprint(),
+            healthIcon, healthStatus,
+            completionRate,
+            timeProgress,
+            Math.abs(gap), gap >= 0 ? "adelante" : "atrás",
+            totalTasks, completedTasks, inProgressTasks, totalTasks - completedTasks - inProgressTasks,
+            daysElapsed, totalDays, daysRemaining,
+            recommendation
         );
     }
 
