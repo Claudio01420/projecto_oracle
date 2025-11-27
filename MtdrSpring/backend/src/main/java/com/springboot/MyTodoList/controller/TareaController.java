@@ -31,7 +31,9 @@ import com.springboot.MyTodoList.dto.UpdateStatusDto;
 import com.springboot.MyTodoList.dto.UpdateTaskDto;
 import com.springboot.MyTodoList.model.Proyecto;
 import com.springboot.MyTodoList.model.Tarea;
+import com.springboot.MyTodoList.model.UsuarioEquipo;
 import com.springboot.MyTodoList.model.UsuarioEquipoId;
+import com.springboot.MyTodoList.model.RolEquipo;
 import com.springboot.MyTodoList.repository.ProyectoRepository;
 import com.springboot.MyTodoList.repository.TareaRepository;
 import com.springboot.MyTodoList.repository.UsuarioEquipoRepository;
@@ -62,6 +64,8 @@ public class TareaController {
         this.usuarioEquipoRepository = usuarioEquipoRepository;
         this.notificacionService = notificacionService;
     }
+
+    /* ================= UTIL SESIÓN ================= */
 
     private String requireUserEmail(HttpServletRequest req) {
         String email = req.getHeader("X-User-Email");
@@ -110,6 +114,42 @@ public class TareaController {
         return usuarioEquipoRepository.existsById(new UsuarioEquipoId(userId, equipoId));
     }
 
+    /**
+     * Verifica si el usuario es ADMIN o USUARIO_SUPERIOR
+     * dentro del equipo al que pertenece el proyecto.
+     */
+    private boolean isTeamAdminOrSuperior(Long userId, Long projectId) {
+        if (userId == null || projectId == null) {
+            return false;
+        }
+
+        Optional<Proyecto> optProyecto = proyectoRepository.findById(projectId);
+        if (optProyecto.isEmpty()) {
+            return false;
+        }
+
+        Long equipoId = optProyecto.get().getEquipoId();
+        if (equipoId == null) {
+            return false;
+        }
+
+        List<UsuarioEquipo> relaciones = usuarioEquipoRepository.findByUsuarioId(userId);
+        for (UsuarioEquipo ue : relaciones) {
+            if (ue == null || ue.getId() == null) continue;
+
+            Long eqId = ue.getId().getEquipoId();
+            if (eqId != null && eqId.equals(equipoId)) {
+                RolEquipo rol = ue.getRol();
+                if (rol == RolEquipo.ADMIN || rol == RolEquipo.USUARIO_SUPERIOR) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /* ================= CREAR TAREA ================= */
+
     @PostMapping("/tasks")
     public ResponseEntity<?> createTask(HttpServletRequest req, @Valid @RequestBody TaskCreateDto dto) {
         if (dto.projectId == null || dto.projectId < 1) {
@@ -137,6 +177,8 @@ public class TareaController {
 
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
+
+    /* ================= LISTAR TAREAS ================= */
 
     @GetMapping("/tasks")
     public ResponseEntity<?> list(HttpServletRequest req,
@@ -200,13 +242,33 @@ public class TareaController {
         return ResponseEntity.ok(tareaService.listByAssignee(owner));
     }
 
+    /* ================= COMPLETAR TAREA (/complete) ================= */
+
     @PatchMapping("/tasks/{id}/complete")
-    public Tarea complete(HttpServletRequest req, @PathVariable Long id, @RequestBody CompleteTaskDto dto) {
+    public ResponseEntity<?> complete(HttpServletRequest req, @PathVariable Long id, @RequestBody CompleteTaskDto dto) {
         String owner = requireUserEmail(req);
-        tareaRepository.findByIdAndAssigneeId(id, owner)
-                .orElseThrow(() -> new NoSuchElementException("Task not found or not owned by user"));
-        return tareaService.completeTask(id, dto);
+        Long userId = readUserId(req);
+
+        Optional<Tarea> opt = tareaRepository.findById(id);
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found");
+        }
+        Tarea t = opt.get();
+
+        String assignee = t.getAssigneeId() == null ? "" : t.getAssigneeId();
+        boolean isAssignee = owner.equalsIgnoreCase(assignee);
+        boolean isAdminOrSup = isTeamAdminOrSuperior(userId, t.getProjectId());
+
+        if (!isAssignee && !isAdminOrSup) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("No puedes completar esta tarea: no eres el asignado ni ADMIN/USUARIO_SUPERIOR del equipo.");
+        }
+
+        Tarea completed = tareaService.completeTask(id, dto);
+        return ResponseEntity.ok(completed);
     }
+
+    /* ================= BORRAR TAREA ================= */
 
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<?> delete(HttpServletRequest req, @PathVariable Long id) {
@@ -221,16 +283,19 @@ public class TareaController {
                     .body("Falta X-User-Email o ?email=");
         }
 
-        // 3) Permitir si es el asignado o el creador
+        Long userId = readUserId(req);
+
+        // 3) Permitir si es el asignado, el creador o admin/superior del equipo
         String assignee = t.getAssigneeId() == null ? "" : t.getAssigneeId();
         String creator = t.getUserEmail() == null ? "" : t.getUserEmail();
 
         boolean isAssignee = requester.equalsIgnoreCase(assignee);
         boolean isCreator = requester.equalsIgnoreCase(creator);
+        boolean isAdminOrSup = isTeamAdminOrSuperior(userId, t.getProjectId());
 
-        if (!isAssignee && !isCreator) {
+        if (!isAssignee && !isCreator && !isAdminOrSup) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("No puedes borrar esta tarea: no eres el asignado ni el creador.");
+                    .body("No puedes borrar esta tarea: no eres el asignado, el creador ni ADMIN/USUARIO_SUPERIOR del equipo.");
         }
 
         // 4) Borrar
@@ -238,33 +303,69 @@ public class TareaController {
         return ResponseEntity.noContent().build();
     }
 
+    /* ================= EDITAR TAREA (ADMIN/SUPERIOR TAMBIÉN) ================= */
+
     @PutMapping("/tasks/{id}")
-    public Tarea update(HttpServletRequest req, @PathVariable Long id, @RequestBody UpdateTaskDto dto) {
-        String owner = requireUserEmail(req);
-        tareaRepository.findByIdAndAssigneeId(id, owner)
-                .orElseThrow(() -> new NoSuchElementException("Task not found or not owned by user"));
+    public ResponseEntity<?> update(HttpServletRequest req, @PathVariable Long id, @RequestBody UpdateTaskDto dto) {
+        String requester = requireUserEmail(req);
+        Long userId = readUserId(req);
+
+        Optional<Tarea> opt = tareaRepository.findById(id);
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found");
+        }
+        Tarea t = opt.get();
+
+        String assignee = t.getAssigneeId() == null ? "" : t.getAssigneeId();
+        boolean isAssignee = requester.equalsIgnoreCase(assignee);
+        boolean isAdminOrSup = isTeamAdminOrSuperior(userId, t.getProjectId());
+
+        if (!isAssignee && !isAdminOrSup) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("No puedes editar esta tarea: no eres el asignado ni ADMIN/USUARIO_SUPERIOR del equipo.");
+        }
 
         if (dto != null && dto.projectId != null && dto.projectId < 1) {
-            throw new IllegalArgumentException("projectId debe ser > 0");
+            return ResponseEntity.badRequest().body("projectId debe ser > 0");
         }
 
         Tarea updated = tareaService.updateTask(id, dto);
 
         try {
-            notificacionService.notificarTareaActualizada(updated, owner);
+            notificacionService.notificarTareaActualizada(updated, requester);
         } catch (Exception ignored) {
         }
 
-        return updated;
+        return ResponseEntity.ok(updated);
     }
 
+    /* ================= CAMBIAR ESTADO (/status) ================= */
+
     @PatchMapping("/tasks/{id}/status")
-    public Tarea updateStatus(HttpServletRequest req, @PathVariable Long id, @RequestBody UpdateStatusDto body) {
+    public ResponseEntity<?> updateStatus(HttpServletRequest req, @PathVariable Long id, @RequestBody UpdateStatusDto body) {
         String owner = requireUserEmail(req);
-        tareaRepository.findByIdAndAssigneeId(id, owner)
-                .orElseThrow(() -> new NoSuchElementException("Task not found or not owned by user"));
-        return tareaService.updateStatus(id, body.status);
+        Long userId = readUserId(req);
+
+        Optional<Tarea> opt = tareaRepository.findById(id);
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found");
+        }
+        Tarea t = opt.get();
+
+        String assignee = t.getAssigneeId() == null ? "" : t.getAssigneeId();
+        boolean isAssignee = owner.equalsIgnoreCase(assignee);
+        boolean isAdminOrSup = isTeamAdminOrSuperior(userId, t.getProjectId());
+
+        if (!isAssignee && !isAdminOrSup) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("No puedes cambiar el estado de esta tarea: no eres el asignado ni ADMIN/USUARIO_SUPERIOR del equipo.");
+        }
+
+        Tarea updated = tareaService.updateStatus(id, body.status);
+        return ResponseEntity.ok(updated);
     }
+
+    /* ================= PRODUCTIVIDAD & KPIs ================= */
 
     @GetMapping("/tasks/productivity")
     public ResponseEntity<Map<String, Object>> productivity(HttpServletRequest req) {

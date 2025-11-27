@@ -422,19 +422,23 @@ body{
   background-color: var(--brand) !important;
   color: #fff !important;
 }
+
+/* =================== Tabla de proyectos =================== */
 /* =================== Tabla de proyectos =================== */
 .table-wrap {
   border: 1px solid var(--line);
   border-radius: 14px;
-  overflow: hidden;
+  overflow: hidden;              /* 🔹 sin barra de scroll visible */
   background: var(--card);
   box-shadow: var(--shadow-md);
 }
+
 .table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
 }
+
 .table thead th {
   position: sticky;
   top: 0;
@@ -447,24 +451,60 @@ body{
   border-bottom: 1px solid var(--line);
   box-shadow: inset 0 1px 3px rgba(225, 38, 28, 0.1);
 }
+
+/* columnas de Estado (4) y Acciones (6) centradas */
+.table thead th:nth-child(4),
+.table tbody td:nth-child(4),
+.table thead th:nth-child(6),
+.table tbody td:nth-child(6) {
+  text-align: center;
+}
+
 .table tbody td {
   padding: 10px 12px;
   border-bottom: 1px solid var(--line);
   color: var(--ink);
   transition: var(--transition-fast);
 }
+
+.table tbody tr {
+  cursor: pointer;
+}
+
 .table tbody tr:hover {
   background: #151922;
   transform: scale(1.001);
 }
+
 .row-alt {
   background: #12161a;
 }
+
 .table tbody tr.row-selected {
   background: linear-gradient(90deg, rgba(225, 38, 28, 0.15) 0%, transparent 100%) !important;
   outline: 1px solid rgba(225, 38, 28, 0.35);
   box-shadow: inset 3px 0 0 0 var(--brand);
 }
+
+/* 🔸 Chip "En curso" siempre en una línea */
+.table tbody td:nth-child(4) .chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;      /* evita "En" arriba y "curso" abajo */
+  padding: 4px 12px;
+}
+
+/* 🔸 Botón de borrar centrado y sin corte */
+.table tbody td:nth-child(6) {
+  overflow: visible;
+}
+
+.table tbody td:nth-child(6) .btn-round-anim {
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
 
 /* =================== Chips (mejorados) =================== */
 .chips {
@@ -585,29 +625,61 @@ body{
 }
 .card{ animation: fadeInUp .45s ease backwards; }
 
-/* =================== Grid: lista + detalle =================== */
+
+/* =================== Lista + Detalle: misma altura =================== */
 .grid {
-  display: grid;
-  grid-template-columns: 1fr 360px;
+  display: flex;
   gap: 16px;
+  align-items: stretch;         /* ambas columnas misma altura */
 }
-@media (max-width: 980px) {
+
+/* Columna izquierda: lista de proyectos */
+.grid > section.card {
+  flex: 1.7;                    /* un poco más ancha */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Columna derecha: detalle del proyecto */
+.grid > aside.card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =================== Responsive (vista angosta) =================== */
+@media (max-width: 1040px) {
   .grid {
+    flex-direction: column;     /* se apilan una debajo de otra */
+  }
+
+  .grid > section.card,
+  .grid > aside.card {
+    flex: none;
+    width: 100%;
+    height: auto;               /* ya no forzamos misma altura en móvil */
+  }
+
+  .detail-item {
     grid-template-columns: 1fr;
+    align-items: flex-start;
   }
 }
+
+
 
 /* =================== Detalle (panel derecho mejorado) =================== */
 .detail {
   border: 1px solid rgba(225, 38, 28, 0.2);
   border-radius: 16px;
-  padding: 16px;
+  padding: 16px 14px;
   background: linear-gradient(180deg, rgba(18, 22, 28, 0.6) 0%, rgba(15, 18, 22, 0.6) 100%);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
+
 .detail-item {
   display: grid;
   grid-template-columns: 140px 1fr;
@@ -1836,3 +1908,68 @@ input[type="date"] {
   margin-bottom: 32px;
 }
 
+/* =================== Responsive toolbar + botón Nuevo proyecto =================== */
+@media (max-width: 900px) {
+  /* La toolbar se vuelve una columna */
+  .toolbar {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  /* Buscar y Filtro ocupan todo el ancho */
+  .toolbar .field {
+    width: 100%;
+  }
+
+  /* Botón + Nuevo proyecto se adapta al ancho y se centra el contenido */
+  .btn-create-sweep {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+
+/* ===== Botón EDITAR igual a +Nuevo proyecto ===== */
+.btn-edit-project {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  padding: 0.8rem 1.8rem;
+}
+
+/* Que el ícono tenga el mismo estilo que el de Nuevo proyecto */
+.btn-edit-project .ico-sm,
+.btn-edit-project svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: currentColor;
+}
+
+/* Estado normal: fondo negro + texto blanco (mismo que nuevo proyecto) */
+.btn-edit-project {
+  color: #fff;
+}
+
+/* Estado activo (cuando se marque): fondo blanco + texto negro */
+.btn-edit-project.active {
+  background: #ffffff;
+  color: #000000;
+  border: 2px solid var(--brand);
+}
+
+/* Hover igual al de +Nuevo proyecto */
+.btn-edit-project:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px rgba(225, 38, 28, 0.25);
+}
+
+/* Disabled apagado */
+.btn-edit-project:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
