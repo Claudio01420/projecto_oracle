@@ -671,17 +671,21 @@
     return target === me;
   }
 
-  // ¿Puede editar una tarea?
+  // ¿Puede editar una tarea? (asignado o ADMIN / USUARIO_SUPERIOR / SUPER_ADMIN)
   function canEditTask(task) {
-    if (isGlobalAdmin || isAdminRole() || isSuperiorRole()) return true;
     const assignee = String(task.assigneeId || "").toLowerCase();
     const me = (sessionEmail || "").toLowerCase();
-    return assignee && assignee === me;
+    const isOwner = assignee && assignee === me;
+    const isAdminOrSup = isGlobalAdmin || isAdminRole() || isSuperiorRole();
+    return isAdminOrSup || isOwner;
   }
 
   // ¿Puede borrar una tarea?
   function canDeleteTask(task) {
+    // ADMIN / USUARIO_SUPERIOR / SUPER_ADMIN pueden borrar cualquier tarea
     if (isGlobalAdmin || isAdminRole() || isSuperiorRole()) return true;
+
+    // Usuario normal: solo sus propias tareas
     const assignee = String(task.assigneeId || "").toLowerCase();
     const me = (sessionEmail || "").toLowerCase();
     return assignee && assignee === me;
@@ -689,7 +693,13 @@
 
   // ¿Puede completar / reabrir una tarea?
   function canToggleTask(task) {
-    return canEditTask(task);
+    // ADMIN / USUARIO_SUPERIOR / SUPER_ADMIN pueden completar cualquier tarea
+    if (isGlobalAdmin || isAdminRole() || isSuperiorRole()) return true;
+
+    // Usuario normal: solo sus propias tareas
+    const assignee = String(task.assigneeId || "").toLowerCase();
+    const me = (sessionEmail || "").toLowerCase();
+    return assignee && assignee === me;
   }
 
   // Ajustar visibilidad de botones globales
@@ -1288,12 +1298,14 @@
     };
 
     try{
+      const headers = { "Content-Type": "application/json" };
+      if (sessionEmail)           headers["X-User-Email"] = sessionEmail;
+      if (sessionUser?.rol)       headers["X-User-Role"]  = String(sessionUser.rol);
+      if (sessionUser?.id != null) headers["X-User-Id"]    = String(sessionUser.id);
+
       const res = await fetch(`${TASKS_API}/${task.id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-User-Email": sessionEmail || ""
-        },
+        headers,
         body: JSON.stringify(payload)
       });
 
@@ -1895,7 +1907,7 @@
       return;
     }
     if (estimatedHours != null && estimatedHours > 4){
-      showToast({type:"error", title:"Máximo 4 horas"});
+      showToast({type:"error", title:"Máximo 4 horas", message:"Divide en subtareas."});
       return;
     }
 
@@ -1921,9 +1933,14 @@
     };
 
     try{
+      const headers = { "Content-Type": "application/json" };
+      if (sessionEmail)           headers["X-User-Email"] = sessionEmail;
+      if (sessionUser?.rol)       headers["X-User-Role"]  = String(sessionUser.rol);
+      if (sessionUser?.id != null) headers["X-User-Id"]    = String(sessionUser.id);
+
       const res = await fetch(TASKS_API, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-User-Email": sessionEmail },
+        headers,
         body: JSON.stringify(payload)
       });
       if (res.status === 201){
@@ -1959,9 +1976,9 @@
     const url = `${TASKS_API}/${Number(id)}`;
 
     const headers = {};
-    if (sessionEmail) headers["X-User-Email"] = sessionEmail;
-    if (sessionUser?.rol) headers["X-User-Role"] = String(sessionUser.rol);
-    if (sessionUser?.id != null) headers["X-User-Id"] = String(sessionUser.id);
+    if (sessionEmail)           headers["X-User-Email"] = sessionEmail;
+    if (sessionUser?.rol)       headers["X-User-Role"]  = String(sessionUser.rol);
+    if (sessionUser?.id != null) headers["X-User-Id"]    = String(sessionUser.id);
 
     try{
       const res = await fetch(url, {
@@ -1992,7 +2009,11 @@
 
     const task = tareasCache.find(t => t.id === id);
     if (!task || !canToggleTask(task)) {
-      showToast({type:"error", title:"Sin permiso", message:"No puedes cambiar el estado de esta tarea."});
+      showToast({
+        type:"error",
+        title:"Sin permiso",
+        message:"No puedes cambiar el estado de esta tarea."
+      });
       return;
     }
 
@@ -2001,12 +2022,18 @@
       ? { status: newStatus, realHours: Number(realHours), completedAt: new Date().toISOString() }
       : { status: newStatus, realHours: null, completedAt: null };
 
+    const headers = { "Content-Type": "application/json" };
+    if (sessionEmail)           headers["X-User-Email"] = sessionEmail;
+    if (sessionUser?.rol)       headers["X-User-Role"]  = String(sessionUser.rol);
+    if (sessionUser?.id != null) headers["X-User-Id"]    = String(sessionUser.id);
+
     try{
       const res = await fetch(`${TASKS_API}/${id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", "X-User-Email": sessionEmail },
+        headers,
         body: JSON.stringify(payload)
       });
+
       if (res.ok){
         const updated = await res.json();
         const idx = tareasCache.findIndex(t => t.id === id);
@@ -2014,10 +2041,19 @@
         renderSprints();
       } else {
         const text = await res.text().catch(()=> "");
-        showToast({type:"error", title:"No se pudo actualizar estado", message:text});
+        showToast({
+          type:"error",
+          title:"No se pudo actualizar estado",
+          message:text
+        });
       }
     }catch(err){
-      showToast({type:"error", title:"Error de red", message:"No se pudo actualizar estado"});
+      console.error(err);
+      showToast({
+        type:"error",
+        title:"Error de red",
+        message:"No se pudo actualizar estado"
+      });
     }
   }
 
@@ -2033,11 +2069,21 @@
     $etPriority.value = t.priority || "";
     $etDesc.value = t.description || t.longDescription || "";
     $etDue.value = t.fechaLimite ? toISODateInput(t.fechaLimite) : "";
+
+    // Rellenar opciones de asignado
     populateAssigneeSelect($etAssignee);
 
+    // Seleccionar el actual
     if (t.assigneeId) {
       const opt = [...$etAssignee.options].find(o => o.dataset.email && o.dataset.email.toLowerCase() === String(t.assigneeId).toLowerCase());
       if (opt) $etAssignee.value = opt.value;
+    }
+
+    // Solo ADMIN / SUPER_ADMIN / USUARIO_SUPERIOR pueden cambiar el asignado
+    if (isGlobalAdmin || isAdminRole() || isSuperiorRole()) {
+      $etAssignee.disabled = false;
+    } else {
+      $etAssignee.disabled = true;
     }
 
     openEl($taskEditOverlay);
@@ -2062,9 +2108,11 @@
 
     const assigneeSelect = $etAssignee;
     const selectedOpt = assigneeSelect?.selectedOptions?.[0];
+
     let assigneeEmail = selectedOpt?.dataset?.email || existing.assigneeId || null;
     let assigneeName  = selectedOpt?.dataset?.nombre || existing.assigneeName || null;
 
+    // Usuario normal: NO puede cambiar el asignado, solo admins/superiores
     if (!(isGlobalAdmin || isAdminRole() || isSuperiorRole())) {
       assigneeEmail = existing.assigneeId || sessionEmail;
       assigneeName  = existing.assigneeName || sessionUser?.nombre || sessionEmail;
@@ -2095,10 +2143,16 @@
       sprintId,
       fechaLimite
     };
+
+    const headers = { "Content-Type": "application/json" };
+    if (sessionEmail)           headers["X-User-Email"] = sessionEmail;
+    if (sessionUser?.rol)       headers["X-User-Role"]  = String(sessionUser.rol);
+    if (sessionUser?.id != null) headers["X-User-Id"]    = String(sessionUser.id);
+
     try{
       const res = await fetch(`${TASKS_API}/${taskId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json", "X-User-Email": sessionEmail },
+        headers,
         body: JSON.stringify(payload)
       });
       if (res.ok){
@@ -2113,6 +2167,7 @@
         showToast({type:"error", title:"No se pudo actualizar", message:text || ""});
       }
     }catch(err){
+      console.error(err);
       showToast({type:"error", title:"Error de red"});
     }
   }
@@ -2123,7 +2178,6 @@
     cargarProyecto();
   });
 </script>
-
 
 
 </body>
