@@ -12,17 +12,6 @@
 </head>
 <body class="theme-dark">
 
-  <!-- ============================
-       PANTALLA DE CARGA - CUBO ROJO
-       ============================ -->
-  <div class="loading-screen" id="notifications-loading-screen">
-    <div class="spinner">
-      <div></div><div></div><div></div>
-      <div></div><div></div><div></div>
-    </div>
-    <div class="loading-text">Cargando notificaciones...</div>
-  </div>
-
   <!-- ICON SPRITE -->
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
     <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -102,16 +91,16 @@
     </main>
   </div>
 
-  <!-- LOADER GLOBAL (el que ya tenías, lo conservamos) -->
-  <div class="page-loader" data-page-loader>
-    <div class="loader-card">
-      <div class="loader-dots">
-        <span></span><span></span><span></span>
-      </div>
-      <p>Cargando notificaciones...</p>
+  <!-- PANTALLA DE CARGA CON CUBO 3D -->
+  <div class="loading-screen hidden" id="notifications-loading-screen">
+    <div class="spinner">
+      <div></div><div></div><div></div>
+      <div></div><div></div><div></div>
     </div>
+    <div class="loading-text">Cargando notificaciones...</div>
   </div>
 
+  <!-- Toast -->
   <div id="toast" class="toast ok">Hecho</div>
 
 <script>
@@ -122,7 +111,7 @@ const EQUIPOS_API = `${API_BASE}/equipos`;
 const user = JSON.parse(localStorage.getItem('user') || 'null');
 const USER_ID = Number(user?.usuarioId ?? user?.id ?? NaN);
 
-const loaderEl = document.querySelector('[data-page-loader]');
+// 🔴 Loader: solo usamos la pantalla con el cubo
 const loadingScreenEl = document.getElementById('notifications-loading-screen');
 
 const escapeHtml = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -140,14 +129,15 @@ const authHeaders = () => {
   return h;
 };
 
-// 👉 Ahora showLoader controla tanto el loader antiguo como la pantalla del cubo rojo
+// función para mostrar / ocultar cubo
 const showLoader = (show) => {
-  if (loaderEl) loaderEl.style.display = show ? 'flex' : 'none';
-  if (loadingScreenEl) loadingScreenEl.classList.toggle('hidden', !show);
+  if (loadingScreenEl) {
+    loadingScreenEl.classList.toggle('hidden', !show);
+  }
 };
 
 let FULL = [];
-let FILTER = 'ALL'; // ALL | UNREAD | INVITES
+let FILTER = 'ALL';
 
 function applyFilter(arr){
   if (FILTER === 'UNREAD') return arr.filter(n => n.leida === 'N');
@@ -218,13 +208,16 @@ function render(){
       </article>`;
   }).join('');
 
-  // Handlers
+  // handlers
   document.querySelectorAll('[data-read]').forEach(b=>{
     b.onclick = async (e) => {
       e.stopPropagation();
       const id = b.getAttribute('data-read');
       try{
-        const r = await fetch(`${NOTIF_API}/${id}/leer`, { method:'PATCH', headers: { 'Content-Type':'application/json', ...authHeaders() } });
+        const r = await fetch(`${NOTIF_API}/${id}/leer`, {
+          method:'PATCH',
+          headers: { 'Content-Type':'application/json', ...authHeaders() }
+        });
         if (r.ok){ await load(); toast('Notificación marcada'); }
       }catch{ toast('Error de red', 'err'); }
     };
@@ -236,7 +229,10 @@ function render(){
       const id = b.getAttribute('data-del');
       if (!confirm('¿Eliminar notificación?')) return;
       try{
-        const r = await fetch(`${NOTIF_API}/${id}`, { method:'DELETE', headers: { ...authHeaders() } });
+        const r = await fetch(`${NOTIF_API}/${id}`, {
+          method:'DELETE',
+          headers: { ...authHeaders() }
+        });
         if (r.ok || r.status===204){ await load(); toast('Eliminada'); }
         else toast('No se pudo eliminar','err');
       }catch{ toast('Error de red','err'); }
@@ -258,7 +254,10 @@ function render(){
       }
       b.disabled = true;
       try{
-        const r = await fetch(`${API_BASE}/equipos/invitaciones/${encodeURIComponent(tk)}/aceptar`, { method:'POST', headers: { ...authHeaders() } });
+        const r = await fetch(`${API_BASE}/equipos/invitaciones/${encodeURIComponent(tk)}/aceptar`, {
+          method:'POST',
+          headers: { ...authHeaders() }
+        });
         if (r.ok){ await load(); toast(`Te uniste a "${teamName || ('#'+teamId)}"`); }
         else { toast(await r.text() || 'No se pudo aceptar','err'); b.disabled=false; }
       }catch{ toast('Error de red','err'); b.disabled=false; }
@@ -272,14 +271,17 @@ function render(){
       if (!tk) return;
       b.disabled = true;
       try{
-        const r = await fetch(`${API_BASE}/equipos/invitaciones/${encodeURIComponent(tk)}/rechazar`, { method:'POST', headers: { ...authHeaders() } });
+        const r = await fetch(`${API_BASE}/equipos/invitaciones/${encodeURIComponent(tk)}/rechazar`, {
+          method:'POST',
+          headers: { ...authHeaders() }
+        });
         if (r.ok){ await load(); toast('Invitación rechazada'); }
         else { toast(await r.text() || 'No se pudo rechazar','err'); b.disabled=false; }
       }catch{ toast('Error de red','err'); b.disabled=false; }
     };
   });
 
-  // Expand / collapse detalle al hacer clic en la tarjeta
+  // expand/collapse
   document.querySelectorAll('.card-item').forEach(card=>{
     card.addEventListener('click', () => {
       card.classList.toggle('expanded');
@@ -306,7 +308,10 @@ async function load(){
 
 document.getElementById('btnMarkAll').onclick = async () => {
   try{
-    const r = await fetch(`${NOTIF_API}/leer-todas`, { method:'PATCH', headers: { ...authHeaders() } });
+    const r = await fetch(`${NOTIF_API}/leer-todas`, {
+      method:'PATCH',
+      headers: { ...authHeaders() }
+    });
     if (r.ok){ await load(); toast('Listo'); }
   }catch{}
 };
@@ -314,22 +319,23 @@ document.getElementById('btnMarkAll').onclick = async () => {
 document.getElementById('btnDeleteAll').onclick = async () => {
   if (!confirm('¿Eliminar todas tus notificaciones?')) return;
   try{
-    const r = await fetch(`${NOTIF_API}/todas`, { method:'DELETE', headers: { ...authHeaders() } });
+    const r = await fetch(`${NOTIF_API}/todas`, {
+      method:'DELETE',
+      headers: { ...authHeaders() }
+    });
     if (r.ok){ await load(); toast('Todas eliminadas'); }
     else toast('No se pudieron eliminar','err');
   }catch{ toast('Error de red','err'); }
 };
 
-// Filtros (pills)
 const setActive = (id) => {
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 };
-document.getElementById('filterAll').onclick = ()=>{ FILTER='ALL'; setActive('filterAll'); render(); };
-document.getElementById('filterUnread').onclick = ()=>{ FILTER='UNREAD'; setActive('filterUnread'); render(); };
-document.getElementById('filterInv').onclick = ()=>{ FILTER='INVITES'; setActive('filterInv'); render(); };
+document.getElementById('filterAll').onclick   = ()=>{ FILTER='ALL';    setActive('filterAll');   render(); };
+document.getElementById('filterUnread').onclick= ()=>{ FILTER='UNREAD'; setActive('filterUnread');render(); };
+document.getElementById('filterInv').onclick   = ()=>{ FILTER='INVITES';setActive('filterInv');   render(); };
 
-// Init
 document.addEventListener('DOMContentLoaded', () => {
   const $u = document.querySelector('.user-circle');
   if ($u && (user?.nombre || user?.email)) {

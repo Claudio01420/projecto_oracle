@@ -147,11 +147,12 @@ body{
   color:var(--brand);
 }
 
-/* Layout */
+/* =================== Layout con Sidebar (mejorado) =================== */
 .app {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100dvh;
+  background:var(--bg);
   padding-top: 52px;
 }
 
@@ -180,12 +181,7 @@ body{
   text-align:center;
 }
 
-.aside .menu .mi.active .ico{
-  color:#ffffff !important;
-  filter:none !important;
-}
-
-.menu {
+.menu{
   display:flex;
   flex-direction:column;
   gap:12px;
@@ -210,6 +206,20 @@ body{
   transform: translateX(2px);
 }
 
+/* Iconos menú */
+.aside .menu .mi .ico{
+  width: var(--ico-size);
+  height: var(--ico-size);
+  color: #8e97a6;
+  display:inline-block;
+  transition:var(--transition-base);
+}
+
+.aside .menu .mi.active .ico{
+  color:#ffffff !important;
+  filter:none !important;
+}
+
 .mi.active {
   background: linear-gradient(90deg, rgba(225, 38, 28, 0.2) 0%, transparent 100%);
   color: #fff;
@@ -229,24 +239,24 @@ body{
   box-shadow: 0 0 8px rgba(225, 38, 28, 0.5);
 }
 
-.ico {
-  width: var(--ico-size);
-  height: var(--ico-size);
-  color: var(--ico-color);
+.ico{ 
+  width: var(--ico-size); 
+  height: var(--ico-size); 
+  color: var(--ico-color); 
   display: inline-block;
   transition:all .2s ease;
 }
 
-.mi:hover .ico {
-  color: var(--brand);
-  filter:drop-shadow(0 0 4px rgba(225,38,28,.4))
+/* Hover rojo y activo */
+.mi:hover .ico{
+  color:var(--brand);
+  filter:drop-shadow(0 0 4px rgba(225,38,28,.4));
 }
 
 .main {
   padding: 18px 22px;
   background: var(--bg);
 }
-
 /* Panel (header de la lista) */
 .panel{background:var(--panel);padding:8px 0 6px}
 .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -604,3 +614,89 @@ body{
   text-decoration: none;
 }
 
+/* Pantalla de carga con spinner 3D basado en tu segundo código */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 18, 22, 0.95);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  gap: 24px;
+}
+
+.loading-screen.hidden {
+  display: none;
+}
+
+.loading-text {
+  font-family: "Panchang", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  color: var(--ink);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Spinner: geometría de tu segundo código, colores TMDV */
+.spinner {
+  width: 44px;
+  height: 44px;
+  animation: spinner-y0fdc1 2s infinite ease;
+  transform-style: preserve-3d;
+}
+
+.spinner > div {
+  background-color: rgba(225,38,28,0.18); /* similar a tu azul pero en rojo */
+  height: 100%;
+  position: absolute;
+  width: 100%;
+  border: 2px solid #E1261C;
+  box-shadow: 0 0 12px rgba(225, 38, 28, 0.5);
+}
+
+.spinner div:nth-of-type(1) {
+  transform: translateZ(-22px) rotateY(180deg);
+}
+
+.spinner div:nth-of-type(2) {
+  transform: rotateY(-270deg) translateX(50%);
+  transform-origin: top right;
+}
+
+.spinner div:nth-of-type(3) {
+  transform: rotateY(270deg) translateX(-50%);
+  transform-origin: center left;
+}
+
+.spinner div:nth-of-type(4) {
+  transform: rotateX(90deg) translateY(-50%);
+  transform-origin: top center;
+}
+
+.spinner div:nth-of-type(5) {
+  transform: rotateX(-90deg) translateY(50%);
+  transform-origin: bottom center;
+}
+
+.spinner div:nth-of-type(6) {
+  transform: translateZ(22px);
+}
+
+@keyframes spinner-y0fdc1 {
+ 0% {
+  transform: rotate(45deg) rotateX(-25deg) rotateY(25deg);
+ }
+ 50% {
+  transform: rotate(45deg) rotateX(-385deg) rotateY(25deg);
+ }
+ 100% {
+  transform: rotate(45deg) rotateX(-385deg) rotateY(385deg);
+ }
+}
