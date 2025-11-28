@@ -2218,3 +2218,55 @@ body input[type="date"] {
   gap: 10px;
   justify-content: flex-start;
 }
+/* === Botón flotante de Telegram === */
+
+.button.telegram-button {
+  font-family: inherit;
+  background: #2CA0D9;
+  color: #ffffff;
+  padding: 0.35em 0;
+  font-size: 15px;
+  border: none;
+  border-radius: 0.7em;
+  letter-spacing: 0.08em;
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  height: 2.5em;
+  padding-left: 2.8em;
+  padding-right: 0.92em;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* círculo del ícono dentro del botón */
+.button.telegram-button .icon {
+  background: rgba(0, 0, 0, 0.18);
+  height: 1.8em;
+  width: 1.8em;
+  border-radius: 50%;
+  position: absolute;
+  left: 0.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button.telegram-button p {
+  margin: 0;
+}
+
+.button.telegram-button:hover {
+  background: #2591c5;
+}
+
+/* link contenedor: botón flotante en esquina */
+.telegram-floating-button {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  text-decoration: none;
+}
+
